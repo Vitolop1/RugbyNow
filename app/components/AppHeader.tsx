@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type Props = {
@@ -42,7 +44,8 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
   const [nowTick, setNowTick] = useState<number>(Date.now());
   const now = useMemo(() => new Date(nowTick), [nowTick]);
 
-  // theme init/save
+  const [logoOk, setLogoOk] = useState(true);
+
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     setDark(saved === "dark");
@@ -52,7 +55,6 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // tz init/save + notify
   useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
@@ -62,7 +64,6 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
     window.dispatchEvent(new Event("tz-change"));
   }, [timeZone]);
 
-  // clock tick
   useEffect(() => {
     const id = setInterval(() => setNowTick(Date.now()), 250);
     return () => clearInterval(id);
@@ -71,30 +72,39 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
       <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-3">
-        {/* Left brand: FULL RELOAD to home */}
-        <a href="/" className="flex items-center gap-3" aria-label="Go to Home">
-          {/* Logo image */}
-          <img
-            src="/logo.jpg"
-            alt="RugbyNow logo"
-            className="h-9 w-9 rounded-xl object-cover shadow"
-          />
+        {/* BRAND: click logo o texto -> HOME */}
+        <Link href="/" className="flex items-center gap-3 min-w-0">
+          <div className="h-9 w-9 rounded-xl shadow overflow-hidden bg-white/80 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
+            {logoOk ? (
+              <Image
+                src="/logo.jpg"
+                alt="RugbyNow logo"
+                width={36}
+                height={36}
+                className="h-9 w-9 object-cover"
+                onError={() => setLogoOk(false)}
+                priority
+              />
+            ) : (
+              <span className="text-xs font-black">RN</span>
+            )}
+          </div>
 
-          <div>
-            <div className="text-xl font-extrabold tracking-tight cursor-pointer">
+          <div className="min-w-0">
+            <div className="text-xl font-extrabold tracking-tight truncate">
               {title ?? (
                 <>
                   Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
                 </>
               )}
             </div>
-            <div className="text-xs text-neutral-600 dark:text-white/60">
+            <div className="text-xs text-neutral-600 dark:text-white/60 truncate">
               {subtitle ?? "Live scores • Fixtures • Tables"}
             </div>
           </div>
-        </a>
+        </Link>
 
-        {/* Right controls */}
+        {/* CONTROLS */}
         <div className="flex items-center gap-3 flex-wrap justify-end">
           <div className="hidden sm:block text-sm font-extrabold text-neutral-800 dark:text-white">
             TODAY: <span className="ml-1">{formatTodayTZ(now, timeZone)}</span>
@@ -104,9 +114,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
             <div className="text-[11px] leading-none text-neutral-600 dark:text-white/60">Time</div>
             <div className="text-lg font-extrabold tabular-nums leading-tight">
               {formatClockTZ(now, timeZone)}
-              <span className="ml-2 text-sm font-black opacity-80">
-                {formatSecondsTZ(now, timeZone)}
-              </span>
+              <span className="ml-2 text-sm font-black opacity-80">{formatSecondsTZ(now, timeZone)}</span>
             </div>
           </div>
 

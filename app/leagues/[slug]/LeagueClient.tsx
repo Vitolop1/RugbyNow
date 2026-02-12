@@ -3,7 +3,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 
@@ -11,15 +10,14 @@ type MatchStatus = "NS" | "LIVE" | "FT";
 
 type DbMatchRow = {
   id: number;
-  match_date: string; // yyyy-mm-dd
-  kickoff_time: string | null; // HH:MM:SS
+  match_date: string;
+  kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
   round: number | null;
   venue: string | null;
-
   home_team: { id: number; name: string; slug: string } | null;
   away_team: { id: number; name: string; slug: string } | null;
 };
@@ -27,11 +25,16 @@ type DbMatchRow = {
 type Competition = { id: number; name: string; slug: string; region: string | null };
 type Season = { id: number; name: string; competition_id: number };
 
-type RoundMeta = {
-  round: number;
-  count: number;
-  firstDate: string; // yyyy-mm-dd
-  lastDate: string;  // yyyy-mm-dd
+type StandingRow = {
+  teamId: number;
+  team: string;
+  pj: number;
+  w: number;
+  d: number;
+  l: number;
+  pf: number;
+  pa: number;
+  pts: number;
 };
 
 function StatusBadge({ status }: { status: MatchStatus }) {
@@ -63,7 +66,6 @@ function formatDateShort(iso: string) {
   return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 }
 
-// Interpret kickoff as UTC (Z) and format to selected timeZone
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
@@ -71,36 +73,22 @@ function formatKickoffInTZ(match_date: string, kickoff_time: string | null, time
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
 
-function clamp(n: number, lo: number, hi: number) {
-  return Math.max(lo, Math.min(hi, n));
-}
-
-export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
-  // ✅ FIX DEFINITIVO: slug desde router (y fallback al prop)
-  const params = useParams<{ slug?: string }>();
-  const slug = (params?.slug || slugProp || "").toString();
-
-  // TIMEZONE (viene del AppHeader por localStorage("tz"))
+export default function LeagueClient({ slug }: { slug: string }) {
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
 
-  // sidebar leagues
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-
-  // current league
   const [comp, setComp] = useState<Competition | null>(null);
   const [season, setSeason] = useState<Season | null>(null);
 
-  // rounds + meta + selected index
   const [rounds, setRounds] = useState<number[]>([]);
-  const [roundMeta, setRoundMeta] = useState<Record<number, RoundMeta>>({});
   const [roundIdx, setRoundIdx] = useState<number>(0);
 
-  // matches
   const [matches, setMatches] = useState<DbMatchRow[]>([]);
+  const [standings, setStandings] = useState<StandingRow[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // ---- timezone init + sync ----
   useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
@@ -122,14 +110,12 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
     };
   }, []);
 
-  // competitions for sidebar
   useEffect(() => {
     const loadComps = async () => {
       const { data, error } = await supabase
         .from("competitions")
         .select("id,name,slug,region")
         .order("name", { ascending: true });
-
       if (!error) setCompetitions((data || []) as Competition[]);
     };
     loadComps();
@@ -137,7 +123,7 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
 
   const currentRound = useMemo(() => {
     if (!rounds.length) return null;
-    const clamped = clamp(roundIdx, 0, rounds.length - 1);
+    const clamped = Math.min(Math.max(roundIdx, 0), rounds.length - 1);
     return rounds[clamped];
   }, [rounds, roundIdx]);
 
@@ -160,67 +146,43 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
     return (data || []) as unknown as DbMatchRow[];
   }
 
-  async function pickBestSeasonForCompetition(compId: number): Promise<Season | null> {
-    // try season that actually has matches
-    const { data: lastMatch, error: lastMatchErr } = await supabase
-      .from("matches")
-      .select(`season:season_id ( id, name, competition_id )`)
-      .eq("season.competition_id", compId)
-      .order("match_date", { ascending: false })
-      .order("kickoff_time", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!lastMatchErr && (lastMatch as any)?.season) {
-      return (lastMatch as any).season as Season;
-    }
-
-    // fallback: latest season by name
-    const { data: seasonData, error: seasonErr } = await supabase
-      .from("seasons")
-      .select("id,name,competition_id")
-      .eq("competition_id", compId)
-      .order("name", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (seasonErr || !seasonData) return null;
-    return seasonData as Season;
-  }
-
-  // fetch all rounds meta (count + first/last date) and rounds list
-  async function fetchRoundsMeta(seasonId: number) {
+  async function fetchStandingsZero(seasonId: number) {
+    // Trae equipos únicos del season (con un query liviano)
     const { data, error } = await supabase
       .from("matches")
-      .select("round,match_date")
-      .eq("season_id", seasonId)
-      .not("round", "is", null)
-      .order("round", { ascending: true })
-      .order("match_date", { ascending: true });
+      .select(
+        `
+        home_team:home_team_id ( id, name ),
+        away_team:away_team_id ( id, name )
+      `
+      )
+      .eq("season_id", seasonId);
 
     if (error) throw error;
 
-    const meta: Record<number, RoundMeta> = {};
-    const seen: number[] = [];
-
-    for (const row of (data || []) as any[]) {
-      const r = typeof row.round === "string" ? parseInt(row.round, 10) : row.round;
-      if (!Number.isFinite(r)) continue;
-
-      if (!meta[r]) {
-        meta[r] = { round: r, count: 0, firstDate: row.match_date, lastDate: row.match_date };
-        seen.push(r);
-      }
-      meta[r].count += 1;
-      if (row.match_date < meta[r].firstDate) meta[r].firstDate = row.match_date;
-      if (row.match_date > meta[r].lastDate) meta[r].lastDate = row.match_date;
+    const map = new Map<number, string>();
+    for (const r of (data || []) as any[]) {
+      if (r.home_team?.id) map.set(r.home_team.id, r.home_team.name);
+      if (r.away_team?.id) map.set(r.away_team.id, r.away_team.name);
     }
 
-    seen.sort((a, b) => a - b);
-    return { rounds: seen, meta };
+    const rows: StandingRow[] = Array.from(map.entries())
+      .map(([teamId, team]) => ({
+        teamId,
+        team,
+        pj: 0,
+        w: 0,
+        d: 0,
+        l: 0,
+        pf: 0,
+        pa: 0,
+        pts: 0,
+      }))
+      .sort((a, b) => a.team.localeCompare(b.team));
+
+    setStandings(rows);
   }
 
-  // MAIN LOAD: comp + best season + rounds meta + default round = 1 + fetch matches
   useEffect(() => {
     const loadLeagueEverything = async () => {
       setLoading(true);
@@ -228,12 +190,13 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
       setComp(null);
       setSeason(null);
       setRounds([]);
-      setRoundMeta({});
       setRoundIdx(0);
       setMatches([]);
+      setStandings([]);
 
+      // IMPORTANTÍSIMO: si slug viene undefined, el page.tsx está mal
       if (!slug) {
-        setErr("Slug is missing (undefined). Check your /leagues/[slug] route.");
+        setErr("Slug is undefined (check app/leagues/[slug]/page.tsx params).");
         setLoading(false);
         return;
       }
@@ -251,47 +214,64 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
       }
       setComp(compData as Competition);
 
-      const chosenSeason = await pickBestSeasonForCompetition(compData.id);
-      if (!chosenSeason) {
-        setErr(`No season found for competition slug: ${slug}`);
+      // latest season (por ahora)
+      const { data: seasonData, error: seasonErr } = await supabase
+        .from("seasons")
+        .select("id,name,competition_id")
+        .eq("competition_id", compData.id)
+        .order("name", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (seasonErr || !seasonData) {
+        setErr(`No season found for: ${slug}`);
         setLoading(false);
         return;
       }
-      setSeason(chosenSeason);
+      setSeason(seasonData as Season);
 
-      // rounds + meta
-      let roundsList: number[] = [];
-      let meta: Record<number, RoundMeta> = {};
-      try {
-        const out = await fetchRoundsMeta(chosenSeason.id);
-        roundsList = out.rounds;
-        meta = out.meta;
-      } catch (e: any) {
-        setErr(e?.message ?? "Error loading rounds meta");
+      // rounds
+      const { data: roundRows, error: roundErr } = await supabase
+        .from("matches")
+        .select("round")
+        .eq("season_id", seasonData.id)
+        .not("round", "is", null)
+        .order("round", { ascending: true });
+
+      if (roundErr) {
+        setErr(roundErr.message);
         setLoading(false);
         return;
       }
 
-      if (roundsList.length === 0) {
-        setErr("No rounds found for this season (check matches.round).");
+      const uniq = Array.from(
+        new Set(
+          (roundRows || [])
+            .map((r: any) => (typeof r.round === "string" ? parseInt(r.round, 10) : r.round))
+            .filter((x: any) => Number.isFinite(x))
+        )
+      ) as number[];
+
+      uniq.sort((a, b) => a - b);
+
+      if (!uniq.length) {
+        setErr("No rounds found for this season.");
         setLoading(false);
         return;
       }
 
-      setRounds(roundsList);
-      setRoundMeta(meta);
+      setRounds(uniq);
 
-      // ✅ SIEMPRE arrancar en Fecha 1 si existe, sino la primera
-      const defaultIndex = roundsList.includes(1) ? roundsList.indexOf(1) : 0;
+      // arrancar SIEMPRE en round 1 si existe
+      const defaultIndex = uniq.includes(1) ? uniq.indexOf(1) : 0;
       setRoundIdx(defaultIndex);
 
-      // fetch matches for default
+      // standings (todo 0 por ahora)
       try {
-        const round = roundsList[defaultIndex];
-        const m = await fetchMatchesForRound(chosenSeason.id, round);
-        setMatches(m);
+        await fetchStandingsZero(seasonData.id);
       } catch (e: any) {
-        setErr(e?.message ?? "Error loading matches");
+        // no lo matamos si falla
+        console.log("Standings error:", e?.message);
       }
 
       setLoading(false);
@@ -300,7 +280,6 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
     loadLeagueEverything();
   }, [slug]);
 
-  // Load matches when round changes
   useEffect(() => {
     const run = async () => {
       if (!season || currentRound == null) return;
@@ -319,15 +298,7 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
   }, [season?.id, currentRound]);
 
   return (
-    <div
-      className="
-        min-h-screen transition-colors duration-300
-        bg-gradient-to-br
-        from-green-500 via-green-600 to-green-600
-        dark:bg-black dark:from-black dark:via-black dark:to-black
-        text-neutral-900 dark:text-white
-      "
-    >
+    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-500 via-green-600 to-green-600 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
       <AppHeader
         title={
           <>
@@ -337,8 +308,9 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
         subtitle="League view • Fecha (round) style"
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        {/* Sidebar: Ligas */}
+      {/* IMPORTANT: para que el zoom “apile” antes, pasamos el 2-col a XL */}
+      <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6">
+        {/* Sidebar */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div>
             <div className="text-sm font-semibold mb-2 text-neutral-700 dark:text-white/80">Ligas</div>
@@ -347,12 +319,11 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
                 <Link
                   key={c.slug}
                   href={`/leagues/${c.slug}`}
-                  className={`block w-full text-left px-3 py-2 rounded-xl border transition
-                    ${
-                      c.slug === slug
-                        ? "bg-emerald-600 text-white border-emerald-600"
-                        : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                    }`}
+                  className={`block w-full px-3 py-2 rounded-xl border transition ${
+                    c.slug === slug
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                  }`}
                 >
                   <div className="text-sm font-medium">{c.name}</div>
                   {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
@@ -371,168 +342,169 @@ export default function LeagueClient({ slug: slugProp }: { slug?: string }) {
           </div>
         </aside>
 
-        {/* Content: Fechas table + Matches (responsive) */}
-        <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-            <div>
-              <div className="text-sm text-neutral-700 dark:text-white/70">League</div>
-              <h1 className="text-2xl font-extrabold">{comp?.name ?? slug}</h1>
-              <div className="text-sm text-neutral-700 dark:text-white/60 mt-1">
-                Season: <span className="font-semibold">{season?.name ?? "—"}</span> • Fecha{" "}
-                <span className="font-semibold">{currentRound ?? "—"}</span>
-              </div>
+        {/* Main */}
+        <section className="space-y-4 min-w-0">
+          <div>
+            <div className="text-sm text-neutral-700 dark:text-white/70">League</div>
+            <h1 className="text-2xl font-extrabold">{comp?.name ?? slug}</h1>
+            <div className="text-sm text-neutral-700 dark:text-white/60 mt-1">
+              Season: <span className="font-semibold">{season?.name ?? "—"}</span> • Fecha{" "}
+              <span className="font-semibold">{currentRound ?? "—"}</span>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2">
+          {/* NAV CHIQUITO ARRIBA DE LOS PARTIDOS */}
+          <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setRoundIdx((i) => Math.max(0, i - 1))}
                 disabled={roundIdx <= 0}
-                className="px-3 py-2 rounded-full text-sm border transition disabled:opacity-40
+                className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
                   bg-white/80 border-neutral-200 hover:bg-white
                   dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
               >
                 ← Fecha
               </button>
 
-              <div className="px-4 py-2 rounded-full text-sm border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
+              <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
                 {currentRound != null ? `Fecha ${currentRound}` : "Fecha"}
               </div>
 
               <button
                 onClick={() => setRoundIdx((i) => Math.min(rounds.length - 1, i + 1))}
                 disabled={roundIdx >= rounds.length - 1}
-                className="px-3 py-2 rounded-full text-sm font-extrabold border-2 border-emerald-600
+                className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
                   bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
                   dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
               >
                 Fecha →
               </button>
+
+              {/* pills horizontales opcional, re cómodo */}
+              <div className="flex-1 overflow-x-auto">
+                <div className="flex gap-2 justify-end min-w-max">
+                  {rounds.map((r, idx) => {
+                    const active = currentRound === r;
+                    return (
+                      <button
+                        key={r}
+                        onClick={() => setRoundIdx(idx)}
+                        className={`px-3 py-2 rounded-full text-xs border transition ${
+                          active
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                        }`}
+                      >
+                        {r}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ✅ Acá va el layout “media pantalla”: Fechas table + Matches */}
-          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4">
-            {/* Fechas table */}
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 dark:border-white/10 dark:bg-neutral-950">
-              <div className="flex items-center justify-between">
-                <div className="font-bold">Fechas</div>
-                <div className="text-xs text-neutral-700 dark:text-white/60">
-                  {season ? `Season: ${season.name}` : "—"}
-                </div>
+          {/* MATCHES */}
+          {loading ? (
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
+              Loading...
+            </div>
+          ) : err ? (
+            <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
+              <div className="font-bold">Error</div>
+              <div className="mt-2 text-sm opacity-80">{err}</div>
+            </div>
+          ) : matches.length === 0 ? (
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
+              No matches in this Fecha.
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
+              <div className="divide-y divide-neutral-200 dark:divide-white/10">
+                {matches.map((m) => {
+                  const timeLabel =
+                    m.status === "LIVE"
+                      ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
+                      : m.status === "FT"
+                      ? "FT"
+                      : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
+
+                  return (
+                    <div key={m.id} className="px-4 py-3 flex items-center gap-4">
+                      <div className="w-28 shrink-0">
+                        <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
+                        <div className="text-sm font-semibold">{timeLabel}</div>
+                        <div className="mt-1">
+                          <StatusBadge status={m.status} />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 min-w-0">
+                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
+                          <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
+                          <span className="font-extrabold tabular-nums">{m.home_score ?? 0}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
+                          <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
+                          <span className="font-extrabold tabular-nums">{m.away_score ?? 0}</span>
+                        </div>
+                      </div>
+
+                      <div className="hidden lg:block w-44 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
+                        {m.venue ?? ""}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            </div>
+          )}
 
-              {rounds.length === 0 ? (
-                <div className="mt-3 text-sm text-neutral-700 dark:text-white/60">
-                  {err ? "No rounds." : "Cargando fechas..."}
-                </div>
-              ) : (
-                <div className="mt-3 overflow-hidden rounded-xl border border-neutral-200 dark:border-white/10">
-                  <div className="grid grid-cols-[70px_1fr_60px] text-[11px] font-semibold bg-white/70 dark:bg-neutral-900 px-3 py-2 border-b border-neutral-200 dark:border-white/10">
-                    <div>Fecha</div>
-                    <div>Rango</div>
-                    <div className="text-right">PJ</div>
-                  </div>
-
-                  <div className="max-h-[420px] overflow-auto">
-                    {rounds.map((r, idx) => {
-                      const active = currentRound === r;
-                      const meta = roundMeta[r];
-                      const range = meta ? `${meta.firstDate} → ${meta.lastDate}` : "—";
-                      const count = meta ? meta.count : 0;
-
-                      return (
-                        <button
-                          key={r}
-                          onClick={() => setRoundIdx(idx)}
-                          className={`w-full grid grid-cols-[70px_1fr_60px] px-3 py-2 text-left border-b border-neutral-200 dark:border-white/10 transition
-                            ${
-                              active
-                                ? "bg-emerald-600 text-white"
-                                : "bg-white/60 hover:bg-white dark:bg-neutral-950 dark:hover:bg-white/5"
-                            }`}
-                        >
-                          <div className="font-extrabold">#{r}</div>
-                          <div className={`text-xs ${active ? "text-white/90" : "text-neutral-700 dark:text-white/60"}`}>
-                            {range}
-                          </div>
-                          <div className="text-right font-bold tabular-nums">{count}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+          {/* STANDINGS (antes decía Fechas / Table) */}
+          <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
+            <div className="flex items-baseline justify-between gap-3">
+              <div className="font-bold">Standings</div>
+              <div className="text-xs text-neutral-700 dark:text-white/60">Season: {season?.name ?? "—"}</div>
             </div>
 
-            {/* Matches */}
-            <div className="space-y-4">
-              {loading ? (
-                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-                  Loading...
-                </div>
-              ) : err ? (
-                <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
-                  <div className="font-bold">Error</div>
-                  <div className="mt-2 text-sm opacity-80">{err}</div>
-                  <div className="mt-2 text-xs opacity-80">Debug: slug="{slug}"</div>
-                </div>
-              ) : matches.length === 0 ? (
-                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-                  No matches in this Fecha.
-                  <div className="mt-2 text-xs opacity-80">
-                    Debug: season_id={season?.id ?? "—"} round={currentRound ?? "—"}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
-                  <div className="divide-y divide-neutral-200 dark:divide-white/10">
-                    {matches.map((m) => {
-                      const timeLabel =
-                        m.status === "LIVE"
-                          ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
-                          : m.status === "FT"
-                          ? "FT"
-                          : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
-
-                      return (
-                        <div key={m.id} className="px-4 py-3 flex items-center gap-4">
-                          <div className="w-36">
-                            <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
-                            <div className="text-sm font-semibold">{timeLabel}</div>
-                            <div className="mt-1">
-                              <StatusBadge status={m.status} />
-                            </div>
-                          </div>
-
-                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                              <span className="font-medium">{m.home_team?.name ?? "TBD"}</span>
-                              <span className="font-extrabold tabular-nums">{m.home_score ?? 0}</span>
-                            </div>
-
-                            <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                              <span className="font-medium">{m.away_team?.name ?? "TBD"}</span>
-                              <span className="font-extrabold tabular-nums">{m.away_score ?? 0}</span>
-                            </div>
-                          </div>
-
-                          <div className="hidden md:block w-44 text-right text-xs text-neutral-700 dark:text-white/50">
-                            {m.venue ?? ""}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Standings placeholder (abajo / a la derecha) */}
-              <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
-                <div className="font-bold">Table / Standings</div>
-                <div className="text-sm text-neutral-700 dark:text-white/60 mt-2">
-                  Coming soon. (Después la hacemos automática con resultados + bonus points.)
-                </div>
+            {standings.length === 0 ? (
+              <div className="text-sm text-neutral-700 dark:text-white/60 mt-3">Coming soon.</div>
+            ) : (
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="text-xs text-neutral-700 dark:text-white/60">
+                    <tr>
+                      <th className="text-left py-2">Team</th>
+                      <th className="text-right py-2">PJ</th>
+                      <th className="text-right py-2">W</th>
+                      <th className="text-right py-2">D</th>
+                      <th className="text-right py-2">L</th>
+                      <th className="text-right py-2">PF</th>
+                      <th className="text-right py-2">PA</th>
+                      <th className="text-right py-2">PTS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
+                    {standings.map((r) => (
+                      <tr key={r.teamId}>
+                        <td className="py-2 font-medium">{r.team}</td>
+                        <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                        <td className="py-2 text-right tabular-nums">{r.w}</td>
+                        <td className="py-2 text-right tabular-nums">{r.d}</td>
+                        <td className="py-2 text-right tabular-nums">{r.l}</td>
+                        <td className="py-2 text-right tabular-nums">{r.pf}</td>
+                        <td className="py-2 text-right tabular-nums">{r.pa}</td>
+                        <td className="py-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+            )}
+
+            <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">
+              (Por ahora todos 0. Después lo hacemos automático con resultados + bonus points.)
             </div>
           </div>
         </section>

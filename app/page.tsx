@@ -219,7 +219,7 @@ export default function Home() {
       className="
         min-h-screen transition-colors duration-300
         bg-gradient-to-br
-        from-emerald-500 via-green-600 to-emerald-400
+        from-green-700 via-green-400 to-green-800    
         dark:bg-black dark:from-black dark:via-black dark:to-black
         text-neutral-900 dark:text-white
       "

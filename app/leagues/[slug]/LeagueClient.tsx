@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 
@@ -37,6 +38,14 @@ type StandingRow = {
   pts: number;
 };
 
+type RoundMeta = {
+  round: number;
+  first_date: string;
+  last_date: string;
+  matches: number;
+};
+
+// ---------- UI ----------
 function StatusBadge({ status }: { status: MatchStatus }) {
   if (status === "LIVE") {
     return (
@@ -60,6 +69,7 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   );
 }
 
+// ---------- Helpers ----------
 function formatDateShort(iso: string) {
   const [y, m, d] = iso.split("-").map(Number);
   const dt = new Date(y, m - 1, d);
@@ -69,26 +79,55 @@ function formatDateShort(iso: string) {
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
-  const dt = new Date(`${match_date}T${t}Z`);
+  const dt = new Date(`${match_date}T${t}Z`); // interpret stored time as UTC
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
 
-export default function LeagueClient({ slug }: { slug: string }) {
+function parseRound(v: any): number | null {
+  if (v == null) return null;
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string" && v.trim() !== "") {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+function normalizeSlug(raw: unknown): string | null {
+  if (!raw) return null;
+  if (Array.isArray(raw)) return raw[0] ?? null;
+  if (typeof raw === "string") return raw;
+  return null;
+}
+
+export default function LeagueClient() {
+  const params = useParams();
+  const slug = normalizeSlug((params as any)?.slug);
+
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
 
+  // sidebar leagues
   const [competitions, setCompetitions] = useState<Competition[]>([]);
+
+  // current league
   const [comp, setComp] = useState<Competition | null>(null);
   const [season, setSeason] = useState<Season | null>(null);
 
-  const [rounds, setRounds] = useState<number[]>([]);
-  const [roundIdx, setRoundIdx] = useState<number>(0);
+  // rounds meta + selected round
+  const [roundMeta, setRoundMeta] = useState<RoundMeta[]>([]);
+  const [selectedRound, setSelectedRound] = useState<number | null>(null);
 
+  // matches + standings
   const [matches, setMatches] = useState<DbMatchRow[]>([]);
   const [standings, setStandings] = useState<StandingRow[]>([]);
 
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+  // loading / errors (separados para no pisarse)
+  const [loadingLeague, setLoadingLeague] = useState(true);
+  const [loadingMatches, setLoadingMatches] = useState(false);
+  const [leagueErr, setLeagueErr] = useState("");
+  const [matchesErr, setMatchesErr] = useState("");
 
+  // --- TZ init + sync ---
   useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
@@ -110,23 +149,20 @@ export default function LeagueClient({ slug }: { slug: string }) {
     };
   }, []);
 
+  // --- sidebar competitions ---
   useEffect(() => {
     const loadComps = async () => {
       const { data, error } = await supabase
         .from("competitions")
         .select("id,name,slug,region")
         .order("name", { ascending: true });
+
       if (!error) setCompetitions((data || []) as Competition[]);
     };
     loadComps();
   }, []);
 
-  const currentRound = useMemo(() => {
-    if (!rounds.length) return null;
-    const clamped = Math.min(Math.max(roundIdx, 0), rounds.length - 1);
-    return rounds[clamped];
-  }, [rounds, roundIdx]);
-
+  // --- queries ---
   async function fetchMatchesForRound(seasonId: number, round: number) {
     const { data, error } = await supabase
       .from("matches")
@@ -146,16 +182,41 @@ export default function LeagueClient({ slug }: { slug: string }) {
     return (data || []) as unknown as DbMatchRow[];
   }
 
-  async function fetchStandingsZero(seasonId: number) {
-    // Trae equipos únicos del season (con un query liviano)
+  async function fetchRoundMeta(seasonId: number): Promise<RoundMeta[]> {
     const { data, error } = await supabase
       .from("matches")
-      .select(
-        `
-        home_team:home_team_id ( id, name ),
-        away_team:away_team_id ( id, name )
-      `
-      )
+      .select("round, match_date")
+      .eq("season_id", seasonId)
+      .not("round", "is", null)
+      .order("match_date", { ascending: true });
+
+    if (error) throw error;
+
+    const map = new Map<number, { first: string; last: string; count: number }>();
+
+    for (const row of (data || []) as any[]) {
+      const r = parseRound(row.round);
+      if (r == null) continue;
+
+      const d = row.match_date as string;
+      const cur = map.get(r);
+      if (!cur) map.set(r, { first: d, last: d, count: 1 });
+      else {
+        if (d < cur.first) cur.first = d;
+        if (d > cur.last) cur.last = d;
+        cur.count += 1;
+      }
+    }
+
+    return Array.from(map.entries())
+      .map(([round, v]) => ({ round, first_date: v.first, last_date: v.last, matches: v.count }))
+      .sort((a, b) => a.round - b.round);
+  }
+
+  async function fetchStandingsZero(seasonId: number) {
+    const { data, error } = await supabase
+      .from("matches")
+      .select(`home_team:home_team_id ( id, name ), away_team:away_team_id ( id, name )`)
       .eq("season_id", seasonId);
 
     if (error) throw error;
@@ -183,21 +244,48 @@ export default function LeagueClient({ slug }: { slug: string }) {
     setStandings(rows);
   }
 
+  async function pickBestSeason(competitionId: number): Promise<Season | null> {
+    const { data: seasons, error } = await supabase
+      .from("seasons")
+      .select("id,name,competition_id")
+      .eq("competition_id", competitionId)
+      .order("name", { ascending: false });
+
+    if (error || !seasons?.length) return null;
+
+    // 1) elegí la primera season que tenga al menos 1 match
+    for (const s of seasons as Season[]) {
+      const { count } = await supabase
+        .from("matches")
+        .select("id", { count: "exact", head: true })
+        .eq("season_id", s.id);
+
+      if ((count ?? 0) > 0) return s;
+    }
+
+    // 2) fallback: la “latest” por nombre igual
+    return seasons[0] as Season;
+  }
+
+  // --- MAIN LOAD: comp + season + roundMeta + default round ---
   useEffect(() => {
+    let cancel = false;
+
     const loadLeagueEverything = async () => {
-      setLoading(true);
-      setErr("");
+      setLoadingLeague(true);
+      setLeagueErr("");
+      setMatchesErr("");
+
       setComp(null);
       setSeason(null);
-      setRounds([]);
-      setRoundIdx(0);
+      setRoundMeta([]);
+      setSelectedRound(null);
       setMatches([]);
       setStandings([]);
 
-      // IMPORTANTÍSIMO: si slug viene undefined, el page.tsx está mal
       if (!slug) {
-        setErr("Slug is undefined (check app/leagues/[slug]/page.tsx params).");
-        setLoading(false);
+        setLeagueErr("Slug is undefined (check app/leagues/[slug]/page.tsx params).");
+        setLoadingLeague(false);
         return;
       }
 
@@ -207,95 +295,89 @@ export default function LeagueClient({ slug }: { slug: string }) {
         .eq("slug", slug)
         .maybeSingle();
 
+      if (cancel) return;
+
       if (compErr || !compData) {
-        setErr(`No competition found for slug: ${slug}`);
-        setLoading(false);
+        setLeagueErr(`No competition found for slug: ${slug}`);
+        setLoadingLeague(false);
         return;
       }
       setComp(compData as Competition);
 
-      // latest season (por ahora)
-      const { data: seasonData, error: seasonErr } = await supabase
-        .from("seasons")
-        .select("id,name,competition_id")
-        .eq("competition_id", compData.id)
-        .order("name", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const bestSeason = await pickBestSeason(compData.id);
 
-      if (seasonErr || !seasonData) {
-        setErr(`No season found for: ${slug}`);
-        setLoading(false);
+      if (cancel) return;
+
+      if (!bestSeason) {
+        setLeagueErr(`No season found for: ${slug}`);
+        setLoadingLeague(false);
         return;
       }
-      setSeason(seasonData as Season);
+      setSeason(bestSeason);
 
-      // rounds
-      const { data: roundRows, error: roundErr } = await supabase
-        .from("matches")
-        .select("round")
-        .eq("season_id", seasonData.id)
-        .not("round", "is", null)
-        .order("round", { ascending: true });
-
-      if (roundErr) {
-        setErr(roundErr.message);
-        setLoading(false);
-        return;
-      }
-
-      const uniq = Array.from(
-        new Set(
-          (roundRows || [])
-            .map((r: any) => (typeof r.round === "string" ? parseInt(r.round, 10) : r.round))
-            .filter((x: any) => Number.isFinite(x))
-        )
-      ) as number[];
-
-      uniq.sort((a, b) => a - b);
-
-      if (!uniq.length) {
-        setErr("No rounds found for this season.");
-        setLoading(false);
-        return;
-      }
-
-      setRounds(uniq);
-
-      // arrancar SIEMPRE en round 1 si existe
-      const defaultIndex = uniq.includes(1) ? uniq.indexOf(1) : 0;
-      setRoundIdx(defaultIndex);
-
-      // standings (todo 0 por ahora)
       try {
-        await fetchStandingsZero(seasonData.id);
+        const meta = await fetchRoundMeta(bestSeason.id);
+        if (cancel) return;
+
+        setRoundMeta(meta);
+        if (meta.length > 0) {
+          const has1 = meta.some((m) => m.round === 1);
+          setSelectedRound(has1 ? 1 : meta[0].round);
+        } else {
+          setSelectedRound(null);
+        }
       } catch (e: any) {
-        // no lo matamos si falla
-        console.log("Standings error:", e?.message);
+        if (cancel) return;
+        setLeagueErr(e?.message ?? "Error loading rounds");
+        setLoadingLeague(false);
+        return;
       }
 
-      setLoading(false);
+      fetchStandingsZero(bestSeason.id).catch(() => {});
+      setLoadingLeague(false);
     };
 
     loadLeagueEverything();
+
+    return () => {
+      cancel = true;
+    };
   }, [slug]);
 
+  // --- Load matches when selectedRound changes ---
   useEffect(() => {
+    let cancel = false;
+
     const run = async () => {
-      if (!season || currentRound == null) return;
-      setLoading(true);
-      setErr("");
+      if (!season || selectedRound == null) return;
+      setLoadingMatches(true);
+      setMatchesErr("");
+
       try {
-        const m = await fetchMatchesForRound(season.id, currentRound);
+        const m = await fetchMatchesForRound(season.id, selectedRound);
+        if (cancel) return;
         setMatches(m);
       } catch (e: any) {
-        setErr(e?.message ?? "Error loading matches");
+        if (cancel) return;
+        setMatchesErr(e?.message ?? "Error loading matches");
         setMatches([]);
       }
-      setLoading(false);
+
+      if (!cancel) setLoadingMatches(false);
     };
+
     run();
-  }, [season?.id, currentRound]);
+    return () => {
+      cancel = true;
+    };
+  }, [season?.id, selectedRound]);
+
+  // helpers for prev/next
+  const roundsList = useMemo(() => roundMeta.map((m) => m.round), [roundMeta]);
+  const selectedIdx = useMemo(() => {
+    if (selectedRound == null) return -1;
+    return roundsList.indexOf(selectedRound);
+  }, [roundsList, selectedRound]);
 
   return (
     <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-500 via-green-600 to-green-600 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
@@ -308,7 +390,6 @@ export default function LeagueClient({ slug }: { slug: string }) {
         subtitle="League view • Fecha (round) style"
       />
 
-      {/* IMPORTANT: para que el zoom “apile” antes, pasamos el 2-col a XL */}
       <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6">
         {/* Sidebar */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
@@ -346,19 +427,21 @@ export default function LeagueClient({ slug }: { slug: string }) {
         <section className="space-y-4 min-w-0">
           <div>
             <div className="text-sm text-neutral-700 dark:text-white/70">League</div>
-            <h1 className="text-2xl font-extrabold">{comp?.name ?? slug}</h1>
+            <h1 className="text-2xl font-extrabold">{comp?.name ?? slug ?? "League"}</h1>
             <div className="text-sm text-neutral-700 dark:text-white/60 mt-1">
               Season: <span className="font-semibold">{season?.name ?? "—"}</span> • Fecha{" "}
-              <span className="font-semibold">{currentRound ?? "—"}</span>
+              <span className="font-semibold">{selectedRound ?? "—"}</span>
             </div>
           </div>
 
-          {/* NAV CHIQUITO ARRIBA DE LOS PARTIDOS */}
+          {/* NAV chiquito arriba */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-center gap-2 flex-wrap">
               <button
-                onClick={() => setRoundIdx((i) => Math.max(0, i - 1))}
-                disabled={roundIdx <= 0}
+                onClick={() => {
+                  if (selectedIdx > 0) setSelectedRound(roundsList[selectedIdx - 1]);
+                }}
+                disabled={selectedIdx <= 0}
                 className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
                   bg-white/80 border-neutral-200 hover:bg-white
                   dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
@@ -367,12 +450,14 @@ export default function LeagueClient({ slug }: { slug: string }) {
               </button>
 
               <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
-                {currentRound != null ? `Fecha ${currentRound}` : "Fecha"}
+                {selectedRound != null ? `Fecha ${selectedRound}` : "Fecha"}
               </div>
 
               <button
-                onClick={() => setRoundIdx((i) => Math.min(rounds.length - 1, i + 1))}
-                disabled={roundIdx >= rounds.length - 1}
+                onClick={() => {
+                  if (selectedIdx >= 0 && selectedIdx < roundsList.length - 1) setSelectedRound(roundsList[selectedIdx + 1]);
+                }}
+                disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
                 className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
                   bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
                   dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
@@ -380,15 +465,14 @@ export default function LeagueClient({ slug }: { slug: string }) {
                 Fecha →
               </button>
 
-              {/* pills horizontales opcional, re cómodo */}
               <div className="flex-1 overflow-x-auto">
                 <div className="flex gap-2 justify-end min-w-max">
-                  {rounds.map((r, idx) => {
-                    const active = currentRound === r;
+                  {roundsList.map((r) => {
+                    const active = selectedRound === r;
                     return (
                       <button
                         key={r}
-                        onClick={() => setRoundIdx(idx)}
+                        onClick={() => setSelectedRound(r)}
                         className={`px-3 py-2 rounded-full text-xs border transition ${
                           active
                             ? "bg-emerald-600 text-white border-emerald-600"
@@ -404,109 +488,175 @@ export default function LeagueClient({ slug }: { slug: string }) {
             </div>
           </div>
 
-          {/* MATCHES */}
-          {loading ? (
+          {/* Estado general */}
+          {loadingLeague ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              Loading...
+              Loading league...
             </div>
-          ) : err ? (
+          ) : leagueErr ? (
             <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
               <div className="font-bold">Error</div>
-              <div className="mt-2 text-sm opacity-80">{err}</div>
+              <div className="mt-2 text-sm opacity-80">{leagueErr}</div>
             </div>
-          ) : matches.length === 0 ? (
+          ) : roundMeta.length === 0 ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              No matches in this Fecha.
+              No matches loaded for this season yet.
+              <div className="mt-2 text-xs opacity-80">
+                Tip: si una liga/season todavía no tiene partidos en la tabla matches, no vas a ver Fechas.
+              </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
-              <div className="divide-y divide-neutral-200 dark:divide-white/10">
-                {matches.map((m) => {
-                  const timeLabel =
-                    m.status === "LIVE"
-                      ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
-                      : m.status === "FT"
-                      ? "FT"
-                      : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
+            <>
+              {/* Tabla de Fechas */}
+              <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="font-bold">Fechas</div>
+                  <div className="text-xs text-neutral-700 dark:text-white/60">Season: {season?.name ?? "—"}</div>
+                </div>
 
-                  return (
-                    <div key={m.id} className="px-4 py-3 flex items-center gap-4">
-                      <div className="w-28 shrink-0">
-                        <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
-                        <div className="text-sm font-semibold">{timeLabel}</div>
-                        <div className="mt-1">
-                          <StatusBadge status={m.status} />
-                        </div>
-                      </div>
-
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 min-w-0">
-                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
-                          <span className="font-extrabold tabular-nums">{m.home_score ?? 0}</span>
-                        </div>
-
-                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
-                          <span className="font-extrabold tabular-nums">{m.away_score ?? 0}</span>
-                        </div>
-                      </div>
-
-                      <div className="hidden lg:block w-44 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
-                        {m.venue ?? ""}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* STANDINGS (antes decía Fechas / Table) */}
-          <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
-            <div className="flex items-baseline justify-between gap-3">
-              <div className="font-bold">Standings</div>
-              <div className="text-xs text-neutral-700 dark:text-white/60">Season: {season?.name ?? "—"}</div>
-            </div>
-
-            {standings.length === 0 ? (
-              <div className="text-sm text-neutral-700 dark:text-white/60 mt-3">Coming soon.</div>
-            ) : (
-              <div className="mt-3 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-xs text-neutral-700 dark:text-white/60">
-                    <tr>
-                      <th className="text-left py-2">Team</th>
-                      <th className="text-right py-2">PJ</th>
-                      <th className="text-right py-2">W</th>
-                      <th className="text-right py-2">D</th>
-                      <th className="text-right py-2">L</th>
-                      <th className="text-right py-2">PF</th>
-                      <th className="text-right py-2">PA</th>
-                      <th className="text-right py-2">PTS</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
-                    {standings.map((r) => (
-                      <tr key={r.teamId}>
-                        <td className="py-2 font-medium">{r.team}</td>
-                        <td className="py-2 text-right tabular-nums">{r.pj}</td>
-                        <td className="py-2 text-right tabular-nums">{r.w}</td>
-                        <td className="py-2 text-right tabular-nums">{r.d}</td>
-                        <td className="py-2 text-right tabular-nums">{r.l}</td>
-                        <td className="py-2 text-right tabular-nums">{r.pf}</td>
-                        <td className="py-2 text-right tabular-nums">{r.pa}</td>
-                        <td className="py-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs text-neutral-700 dark:text-white/60">
+                      <tr>
+                        <th className="text-left py-2">Fecha</th>
+                        <th className="text-left py-2">Rango</th>
+                        <th className="text-right py-2">PJ</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
+                      {roundMeta.map((r) => {
+                        const active = selectedRound === r.round;
+                        return (
+                          <tr key={r.round} className={active ? "bg-emerald-600/10" : ""}>
+                            <td className="py-2">
+                              <button
+                                onClick={() => setSelectedRound(r.round)}
+                                className={`px-3 py-1 rounded-full text-xs border transition ${
+                                  active
+                                    ? "bg-emerald-600 text-white border-emerald-600"
+                                    : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                                }`}
+                              >
+                                #{r.round}
+                              </button>
+                            </td>
+                            <td className="py-2 text-xs">
+                              {r.first_date} → {r.last_date}
+                            </td>
+                            <td className="py-2 text-right tabular-nums">{r.matches}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            )}
 
-            <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">
-              (Por ahora todos 0. Después lo hacemos automático con resultados + bonus points.)
-            </div>
-          </div>
+              {/* Matches */}
+              {loadingMatches ? (
+                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
+                  Loading matches...
+                </div>
+              ) : matchesErr ? (
+                <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
+                  <div className="font-bold">Error loading matches</div>
+                  <div className="mt-2 text-sm opacity-80">{matchesErr}</div>
+                </div>
+              ) : matches.length === 0 ? (
+                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
+                  No matches in this Fecha.
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
+                  <div className="divide-y divide-neutral-200 dark:divide-white/10">
+                    {matches.map((m) => {
+                      const timeLabel =
+                        m.status === "LIVE"
+                          ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
+                          : m.status === "FT"
+                          ? "FT"
+                          : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
+
+                      return (
+                        <div key={m.id} className="px-4 py-3 flex items-center gap-4">
+                          <div className="w-28 shrink-0">
+                            <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
+                            <div className="text-sm font-semibold">{timeLabel}</div>
+                            <div className="mt-1">
+                              <StatusBadge status={m.status} />
+                            </div>
+                          </div>
+
+                          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 min-w-0">
+                            <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
+                              <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
+                              <span className="font-extrabold tabular-nums">{m.home_score ?? 0}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
+                              <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
+                              <span className="font-extrabold tabular-nums">{m.away_score ?? 0}</span>
+                            </div>
+                          </div>
+
+                          <div className="hidden lg:block w-44 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
+                            {m.venue ?? ""}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Standings (0 por ahora) */}
+              <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="font-bold">Standings</div>
+                  <div className="text-xs text-neutral-700 dark:text-white/60">Season: {season?.name ?? "—"}</div>
+                </div>
+
+                {standings.length === 0 ? (
+                  <div className="text-sm text-neutral-700 dark:text-white/60 mt-3">Coming soon.</div>
+                ) : (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="text-xs text-neutral-700 dark:text-white/60">
+                        <tr>
+                          <th className="text-left py-2">Team</th>
+                          <th className="text-right py-2">PJ</th>
+                          <th className="text-right py-2">W</th>
+                          <th className="text-right py-2">D</th>
+                          <th className="text-right py-2">L</th>
+                          <th className="text-right py-2">PF</th>
+                          <th className="text-right py-2">PA</th>
+                          <th className="text-right py-2">PTS</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
+                        {standings.map((r) => (
+                          <tr key={r.teamId}>
+                            <td className="py-2 font-medium">{r.team}</td>
+                            <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                            <td className="py-2 text-right tabular-nums">{r.w}</td>
+                            <td className="py-2 text-right tabular-nums">{r.d}</td>
+                            <td className="py-2 text-right tabular-nums">{r.l}</td>
+                            <td className="py-2 text-right tabular-nums">{r.pf}</td>
+                            <td className="py-2 text-right tabular-nums">{r.pa}</td>
+                            <td className="py-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">
+                  (Por ahora todos 0. Después lo hacemos automático con resultados + bonus points.)
+                </div>
+              </div>
+            </>
+          )}
         </section>
       </main>
 

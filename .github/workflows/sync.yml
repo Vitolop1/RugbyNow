@@ -1,0 +1,29 @@
+name: Sync scores (scrape)
+
+"on":
+  schedule:
+    - cron: "*/5 * * * *"   # cada 5 minutos
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FLASH_URLS: ${{ vars.FLASH_URLS }}
+        run: node scripts/sync-flashscore.js

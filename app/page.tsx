@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import AppHeader from "@/app/components/AppHeader";
+
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
@@ -75,7 +77,7 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   );
 }
 
-// -------- Helpers de fecha (LOCAL) --------
+// ---------- Date helpers ----------
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -98,9 +100,48 @@ function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
 
+// ---------- TZ helpers ----------
+function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
+  if (!kickoff_time) return "TBD";
+  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time; // HH:MM(:SS)
+  // interpret kickoff as UTC
+  const dt = new Date(`${match_date}T${t}Z`);
+  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
+}
+
+function formatTodayTZ(now: Date, timeZone: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    timeZone,
+  }).format(now);
+}
+
+function formatClockTZ(now: Date, timeZone: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone,
+  }).format(now);
+}
+
+function formatSecondsTZ(now: Date, timeZone: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    second: "2-digit",
+    timeZone,
+  }).format(now);
+}
+
 export default function Home() {
   // THEME
   const [dark, setDark] = useState(false);
+
+  // TIMEZONE + CLOCK
+  const [timeZone, setTimeZone] = useState<string>("America/New_York");
+  const [nowTick, setNowTick] = useState<number>(Date.now());
+  const now = useMemo(() => new Date(nowTick), [nowTick]);
 
   // FILTERS
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
@@ -118,22 +159,35 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
-  const today = new Date();
+  const todayLocal = new Date();
   const selectedISO = toISODateLocal(selectedDate);
 
-  // 1) theme init
+  // theme init
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     setDark(saved === "dark");
   }, []);
-
-  // 2) apply theme
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // 3) load competitions ONCE
+  // tz init/save
+  useEffect(() => {
+    const saved = localStorage.getItem("tz");
+    if (saved) setTimeZone(saved);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("tz", timeZone);
+  }, [timeZone]);
+
+  // clock tick
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 250);
+    return () => clearInterval(id);
+  }, []);
+
+  // load competitions once
   useEffect(() => {
     const loadComps = async () => {
       setCompLoading(true);
@@ -159,7 +213,7 @@ export default function Home() {
     loadComps();
   }, []);
 
-  // 4) load matches for selected date
+  // load matches for selected date
   useEffect(() => {
     const loadMatches = async () => {
       setLoading(true);
@@ -208,16 +262,15 @@ export default function Home() {
         const compSlug = r.season?.competition?.slug ?? "unknown";
         const region = r.season?.competition?.region ?? "";
 
-        const kickoff = r.kickoff_time ? r.kickoff_time.slice(0, 5) : "";
-        const timeLabel =
+        const kickoffLabel =
           r.status === "LIVE"
             ? `LIVE ${r.minute ?? ""}${r.minute ? "'" : ""}`.trim()
             : r.status === "FT"
             ? "FT"
-            : kickoff || "TBD";
+            : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
 
         const match: Match = {
-          timeLabel,
+          timeLabel: kickoffLabel,
           home: r.home_team?.name ?? "TBD",
           away: r.away_team?.name ?? "TBD",
           hs: r.home_score ?? 0,
@@ -236,12 +289,11 @@ export default function Home() {
     };
 
     loadMatches();
-  }, [selectedDate]);
+  }, [selectedDate, timeZone]);
 
-  // Apply LIVE filter only
+  // LIVE filter
   const filteredBlocks = useMemo(() => {
     if (tab !== "LIVE") return blocks;
-
     return blocks
       .map((b) => ({ ...b, matches: b.matches.filter((m) => m.status === "LIVE") }))
       .filter((b) => b.matches.length > 0);
@@ -258,59 +310,17 @@ export default function Home() {
       "
     >
       {/* Top Bar */}
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
-        <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-lime-400 shadow" />
-            <div>
-              <div className="text-xl font-extrabold tracking-tight">
-                Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
-              </div>
-              <div className="text-xs text-neutral-600 dark:text-white/60">Live scores • Fixtures • Tables</div>
-            </div>
-          </div>
+     
 
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <button
-              onClick={() => setTab("ALL")}
-              className={`px-3 py-2 rounded-full text-sm border transition ${
-                tab === "ALL"
-                  ? "bg-emerald-600 text-white border-emerald-600"
-                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              }`}
-            >
-              All
-            </button>
 
-            <button
-              onClick={() => setTab("LIVE")}
-              className={`px-3 py-2 rounded-full text-sm border transition ${
-                tab === "LIVE"
-                  ? "bg-emerald-600 text-white border-emerald-600"
-                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              }`}
-            >
-              Live
-            </button>
+        <AppHeader showTabs tab={tab} setTab={setTab} />
 
-            <button
-              onClick={() => setDark((v) => !v)}
-              className="ml-2 px-3 py-2 rounded-full text-sm border transition
-              bg-white/80 border-neutral-200 hover:bg-white
-              dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              title="Toggle theme"
-            >
-              {dark ? "☀️ Light" : "🌙 Dark"}
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* Layout */}
       <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        {/* Sidebar (always visible) */}
+        {/* Sidebar */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
-          {/* Dates (UN SOLO CALENDARIO) */}
+          {/* Dates */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">Fechas</div>
@@ -352,12 +362,12 @@ export default function Home() {
               />
               <span
                 className={`px-2 py-1 rounded-full text-[11px] border whitespace-nowrap ${
-                  isSameDay(selectedDate, today)
+                  isSameDay(selectedDate, todayLocal)
                     ? "bg-emerald-600 text-white border-emerald-600"
                     : "bg-white/70 border-neutral-200 text-neutral-700 dark:bg-neutral-900 dark:border-white/10 dark:text-white/70"
                 }`}
               >
-                {isSameDay(selectedDate, today) ? "HOY" : "OTRO"}
+                {isSameDay(selectedDate, todayLocal) ? "HOY" : "OTRO"}
               </span>
             </div>
 
@@ -391,11 +401,6 @@ export default function Home() {
               </div>
             )}
           </div>
-
-          <div className="rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3 dark:bg-emerald-500/10">
-            <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Rugby vibe</div>
-            <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">Sidebar siempre visible • calendario real</div>
-          </div>
         </aside>
 
         {/* Main */}
@@ -404,7 +409,8 @@ export default function Home() {
             <h2 className="text-xl font-bold">Matches</h2>
             <p className="text-sm text-neutral-700 dark:text-white/60">
               Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
-              {tab === "LIVE" ? "Live only" : "All matches"}
+              {tab === "LIVE" ? "Live only" : "All matches"} • TZ:{" "}
+              <span className="font-semibold">{timeZone}</span>
             </p>
           </div>
 
@@ -476,7 +482,25 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">RugbyNow</footer>
+      {/* Footer con firma */}
+      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            RugbyNow • Built by <span className="font-semibold">Vito Loprestti</span> • TZ:{" "}
+            <span className="font-semibold">{timeZone}</span>
+          </div>
+          <div className="opacity-90">
+            Contact:{" "}
+            <a className="underline" href="mailto:YOUR_EMAIL_HERE">
+              YOUR_EMAIL_HERE
+            </a>
+            <span className="mx-2">•</span>
+            <a className="underline" href="https://linkedin.com/in/YOUR_LINKEDIN_HERE" target="_blank" rel="noreferrer">
+              LinkedIn
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

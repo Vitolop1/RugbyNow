@@ -28,7 +28,10 @@ async function scrapeOne(url: string) {
 
 async function main() {
   // FLASH_URLS: separadas por coma
-  const urls = FLASH_URLS.split(",").map((s) => s.trim()).filter(Boolean);
+const urls = FLASH_URLS
+  .split(/\r?\n|,/)
+  .map((s) => s.trim())
+  .filter(Boolean);
 
   console.log("URLs:", urls);
 

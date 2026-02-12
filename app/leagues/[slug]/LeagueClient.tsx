@@ -8,8 +8,8 @@ type MatchStatus = "NS" | "LIVE" | "FT";
 
 type DbMatchRow = {
   id: number;
-  match_date: string; // yyyy-mm-dd
-  kickoff_time: string | null; // HH:MM:SS
+  match_date: string;
+  kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
   home_score: number | null;
@@ -49,11 +49,10 @@ function StatusBadge({ status }: { status: MatchStatus }) {
 
 function formatKickoff(kickoff: string | null) {
   if (!kickoff) return "TBD";
-  return kickoff.slice(0, 5); // HH:MM
+  return kickoff.slice(0, 5);
 }
 
 function formatDate(iso: string) {
-  // iso yyyy-mm-dd
   const [y, m, d] = iso.split("-").map(Number);
   const dt = new Date(y, m - 1, d);
   return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
@@ -62,23 +61,22 @@ function formatDate(iso: string) {
 export default function LeagueClient({ slug }: { slug: string }) {
   const [dark, setDark] = useState(false);
 
-  // left sidebar (optional: show leagues list)
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-
-  // this league info
   const [comp, setComp] = useState<Competition | null>(null);
   const [season, setSeason] = useState<Season | null>(null);
 
-  // rounds
   const [rounds, setRounds] = useState<number[]>([]);
-  const [roundIdx, setRoundIdx] = useState<number>(0);
+  const [roundIdx, setRoundIdx] = useState(0);
 
-  // matches for selected round
+  // 🔥 NUEVO: modo de vista
+  const [viewMode, setViewMode] = useState<"ROUND" | "ALL">("ROUND");
+
   const [matches, setMatches] = useState<DbMatchRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingLeague, setLoadingLeague] = useState(true);
+  const [loadingMatches, setLoadingMatches] = useState(false);
   const [err, setErr] = useState("");
 
-  // theme init
+  // theme
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     setDark(saved === "dark");
@@ -88,7 +86,7 @@ export default function LeagueClient({ slug }: { slug: string }) {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // load competitions list (for sidebar)
+  // sidebar comps
   useEffect(() => {
     const loadComps = async () => {
       const { data } = await supabase.from("competitions").select("id,name,slug,region").order("name");
@@ -97,13 +95,18 @@ export default function LeagueClient({ slug }: { slug: string }) {
     loadComps();
   }, []);
 
-  // 1) find competition + latest season for this slug
+  // load comp + season + rounds
   useEffect(() => {
     const loadLeague = async () => {
-      setLoading(true);
+      setLoadingLeague(true);
       setErr("");
+      setComp(null);
+      setSeason(null);
+      setRounds([]);
+      setRoundIdx(0);
+      setMatches([]);
+      setViewMode("ROUND");
 
-      // competition
       const { data: compData, error: compErr } = await supabase
         .from("competitions")
         .select("id,name,slug,region")
@@ -112,17 +115,11 @@ export default function LeagueClient({ slug }: { slug: string }) {
 
       if (compErr || !compData) {
         setErr(`No competition found for slug: ${slug}`);
-        setComp(null);
-        setSeason(null);
-        setRounds([]);
-        setMatches([]);
-        setLoading(false);
+        setLoadingLeague(false);
         return;
       }
-
       setComp(compData as Competition);
 
-      // latest season for this competition (by name desc usually works for your "2026" / "2025/26")
       const { data: seasonData, error: seasonErr } = await supabase
         .from("seasons")
         .select("id,name,competition_id")
@@ -133,16 +130,12 @@ export default function LeagueClient({ slug }: { slug: string }) {
 
       if (seasonErr || !seasonData) {
         setErr(`No season found for competition slug: ${slug}`);
-        setSeason(null);
-        setRounds([]);
-        setMatches([]);
-        setLoading(false);
+        setLoadingLeague(false);
         return;
       }
-
       setSeason(seasonData as Season);
 
-      // rounds list (distinct rounds in matches for this season)
+      // rounds
       const { data: roundRows, error: roundErr } = await supabase
         .from("matches")
         .select("round")
@@ -152,46 +145,47 @@ export default function LeagueClient({ slug }: { slug: string }) {
 
       if (roundErr) {
         setErr(roundErr.message);
-        setRounds([]);
-        setMatches([]);
-        setLoading(false);
+        setLoadingLeague(false);
         return;
       }
 
-      const uniq = Array.from(new Set((roundRows || []).map((r: any) => r.round).filter((x: any) => x != null))) as number[];
+      const uniq = Array.from(
+        new Set((roundRows || []).map((r: any) => r.round).filter((x: any) => typeof x === "number"))
+      ) as number[];
+
       uniq.sort((a, b) => a - b);
-
-      if (uniq.length === 0) {
-        setErr("No rounds found (matches.round is null or missing for this season).");
-        setRounds([]);
-        setMatches([]);
-        setLoading(false);
-        return;
-      }
-
       setRounds(uniq);
 
-      // DEFAULT: round 1 (si existe) sino el primero disponible
-      const idx = uniq.includes(1) ? uniq.indexOf(1) : 0;
-      setRoundIdx(idx);
+      // default: Fecha 1 si existe, si no, la primera
+      if (uniq.length === 0) {
+        // no rounds => forzamos ALL (así SIEMPRE ves partidos)
+        setViewMode("ALL");
+      } else {
+        const idx = uniq.includes(1) ? uniq.indexOf(1) : 0;
+        setRoundIdx(idx);
+        setViewMode("ROUND");
+      }
 
-      setLoading(false);
+      setLoadingLeague(false);
     };
 
     loadLeague();
   }, [slug]);
 
-  const currentRound = useMemo(() => (rounds.length ? rounds[roundIdx] : null), [rounds, roundIdx]);
+  const currentRound = useMemo(() => {
+    if (!rounds.length) return null;
+    return rounds[Math.min(roundIdx, rounds.length - 1)];
+  }, [rounds, roundIdx]);
 
-  // 2) load matches for selected round
+  // load matches (round or all)
   useEffect(() => {
-    const loadRoundMatches = async () => {
-      if (!season || currentRound == null) return;
+    const load = async () => {
+      if (!season) return;
 
-      setLoading(true);
+      setLoadingMatches(true);
       setErr("");
 
-      const { data, error } = await supabase
+      let q = supabase
         .from("matches")
         .select(
           `
@@ -201,35 +195,47 @@ export default function LeagueClient({ slug }: { slug: string }) {
         `
         )
         .eq("season_id", season.id)
-        .eq("round", currentRound)
         .order("match_date", { ascending: true })
         .order("kickoff_time", { ascending: true });
+
+      if (viewMode === "ROUND" && currentRound != null) {
+        q = q.eq("round", currentRound);
+      }
+
+      const { data, error } = await q;
 
       if (error) {
         setErr(error.message);
         setMatches([]);
-        setLoading(false);
+        setLoadingMatches(false);
         return;
       }
 
-      setMatches((data || []) as unknown as DbMatchRow[]);
-      setLoading(false);
+      const rows = (data || []) as unknown as DbMatchRow[];
+      setMatches(rows);
+      setLoadingMatches(false);
+
+      // 🔥 fallback automático:
+      // si estamos en ROUND y no hay partidos, pasamos a ALL para que se vea algo sí o sí
+      if (viewMode === "ROUND" && rows.length === 0) {
+        setViewMode("ALL");
+      }
     };
 
-    loadRoundMatches();
-  }, [season?.id, currentRound]);
+    load();
+  }, [season?.id, currentRound, viewMode]);
+
+  const isBusy = loadingLeague || loadingMatches;
 
   return (
     <div
       className="
         min-h-screen transition-colors duration-300
-        bg-gradient-to-br
-        from-green-500 via-green-600 to-green-600
+        bg-gradient-to-br from-green-500 via-green-600 to-green-600
         dark:bg-black dark:from-black dark:via-black dark:to-black
         text-neutral-900 dark:text-white
       "
     >
-      {/* Top */}
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -238,9 +244,7 @@ export default function LeagueClient({ slug }: { slug: string }) {
               <div className="text-xl font-extrabold tracking-tight">
                 Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
               </div>
-              <div className="text-xs text-neutral-600 dark:text-white/60">
-                League view • Fecha (round) style
-              </div>
+              <div className="text-xs text-neutral-600 dark:text-white/60">League view • Fecha (round) style</div>
             </div>
           </div>
 
@@ -285,39 +289,70 @@ export default function LeagueClient({ slug }: { slug: string }) {
               <div className="text-sm text-neutral-700 dark:text-white/70">League</div>
               <h1 className="text-2xl font-extrabold">{comp?.name ?? slug}</h1>
               <div className="text-sm text-neutral-700 dark:text-white/60 mt-1">
-                Showing full round (Fecha) • not only today
+                {viewMode === "ROUND" && rounds.length ? "Showing full round (Fecha)" : "Showing ALL matches in season"}
               </div>
             </div>
 
-            {/* Round nav */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              {/* Toggle ALL */}
               <button
-                onClick={() => setRoundIdx((i) => Math.max(0, i - 1))}
-                disabled={roundIdx <= 0}
-                className="px-3 py-2 rounded-full text-sm border transition disabled:opacity-40
-                  bg-white/80 border-neutral-200 hover:bg-white
-                  dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                onClick={() => setViewMode("ALL")}
+                className={`px-3 py-2 rounded-full text-sm border transition
+                  ${
+                    viewMode === "ALL"
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                  }`}
               >
-                ← Fecha
+                Todos
               </button>
 
-              <div className="px-4 py-2 rounded-full text-sm border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
-                {currentRound != null ? `Fecha ${currentRound}` : "Fecha"}
-              </div>
+              {/* Round nav only if rounds exist */}
+              {rounds.length ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setViewMode("ROUND");
+                      setRoundIdx((i) => Math.max(0, i - 1));
+                    }}
+                    disabled={roundIdx <= 0}
+                    className="px-3 py-2 rounded-full text-sm border transition disabled:opacity-40
+                      bg-white/80 border-neutral-200 hover:bg-white
+                      dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                  >
+                    ← Fecha
+                  </button>
 
-              <button
-                onClick={() => setRoundIdx((i) => Math.min(rounds.length - 1, i + 1))}
-                disabled={roundIdx >= rounds.length - 1}
-                className="px-3 py-2 rounded-full text-sm font-extrabold border-2 border-emerald-600
-                  bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
-                  dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-              >
-                Fecha →
-              </button>
+                  <button
+                    onClick={() => setViewMode("ROUND")}
+                    className={`px-4 py-2 rounded-full text-sm border transition
+                      ${
+                        viewMode === "ROUND"
+                          ? "bg-emerald-600 text-white border-emerald-600"
+                          : "bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10"
+                      }`}
+                  >
+                    {currentRound != null ? `Fecha ${currentRound}` : "Fecha"}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setViewMode("ROUND");
+                      setRoundIdx((i) => Math.min(rounds.length - 1, i + 1));
+                    }}
+                    disabled={roundIdx >= rounds.length - 1}
+                    className="px-3 py-2 rounded-full text-sm font-extrabold border-2 border-emerald-600
+                      bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
+                      dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                  >
+                    Fecha →
+                  </button>
+                </>
+              ) : null}
             </div>
           </div>
 
-          {loading ? (
+          {isBusy ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
               Loading...
             </div>
@@ -328,7 +363,7 @@ export default function LeagueClient({ slug }: { slug: string }) {
             </div>
           ) : matches.length === 0 ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              No matches in this Fecha.
+              No matches found.
             </div>
           ) : (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
@@ -373,7 +408,6 @@ export default function LeagueClient({ slug }: { slug: string }) {
             </div>
           )}
 
-          {/* Table placeholder */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
             <div className="font-bold">Table / Standings</div>
             <div className="text-sm text-neutral-700 dark:text-white/60 mt-2">

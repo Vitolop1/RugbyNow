@@ -66,36 +66,34 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   }
   if (status === "FT") {
     return (
-      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-white/10 dark:text-white">
+      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
         FT
       </span>
     );
   }
   return (
-    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-white/5 dark:text-white/80 dark:border-white/10">
+    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
       PRE
     </span>
   );
 }
 
 export default function Home() {
-  // null = todavía no cargamos theme (evita parpadeo y confusión)
-  const [dark, setDark] = useState<boolean | null>(null);
+  // IMPORTANTE: default LIGHT
+  const [dark, setDark] = useState<boolean>(false);
 
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedLeague, setSelectedLeague] = useState<string>("All");
 
-  // 1) Load theme once (DEFAULT = LIGHT if no saved theme)
+  // Load saved theme once (default light if not saved)
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     if (saved === "dark") setDark(true);
     else setDark(false);
   }, []);
 
-  // 2) Apply theme to <html> so Tailwind dark: works
+  // Apply theme to <html>
   useEffect(() => {
-    if (dark === null) return;
-
     const html = document.documentElement;
     html.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
@@ -119,20 +117,18 @@ export default function Home() {
     return blocks;
   }, [selectedLeague, tab]);
 
-  // While theme loads, render nothing (fast, avoids flash)
-  if (dark === null) return null;
-
   return (
     <div
       className="
         min-h-screen transition-colors duration-300
-        bg-gradient-to-br from-emerald-100 via-emerald-200 to-green-300
-        dark:from-neutral-950 dark:via-neutral-950 dark:to-black
+        bg-gradient-to-br 
+        from-emerald-500 via-green-600 to-emerald-400
+        dark:bg-black dark:from-black dark:via-black dark:to-black
         text-neutral-900 dark:text-white
       "
     >
       {/* Top Bar */}
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-neutral-950/80">
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-lime-400 shadow" />
@@ -152,7 +148,7 @@ export default function Home() {
               className={`px-3 py-2 rounded-full text-sm border transition ${
                 tab === "ALL"
                   ? "bg-emerald-600 text-white border-emerald-600"
-                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10"
+                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
               }`}
             >
               All
@@ -162,7 +158,7 @@ export default function Home() {
               className={`px-3 py-2 rounded-full text-sm border transition ${
                 tab === "LIVE"
                   ? "bg-emerald-600 text-white border-emerald-600"
-                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10"
+                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
               }`}
             >
               Live
@@ -172,7 +168,7 @@ export default function Home() {
               onClick={() => setDark((v) => !v)}
               className="ml-2 px-3 py-2 rounded-full text-sm border transition
               bg-white/80 border-neutral-200 hover:bg-white
-              dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10"
+              dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
               title="Toggle theme"
             >
               {dark ? "☀️ Light" : "🌙 Dark"}
@@ -184,10 +180,8 @@ export default function Home() {
       {/* Layout */}
       <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
         {/* Sidebar */}
-        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-black/50">
-          <div className="text-sm font-semibold mb-3 text-neutral-700 dark:text-white/80">
-            Leagues
-          </div>
+        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950">
+          <div className="text-sm font-semibold mb-3 text-neutral-700 dark:text-white/80">Leagues</div>
 
           <div className="space-y-2">
             {leagues.map((x) => {
@@ -199,7 +193,7 @@ export default function Home() {
                   className={`w-full text-left px-3 py-2 rounded-xl border transition ${
                     active
                       ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10"
+                      : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
                   }`}
                 >
                   {x}
@@ -208,10 +202,8 @@ export default function Home() {
             })}
           </div>
 
-          <div className="mt-4 rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3">
-            <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
-              Rugby vibe
-            </div>
+          <div className="mt-4 rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3 dark:bg-emerald-500/10">
+            <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Rugby vibe</div>
             <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">
               Clean UI, fast live updates, leagues you care about.
             </div>
@@ -228,14 +220,14 @@ export default function Home() {
           </div>
 
           {filteredBlocks.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-black/45 dark:text-white/70">
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
               No matches found for this filter.
             </div>
           ) : (
             filteredBlocks.map((block) => (
               <div
                 key={block.league}
-                className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-black/45"
+                className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950"
               >
                 <div className="px-4 py-3 flex items-center justify-between border-b border-neutral-200 dark:border-white/10">
                   <div className="flex items-center gap-2">
@@ -263,12 +255,12 @@ export default function Home() {
                       </div>
 
                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-white/5 dark:border-white/10">
+                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium">{m.home}</span>
                           <span className="font-extrabold tabular-nums">{m.hs}</span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-white/5 dark:border-white/10">
+                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium">{m.away}</span>
                           <span className="font-extrabold tabular-nums">{m.as}</span>
                         </div>

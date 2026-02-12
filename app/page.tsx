@@ -79,31 +79,26 @@ function StatusBadge({ status }: { status: MatchStatus }) {
 }
 
 export default function Home() {
-  const [dark, setDark] = useState<boolean>(true);
+  // null = todavía no cargamos theme (evita parpadeo y confusión)
+  const [dark, setDark] = useState<boolean | null>(null);
+
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedLeague, setSelectedLeague] = useState<string>("All");
 
-  // 1) Read saved theme once (or system preference)
+  // 1) Load theme once (DEFAULT = LIGHT if no saved theme)
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     if (saved === "dark") setDark(true);
-    else if (saved === "light") setDark(false);
-    else {
-      const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
-      setDark(Boolean(prefersDark));
-    }
+    else setDark(false);
   }, []);
 
   // 2) Apply theme to <html> so Tailwind dark: works
   useEffect(() => {
+    if (dark === null) return;
+
     const html = document.documentElement;
-    if (dark) {
-      html.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      html.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    html.classList.toggle("dark", dark);
+    localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
   const leagues = useMemo(() => ["All", ...DATA.map((x) => x.league)], []);
@@ -124,17 +119,20 @@ export default function Home() {
     return blocks;
   }, [selectedLeague, tab]);
 
+  // While theme loads, render nothing (fast, avoids flash)
+  if (dark === null) return null;
+
   return (
     <div
       className="
         min-h-screen transition-colors duration-300
         bg-gradient-to-br from-emerald-100 via-emerald-200 to-green-300
-        dark:from-neutral-950 dark:via-emerald-950 dark:to-neutral-950
+        dark:from-neutral-950 dark:via-neutral-950 dark:to-black
         text-neutral-900 dark:text-white
       "
     >
       {/* Top Bar */}
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-neutral-950/70">
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-neutral-950/80">
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-lime-400 shadow" />
@@ -186,8 +184,10 @@ export default function Home() {
       {/* Layout */}
       <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
         {/* Sidebar */}
-        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-black/40">
-          <div className="text-sm font-semibold mb-3 text-neutral-700 dark:text-white/80">Leagues</div>
+        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-black/50">
+          <div className="text-sm font-semibold mb-3 text-neutral-700 dark:text-white/80">
+            Leagues
+          </div>
 
           <div className="space-y-2">
             {leagues.map((x) => {
@@ -209,7 +209,9 @@ export default function Home() {
           </div>
 
           <div className="mt-4 rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3">
-            <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Rugby vibe</div>
+            <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+              Rugby vibe
+            </div>
             <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">
               Clean UI, fast live updates, leagues you care about.
             </div>
@@ -226,14 +228,14 @@ export default function Home() {
           </div>
 
           {filteredBlocks.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-black/35 dark:text-white/70">
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-black/45 dark:text-white/70">
               No matches found for this filter.
             </div>
           ) : (
             filteredBlocks.map((block) => (
               <div
                 key={block.league}
-                className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-black/35"
+                className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-black/45"
               >
                 <div className="px-4 py-3 flex items-center justify-between border-b border-neutral-200 dark:border-white/10">
                   <div className="flex items-center gap-2">

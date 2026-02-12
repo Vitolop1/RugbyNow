@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type Props = {
-  title?: string;
+  title?: React.ReactNode;
   subtitle?: string;
   showTabs?: boolean;
   tab?: "ALL" | "LIVE";
@@ -53,16 +52,15 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // tz init/save
+  // tz init/save + notify
   useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
   }, []);
-    useEffect(() => {
+  useEffect(() => {
     localStorage.setItem("tz", timeZone);
     window.dispatchEvent(new Event("tz-change"));
-    }, [timeZone]);
-
+  }, [timeZone]);
 
   // clock tick
   useEffect(() => {
@@ -73,11 +71,17 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
       <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-3">
-        {/* Left brand */}
-        <div className="flex items-center gap-3">
-          <Link href="/" className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-lime-400 shadow block" />
+        {/* Left brand: FULL RELOAD to home */}
+        <a href="/" className="flex items-center gap-3" aria-label="Go to Home">
+          {/* Logo image */}
+          <img
+            src="/logo.jpg"
+            alt="RugbyNow logo"
+            className="h-9 w-9 rounded-xl object-cover shadow"
+          />
+
           <div>
-            <div className="text-xl font-extrabold tracking-tight">
+            <div className="text-xl font-extrabold tracking-tight cursor-pointer">
               {title ?? (
                 <>
                   Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
@@ -88,7 +92,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
               {subtitle ?? "Live scores • Fixtures • Tables"}
             </div>
           </div>
-        </div>
+        </a>
 
         {/* Right controls */}
         <div className="flex items-center gap-3 flex-wrap justify-end">
@@ -100,7 +104,9 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab }: Pr
             <div className="text-[11px] leading-none text-neutral-600 dark:text-white/60">Time</div>
             <div className="text-lg font-extrabold tabular-nums leading-tight">
               {formatClockTZ(now, timeZone)}
-              <span className="ml-2 text-sm font-black opacity-80">{formatSecondsTZ(now, timeZone)}</span>
+              <span className="ml-2 text-sm font-black opacity-80">
+                {formatSecondsTZ(now, timeZone)}
+              </span>
             </div>
           </div>
 

@@ -18,15 +18,21 @@ type Match = {
 type LeagueBlock = {
   league: string;
   region: string;
-  slug: string; // 👈 para linkear a /leagues/[slug]
+  slug: string;
   matches: Match[];
 };
 
-// Lo que viene de Supabase (con joins)
+type Competition = {
+  id: number;
+  name: string;
+  slug: string;
+  region: string | null;
+};
+
 type DbMatchRow = {
   id: number;
-  match_date: string; // "2026-02-05"
-  kickoff_time: string | null; // "14:10:00" o null
+  match_date: string;
+  kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
   home_score: number | null;
@@ -69,12 +75,16 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   );
 }
 
-// Helpers de fecha
+// -------- Helpers de fecha (LOCAL) --------
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+function fromISODateLocal(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 function addDays(d: Date, delta: number) {
   const x = new Date(d);
@@ -84,38 +94,74 @@ function addDays(d: Date, delta: number) {
 function niceDate(d: Date) {
   return d.toLocaleDateString(undefined, { weekday: "short", year: "numeric", month: "short", day: "numeric" });
 }
+function isSameDay(a: Date, b: Date) {
+  return toISODateLocal(a) === toISODateLocal(b);
+}
 
 export default function Home() {
   // THEME
-  const [dark, setDark] = useState<boolean>(false);
+  const [dark, setDark] = useState(false);
 
   // FILTERS
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
 
-  // DATE NAV
+  // DATE
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
 
-  // DATA
-  const [blocks, setBlocks] = useState<LeagueBlock[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [loadError, setLoadError] = useState<string>("");
+  // LEFT LISTS
+  const [competitions, setCompetitions] = useState<Competition[]>([]);
+  const [compLoading, setCompLoading] = useState(true);
+  const [compError, setCompError] = useState("");
 
-  // 1) Load saved theme once
+  // MATCH DATA
+  const [blocks, setBlocks] = useState<LeagueBlock[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  const today = new Date();
+  const selectedISO = toISODateLocal(selectedDate);
+
+  // 1) theme init
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     setDark(saved === "dark");
   }, []);
 
-  // 2) Apply theme to <html>
+  // 2) apply theme
   useEffect(() => {
-    const html = document.documentElement;
-    html.classList.toggle("dark", dark);
+    document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // 3) Load matches for selected day (real)
+  // 3) load competitions ONCE
   useEffect(() => {
-    const load = async () => {
+    const loadComps = async () => {
+      setCompLoading(true);
+      setCompError("");
+
+      const { data, error } = await supabase
+        .from("competitions")
+        .select("id, name, slug, region")
+        .order("name", { ascending: true });
+
+      if (error) {
+        console.error("Error loading competitions:", error);
+        setCompetitions([]);
+        setCompError(error.message ?? "Unknown competitions error");
+        setCompLoading(false);
+        return;
+      }
+
+      setCompetitions((data || []) as Competition[]);
+      setCompLoading(false);
+    };
+
+    loadComps();
+  }, []);
+
+  // 4) load matches for selected date
+  useEffect(() => {
+    const loadMatches = async () => {
       setLoading(true);
       setLoadError("");
 
@@ -149,13 +195,12 @@ export default function Home() {
       if (error) {
         console.error("Error loading matches:", error);
         setBlocks([]);
-        setLoadError(error.message ?? "Unknown error");
+        setLoadError(error.message ?? "Unknown matches error");
         setLoading(false);
         return;
       }
 
       const rows = (data || []) as unknown as DbMatchRow[];
-
       const map = new Map<string, LeagueBlock>();
 
       for (const r of rows) {
@@ -180,24 +225,20 @@ export default function Home() {
           status: r.status,
         };
 
-        const key = compSlug; // 👈 usamos slug como key
-        if (!map.has(key)) {
-          map.set(key, { league: compName, region, slug: compSlug, matches: [] });
+        if (!map.has(compSlug)) {
+          map.set(compSlug, { league: compName, region, slug: compSlug, matches: [] });
         }
-        map.get(key)!.matches.push(match);
+        map.get(compSlug)!.matches.push(match);
       }
 
       setBlocks(Array.from(map.values()));
       setLoading(false);
     };
 
-    load();
+    loadMatches();
   }, [selectedDate]);
 
-  // Leagues reales (para sidebar)
-  const leagues = useMemo(() => blocks, [blocks]);
-
-  // Apply tab filter
+  // Apply LIVE filter only
   const filteredBlocks = useMemo(() => {
     if (tab !== "LIVE") return blocks;
 
@@ -266,79 +307,110 @@ export default function Home() {
       </header>
 
       {/* Layout */}
-      <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-        {/* Sidebar */}
-        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950">
-          <div className="text-sm font-semibold mb-3 text-neutral-700 dark:text-white/80">Leagues</div>
+      <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+        {/* Sidebar (always visible) */}
+        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
+          {/* Dates (UN SOLO CALENDARIO) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">Fechas</div>
 
-          <div className="space-y-2">
-            <Link
-              href="/"
-              className="block w-full text-left px-3 py-2 rounded-xl border transition bg-emerald-600 text-white border-emerald-600"
-            >
-              Today (Home)
-            </Link>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedDate((d) => addDays(d, -1))}
+                  className="px-2 py-1 rounded-lg text-xs border bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                  aria-label="Previous day"
+                >
+                  ←
+                </button>
 
-            {leagues.map((l) => (
-              <Link
-                key={l.slug}
-                href={`/leagues/${l.slug}`}
-                className="block w-full text-left px-3 py-2 rounded-xl border transition
-                  bg-white/80 border-neutral-200 hover:bg-white
-                  dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                <button
+                  onClick={() => setSelectedDate(new Date())}
+                  className="px-2 py-1 rounded-lg text-xs border bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                >
+                  Today
+                </button>
+
+                <button
+                  onClick={() => setSelectedDate((d) => addDays(d, +1))}
+                  className="px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-emerald-600
+                             bg-emerald-600 text-white hover:bg-emerald-700
+                             dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                  aria-label="Next day"
+                >
+                  NEXT →
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="date"
+                value={selectedISO}
+                onChange={(e) => setSelectedDate(fromISODateLocal(e.target.value))}
+                className="w-full px-3 py-2 rounded-xl text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10"
+              />
+              <span
+                className={`px-2 py-1 rounded-full text-[11px] border whitespace-nowrap ${
+                  isSameDay(selectedDate, today)
+                    ? "bg-emerald-600 text-white border-emerald-600"
+                    : "bg-white/70 border-neutral-200 text-neutral-700 dark:bg-neutral-900 dark:border-white/10 dark:text-white/70"
+                }`}
               >
-                {l.league}
-              </Link>
-            ))}
+                {isSameDay(selectedDate, today) ? "HOY" : "OTRO"}
+              </span>
+            </div>
+
+            <div className="text-xs text-neutral-700 dark:text-white/60">
+              Seleccionada: <span className="font-semibold">{niceDate(selectedDate)}</span>
+            </div>
           </div>
 
-          <div className="mt-4 rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3 dark:bg-emerald-500/10">
+          {/* Leagues */}
+          <div>
+            <div className="text-sm font-semibold mb-2 text-neutral-700 dark:text-white/80">Ligas</div>
+
+            {compLoading ? (
+              <div className="text-xs text-neutral-700 dark:text-white/60">Cargando ligas...</div>
+            ) : compError ? (
+              <div className="text-xs text-red-700 dark:text-red-300">{compError}</div>
+            ) : (
+              <div className="space-y-2">
+                {competitions.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/leagues/${c.slug}`}
+                    className="block w-full text-left px-3 py-2 rounded-xl border transition
+                      bg-white/80 border-neutral-200 hover:bg-white
+                      dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                  >
+                    <div className="text-sm font-medium">{c.name}</div>
+                    {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3 dark:bg-emerald-500/10">
             <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Rugby vibe</div>
-            <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">
-              Real data from Supabase • Liga pages • Date navigation
-            </div>
+            <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">Sidebar siempre visible • calendario real</div>
           </div>
         </aside>
 
-        {/* Boards */}
+        {/* Main */}
         <section className="space-y-4">
-          {/* Header + Date nav */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-bold">Matches</h2>
-              <p className="text-sm text-neutral-700 dark:text-white/60">
-                Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
-                {tab === "LIVE" ? "Live only" : "All matches"}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSelectedDate((d) => addDays(d, -1))}
-                className="px-3 py-2 rounded-full text-sm border transition bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              >
-                ← Prev
-              </button>
-
-              <button
-                onClick={() => setSelectedDate(new Date())}
-                className="px-3 py-2 rounded-full text-sm border transition bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              >
-                Today
-              </button>
-
-              <button
-                onClick={() => setSelectedDate((d) => addDays(d, +1))}
-                className="px-3 py-2 rounded-full text-sm border transition bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              >
-                Next →
-              </button>
-            </div>
+          <div>
+            <h2 className="text-xl font-bold">Matches</h2>
+            <p className="text-sm text-neutral-700 dark:text-white/60">
+              Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
+              {tab === "LIVE" ? "Live only" : "All matches"}
+            </p>
           </div>
 
           {loading ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              Loading real matches...
+              Loading matches...
             </div>
           ) : loadError ? (
             <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
@@ -347,7 +419,7 @@ export default function Home() {
             </div>
           ) : filteredBlocks.length === 0 ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              No matches found for this day / filter.
+              No matches for this date (but sidebar stays 😉)
             </div>
           ) : (
             filteredBlocks.map((block) => (
@@ -404,9 +476,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">
-        RugbyNow • Built for live rugby.
-      </footer>
+      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">RugbyNow</footer>
     </div>
   );
 }

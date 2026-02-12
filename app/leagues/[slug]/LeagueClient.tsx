@@ -79,7 +79,7 @@ function formatDateShort(iso: string) {
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
-  const dt = new Date(`${match_date}T${t}Z`); // interpret stored time as UTC
+  const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
 
@@ -93,18 +93,63 @@ function parseRound(v: any): number | null {
   return null;
 }
 
-function normalizeSlug(raw: unknown): string | null {
-  if (!raw) return null;
-  if (Array.isArray(raw)) return raw[0] ?? null;
-  if (typeof raw === "string") return raw;
-  return null;
-}
+// ---------- i18n (simple & scalable) ----------
+type Lang = "en" | "es" | "fr";
+
+const I18N: Record<Lang, Record<string, string>> = {
+  en: {
+    leagues: "Leagues",
+    league: "League",
+    season: "Season",
+    round: "Round",
+    standings: "Standings",
+    loadingLeague: "Loading league...",
+    loadingMatches: "Loading matches...",
+    noMatchesSeason: "No matches loaded for this season yet.",
+    noMatchesRound: "No matches in this round.",
+    comingSoon: "Coming soon.",
+    tz: "TZ",
+    builtBy: "Built by",
+    contact: "Contact",
+  },
+  es: {
+    leagues: "Ligas",
+    league: "Liga",
+    season: "Temporada",
+    round: "Fecha",
+    standings: "Tabla",
+    loadingLeague: "Cargando liga...",
+    loadingMatches: "Cargando partidos...",
+    noMatchesSeason: "Todavía no hay partidos cargados para esta temporada.",
+    noMatchesRound: "No hay partidos en esta fecha.",
+    comingSoon: "Próximamente.",
+    tz: "TZ",
+    builtBy: "Hecho por",
+    contact: "Contacto",
+  },
+  fr: {
+    leagues: "Ligues",
+    league: "Ligue",
+    season: "Saison",
+    round: "Journée",
+    standings: "Classement",
+    loadingLeague: "Chargement de la ligue...",
+    loadingMatches: "Chargement des matchs...",
+    noMatchesSeason: "Aucun match n’est encore chargé pour cette saison.",
+    noMatchesRound: "Aucun match dans cette journée.",
+    comingSoon: "Bientôt disponible.",
+    tz: "TZ",
+    builtBy: "Créé par",
+    contact: "Contact",
+  },
+};
 
 export default function LeagueClient() {
-  const params = useParams();
-  const slug = normalizeSlug((params as any)?.slug);
+  const params = useParams<{ slug: string }>();
+  const slug = params?.slug;
 
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
+  const [lang, setLang] = useState<Lang>("en");
 
   // sidebar leagues
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -121,42 +166,54 @@ export default function LeagueClient() {
   const [matches, setMatches] = useState<DbMatchRow[]>([]);
   const [standings, setStandings] = useState<StandingRow[]>([]);
 
-  // loading / errors (separados para no pisarse)
+  // loading/error
   const [loadingLeague, setLoadingLeague] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(false);
-  const [leagueErr, setLeagueErr] = useState("");
-  const [matchesErr, setMatchesErr] = useState("");
+  const [err, setErr] = useState("");
 
-  // --- TZ init + sync ---
+  const t = (key: string) => I18N[lang][key] ?? key;
+
+  // --- TZ + Lang init + sync ---
   useEffect(() => {
-    const saved = localStorage.getItem("tz");
-    if (saved) setTimeZone(saved);
+    const savedTZ = localStorage.getItem("tz");
+    if (savedTZ) setTimeZone(savedTZ);
+
+    const savedLang = localStorage.getItem("lang") as Lang | null;
+    if (savedLang === "en" || savedLang === "es" || savedLang === "fr") setLang(savedLang);
 
     const onStorage = (e: StorageEvent) => {
       if (e.key === "tz" && e.newValue) setTimeZone(e.newValue);
+      if (e.key === "lang" && e.newValue && (e.newValue === "en" || e.newValue === "es" || e.newValue === "fr")) {
+        setLang(e.newValue as Lang);
+      }
     };
     window.addEventListener("storage", onStorage);
 
-    const onCustom = () => {
+    const onTZCustom = () => {
       const v = localStorage.getItem("tz");
       if (v) setTimeZone(v);
     };
-    window.addEventListener("tz-change", onCustom as any);
+    window.addEventListener("tz-change", onTZCustom as any);
+
+    // ✅ ADD THIS
+    const onLangCustom = () => {
+      const v = localStorage.getItem("lang");
+      if (v === "en" || v === "es" || v === "fr") setLang(v);
+    };
+    window.addEventListener("lang-change", onLangCustom as any);
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("tz-change", onCustom as any);
+      window.removeEventListener("tz-change", onTZCustom as any);
+      window.removeEventListener("lang-change", onLangCustom as any);
     };
   }, []);
+
 
   // --- sidebar competitions ---
   useEffect(() => {
     const loadComps = async () => {
-      const { data, error } = await supabase
-        .from("competitions")
-        .select("id,name,slug,region")
-        .order("name", { ascending: true });
-
+      const { data, error } = await supabase.from("competitions").select("id,name,slug,region").order("name", { ascending: true });
       if (!error) setCompetitions((data || []) as Competition[]);
     };
     loadComps();
@@ -193,7 +250,6 @@ export default function LeagueClient() {
     if (error) throw error;
 
     const map = new Map<number, { first: string; last: string; count: number }>();
-
     for (const row of (data || []) as any[]) {
       const r = parseRound(row.round);
       if (r == null) continue;
@@ -228,54 +284,17 @@ export default function LeagueClient() {
     }
 
     const rows: StandingRow[] = Array.from(map.entries())
-      .map(([teamId, team]) => ({
-        teamId,
-        team,
-        pj: 0,
-        w: 0,
-        d: 0,
-        l: 0,
-        pf: 0,
-        pa: 0,
-        pts: 0,
-      }))
+      .map(([teamId, team]) => ({ teamId, team, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 }))
       .sort((a, b) => a.team.localeCompare(b.team));
 
     setStandings(rows);
   }
 
-  async function pickBestSeason(competitionId: number): Promise<Season | null> {
-    const { data: seasons, error } = await supabase
-      .from("seasons")
-      .select("id,name,competition_id")
-      .eq("competition_id", competitionId)
-      .order("name", { ascending: false });
-
-    if (error || !seasons?.length) return null;
-
-    // 1) elegí la primera season que tenga al menos 1 match
-    for (const s of seasons as Season[]) {
-      const { count } = await supabase
-        .from("matches")
-        .select("id", { count: "exact", head: true })
-        .eq("season_id", s.id);
-
-      if ((count ?? 0) > 0) return s;
-    }
-
-    // 2) fallback: la “latest” por nombre igual
-    return seasons[0] as Season;
-  }
-
   // --- MAIN LOAD: comp + season + roundMeta + default round ---
   useEffect(() => {
-    let cancel = false;
-
     const loadLeagueEverything = async () => {
       setLoadingLeague(true);
-      setLeagueErr("");
-      setMatchesErr("");
-
+      setErr("");
       setComp(null);
       setSeason(null);
       setRoundMeta([]);
@@ -284,7 +303,7 @@ export default function LeagueClient() {
       setStandings([]);
 
       if (!slug) {
-        setLeagueErr("Slug is undefined (check app/leagues/[slug]/page.tsx params).");
+        setErr("Slug is undefined (check app/leagues/[slug]/page.tsx params).");
         setLoadingLeague(false);
         return;
       }
@@ -295,30 +314,30 @@ export default function LeagueClient() {
         .eq("slug", slug)
         .maybeSingle();
 
-      if (cancel) return;
-
       if (compErr || !compData) {
-        setLeagueErr(`No competition found for slug: ${slug}`);
+        setErr(`No competition found for slug: ${slug}`);
         setLoadingLeague(false);
         return;
       }
       setComp(compData as Competition);
 
-      const bestSeason = await pickBestSeason(compData.id);
+      const { data: seasonData, error: seasonErr } = await supabase
+        .from("seasons")
+        .select("id,name,competition_id")
+        .eq("competition_id", compData.id)
+        .order("name", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (cancel) return;
-
-      if (!bestSeason) {
-        setLeagueErr(`No season found for: ${slug}`);
+      if (seasonErr || !seasonData) {
+        setErr(`No season found for: ${slug}`);
         setLoadingLeague(false);
         return;
       }
-      setSeason(bestSeason);
+      setSeason(seasonData as Season);
 
       try {
-        const meta = await fetchRoundMeta(bestSeason.id);
-        if (cancel) return;
-
+        const meta = await fetchRoundMeta(seasonData.id);
         setRoundMeta(meta);
         if (meta.length > 0) {
           const has1 = meta.some((m) => m.round === 1);
@@ -327,52 +346,37 @@ export default function LeagueClient() {
           setSelectedRound(null);
         }
       } catch (e: any) {
-        if (cancel) return;
-        setLeagueErr(e?.message ?? "Error loading rounds");
+        setErr(e?.message ?? "Error loading rounds");
         setLoadingLeague(false);
         return;
       }
 
-      fetchStandingsZero(bestSeason.id).catch(() => {});
+      fetchStandingsZero(seasonData.id).catch(() => {});
       setLoadingLeague(false);
     };
 
     loadLeagueEverything();
-
-    return () => {
-      cancel = true;
-    };
   }, [slug]);
 
   // --- Load matches when selectedRound changes ---
   useEffect(() => {
-    let cancel = false;
-
     const run = async () => {
       if (!season || selectedRound == null) return;
       setLoadingMatches(true);
-      setMatchesErr("");
-
+      setErr("");
       try {
         const m = await fetchMatchesForRound(season.id, selectedRound);
-        if (cancel) return;
         setMatches(m);
       } catch (e: any) {
-        if (cancel) return;
-        setMatchesErr(e?.message ?? "Error loading matches");
+        setErr(e?.message ?? "Error loading matches");
         setMatches([]);
       }
-
-      if (!cancel) setLoadingMatches(false);
+      setLoadingMatches(false);
     };
-
     run();
-    return () => {
-      cancel = true;
-    };
   }, [season?.id, selectedRound]);
 
-  // helpers for prev/next
+  // --- slider helpers ---
   const roundsList = useMemo(() => roundMeta.map((m) => m.round), [roundMeta]);
   const selectedIdx = useMemo(() => {
     if (selectedRound == null) return -1;
@@ -381,62 +385,76 @@ export default function LeagueClient() {
 
   return (
     <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-500 via-green-600 to-green-600 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
-      <AppHeader
-        title={
-          <>
-            Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
-          </>
-        }
-        subtitle="League view • Fecha (round) style"
-      />
+     <AppHeader
+  title={
+    <>
+      Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
+    </>
+  }
+  subtitle="League view"
+  lang={lang}
+  onLangChange={(l) => {
+    setLang(l);
+    localStorage.setItem("lang", l);
+  }}
+/>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6">
-        {/* Sidebar */}
+
+
+
+
+      <main className="mx-auto max-w-7xl px-4 py-6 grid grid-cols-1 xl:grid-cols-[320px_1fr_360px] gap-6">
+        {/* LEFT: Sidebar */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
-          <div>
-            <div className="text-sm font-semibold mb-2 text-neutral-700 dark:text-white/80">Ligas</div>
-            <div className="space-y-2">
-              {competitions.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/leagues/${c.slug}`}
-                  className={`block w-full px-3 py-2 rounded-xl border transition ${
-                    c.slug === slug
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                  }`}
-                >
-                  <div className="text-sm font-medium">{c.name}</div>
-                  {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
-                </Link>
-              ))}
-            </div>
+          <div className="flex items-center justify-between gap-2">
+          <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
+          </div>
+
+
+            
+
+          <div className="space-y-2">
+            {competitions.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/leagues/${c.slug}`}
+                className={`block w-full px-3 py-2 rounded-xl border transition ${
+                  c.slug === slug
+                    ? "bg-emerald-600 text-white border-emerald-600"
+                    : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                }`}
+              >
+                <div className="text-sm font-medium">{c.name}</div>
+                {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
+              </Link>
+            ))}
           </div>
 
           <div className="rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3 dark:bg-emerald-500/10">
             <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Rugby vibe</div>
             <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">
-              TZ: <span className="font-semibold">{timeZone}</span>
+              {t("tz")}: <span className="font-semibold">{timeZone}</span>
               <span className="mx-2">•</span>
-              Season: <span className="font-semibold">{season?.name ?? "—"}</span>
+              {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
             </div>
           </div>
         </aside>
 
-        {/* Main */}
+        {/* CENTER: Matches */}
         <section className="space-y-4 min-w-0">
+          {/* Header */}
           <div>
-            <div className="text-sm text-neutral-700 dark:text-white/70">League</div>
-            <h1 className="text-2xl font-extrabold">{comp?.name ?? slug ?? "League"}</h1>
+            <div className="text-sm text-neutral-700 dark:text-white/70">{t("league")}</div>
+            <h1 className="text-2xl font-extrabold">{comp?.name ?? slug}</h1>
             <div className="text-sm text-neutral-700 dark:text-white/60 mt-1">
-              Season: <span className="font-semibold">{season?.name ?? "—"}</span> • Fecha{" "}
-              <span className="font-semibold">{selectedRound ?? "—"}</span>
+              {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
             </div>
           </div>
 
-          {/* NAV chiquito arriba */}
+          {/* TOP SLIDER ONLY (no Fechas table) */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-center gap-2 flex-wrap">
+              {/* left arrow */}
               <button
                 onClick={() => {
                   if (selectedIdx > 0) setSelectedRound(roundsList[selectedIdx - 1]);
@@ -445,14 +463,17 @@ export default function LeagueClient() {
                 className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
                   bg-white/80 border-neutral-200 hover:bg-white
                   dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                aria-label="Previous round"
               >
-                ← Fecha
+                ←
               </button>
 
+              {/* center pill */}
               <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
-                {selectedRound != null ? `Fecha ${selectedRound}` : "Fecha"}
+                {selectedRound != null ? `${t("round")} ${selectedRound}` : t("round")}
               </div>
 
+              {/* right arrow */}
               <button
                 onClick={() => {
                   if (selectedIdx >= 0 && selectedIdx < roundsList.length - 1) setSelectedRound(roundsList[selectedIdx + 1]);
@@ -461,10 +482,12 @@ export default function LeagueClient() {
                 className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
                   bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
                   dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                aria-label="Next round"
               >
-                Fecha →
+                →
               </button>
 
+              {/* round buttons row */}
               <div className="flex-1 overflow-x-auto">
                 <div className="flex gap-2 justify-end min-w-max">
                   {roundsList.map((r) => {
@@ -478,6 +501,7 @@ export default function LeagueClient() {
                             ? "bg-emerald-600 text-white border-emerald-600"
                             : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
                         }`}
+                        aria-label={`Select round ${r}`}
                       >
                         {r}
                       </button>
@@ -488,186 +512,163 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* Estado general */}
+          {/* State */}
           {loadingLeague ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              Loading league...
+              {t("loadingLeague")}
             </div>
-          ) : leagueErr ? (
+          ) : err ? (
             <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
               <div className="font-bold">Error</div>
-              <div className="mt-2 text-sm opacity-80">{leagueErr}</div>
+              <div className="mt-2 text-sm opacity-80">{err}</div>
             </div>
           ) : roundMeta.length === 0 ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              No matches loaded for this season yet.
-              <div className="mt-2 text-xs opacity-80">
-                Tip: si una liga/season todavía no tiene partidos en la tabla matches, no vas a ver Fechas.
-              </div>
+              {t("noMatchesSeason")}
+            </div>
+          ) : loadingMatches ? (
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
+              {t("loadingMatches")}
+            </div>
+          ) : matches.length === 0 ? (
+            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
+              {t("noMatchesRound")}
             </div>
           ) : (
-            <>
-              {/* Tabla de Fechas */}
-              <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
-                <div className="flex items-baseline justify-between gap-3">
-                  <div className="font-bold">Fechas</div>
-                  <div className="text-xs text-neutral-700 dark:text-white/60">Season: {season?.name ?? "—"}</div>
-                </div>
+            <div className="rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+              {/* IMPORTANT: no divide-y (it was shrinking/boxing things). We use spacing instead. */}
+              <div className="p-3 space-y-3">
+                {matches.map((m) => {
+                  const timeLabel =
+                    m.status === "LIVE"
+                      ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
+                      : m.status === "FT"
+                      ? "FT"
+                      : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
 
-                <div className="mt-3 overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="text-xs text-neutral-700 dark:text-white/60">
-                      <tr>
-                        <th className="text-left py-2">Fecha</th>
-                        <th className="text-left py-2">Rango</th>
-                        <th className="text-right py-2">PJ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
-                      {roundMeta.map((r) => {
-                        const active = selectedRound === r.round;
-                        return (
-                          <tr key={r.round} className={active ? "bg-emerald-600/10" : ""}>
-                            <td className="py-2">
-                              <button
-                                onClick={() => setSelectedRound(r.round)}
-                                className={`px-3 py-1 rounded-full text-xs border transition ${
-                                  active
-                                    ? "bg-emerald-600 text-white border-emerald-600"
-                                    : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                                }`}
-                              >
-                                #{r.round}
-                              </button>
-                            </td>
-                            <td className="py-2 text-xs">
-                              {r.first_date} → {r.last_date}
-                            </td>
-                            <td className="py-2 text-right tabular-nums">{r.matches}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                  return (
+                    <div
+                      key={m.id}
+                      className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md shadow-sm
+                      dark:border-white/10 dark:bg-white/5 overflow-hidden"
+                    >
+                      {/* TOP BAR: date + time + status left, venue right */}
+                      <div className="px-4 py-3 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
+                          <div className="text-sm font-extrabold">{timeLabel}</div>
 
-              {/* Matches */}
-              {loadingMatches ? (
-                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-                  Loading matches...
-                </div>
-              ) : matchesErr ? (
-                <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
-                  <div className="font-bold">Error loading matches</div>
-                  <div className="mt-2 text-sm opacity-80">{matchesErr}</div>
-                </div>
-              ) : matches.length === 0 ? (
-                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-                  No matches in this Fecha.
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
-                  <div className="divide-y divide-neutral-200 dark:divide-white/10">
-                    {matches.map((m) => {
-                      const timeLabel =
-                        m.status === "LIVE"
-                          ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
-                          : m.status === "FT"
-                          ? "FT"
-                          : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
-
-                      return (
-                        <div key={m.id} className="px-4 py-3 flex items-center gap-4">
-                          <div className="w-28 shrink-0">
-                            <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
-                            <div className="text-sm font-semibold">{timeLabel}</div>
-                            <div className="mt-1">
-                              <StatusBadge status={m.status} />
-                            </div>
-                          </div>
-
-                          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 min-w-0">
-                            <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                              <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
-                              <span className="font-extrabold tabular-nums">{m.home_score ?? 0}</span>
-                            </div>
-
-                            <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                              <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
-                              <span className="font-extrabold tabular-nums">{m.away_score ?? 0}</span>
-                            </div>
-                          </div>
-
-                          <div className="hidden lg:block w-44 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
-                            {m.venue ?? ""}
+                          <div className="mt-1">
+                            <StatusBadge status={m.status} />
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
-              {/* Standings (0 por ahora) */}
-              <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
-                <div className="flex items-baseline justify-between gap-3">
-                  <div className="font-bold">Standings</div>
-                  <div className="text-xs text-neutral-700 dark:text-white/60">Season: {season?.name ?? "—"}</div>
-                </div>
+                        <div className="text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
+                          {m.venue ?? ""}
+                        </div>
+                      </div>
 
-                {standings.length === 0 ? (
-                  <div className="text-sm text-neutral-700 dark:text-white/60 mt-3">Coming soon.</div>
-                ) : (
-                  <div className="mt-3 overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="text-xs text-neutral-700 dark:text-white/60">
-                        <tr>
-                          <th className="text-left py-2">Team</th>
-                          <th className="text-right py-2">PJ</th>
-                          <th className="text-right py-2">W</th>
-                          <th className="text-right py-2">D</th>
-                          <th className="text-right py-2">L</th>
-                          <th className="text-right py-2">PF</th>
-                          <th className="text-right py-2">PA</th>
-                          <th className="text-right py-2">PTS</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
-                        {standings.map((r) => (
-                          <tr key={r.teamId}>
-                            <td className="py-2 font-medium">{r.team}</td>
-                            <td className="py-2 text-right tabular-nums">{r.pj}</td>
-                            <td className="py-2 text-right tabular-nums">{r.w}</td>
-                            <td className="py-2 text-right tabular-nums">{r.d}</td>
-                            <td className="py-2 text-right tabular-nums">{r.l}</td>
-                            <td className="py-2 text-right tabular-nums">{r.pf}</td>
-                            <td className="py-2 text-right tabular-nums">{r.pa}</td>
-                            <td className="py-2 text-right font-extrabold tabular-nums">{r.pts}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                      {/* BOTTOM: rectangle layout (team | score | team) */}
+                      <div className="px-4 pb-4">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 items-stretch">
+                          {/* HOME */}
+                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
+                            dark:border-white/10 dark:bg-white/10 flex items-center"
+                          >
+                            <span className="font-semibold text-sm sm:text-base truncate">
+                              {m.home_team?.name ?? "TBD"}
+                            </span>
+                          </div>
 
-                <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">
-                  (Por ahora todos 0. Después lo hacemos automático con resultados + bonus points.)
-                </div>
+                          {/* SCORE (fixed width so it never squishes into tiny boxes) */}
+                          <div
+                            className="min-w-[112px] sm:min-w-[132px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white
+                            px-4 py-3 flex items-center justify-center tabular-nums shadow-sm"
+                          >
+                            <span className="text-base sm:text-lg font-extrabold">
+                              {(m.home_score ?? 0)} - {(m.away_score ?? 0)}
+                            </span>
+                          </div>
+
+                          {/* AWAY */}
+                          <div
+                            className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
+                            dark:border-white/10 dark:bg-white/10 flex items-center justify-end"
+                          >
+                            <span className="font-semibold text-sm sm:text-base truncate text-right">
+                              {m.away_team?.name ?? "TBD"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </>
+            </div>
           )}
         </section>
+
+        {/* RIGHT: Standings */}
+        <aside className="space-y-4 min-w-0">
+          <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
+            <div className="flex items-baseline justify-between gap-3">
+              <div className="font-bold">{t("standings")}</div>
+              <div className="text-xs text-neutral-700 dark:text-white/60">
+                {t("season")}: {season?.name ?? "—"}
+              </div>
+            </div>
+
+            {standings.length === 0 ? (
+              <div className="text-sm text-neutral-700 dark:text-white/60 mt-3">{t("comingSoon")}</div>
+            ) : (
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="text-xs text-neutral-700 dark:text-white/60">
+                    <tr>
+                      <th className="text-left py-2">Team</th>
+                      <th className="text-right py-2">PJ</th>
+                      <th className="text-right py-2">W</th>
+                      <th className="text-right py-2">D</th>
+                      <th className="text-right py-2">L</th>
+                      <th className="text-right py-2">PF</th>
+                      <th className="text-right py-2">PA</th>
+                      <th className="text-right py-2">PTS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
+                    {standings.map((r) => (
+                      <tr key={r.teamId}>
+                        <td className="py-2 font-medium">{r.team}</td>
+                        <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                        <td className="py-2 text-right tabular-nums">{r.w}</td>
+                        <td className="py-2 text-right tabular-nums">{r.d}</td>
+                        <td className="py-2 text-right tabular-nums">{r.l}</td>
+                        <td className="py-2 text-right tabular-nums">{r.pf}</td>
+                        <td className="py-2 text-right tabular-nums">{r.pa}</td>
+                        <td className="py-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">
+              (Still 0s for now — later we compute automatically from results.)
+            </div>
+          </div>
+        </aside>
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">
+      <footer className="mx-auto max-w-7xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            RugbyNow • Built by <span className="font-semibold">Vito Loprestti</span> • TZ:{" "}
+            RugbyNow • {t("builtBy")} <span className="font-semibold">Vito Loprestti</span> • {t("tz")}:{" "}
             <span className="font-semibold">{timeZone}</span>
           </div>
           <div className="opacity-90">
-            Contact:{" "}
+            {t("contact")}:{" "}
             <a className="underline" href="mailto:YOUR_EMAIL_HERE">
               YOUR_EMAIL_HERE
             </a>

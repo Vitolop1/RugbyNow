@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -17,6 +18,7 @@ type Match = {
 type LeagueBlock = {
   league: string;
   region: string;
+  slug: string; // 👈 para linkear a /leagues/[slug]
   matches: Match[];
 };
 
@@ -69,7 +71,6 @@ function StatusBadge({ status }: { status: MatchStatus }) {
 
 // Helpers de fecha
 function toISODateLocal(d: Date) {
-  // yyyy-mm-dd en timezone local (no UTC)
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -90,7 +91,6 @@ export default function Home() {
 
   // FILTERS
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-  const [selectedLeague, setSelectedLeague] = useState<string>("All");
 
   // DATE NAV
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
@@ -160,6 +160,7 @@ export default function Home() {
 
       for (const r of rows) {
         const compName = r.season?.competition?.name ?? "Unknown Competition";
+        const compSlug = r.season?.competition?.slug ?? "unknown";
         const region = r.season?.competition?.region ?? "";
 
         const kickoff = r.kickoff_time ? r.kickoff_time.slice(0, 5) : "";
@@ -179,47 +180,38 @@ export default function Home() {
           status: r.status,
         };
 
-        if (!map.has(compName)) {
-          map.set(compName, { league: compName, region, matches: [] });
+        const key = compSlug; // 👈 usamos slug como key
+        if (!map.has(key)) {
+          map.set(key, { league: compName, region, slug: compSlug, matches: [] });
         }
-        map.get(compName)!.matches.push(match);
+        map.get(key)!.matches.push(match);
       }
 
       setBlocks(Array.from(map.values()));
       setLoading(false);
-
-      console.log("Loaded matches rows:", rows.length, "for date:", dayISO);
     };
 
     load();
   }, [selectedDate]);
 
-  // Sidebar leagues reales
-  const leagues = useMemo(() => ["All", ...blocks.map((x) => x.league)], [blocks]);
+  // Leagues reales (para sidebar)
+  const leagues = useMemo(() => blocks, [blocks]);
 
-  // Apply league + tab filters
+  // Apply tab filter
   const filteredBlocks = useMemo(() => {
-    let blocksFiltered = blocks;
+    if (tab !== "LIVE") return blocks;
 
-    if (selectedLeague !== "All") {
-      blocksFiltered = blocksFiltered.filter((b) => b.league === selectedLeague);
-    }
-
-    if (tab === "LIVE") {
-      blocksFiltered = blocksFiltered
-        .map((b) => ({ ...b, matches: b.matches.filter((m) => m.status === "LIVE") }))
-        .filter((b) => b.matches.length > 0);
-    }
-
-    return blocksFiltered;
-  }, [blocks, selectedLeague, tab]);
+    return blocks
+      .map((b) => ({ ...b, matches: b.matches.filter((m) => m.status === "LIVE") }))
+      .filter((b) => b.matches.length > 0);
+  }, [blocks, tab]);
 
   return (
     <div
       className="
         min-h-screen transition-colors duration-300
         bg-gradient-to-br
-        from-green-700 via-green-400 to-green-800    
+        from-green-500 via-green-600 to-green-600
         dark:bg-black dark:from-black dark:via-black dark:to-black
         text-neutral-900 dark:text-white
       "
@@ -280,28 +272,30 @@ export default function Home() {
           <div className="text-sm font-semibold mb-3 text-neutral-700 dark:text-white/80">Leagues</div>
 
           <div className="space-y-2">
-            {leagues.map((x) => {
-              const active = selectedLeague === x;
-              return (
-                <button
-                  key={x}
-                  onClick={() => setSelectedLeague(x)}
-                  className={`w-full text-left px-3 py-2 rounded-xl border transition ${
-                    active
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                  }`}
-                >
-                  {x}
-                </button>
-              );
-            })}
+            <Link
+              href="/"
+              className="block w-full text-left px-3 py-2 rounded-xl border transition bg-emerald-600 text-white border-emerald-600"
+            >
+              Today (Home)
+            </Link>
+
+            {leagues.map((l) => (
+              <Link
+                key={l.slug}
+                href={`/leagues/${l.slug}`}
+                className="block w-full text-left px-3 py-2 rounded-xl border transition
+                  bg-white/80 border-neutral-200 hover:bg-white
+                  dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+              >
+                {l.league}
+              </Link>
+            ))}
           </div>
 
           <div className="mt-4 rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-3 dark:bg-emerald-500/10">
             <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Rugby vibe</div>
             <div className="text-xs text-neutral-700 dark:text-white/70 mt-1">
-              Real data from Supabase • fast filters • clean UI.
+              Real data from Supabase • Liga pages • Date navigation
             </div>
           </div>
         </aside>
@@ -313,7 +307,7 @@ export default function Home() {
             <div>
               <h2 className="text-xl font-bold">Matches</h2>
               <p className="text-sm text-neutral-700 dark:text-white/60">
-                Date: <span className="font-semibold">{niceDate(selectedDate)}</span> • Showing: {selectedLeague} •{" "}
+                Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
                 {tab === "LIVE" ? "Live only" : "All matches"}
               </p>
             </div>
@@ -342,7 +336,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Loading / error / empty / list */}
           {loading ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
               Loading real matches...
@@ -351,9 +344,6 @@ export default function Home() {
             <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
               <div className="font-bold">Supabase error</div>
               <div className="mt-2 text-sm opacity-80">{loadError}</div>
-              <div className="mt-3 text-xs opacity-70">
-                Si esto habla de “relationship” o “join”, es porque falta una FK (o el nombre de columna no coincide).
-              </div>
             </div>
           ) : filteredBlocks.length === 0 ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
@@ -362,7 +352,7 @@ export default function Home() {
           ) : (
             filteredBlocks.map((block) => (
               <div
-                key={block.league}
+                key={block.slug}
                 className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950"
               >
                 <div className="px-4 py-3 flex items-center justify-between border-b border-neutral-200 dark:border-white/10">

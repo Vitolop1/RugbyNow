@@ -19,7 +19,7 @@ function norm(s: string) {
   return (s || "")
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "") // sacá tildes/diacríticos
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/’/g, "'")
     .replace(/\s+/g, " ")
     .trim();
@@ -35,22 +35,18 @@ function parseScore(x: string) {
 function detectStatusAndMinute(raw: string) {
   const s = (raw || "").toUpperCase().trim();
 
-  // cancelled / postponed / abandoned
   if (/(POSTP|CANC|CANCEL|ABAND|ABD)/.test(s)) {
     return { status: "NS" as MatchStatus, minute: null as number | null };
   }
 
-  // full time (incl. AET)
   if (/(FT|FINAL|AET)/.test(s)) {
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
-  // half time / live
   if (/(HT|LIVE)/.test(s)) {
     return { status: "LIVE" as MatchStatus, minute: null as number | null };
   }
 
-  // minutes like 52'
   const m = s.match(/\b(\d{1,3})\s*'\b/);
   if (m) return { status: "LIVE" as MatchStatus, minute: Number.parseInt(m[1], 10) };
 
@@ -64,29 +60,67 @@ function urlsFromEnv() {
     .filter(Boolean);
 }
 
+/**
+ * Normaliza URLs de Flashscore:
+ * - saca hash y query
+ * - saca trailing slash
+ * - saca /fixtures al final del path si está
+ */
+function normalizeFlashUrl(raw: string) {
+  const u = new URL(raw.trim());
+  u.search = "";
+  u.hash = "";
+
+  let path = u.pathname.replace(/\/+$/, "");
+  path = path.replace(/\/fixtures$/, "");
+  u.pathname = path;
+
+  return u.toString();
+}
+
+/**
+ * Devuelve el slug interno de tu DB en base a la URL de Flashscore.
+ * Funciona en inglés y en general en cualquier idioma, porque parsea el path:
+ * /rugby-union/{region}/{competition}/...
+ */
 function competitionSlugFromUrl(url: string) {
-  const u = url.toLowerCase();
-  if (u.includes("/francia/top-14")) return "top14";
-  if (u.includes("/sudamerica/super-rugby-americas")) return "sra";
-  if (u.includes("/italia/serie-a-elite")) return "serie-a-elite";
-  if (u.includes("/europa/seis-naciones")) return "six-nations";
+  const normalized = normalizeFlashUrl(url);
+  const u = new URL(normalized);
+
+  const parts = u.pathname.split("/").filter(Boolean);
+  // esperado: ["rugby-union", "{region}", "{competition}", ...]
+  if (parts.length < 3) return null;
+
+  const sport = parts[0];
+  if (sport !== "rugby-union") return null;
+
+  const compSlug = parts[2]; // ej: "top-14", "six-nations", "serie-a-elite", "super-rugby-americas"
+
+  // Mapeo a tus slugs internos (los que existan en tu tabla competitions.slug)
+  // Ajustá estos valores si en tu DB usás otros slugs.
+  if (compSlug === "top-14") return "top14";
+  if (compSlug === "super-rugby-americas") return "sra";
+  if (compSlug === "serie-a-elite") return "serie-a-elite";
+  if (compSlug === "six-nations") return "six-nations";
+
   return null;
 }
 
-// ordena temporadas por “más nueva” sin depender de strings raros (2026 > 2025/26 > 2024/25)
+// ordena temporadas por “más nueva” (2026 > 2025/26 > 2024/25)
 function seasonSortKey(name: string) {
   const s = (name || "").trim();
 
-  // "2025/26"
   const mRange = s.match(/\b(\d{4})\s*\/\s*(\d{2,4})\b/);
   if (mRange) {
     const a = Number.parseInt(mRange[1], 10);
     const bRaw = mRange[2];
-    const b = bRaw.length === 2 ? Number.parseInt(`${mRange[1].slice(0, 2)}${bRaw}`, 10) : Number.parseInt(bRaw, 10);
+    const b =
+      bRaw.length === 2
+        ? Number.parseInt(`${mRange[1].slice(0, 2)}${bRaw}`, 10)
+        : Number.parseInt(bRaw, 10);
     return Math.max(a, b);
   }
 
-  // "2026"
   const mYear = s.match(/\b(19\d{2}|20\d{2})\b/);
   if (mYear) return Number.parseInt(mYear[1], 10);
 
@@ -127,7 +161,7 @@ async function getTeamsMap() {
     map.set(norm((t as any).name), (t as any).id);
   }
 
-  // ✅ aliases manuales si Flashscore te viene con otro nombre
+  // aliases manuales
   // map.set(norm("bordeaux"), 43);
   // map.set(norm("bordeaux begles"), 43);
 
@@ -169,7 +203,6 @@ function pickBestCandidate(possible: any[]) {
 }
 
 async function maybeAcceptConsent(page: Page) {
-  // Flashscore a veces tira banner de cookies/consent
   const selectors = [
     'button:has-text("Aceptar")',
     'button:has-text("Acepto")',
@@ -272,7 +305,6 @@ async function main() {
   const urls = urlsFromEnv();
   console.log("URLs:", urls);
 
-  // ping rápido
   const { error: pingErr } = await supabase.from("competitions").select("id").limit(1);
   if (pingErr) throw pingErr;
 
@@ -289,7 +321,7 @@ async function main() {
   for (const url of urls) {
     const compSlug = competitionSlugFromUrl(url);
     if (!compSlug) {
-      console.log("Skip (unknown comp url):", url);
+      console.log("Skip (unknown comp url):", url, "->", normalizeFlashUrl(url));
       continue;
     }
 
@@ -299,7 +331,6 @@ async function main() {
     console.log(`\n== ${compSlug} (${seasonName}) ==`);
     console.log(`Candidates to update: ${candidates.length}`);
 
-    // index por home/away
     const index = new Map<string, any[]>();
     for (const m of candidates) {
       const key = `${m.home_team_id}__${m.away_team_id}`;

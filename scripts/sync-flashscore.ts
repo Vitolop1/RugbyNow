@@ -80,7 +80,6 @@ function normalizeFlashUrl(raw: string) {
 
 /**
  * Devuelve el slug interno de tu DB en base a la URL de Flashscore.
- * Funciona en inglés y en general en cualquier idioma, porque parsea el path:
  * /rugby-union/{region}/{competition}/...
  */
 function competitionSlugFromUrl(url: string) {
@@ -88,16 +87,13 @@ function competitionSlugFromUrl(url: string) {
   const u = new URL(normalized);
 
   const parts = u.pathname.split("/").filter(Boolean);
-  // esperado: ["rugby-union", "{region}", "{competition}", ...]
   if (parts.length < 3) return null;
 
   const sport = parts[0];
   if (sport !== "rugby-union") return null;
 
-  const compSlug = parts[2]; // ej: "top-14", "six-nations", "serie-a-elite", "super-rugby-americas"
+  const compSlug = parts[2];
 
-  // Mapeo a tus slugs internos (los que existan en tu tabla competitions.slug)
-  // Ajustá estos valores si en tu DB usás otros slugs.
   if (compSlug === "top-14") return "top14";
   if (compSlug === "super-rugby-americas") return "sra";
   if (compSlug === "serie-a-elite") return "serie-a-elite";
@@ -106,7 +102,6 @@ function competitionSlugFromUrl(url: string) {
   return null;
 }
 
-// ordena temporadas por “más nueva” (2026 > 2025/26 > 2024/25)
 function seasonSortKey(name: string) {
   const s = (name || "").trim();
 
@@ -161,10 +156,6 @@ async function getTeamsMap() {
     map.set(norm((t as any).name), (t as any).id);
   }
 
-  // aliases manuales
-  // map.set(norm("bordeaux"), 43);
-  // map.set(norm("bordeaux begles"), 43);
-
   return map;
 }
 
@@ -209,12 +200,12 @@ async function maybeAcceptConsent(page: Page) {
     'button:has-text("I Agree")',
     'button:has-text("Agree")',
     '[data-testid="uc-accept-all-button"]',
-    '#onetrust-accept-btn-handler',
+    "#onetrust-accept-btn-handler",
   ];
 
   for (const sel of selectors) {
     try {
-      const el = await page.locator(sel).first();
+      const el = page.locator(sel).first();
       if (await el.isVisible({ timeout: 1500 })) {
         await el.click({ timeout: 1500 });
         await page.waitForTimeout(500);
@@ -224,6 +215,26 @@ async function maybeAcceptConsent(page: Page) {
       // ignore
     }
   }
+}
+
+// Flashscore puede nunca llegar a "networkidle", así que usamos DOMContentLoaded + retries
+async function gotoWithRetry(page: Page, url: string, tries = 3) {
+  let lastErr: any = null;
+
+  for (let i = 1; i <= tries; i++) {
+    try {
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+      return;
+    } catch (e) {
+      lastErr = e;
+      console.log(`WARN: goto failed (try ${i}/${tries}) -> ${url}`);
+      try {
+        await page.waitForTimeout(1500 * i);
+      } catch {}
+    }
+  }
+
+  throw lastErr;
 }
 
 async function scrapeFixturesPage(page: Page) {
@@ -316,6 +327,13 @@ async function main() {
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
   });
 
+  // Bloquea recursos pesados para reducir timeouts
+  await page.route("**/*", (route) => {
+    const type = route.request().resourceType();
+    if (type === "image" || type === "font" || type === "media") return route.abort();
+    return route.continue();
+  });
+
   let totalUpdates = 0;
 
   for (const url of urls) {
@@ -339,18 +357,26 @@ async function main() {
       index.set(key, arr);
     }
 
-    await page.goto(url, { waitUntil: "networkidle", timeout: 120000 });
+    // ✅ FIX: no uses networkidle, retry, y si falla no rompe el job
+    try {
+      await gotoWithRetry(page, url, 3);
+    } catch (e) {
+      console.log("ERROR: could not load url after retries, skipping:", url);
+      console.log(e);
+      continue;
+    }
+
     await maybeAcceptConsent(page);
 
     try {
       await page.waitForSelector('[id^="g_"], .event__match, .event__row, [data-event-id], .event', {
-        timeout: 15000,
+        timeout: 25000,
       });
     } catch {
       console.log("WARN: selector not found quickly, continuing anyway:", url);
     }
 
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1200);
 
     let scraped = await scrapeFixturesPage(page);
     scraped = dedupeScrapedRows(scraped);

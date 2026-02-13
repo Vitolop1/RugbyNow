@@ -139,7 +139,7 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
 /**
  * Devuelve:
  * - teamsMap: norm(name) -> id
- * - teamsNames: array con nombres norm para sugerencias
+ * - teamNamesNorm: array con nombres norm para sugerencias / fuzzy
  */
 async function getTeamsMap() {
   const { data, error } = await supabase.from("teams").select("id,name");
@@ -154,24 +154,73 @@ async function getTeamsMap() {
     names.push(n);
   }
 
-  // ✅ ALIASES (REEMPLAZÁ LOS IDs POR LOS REALES DE TU TABLA teams)
+  // ✅ ALIASES (Flashscore name -> tu teams.id)
+  // IDs reales (según tu tabla):
+  // Bayonne=51, Capibaras XV=14, Cobras Brasil Rugby=9, Lyon=52, Lyons Piacenza=38,
+  // Pampas=12, Petrarca=31, Stade Français=45, Stade Rochelais=50,
+  // Stade Toulousain=41, Toulon=46, Valorugby Emilia=33
+
   // --- Serie A Elite ---
-  // map.set(norm("Emilia"), 999);
-  // map.set(norm("Petrarca Padova"), 999);
-  // map.set(norm("Rugby Lyons"), 999);
+  map.set(norm("Emilia"), 33); // -> Valorugby Emilia
+  map.set(norm("Valorugby Emilia"), 33);
+  map.set(norm("Petrarca Padova"), 31); // -> Petrarca
+  map.set(norm("Rugby Lyons"), 38); // -> Lyons Piacenza
 
   // --- Top14 ---
-  // map.set(norm("Aviron Bayonnais"), 999);         // Bayonne
-  // map.set(norm("RC Toulonnais"), 999);            // Toulon
-  // map.set(norm("Stade Francais Paris"), 999);     // Stade Français
+  map.set(norm("Aviron Bayonnais"), 51); // -> Bayonne
+  map.set(norm("RC Toulonnais"), 46); // -> Toulon
+  map.set(norm("Stade Francais Paris"), 45); // -> Stade Français
+  map.set(norm("Stade Français Paris"), 45);
 
   // --- SRA ---
-  // map.set(norm("Cobras"), 999);
-  // map.set(norm("Capibaras"), 999);
-  // map.set(norm("Penarol"), 999);                  // Peñarol (sin tilde)
-  // map.set(norm("Pampas XV"), 999);
+  map.set(norm("Cobras"), 9); // -> Cobras Brasil Rugby
+  map.set(norm("Capibaras"), 14); // -> Capibaras XV
+  map.set(norm("Pampas XV"), 12); // -> Pampas
+
+  // ⚠️ OJO: "Penarol/Peñarol" NO está en tu tabla teams.
+  // Si lo agregás después, poné el ID real acá:
+  // map.set(norm("Penarol"), <ID>);
+  // map.set(norm("Peñarol"), <ID>);
 
   return { teamsMap: map, teamNamesNorm: names };
+}
+
+// Resolver robusto: exact/alias + fuzzy por tokens
+function resolveTeamId(rawName: string, teamsMap: Map<string, number>, teamNamesNorm: string[]) {
+  const n = norm(rawName);
+  if (!n) return null;
+
+  // 1) exact / alias (porque alias también vive en teamsMap)
+  const direct = teamsMap.get(n);
+  if (direct) return direct;
+
+  // 2) fallback: fuzzy por tokens
+  const tokens = n.split(" ").filter(Boolean);
+
+  let bestName: string | null = null;
+  let bestScore = 0;
+
+  for (const candidate of teamNamesNorm) {
+    let score = 0;
+
+    // bonus por inclusión fuerte
+    if (candidate.includes(n) || n.includes(candidate)) score += 2;
+
+    for (const tok of tokens) {
+      if (tok.length < 3) continue;
+      if (candidate.includes(tok)) score += 1;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestName = candidate;
+    }
+  }
+
+  // umbral para no matchear cualquier cosa
+  if (!bestName || bestScore < 2) return null;
+
+  return teamsMap.get(bestName) ?? null;
 }
 
 async function getCandidates(seasonId: number) {
@@ -336,7 +385,6 @@ function suggestTeams(unmappedName: string, teamNamesNorm: string[], limit = 6) 
     .filter((t) => t.includes(u) || u.includes(t))
     .slice(0, limit);
 
-  // si no hay hits por "includes", probamos por tokens
   if (hits.length > 0) return hits;
 
   const tokens = u.split(" ").filter(Boolean);
@@ -427,18 +475,23 @@ async function main() {
     const updatedIds = new Set<number>();
 
     for (const row of scraped) {
-      const homeNorm = norm(row.home);
-      const awayNorm = norm(row.away);
-
-      const homeId = teamsMap.get(homeNorm);
-      const awayId = teamsMap.get(awayNorm);
+      const homeId = resolveTeamId(row.home, teamsMap, teamNamesNorm);
+      const awayId = resolveTeamId(row.away, teamsMap, teamNamesNorm);
 
       if (!homeId) unmapped.set(row.home, (unmapped.get(row.home) || 0) + 1);
       if (!awayId) unmapped.set(row.away, (unmapped.get(row.away) || 0) + 1);
       if (!homeId || !awayId) continue;
 
-      const key = `${homeId}__${awayId}`;
-      const possible = index.get(key);
+      // 1) try normal direction
+      let key = `${homeId}__${awayId}`;
+      let possible = index.get(key);
+
+      // 2) try reversed direction (por si tu DB lo guarda invertido)
+      if (!possible || possible.length === 0) {
+        key = `${awayId}__${homeId}`;
+        possible = index.get(key);
+      }
+
       if (!possible || possible.length === 0) continue;
 
       const target = pickBestCandidate(possible);
@@ -471,7 +524,6 @@ async function main() {
 
       console.log("Unmapped team names (top):", top);
 
-      // ✅ NUEVO: sugerencias
       for (const [name] of top) {
         const sug = suggestTeams(name, teamNamesNorm, 6);
         if (sug.length > 0) console.log(`  -> suggestions for "${name}":`, sug);

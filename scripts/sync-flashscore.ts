@@ -55,8 +55,6 @@ function urlsFromEnv() {
 }
 
 function competitionSlugFromUrl(url: string) {
-  // tus slugs en DB:
-  // top14, sra, serie-a-elite, six-nations
   const u = url.toLowerCase();
 
   if (u.includes("/francia/top-14")) return "top14";
@@ -122,51 +120,54 @@ async function getCandidates(seasonId: number) {
 }
 
 /**
- * ✅ FIX CRÍTICO:
- * NO usar arrow function dentro de page.evaluate
- * porque tsx/esbuild mete __name(...) y rompe en GitHub Actions.
+ * ✅ FIX POSTA:
+ * usamos page.evaluate con STRING.
+ * Así tsx/esbuild NO puede inyectar __name ni helpers.
  */
 async function scrapeFixturesPage(page: any) {
-  const rows = await page.evaluate(function () {
-    const pickText = (el: Element | null) => (el ? (el as HTMLElement).innerText.trim() : "");
-    const out: any[] = [];
+  const js = `
+(() => {
+  const pickText = (el) => (el ? el.innerText.trim() : "");
+  const out = [];
 
-    const candidates = Array.from(
-      document.querySelectorAll('[id^="g_"], .event__match, .event__row, [data-event-id], .event')
-    );
+  const candidates = Array.from(
+    document.querySelectorAll('[id^="g_"], .event__match, .event__row, [data-event-id], .event')
+  );
 
-    for (const r of candidates) {
-      const home =
-        pickText(r.querySelector(".event__participant--home")) ||
-        pickText(r.querySelector(".event__homeParticipant")) ||
-        pickText((r.querySelectorAll(".event__participant")[0] as any) || null);
+  for (const r of candidates) {
+    const home =
+      pickText(r.querySelector(".event__participant--home")) ||
+      pickText(r.querySelector(".event__homeParticipant")) ||
+      pickText((r.querySelectorAll(".event__participant")[0]) || null);
 
-      const away =
-        pickText(r.querySelector(".event__participant--away")) ||
-        pickText(r.querySelector(".event__awayParticipant")) ||
-        pickText((r.querySelectorAll(".event__participant")[1] as any) || null);
+    const away =
+      pickText(r.querySelector(".event__participant--away")) ||
+      pickText(r.querySelector(".event__awayParticipant")) ||
+      pickText((r.querySelectorAll(".event__participant")[1]) || null);
 
-      if (!home || !away) continue;
+    if (!home || !away) continue;
 
-      const hs =
-        pickText(r.querySelector(".event__score--home")) ||
-        pickText((r.querySelectorAll(".event__score")[0] as any) || null);
+    const hs =
+      pickText(r.querySelector(".event__score--home")) ||
+      pickText((r.querySelectorAll(".event__score")[0]) || null);
 
-      const as =
-        pickText(r.querySelector(".event__score--away")) ||
-        pickText((r.querySelectorAll(".event__score")[1] as any) || null);
+    const as =
+      pickText(r.querySelector(".event__score--away")) ||
+      pickText((r.querySelectorAll(".event__score")[1]) || null);
 
-      const statusOrTime =
-        pickText(r.querySelector(".event__time")) ||
-        pickText(r.querySelector(".event__stage")) ||
-        pickText(r.querySelector(".event__status"));
+    const statusOrTime =
+      pickText(r.querySelector(".event__time")) ||
+      pickText(r.querySelector(".event__stage")) ||
+      pickText(r.querySelector(".event__status"));
 
-      out.push({ home, away, hs, as, statusOrTime });
-    }
+    out.push({ home, away, hs, as, statusOrTime });
+  }
 
-    return out;
-  });
+  return out;
+})()
+`;
 
+  const rows = await page.evaluate(js);
   return rows as Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>;
 }
 

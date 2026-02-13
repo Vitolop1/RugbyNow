@@ -1,5 +1,3 @@
-// app/page.tsx (Home)
-// Cambios: en la lista de partidos (cada row) la hora/timeLabel MÁS GRANDE + EN NEGRITA
 "use client";
 
 import Link from "next/link";
@@ -30,6 +28,13 @@ type Competition = {
   name: string;
   slug: string;
   region: string | null;
+
+  // ✅ para folders
+  country_code?: string | null;
+  category?: string | null;
+  group_name?: string | null;
+  sort_order?: number | null;
+  is_featured?: boolean | null;
 };
 
 type DbMatchRow = {
@@ -50,7 +55,16 @@ type DbMatchRow = {
     | {
         id: number;
         name: string;
-        competition: { id: number; name: string; slug: string; region: string | null } | null;
+        competition: {
+          id: number;
+          name: string;
+          slug: string;
+          region: string | null;
+          group_name?: string | null;
+          category?: string | null;
+          sort_order?: number | null;
+          is_featured?: boolean | null;
+        } | null;
       }
     | null;
 };
@@ -99,14 +113,12 @@ function niceDate(d: Date) {
 function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
-
 function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
   const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
-
 function displayScore(status: MatchStatus, hs: number | null, as: number | null) {
   if (status === "NS" && hs == null && as == null) return "—";
   return `${hs ?? 0} - ${as ?? 0}`;
@@ -126,8 +138,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+
   const todayLocal = new Date();
   const selectedISO = toISODateLocal(selectedDate);
+  const dateQuery = `?date=${selectedISO}`;
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
@@ -146,6 +161,7 @@ export default function Home() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
+  // ✅ load competitions PRO
   useEffect(() => {
     const loadComps = async () => {
       setCompLoading(true);
@@ -153,7 +169,10 @@ export default function Home() {
 
       const { data, error } = await supabase
         .from("competitions")
-        .select("id, name, slug, region")
+        .select("id, name, slug, region, country_code, category, group_name, sort_order, is_featured")
+        .order("is_featured", { ascending: false })
+        .order("group_name", { ascending: true })
+        .order("sort_order", { ascending: true })
         .order("name", { ascending: true });
 
       if (error) {
@@ -170,6 +189,85 @@ export default function Home() {
     loadComps();
   }, []);
 
+  // ✅ de-dup competitions (fix duplicates in home)
+  const dedupedCompetitions = useMemo(() => {
+    const pickBetter = (a: Competition, b: Competition) => {
+      const af = !!a.is_featured;
+      const bf = !!b.is_featured;
+      if (af !== bf) return af ? a : b;
+
+      const aso = a.sort_order ?? 9999;
+      const bso = b.sort_order ?? 9999;
+      if (aso !== bso) return aso < bso ? a : b;
+
+      return a.id < b.id ? a : b;
+    };
+
+    // 1) de-dup por slug
+    const bySlug = new Map<string, Competition>();
+    for (const c of competitions) {
+      const k = (c.slug ?? "").trim().toLowerCase();
+      if (!k) continue;
+      if (!bySlug.has(k)) bySlug.set(k, c);
+      else bySlug.set(k, pickBetter(bySlug.get(k)!, c));
+    }
+
+    const list = Array.from(bySlug.values());
+
+    // 2) de-dup por grupo+categoria+nombre (por si te quedaron “clones” con slugs distintos)
+    const keyOf = (c: Competition) => {
+      const g = (c.group_name ?? "").trim().toLowerCase();
+      const n = (c.name ?? "").trim().toLowerCase();
+      const cat = (c.category ?? "").trim().toLowerCase();
+      return `${g}::${cat}::${n}`;
+    };
+
+    const map = new Map<string, Competition>();
+    for (const c of list) {
+      const k = keyOf(c);
+      if (!map.has(k)) map.set(k, c);
+      else map.set(k, pickBetter(map.get(k)!, c));
+    }
+
+    return Array.from(map.values());
+  }, [competitions]);
+
+  // ✅ grouped folders
+  const groupedCompetitions = useMemo(() => {
+    const map = new Map<string, Competition[]>();
+    for (const c of dedupedCompetitions) {
+      const group = (c.group_name ?? "").trim() || "Other";
+      if (!map.has(group)) map.set(group, []);
+      map.get(group)!.push(c);
+    }
+
+    const entries = Array.from(map.entries());
+
+    entries.sort((a, b) => {
+      const aFeat = a[1].some((x) => x.is_featured);
+      const bFeat = b[1].some((x) => x.is_featured);
+      if (aFeat !== bFeat) return aFeat ? -1 : 1;
+      return a[0].localeCompare(b[0]);
+    });
+
+    for (const [, comps] of entries) {
+      comps.sort((x, y) => {
+        const xf = !!x.is_featured;
+        const yf = !!y.is_featured;
+        if (xf !== yf) return xf ? -1 : 1;
+
+        const xs = x.sort_order ?? 9999;
+        const ys = y.sort_order ?? 9999;
+        if (xs !== ys) return xs - ys;
+
+        return x.name.localeCompare(y.name);
+      });
+    }
+
+    return entries;
+  }, [dedupedCompetitions]);
+
+  // ✅ load matches by date (same as you had)
   useEffect(() => {
     let cancelled = false;
     let timer: any = null;
@@ -242,9 +340,7 @@ export default function Home() {
           status: r.status,
         };
 
-        if (!map.has(compSlug)) {
-          map.set(compSlug, { league: compName, region, slug: compSlug, matches: [] });
-        }
+        if (!map.has(compSlug)) map.set(compSlug, { league: compName, region, slug: compSlug, matches: [] });
         map.get(compSlug)!.matches.push(match);
       }
 
@@ -274,7 +370,8 @@ export default function Home() {
     <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-300 via-green-600 to-green-400 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
       <AppHeader showTabs tab={tab} setTab={setTab} />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+      {/* ✅ MÁS ANCHO */}
+      <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -335,23 +432,60 @@ export default function Home() {
             ) : compError ? (
               <div className="text-xs text-red-700 dark:text-red-300">{compError}</div>
             ) : (
-              <div className="space-y-2">
-                {competitions.map((c) => (
-                  <Link
-                    key={c.slug}
-                    href={`/leagues/${c.slug}`}
-                    className="block w-full text-left px-3 py-2 rounded-xl border transition bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                  >
-                    <div className="text-sm font-medium">{c.name}</div>
-                    {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
-                  </Link>
-                ))}
+              <div className="space-y-3">
+                {groupedCompetitions.map(([groupName, comps]) => {
+                  const open = openGroups[groupName] ?? false;
+                  const featuredCount = comps.filter((x) => x.is_featured).length;
+
+                  return (
+                    <div
+                      key={groupName}
+                      className="rounded-xl border border-neutral-200 bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 overflow-hidden"
+                    >
+                      <button
+                        onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                        className="w-full px-3 py-2 flex items-center justify-between text-left"
+                        aria-label={`Toggle group ${groupName}`}
+                      >
+                        <div className="min-w-0">
+                          <div className="text-sm font-extrabold truncate">{groupName}</div>
+                          <div className="text-[11px] opacity-70">
+                            {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                          </div>
+                        </div>
+                        <span className="text-xs opacity-70">{open ? "−" : "+"}</span>
+                      </button>
+
+                      {open ? (
+                        <div className="px-2 pb-2 space-y-2">
+                          {comps.map((c) => (
+                            <Link
+                              key={`${c.slug}-${c.id}`}
+                              href={`/leagues/${c.slug}${dateQuery}`}
+                              className="block w-full text-left px-3 py-2 rounded-xl border transition bg-white border-neutral-200 hover:bg-white/90 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-sm font-medium truncate">{c.name}</div>
+                                {c.is_featured ? (
+                                  <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-600 text-white">
+                                    PIN
+                                  </span>
+                                ) : null}
+                              </div>
+                              {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         </aside>
 
-        <section className="space-y-4">
+        <section className="space-y-4 min-w-0">
           <div>
             <h2 className="text-xl font-bold">Matches</h2>
             <p className="text-sm text-neutral-700 dark:text-white/60">
@@ -381,9 +515,9 @@ export default function Home() {
                 className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950"
               >
                 <div className="px-4 py-3 flex items-center justify-between border-b border-neutral-200 dark:border-white/10">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <div className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
-                    <div className="font-semibold">{block.league}</div>
+                    <div className="font-semibold truncate">{block.league}</div>
                   </div>
                   <div className="text-sm text-neutral-700 dark:text-white/60">{block.region}</div>
                 </div>
@@ -391,45 +525,53 @@ export default function Home() {
                 <div className="divide-y divide-neutral-200 dark:divide-white/10">
                   {block.matches.map((m, idx) => (
                     <div
-                      key={idx}
+                      key={`${block.slug}-${idx}-${m.timeLabel}-${m.home}-${m.away}`}
                       className={`px-4 py-3 flex items-center gap-4 transition ${
                         m.status === "LIVE"
                           ? "ring-1 ring-red-500/40 bg-red-50/60 dark:bg-red-500/10"
                           : "hover:bg-white/60 dark:hover:bg-white/5"
                       }`}
                     >
-                      <div className="w-32">
-                        {/* ✅ ACÁ: hora/timeLabel más grande + en negrita */}
+                      <div className="w-32 shrink-0">
                         <div className="text-lg font-extrabold tracking-tight text-neutral-900 dark:text-white">
                           {m.timeLabel}
                         </div>
-
                         <div className="mt-1">
                           <StatusBadge status={m.status} />
                         </div>
                       </div>
 
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <span className="font-medium">{m.home}</span>
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                        <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
+                          <span className="font-medium truncate">{m.home}</span>
                           <span className="font-extrabold tabular-nums">
-                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : (m.hs ?? 0)}
+                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : m.hs ?? 0}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <span className="font-medium">{m.away}</span>
+                        <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
+                          <span className="font-medium truncate">{m.away}</span>
                           <span className="font-extrabold tabular-nums">
-                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : (m.as ?? 0)}
+                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : m.as ?? 0}
                           </span>
                         </div>
                       </div>
 
-                      <div className="hidden md:block w-36 text-right text-xs text-neutral-700 dark:text-white/50">
+                      <div className="hidden md:block w-36 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
                         {m.status === "LIVE" ? "Live action" : m.status === "FT" ? "Final" : "Upcoming"}
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* CTA pro: ir a la liga con la fecha elegida */}
+                <div className="px-4 py-3 border-t border-neutral-200 dark:border-white/10 flex justify-end">
+                  <Link
+                    href={`/leagues/${block.slug}${dateQuery}`}
+                    className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+                  >
+                    Open league →
+                  </Link>
                 </div>
               </div>
             ))
@@ -437,7 +579,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">
+      <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-neutral-800 dark:text-white/40">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             RugbyNow • Built by <span className="font-semibold">Vito Loprestti</span> • TZ:{" "}
@@ -445,11 +587,11 @@ export default function Home() {
           </div>
           <div className="opacity-90">
             Contact:{" "}
-            <a className="underline" href="mailto:YOUR_EMAIL_HERE">
-              YOUR_EMAIL_HERE
+            <a className="underline" href="mailto:lopresttivito@gmail.com">
+              lopresttivito@gmail.com
             </a>
             <span className="mx-2">•</span>
-            <a className="underline" href="https://linkedin.com/in/YOUR_LINKEDIN_HERE" target="_blank" rel="noreferrer">
+            <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
               LinkedIn
             </a>
           </div>

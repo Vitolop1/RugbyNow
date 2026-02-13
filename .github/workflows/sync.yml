@@ -8,12 +8,21 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright (Chromium)
+        run: npx playwright install --with-deps chromium
 
       - name: Debug repo tree
         run: |
@@ -22,17 +31,11 @@ jobs:
           echo "---- scripts ----"
           ls -la scripts || true
           echo "---- find sync ----"
-          find . -maxdepth 6 -type f -name "sync-flashscore.*" -print
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+          find . -maxdepth 5 -type f -name "sync-flashscore.*" -print
 
       - name: Run sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
-        run: npx tsx scripts/sync-flashscore.ts
+        run: node scripts/sync-flashscore.js

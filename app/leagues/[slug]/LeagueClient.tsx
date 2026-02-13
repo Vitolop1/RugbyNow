@@ -93,6 +93,14 @@ function parseRound(v: any): number | null {
   return null;
 }
 
+// ✅ Score helper: upcoming matches should show "—" not "0 - 0"
+function formatScore(status: MatchStatus, hs: number | null, as: number | null) {
+  if (status === "NS" && hs == null && as == null) return "—";
+  const home = hs ?? 0;
+  const away = as ?? 0;
+  return `${home} - ${away}`;
+}
+
 // ---------- i18n (simple & scalable) ----------
 type Lang = "en" | "es" | "fr";
 
@@ -195,7 +203,6 @@ export default function LeagueClient() {
     };
     window.addEventListener("tz-change", onTZCustom as any);
 
-    // ✅ ADD THIS
     const onLangCustom = () => {
       const v = localStorage.getItem("lang");
       if (v === "en" || v === "es" || v === "fr") setLang(v);
@@ -209,11 +216,13 @@ export default function LeagueClient() {
     };
   }, []);
 
-
   // --- sidebar competitions ---
   useEffect(() => {
     const loadComps = async () => {
-      const { data, error } = await supabase.from("competitions").select("id,name,slug,region").order("name", { ascending: true });
+      const { data, error } = await supabase
+        .from("competitions")
+        .select("id,name,slug,region")
+        .order("name", { ascending: true });
       if (!error) setCompetitions((data || []) as Competition[]);
     };
     loadComps();
@@ -358,22 +367,41 @@ export default function LeagueClient() {
     loadLeagueEverything();
   }, [slug]);
 
-  // --- Load matches when selectedRound changes ---
+  // ✅ Load matches + auto-refresh (LIVE -> 10s, else -> 60s)
   useEffect(() => {
-    const run = async () => {
-      if (!season || selectedRound == null) return;
-      setLoadingMatches(true);
-      setErr("");
+    if (!season || selectedRound == null) return;
+
+    let cancelled = false;
+    let timer: any = null;
+
+    const load = async () => {
       try {
         const m = await fetchMatchesForRound(season.id, selectedRound);
+        if (cancelled) return;
+
         setMatches(m);
+        setErr("");
+
+        const hasLive = m.some((x) => x.status === "LIVE");
+        const nextMs = hasLive ? 10_000 : 60_000;
+
+        timer = setTimeout(load, nextMs);
       } catch (e: any) {
+        if (cancelled) return;
         setErr(e?.message ?? "Error loading matches");
-        setMatches([]);
+        timer = setTimeout(load, 60_000);
+      } finally {
+        if (!cancelled) setLoadingMatches(false);
       }
-      setLoadingMatches(false);
     };
-    run();
+
+    setLoadingMatches(true);
+    load();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [season?.id, selectedRound]);
 
   // --- slider helpers ---
@@ -385,33 +413,26 @@ export default function LeagueClient() {
 
   return (
     <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-500 via-green-600 to-green-600 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
-     <AppHeader
-  title={
-    <>
-      Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
-    </>
-  }
-  subtitle="League view"
-  lang={lang}
-  onLangChange={(l) => {
-    setLang(l);
-    localStorage.setItem("lang", l);
-  }}
-/>
-
-
-
-
+      <AppHeader
+        title={
+          <>
+            Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
+          </>
+        }
+        subtitle="League view"
+        lang={lang}
+        onLangChange={(l) => {
+          setLang(l);
+          localStorage.setItem("lang", l);
+        }}
+      />
 
       <main className="mx-auto max-w-7xl px-4 py-6 grid grid-cols-1 xl:grid-cols-[320px_1fr_360px] gap-6">
         {/* LEFT: Sidebar */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div className="flex items-center justify-between gap-2">
-          <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
+            <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
           </div>
-
-
-            
 
           <div className="space-y-2">
             {competitions.map((c) => (
@@ -445,16 +466,15 @@ export default function LeagueClient() {
           {/* Header */}
           <div>
             <div className="text-sm text-neutral-700 dark:text-white/70">{t("league")}</div>
-            <h1 className="text-2xl font-extrabold">{comp?.name ?? slug}</h1>
+            <h1 className="text-2xl font-extrabold">{comp?.name ?? (slug as any)}</h1>
             <div className="text-sm text-neutral-700 dark:text-white/60 mt-1">
               {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
             </div>
           </div>
 
-          {/* TOP SLIDER ONLY (no Fechas table) */}
+          {/* TOP SLIDER ONLY */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-center gap-2 flex-wrap">
-              {/* left arrow */}
               <button
                 onClick={() => {
                   if (selectedIdx > 0) setSelectedRound(roundsList[selectedIdx - 1]);
@@ -468,12 +488,10 @@ export default function LeagueClient() {
                 ←
               </button>
 
-              {/* center pill */}
               <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
                 {selectedRound != null ? `${t("round")} ${selectedRound}` : t("round")}
               </div>
 
-              {/* right arrow */}
               <button
                 onClick={() => {
                   if (selectedIdx >= 0 && selectedIdx < roundsList.length - 1) setSelectedRound(roundsList[selectedIdx + 1]);
@@ -487,7 +505,6 @@ export default function LeagueClient() {
                 →
               </button>
 
-              {/* round buttons row */}
               <div className="flex-1 overflow-x-auto">
                 <div className="flex gap-2 justify-end min-w-max">
                   {roundsList.map((r) => {
@@ -536,7 +553,6 @@ export default function LeagueClient() {
             </div>
           ) : (
             <div className="rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
-              {/* IMPORTANT: no divide-y (it was shrinking/boxing things). We use spacing instead. */}
               <div className="p-3 space-y-3">
                 {matches.map((m) => {
                   const timeLabel =
@@ -552,7 +568,6 @@ export default function LeagueClient() {
                       className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md shadow-sm
                       dark:border-white/10 dark:bg-white/5 overflow-hidden"
                     >
-                      {/* TOP BAR: date + time + status left, venue right */}
                       <div className="px-4 py-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
@@ -568,29 +583,24 @@ export default function LeagueClient() {
                         </div>
                       </div>
 
-                      {/* BOTTOM: rectangle layout (team | score | team) */}
                       <div className="px-4 pb-4">
                         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 items-stretch">
-                          {/* HOME */}
-                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
+                          <div
+                            className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
                             dark:border-white/10 dark:bg-white/10 flex items-center"
                           >
-                            <span className="font-semibold text-sm sm:text-base truncate">
-                              {m.home_team?.name ?? "TBD"}
-                            </span>
+                            <span className="font-semibold text-sm sm:text-base truncate">{m.home_team?.name ?? "TBD"}</span>
                           </div>
 
-                          {/* SCORE (fixed width so it never squishes into tiny boxes) */}
                           <div
                             className="min-w-[112px] sm:min-w-[132px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white
                             px-4 py-3 flex items-center justify-center tabular-nums shadow-sm"
                           >
                             <span className="text-base sm:text-lg font-extrabold">
-                              {(m.home_score ?? 0)} - {(m.away_score ?? 0)}
+                              {formatScore(m.status, m.home_score, m.away_score)}
                             </span>
                           </div>
 
-                          {/* AWAY */}
                           <div
                             className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
                             dark:border-white/10 dark:bg-white/10 flex items-center justify-end"

@@ -1,3 +1,6 @@
+// app/page.tsx (Home)  -- version corregida con:
+// 1) score "—" cuando es NS y null/null (no 0-0)
+// 2) auto-refresh: si hay LIVE -> 10s, si no -> 60s
 "use client";
 
 import Link from "next/link";
@@ -5,15 +8,14 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 
-
 type MatchStatus = "NS" | "LIVE" | "FT";
 
 type Match = {
   timeLabel: string;
   home: string;
   away: string;
-  hs: number;
-  as: number;
+  hs: number | null;
+  as: number | null;
   status: MatchStatus;
 };
 
@@ -103,45 +105,23 @@ function isSameDay(a: Date, b: Date) {
 // ---------- TZ helpers ----------
 function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
-  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time; // HH:MM(:SS)
-  // interpret kickoff as UTC
+  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
   const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
 
-function formatTodayTZ(now: Date, timeZone: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-    timeZone,
-  }).format(now);
-}
-
-function formatClockTZ(now: Date, timeZone: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone,
-  }).format(now);
-}
-
-function formatSecondsTZ(now: Date, timeZone: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    second: "2-digit",
-    timeZone,
-  }).format(now);
+// ✅ Score helper
+function displayScore(status: MatchStatus, hs: number | null, as: number | null) {
+  if (status === "NS" && hs == null && as == null) return "—";
+  return `${hs ?? 0} - ${as ?? 0}`;
 }
 
 export default function Home() {
   // THEME
   const [dark, setDark] = useState(false);
 
-  // TIMEZONE + CLOCK
+  // TIMEZONE
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
-  const [nowTick, setNowTick] = useState<number>(Date.now());
-  const now = useMemo(() => new Date(nowTick), [nowTick]);
 
   // FILTERS
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
@@ -181,22 +161,15 @@ export default function Home() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
-  // clock tick
-  useEffect(() => {
-    const id = setInterval(() => setNowTick(Date.now()), 250);
-    return () => clearInterval(id);
-  }, []);
-
   // load competitions once
   useEffect(() => {
     const loadComps = async () => {
       setCompLoading(true);
       setCompError("");
 
-      const { data, error } = await supabase
-        .from("competitions")
-        .select("id, name, slug, region")
-        .order("name", { ascending: true });
+      const { data, error } = await supabase.from("competitions").select("id, name, slug, region").order("name", {
+        ascending: true,
+      });
 
       if (error) {
         console.error("Error loading competitions:", error);
@@ -213,8 +186,11 @@ export default function Home() {
     loadComps();
   }, []);
 
-  // load matches for selected date
+  // ✅ load matches + auto-refresh
   useEffect(() => {
+    let cancelled = false;
+    let timer: any = null;
+
     const loadMatches = async () => {
       setLoading(true);
       setLoadError("");
@@ -246,18 +222,25 @@ export default function Home() {
         .eq("match_date", dayISO)
         .order("kickoff_time", { ascending: true });
 
+      if (cancelled) return;
+
       if (error) {
         console.error("Error loading matches:", error);
         setBlocks([]);
         setLoadError(error.message ?? "Unknown matches error");
         setLoading(false);
+        timer = setTimeout(loadMatches, 60_000);
         return;
       }
 
       const rows = (data || []) as unknown as DbMatchRow[];
       const map = new Map<string, LeagueBlock>();
 
+      let hasLive = false;
+
       for (const r of rows) {
+        if (r.status === "LIVE") hasLive = true;
+
         const compName = r.season?.competition?.name ?? "Unknown Competition";
         const compSlug = r.season?.competition?.slug ?? "unknown";
         const region = r.season?.competition?.region ?? "";
@@ -273,8 +256,8 @@ export default function Home() {
           timeLabel: kickoffLabel,
           home: r.home_team?.name ?? "TBD",
           away: r.away_team?.name ?? "TBD",
-          hs: r.home_score ?? 0,
-          as: r.away_score ?? 0,
+          hs: r.home_score,
+          as: r.away_score,
           status: r.status,
         };
 
@@ -286,9 +269,17 @@ export default function Home() {
 
       setBlocks(Array.from(map.values()));
       setLoading(false);
+
+      const nextMs = hasLive ? 10_000 : 60_000;
+      timer = setTimeout(loadMatches, nextMs);
     };
 
     loadMatches();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [selectedDate, timeZone]);
 
   // LIVE filter
@@ -309,18 +300,10 @@ export default function Home() {
         text-neutral-900 dark:text-white
       "
     >
-      {/* Top Bar */}
-     
+      <AppHeader showTabs tab={tab} setTab={setTab} />
 
-
-        <AppHeader showTabs tab={tab} setTab={setTab} />
-
-
-      {/* Layout */}
       <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        {/* Sidebar */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
-          {/* Dates */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">Fechas</div>
@@ -376,7 +359,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Leagues */}
           <div>
             <div className="text-sm font-semibold mb-2 text-neutral-700 dark:text-white/80">Ligas</div>
 
@@ -403,14 +385,12 @@ export default function Home() {
           </div>
         </aside>
 
-        {/* Main */}
         <section className="space-y-4">
           <div>
             <h2 className="text-xl font-bold">Matches</h2>
             <p className="text-sm text-neutral-700 dark:text-white/60">
-              Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
-              {tab === "LIVE" ? "Live only" : "All matches"} • TZ:{" "}
-              <span className="font-semibold">{timeZone}</span>
+              Date: <span className="font-semibold">{niceDate(selectedDate)}</span> • {tab === "LIVE" ? "Live only" : "All matches"} •
+              TZ: <span className="font-semibold">{timeZone}</span>
             </p>
           </div>
 
@@ -461,12 +441,12 @@ export default function Home() {
                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium">{m.home}</span>
-                          <span className="font-extrabold tabular-nums">{m.hs}</span>
+                          <span className="font-extrabold tabular-nums">{displayScore(m.status, m.hs, m.as).split(" - ")[0]}</span>
                         </div>
 
                         <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium">{m.away}</span>
-                          <span className="font-extrabold tabular-nums">{m.as}</span>
+                          <span className="font-extrabold tabular-nums">{displayScore(m.status, m.hs, m.as).split(" - ")[1] ?? "—"}</span>
                         </div>
                       </div>
 
@@ -482,7 +462,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer con firma */}
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-neutral-800 dark:text-white/40">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>

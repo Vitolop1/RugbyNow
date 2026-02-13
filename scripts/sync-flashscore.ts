@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import { chromium } from "playwright";
+import { chromium, Page } from "playwright";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
-const SUPABASE_URL = process.env.SUPABASE_URL!;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const FLASH_URLS = process.env.FLASH_URLS!;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const FLASH_URLS = process.env.FLASH_URLS;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !FLASH_URLS) {
   throw new Error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FLASH_URLS");
@@ -19,80 +19,47 @@ function norm(s: string) {
   return (s || "")
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "") // sacá tildes/diacríticos
     .replace(/’/g, "'")
     .replace(/\s+/g, " ")
     .trim();
-}
-
-/**
- * Aliases: nombres que te vienen desde Flashscore (ES / abreviados)
- * -> nombre canónico tal como está guardado en tu tabla teams (normalizado).
- *
- * IMPORTANT: Guardá las keys y values en formato "como se ve", nosotros hacemos norm() al final.
- */
-const TEAM_ALIASES: Record<string, string> = {
-  // Six Nations (Flashscore ES -> DB EN)
-  Irlanda: "Ireland",
-  Italia: "Italy",
-  Escocia: "Scotland",
-  Inglaterra: "England",
-  Gales: "Wales",
-  Francia: "France",
-
-  // SRA (Flashscore a veces muestra corto)
-  Cobras: "Cobras Brasil Rugby",
-  Capibaras: "Capibaras XV",
-  Peñarol: "Peñarol Rugby",
-  "Pampas XV": "Pampas",
-
-  // Serie A Elite (Italia)
-  Emilia: "Valorugby Emilia",
-  "Petrarca Padova": "Petrarca",
-  "Rugby Lyons": "Lyons Piacenza",
-};
-
-function canonicalTeamKey(rawName: string) {
-  const n = norm(rawName);
-  const mapped = TEAM_ALIASES[rawName] || TEAM_ALIASES[n] || TEAM_ALIASES[n.toLowerCase()] || TEAM_ALIASES[n.trim()];
-  // Si el alias existe, devolvemos el nombre mapeado normalizado; si no, devolvemos el original normalizado.
-  return norm(mapped ?? rawName);
 }
 
 function parseScore(x: string) {
   const t = (x || "").trim().replace("–", "-");
   if (t === "-" || t === "") return null;
   if (!/^\d+$/.test(t)) return null;
-  return parseInt(t, 10);
+  return Number.parseInt(t, 10);
 }
 
 function detectStatusAndMinute(raw: string) {
   const s = (raw || "").toUpperCase().trim();
 
-  // Cancelled / postponed / abandoned -> no toques a LIVE
+  // cancelled / postponed / abandoned
   if (/(POSTP|CANC|CANCEL|ABAND|ABD)/.test(s)) {
     return { status: "NS" as MatchStatus, minute: null as number | null };
   }
 
-  // Full time (incl. AET)
+  // full time (incl. AET)
   if (/(FT|FINAL|AET)/.test(s)) {
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
-  // Half time / live
+  // half time / live
   if (/(HT|LIVE)/.test(s)) {
     return { status: "LIVE" as MatchStatus, minute: null as number | null };
   }
 
-  // Minutes like 52'
+  // minutes like 52'
   const m = s.match(/\b(\d{1,3})\s*'\b/);
-  if (m) return { status: "LIVE" as MatchStatus, minute: parseInt(m[1], 10) };
+  if (m) return { status: "LIVE" as MatchStatus, minute: Number.parseInt(m[1], 10) };
 
   return { status: "NS" as MatchStatus, minute: null as number | null };
 }
 
 function urlsFromEnv() {
-  return FLASH_URLS.split(/\r?\n|,/)
+  return FLASH_URLS!
+    .split(/\r?\n|,/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
@@ -106,6 +73,26 @@ function competitionSlugFromUrl(url: string) {
   return null;
 }
 
+// ordena temporadas por “más nueva” sin depender de strings raros (2026 > 2025/26 > 2024/25)
+function seasonSortKey(name: string) {
+  const s = (name || "").trim();
+
+  // "2025/26"
+  const mRange = s.match(/\b(\d{4})\s*\/\s*(\d{2,4})\b/);
+  if (mRange) {
+    const a = Number.parseInt(mRange[1], 10);
+    const bRaw = mRange[2];
+    const b = bRaw.length === 2 ? Number.parseInt(`${mRange[1].slice(0, 2)}${bRaw}`, 10) : Number.parseInt(bRaw, 10);
+    return Math.max(a, b);
+  }
+
+  // "2026"
+  const mYear = s.match(/\b(19\d{2}|20\d{2})\b/);
+  if (mYear) return Number.parseInt(mYear[1], 10);
+
+  return 0;
+}
+
 async function getLatestSeasonIdByCompSlug(compSlug: string) {
   const { data: comp, error: compErr } = await supabase
     .from("competitions")
@@ -113,19 +100,22 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
     .eq("slug", compSlug)
     .maybeSingle();
 
-  if (compErr || !comp?.id) throw new Error(`No competition found for slug=${compSlug}`);
+  if (compErr) throw compErr;
+  if (!comp?.id) throw new Error(`No competition found for slug=${compSlug}`);
 
-  const { data: season, error: seasonErr } = await supabase
+  const { data: seasons, error: seasonErr } = await supabase
     .from("seasons")
     .select("id,name")
-    .eq("competition_id", comp.id)
-    .order("name", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq("competition_id", comp.id);
 
-  if (seasonErr || !season?.id) throw new Error(`No season found for compSlug=${compSlug}`);
+  if (seasonErr) throw seasonErr;
+  if (!seasons || seasons.length === 0) throw new Error(`No seasons found for compSlug=${compSlug}`);
 
-  return { seasonId: season.id as number, seasonName: season.name as string };
+  const best = seasons
+    .slice()
+    .sort((a, b) => seasonSortKey((b as any).name) - seasonSortKey((a as any).name))[0] as any;
+
+  return { seasonId: best.id as number, seasonName: best.name as string };
 }
 
 async function getTeamsMap() {
@@ -133,18 +123,13 @@ async function getTeamsMap() {
   if (error) throw error;
 
   const map = new Map<string, number>();
-  for (const t of data || []) map.set(norm((t as any).name), (t as any).id);
-
-  // También metemos en el map las values de TEAM_ALIASES por si alguna vez vienen igualitas
-  // (no es estrictamente necesario, pero ayuda).
-  for (const [_k, v] of Object.entries(TEAM_ALIASES)) {
-    const key = norm(v);
-    // No pisamos si ya existe
-    if (!map.has(key)) {
-      // OJO: no tenemos el id acá si no está en teams, así que no agregamos.
-      // Esto queda a propósito vacío.
-    }
+  for (const t of data || []) {
+    map.set(norm((t as any).name), (t as any).id);
   }
+
+  // ✅ aliases manuales si Flashscore te viene con otro nombre
+  // map.set(norm("bordeaux"), 43);
+  // map.set(norm("bordeaux begles"), 43);
 
   return map;
 }
@@ -183,10 +168,32 @@ function pickBestCandidate(possible: any[]) {
     .sort((a, b) => dateDistanceDays(a.match_date) - dateDistanceDays(b.match_date))[0];
 }
 
-/**
- * Scrape con evaluate string
- */
-async function scrapeFixturesPage(page: any) {
+async function maybeAcceptConsent(page: Page) {
+  // Flashscore a veces tira banner de cookies/consent
+  const selectors = [
+    'button:has-text("Aceptar")',
+    'button:has-text("Acepto")',
+    'button:has-text("I Agree")',
+    'button:has-text("Agree")',
+    '[data-testid="uc-accept-all-button"]',
+    '#onetrust-accept-btn-handler',
+  ];
+
+  for (const sel of selectors) {
+    try {
+      const el = await page.locator(sel).first();
+      if (await el.isVisible({ timeout: 1500 })) {
+        await el.click({ timeout: 1500 });
+        await page.waitForTimeout(500);
+        break;
+      }
+    } catch {
+      // ignore
+    }
+  }
+}
+
+async function scrapeFixturesPage(page: Page) {
   const js = `
 (() => {
   const pickText = (el) => (el ? el.innerText.trim() : "");
@@ -228,8 +235,13 @@ async function scrapeFixturesPage(page: any) {
   return out;
 })()
 `;
-  const rows = await page.evaluate(js);
-  return rows as Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>;
+  return (await page.evaluate(js)) as Array<{
+    home: string;
+    away: string;
+    hs: string;
+    as: string;
+    statusOrTime: string;
+  }>;
 }
 
 function dedupeScrapedRows(
@@ -240,7 +252,15 @@ function dedupeScrapedRows(
 
   for (const r of rows) {
     const key =
-      norm(r.home) + "||" + norm(r.away) + "||" + (r.hs || "") + "||" + (r.as || "") + "||" + (r.statusOrTime || "");
+      norm(r.home) +
+      "||" +
+      norm(r.away) +
+      "||" +
+      (r.hs || "") +
+      "||" +
+      (r.as || "") +
+      "||" +
+      (r.statusOrTime || "");
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(r);
@@ -252,13 +272,17 @@ async function main() {
   const urls = urlsFromEnv();
   console.log("URLs:", urls);
 
+  // ping rápido
   const { error: pingErr } = await supabase.from("competitions").select("id").limit(1);
   if (pingErr) throw pingErr;
 
   const teamsMap = await getTeamsMap();
 
   const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
+  const page = await browser.newPage({
+    userAgent:
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+  });
 
   let totalUpdates = 0;
 
@@ -285,10 +309,12 @@ async function main() {
     }
 
     await page.goto(url, { waitUntil: "networkidle", timeout: 120000 });
+    await maybeAcceptConsent(page);
 
-    // ✅ espera algo “match-like”
     try {
-      await page.waitForSelector('[id^="g_"], .event__match, .event__row, [data-event-id], .event', { timeout: 15000 });
+      await page.waitForSelector('[id^="g_"], .event__match, .event__row, [data-event-id], .event', {
+        timeout: 15000,
+      });
     } catch {
       console.log("WARN: selector not found quickly, continuing anyway:", url);
     }
@@ -300,19 +326,16 @@ async function main() {
 
     console.log("Scraped rows (deduped):", scraped.length);
 
-    // ✅ para diagnosticar alias
     const unmapped = new Map<string, number>();
-
     let updatedHere = 0;
-    const updatedIds = new Set<number>(); // ✅ evita updates dobles por id
+    const updatedIds = new Set<number>();
 
     for (const row of scraped) {
-      // 🔥 acá está el fix: canonicalTeamKey()
-      const homeKey = canonicalTeamKey(row.home);
-      const awayKey = canonicalTeamKey(row.away);
+      const homeNorm = norm(row.home);
+      const awayNorm = norm(row.away);
 
-      const homeId = teamsMap.get(homeKey);
-      const awayId = teamsMap.get(awayKey);
+      const homeId = teamsMap.get(homeNorm);
+      const awayId = teamsMap.get(awayNorm);
 
       if (!homeId) unmapped.set(row.home, (unmapped.get(row.home) || 0) + 1);
       if (!awayId) unmapped.set(row.away, (unmapped.get(row.away) || 0) + 1);
@@ -325,7 +348,7 @@ async function main() {
       const target = pickBestCandidate(possible);
       if (!target?.id) continue;
 
-      if (updatedIds.has(target.id)) continue; // ✅ evita doble update
+      if (updatedIds.has(target.id)) continue;
       updatedIds.add(target.id);
 
       const hs = parseScore(row.hs);
@@ -345,7 +368,6 @@ async function main() {
 
     console.log(`Updated in ${compSlug}:`, updatedHere);
 
-    // ✅ Log unmapped teams (clave para arreglar lo que falte)
     if (unmapped.size > 0) {
       const top = Array.from(unmapped.entries())
         .sort((a, b) => b[1] - a[1])

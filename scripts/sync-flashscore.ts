@@ -5,7 +5,7 @@ type MatchStatus = "NS" | "LIVE" | "FT";
 
 const SUPABASE_URL = process.env.SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const FLASH_URLS = process.env.FLASH_URLS!; // GitHub variable (multiline)
+const FLASH_URLS = process.env.FLASH_URLS!;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !FLASH_URLS) {
   throw new Error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FLASH_URLS");
@@ -19,14 +19,15 @@ function norm(s: string) {
   return (s || "")
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "") // saca tildes
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/’/g, "'")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 function parseScore(x: string) {
-  const t = (x || "").trim();
+  const t = (x || "").trim().replace("–", "-");
+  if (t === "-" || t === "") return null;
   if (!/^\d+$/.test(t)) return null;
   return parseInt(t, 10);
 }
@@ -34,16 +35,24 @@ function parseScore(x: string) {
 function detectStatusAndMinute(raw: string) {
   const s = (raw || "").toUpperCase().trim();
 
-  if (s.includes("FT") || s.includes("FINAL")) {
+  // Cancelled / postponed / abandoned -> no toques a LIVE
+  if (/(POSTP|CANC|CANCEL|ABAND|ABD)/.test(s)) {
+    return { status: "NS" as MatchStatus, minute: null as number | null };
+  }
+
+  // Full time (incl. AET)
+  if (/(FT|FINAL|AET)/.test(s)) {
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
-  // minutos tipo: 52' (live)
-  const m = s.match(/(\d{1,3})\s*'?/);
-  if (m && s.includes("'")) return { status: "LIVE" as MatchStatus, minute: parseInt(m[1], 10) };
+  // Half time / live
+  if (/(HT|LIVE)/.test(s)) {
+    return { status: "LIVE" as MatchStatus, minute: null as number | null };
+  }
 
-  // HT / LIVE etc.
-  if (s.includes("HT") || s.includes("LIVE")) return { status: "LIVE" as MatchStatus, minute: null as number | null };
+  // Minutes like 52'
+  const m = s.match(/\b(\d{1,3})\s*'\b/);
+  if (m) return { status: "LIVE" as MatchStatus, minute: parseInt(m[1], 10) };
 
   return { status: "NS" as MatchStatus, minute: null as number | null };
 }
@@ -56,12 +65,10 @@ function urlsFromEnv() {
 
 function competitionSlugFromUrl(url: string) {
   const u = url.toLowerCase();
-
   if (u.includes("/francia/top-14")) return "top14";
   if (u.includes("/sudamerica/super-rugby-americas")) return "sra";
   if (u.includes("/italia/serie-a-elite")) return "serie-a-elite";
   if (u.includes("/europa/seis-naciones")) return "six-nations";
-
   return null;
 }
 
@@ -93,11 +100,15 @@ async function getTeamsMap() {
 
   const map = new Map<string, number>();
   for (const t of data || []) map.set(norm((t as any).name), (t as any).id);
+
+  // ✅ ALIASES RÁPIDOS (temporal): agregá acá cosas que veas en logs
+  // map.set(norm("Ireland"), 123);
+  // map.set(norm("Irlanda"), 123);
+
   return map;
 }
 
 async function getCandidates(seasonId: number) {
-  // actualizamos solo NO-FT, y cerca de hoy
   const today = new Date();
   const from = new Date(today);
   from.setDate(from.getDate() - 3);
@@ -119,10 +130,22 @@ async function getCandidates(seasonId: number) {
   return (data || []) as any[];
 }
 
+function dateDistanceDays(isoDate: string) {
+  const d = new Date(isoDate + "T00:00:00Z").getTime();
+  const now = Date.now();
+  return Math.abs(d - now) / (1000 * 60 * 60 * 24);
+}
+
+function pickBestCandidate(possible: any[]) {
+  // ✅ el más cercano a hoy por match_date
+  // (si querés mejorarlo: priorizar hoy, luego próximos, etc.)
+  return possible
+    .slice()
+    .sort((a, b) => dateDistanceDays(a.match_date) - dateDistanceDays(b.match_date))[0];
+}
+
 /**
- * ✅ FIX POSTA:
- * usamos page.evaluate con STRING.
- * Así tsx/esbuild NO puede inyectar __name ni helpers.
+ * Scrape con evaluate string
  */
 async function scrapeFixturesPage(page: any) {
   const js = `
@@ -166,16 +189,28 @@ async function scrapeFixturesPage(page: any) {
   return out;
 })()
 `;
-
   const rows = await page.evaluate(js);
   return rows as Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>;
+}
+
+function dedupeScrapedRows(rows: Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>) {
+  const seen = new Set<string>();
+  const out: typeof rows = [];
+
+  for (const r of rows) {
+    const key =
+      norm(r.home) + "||" + norm(r.away) + "||" + (r.hs || "") + "||" + (r.as || "") + "||" + (r.statusOrTime || "");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(r);
+  }
+  return out;
 }
 
 async function main() {
   const urls = urlsFromEnv();
   console.log("URLs:", urls);
 
-  // quick ping
   const { error: pingErr } = await supabase.from("competitions").select("id").limit(1);
   if (pingErr) throw pingErr;
 
@@ -209,33 +244,53 @@ async function main() {
     }
 
     await page.goto(url, { waitUntil: "networkidle", timeout: 120000 });
-    await page.waitForTimeout(1500);
 
-    const scraped = await scrapeFixturesPage(page);
-    console.log("Scraped rows:", scraped.length);
+    // ✅ espera algo “match-like”
+    try {
+      await page.waitForSelector('[id^="g_"], .event__match, .event__row, [data-event-id], .event', { timeout: 15000 });
+    } catch {
+      console.log("WARN: selector not found quickly, continuing anyway:", url);
+    }
+
+    await page.waitForTimeout(800);
+
+    let scraped = await scrapeFixturesPage(page);
+    scraped = dedupeScrapedRows(scraped);
+
+    console.log("Scraped rows (deduped):", scraped.length);
+
+    // ✅ para diagnosticar six-nations y otros alias
+    const unmapped = new Map<string, number>();
 
     let updatedHere = 0;
+    const updatedIds = new Set<number>(); // ✅ evita updates dobles por id
 
     for (const row of scraped) {
-      const homeId = teamsMap.get(norm(row.home));
-      const awayId = teamsMap.get(norm(row.away));
+      const homeNorm = norm(row.home);
+      const awayNorm = norm(row.away);
+
+      const homeId = teamsMap.get(homeNorm);
+      const awayId = teamsMap.get(awayNorm);
+
+      if (!homeId) unmapped.set(row.home, (unmapped.get(row.home) || 0) + 1);
+      if (!awayId) unmapped.set(row.away, (unmapped.get(row.away) || 0) + 1);
       if (!homeId || !awayId) continue;
 
       const key = `${homeId}__${awayId}`;
       const possible = index.get(key);
       if (!possible || possible.length === 0) continue;
 
-      const target = possible[0];
+      const target = pickBestCandidate(possible);
+      if (!target?.id) continue;
+
+      if (updatedIds.has(target.id)) continue; // ✅ evita doble conteo y doble update
+      updatedIds.add(target.id);
 
       const hs = parseScore(row.hs);
       const as = parseScore(row.as);
       const { status, minute } = detectStatusAndMinute(row.statusOrTime);
 
-      const patch: any = {
-        status,
-        minute,
-        updated_at: new Date().toISOString(),
-      };
+      const patch: any = { status, minute, updated_at: new Date().toISOString() };
       if (hs !== null) patch.home_score = hs;
       if (as !== null) patch.away_score = as;
 
@@ -247,6 +302,14 @@ async function main() {
     }
 
     console.log(`Updated in ${compSlug}:`, updatedHere);
+
+    // ✅ Log unmapped teams (clave para arreglar six-nations)
+    if (unmapped.size > 0) {
+      const top = Array.from(unmapped.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 12);
+      console.log("Unmapped team names (top):", top);
+    }
   }
 
   await browser.close();

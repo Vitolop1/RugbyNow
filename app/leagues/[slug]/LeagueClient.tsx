@@ -59,13 +59,14 @@ type RoundMeta = {
   last_date: string;
   matches: number;
 };
+
 type RoundMeta2 = RoundMeta & { ft: number };
 
 // ---------- UI ----------
 function StatusBadge({ status }: { status: MatchStatus }) {
   if (status === "LIVE") {
     return (
-      <span className="inline-flex items-center gap-2 text-[11px] font-extrabold px-2 py-1 rounded-full bg-red-600 text-white shadow-sm">
+      <span className="inline-flex items-center gap-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-red-600 text-white">
         <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
         LIVE
       </span>
@@ -73,13 +74,13 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   }
   if (status === "FT") {
     return (
-      <span className="text-[11px] font-extrabold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
+      <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
         FT
       </span>
     );
   }
   return (
-    <span className="text-[11px] font-extrabold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
+    <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
       PRE
     </span>
   );
@@ -222,18 +223,19 @@ const I18N: Record<Lang, Record<string, string>> = {
 const STANDINGS_RULES: Record<string, { topChampions?: number; topEurope?: number; bottomRelegation?: number } | undefined> =
   {
     "en-premiership": { topChampions: 4, bottomRelegation: 1 },
-    // ejemplo:
     // "fr-top14": { topChampions: 6, bottomRelegation: 1 },
+    // "it-serie-a-elite": { topChampions: 4, bottomRelegation: 1 },
+    // "int-six-nations": { topChampions: 4 }, // si querés “title contenders”, si no, dejalo vacío
   };
 
+// -----------------------------------
 export default function LeagueClient() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug;
 
   const searchParams = useSearchParams();
   const dateParam = searchParams.get("date");
-  const refISO =
-    dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : toISODateLocal(new Date());
+  const refISO = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : toISODateLocal(new Date());
   const dateQuery = `?date=${refISO}`;
 
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
@@ -356,13 +358,7 @@ export default function LeagueClient() {
     }
 
     return Array.from(map.entries())
-      .map(([round, v]) => ({
-        round,
-        first_date: v.first,
-        last_date: v.last,
-        matches: v.count,
-        ft: v.ft,
-      }))
+      .map(([round, v]) => ({ round, first_date: v.first, last_date: v.last, matches: v.count, ft: v.ft }))
       .sort((a, b) => a.round - b.round);
   }
 
@@ -423,10 +419,8 @@ export default function LeagueClient() {
 
       ftCount += 1;
 
-      const home =
-        table.get(ht.id) ?? { teamId: ht.id, team: ht.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
-      const away =
-        table.get(at.id) ?? { teamId: at.id, team: at.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
+      const home = table.get(ht.id) ?? { teamId: ht.id, team: ht.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
+      const away = table.get(at.id) ?? { teamId: at.id, team: at.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
 
       home.pj += 1;
       away.pj += 1;
@@ -438,6 +432,7 @@ export default function LeagueClient() {
       away.pa += hs;
 
       const res = pointsForResult(hs, as);
+
       home.pts += res.homePts;
       away.pts += res.awayPts;
 
@@ -474,7 +469,7 @@ export default function LeagueClient() {
       if (rules?.topChampions && position <= rules.topChampions) badge = "champions";
       else if (rules?.topEurope && position <= rules.topEurope) badge = "europe";
 
-      if (rules?.bottomRelegation && position > total - (rules.bottomRelegation ?? 0)) badge = "relegation";
+      if (rules?.bottomRelegation && position > total - rules.bottomRelegation) badge = "relegation";
 
       return { ...r, position, badge };
     });
@@ -704,8 +699,8 @@ export default function LeagueClient() {
         }}
       />
 
-      {/* ✅ layout más balanceado + tabla derecha más ancha */}
-      <main className="mx-auto max-w-[1500px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-[360px_1fr_520px] gap-6">
+      {/* ✅ layout más ancho + standings más ancho */}
+      <main className="mx-auto max-w-[1500px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-[360px_1fr_560px] gap-6">
         {/* LEFT */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div className="flex items-center justify-between gap-2">
@@ -789,7 +784,6 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* rounds bar */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-center gap-2 flex-wrap">
               <button
@@ -808,7 +802,9 @@ export default function LeagueClient() {
 
               <button
                 onClick={() =>
-                  selectedIdx >= 0 && selectedIdx < roundsList.length - 1 && setSelectedRound(roundsList[selectedIdx + 1])
+                  selectedIdx >= 0 &&
+                  selectedIdx < roundsList.length - 1 &&
+                  setSelectedRound(roundsList[selectedIdx + 1])
                 }
                 disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
                 className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
@@ -878,37 +874,32 @@ export default function LeagueClient() {
                       key={m.id}
                       className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md shadow-sm dark:border-white/10 dark:bg-white/5 overflow-hidden"
                     >
-                      {/* ✅ header más compacto */}
-                      <div className="px-4 py-2 flex items-start justify-between gap-3">
+                      {/* ✅ más compacto */}
+                      <div className="px-4 pt-3 pb-2 flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-[11px] text-neutral-700 dark:text-white/70">
-                            {formatDateShort(m.match_date)}
-                          </div>
-                          <div className="mt-0.5 text-lg font-extrabold tracking-tight">{timeLabel}</div>
+                          <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
+                          <div className="mt-0.5 text-lg sm:text-xl font-extrabold tracking-tight">{timeLabel}</div>
                         </div>
-
-                        <div className="text-right text-[11px] text-neutral-700 dark:text-white/50 shrink-0">
-                          {m.venue ?? ""}
-                        </div>
+                        <div className="text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">{m.venue ?? ""}</div>
                       </div>
 
-                      {/* ✅ fila del partido: badge arriba del score (centro) */}
+                      {/* ✅ badge arriba del score (y achica alto total) */}
                       <div className="px-4 pb-3">
                         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 items-stretch">
-                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2.5 dark:border-white/10 dark:bg-white/10 flex items-center gap-2">
+                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2 dark:border-white/10 dark:bg-white/10 flex items-center gap-2">
                             {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
-                            <span className="font-semibold text-sm truncate">{m.home_team?.name ?? "TBD"}</span>
+                            <span className="font-semibold text-sm sm:text-base truncate">{m.home_team?.name ?? "TBD"}</span>
                           </div>
 
-                          <div className="min-w-[128px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white px-3 py-2 flex flex-col items-center justify-center gap-1 tabular-nums shadow-sm">
-                            <StatusBadge status={m.status} />
-                            <span className="text-base font-extrabold leading-none">
-                              {formatScore(m.status, m.home_score, m.away_score)}
-                            </span>
+                          <div className="min-w-[118px] sm:min-w-[140px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white px-3 py-2 flex flex-col items-center justify-center tabular-nums shadow-sm">
+                            <div className="mb-1">
+                              <StatusBadge status={m.status} />
+                            </div>
+                            <div className="text-base sm:text-lg font-extrabold">{formatScore(m.status, m.home_score, m.away_score)}</div>
                           </div>
 
-                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2.5 dark:border-white/10 dark:bg-white/10 flex items-center justify-end gap-2">
-                            <span className="font-semibold text-sm truncate text-right">{m.away_team?.name ?? "TBD"}</span>
+                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2 dark:border-white/10 dark:bg-white/10 flex items-center justify-end gap-2">
+                            <span className="font-semibold text-sm sm:text-base truncate text-right">{m.away_team?.name ?? "TBD"}</span>
                             {m.away_team?.name ? <TeamAvatar name={m.away_team.name} /> : null}
                           </div>
                         </div>
@@ -923,7 +914,8 @@ export default function LeagueClient() {
 
         {/* RIGHT */}
         <aside className="space-y-4 min-w-0">
-          <div className="rounded-2xl border border-neutral-200 bg-white/95 p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950">
+          {/* ✅ más ancho + entra todo */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-baseline justify-between gap-3">
               <div className="font-bold">{t("standings")}</div>
               <div className="text-xs text-neutral-700 dark:text-white/60">
@@ -951,20 +943,20 @@ export default function LeagueClient() {
                   <div className="mt-3 text-[11px] opacity-70">{t("computedFromFT")}</div>
                 )}
 
-                {/* ✅ tabla: contenedor y tabla con min-width para que no se comprima raro */}
                 <div className="mt-3 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
-                  <table className="min-w-[560px] w-full text-sm">
-                    <thead className="text-[11px] text-neutral-700 dark:text-white/60">
-                      <tr className="border-b border-neutral-200 dark:border-white/10">
-                        <th className="text-left py-2.5 px-3 w-[44px]">#</th>
-                        <th className="text-left py-2.5 px-3">Team</th>
-                        <th className="text-right py-2.5 px-2 w-[46px]">PJ</th>
-                        <th className="text-right py-2.5 px-2 w-[46px]">W</th>
-                        <th className="text-right py-2.5 px-2 w-[46px]">D</th>
-                        <th className="text-right py-2.5 px-2 w-[46px]">L</th>
-                        <th className="text-right py-2.5 px-2 w-[56px]">PF</th>
-                        <th className="text-right py-2.5 px-2 w-[56px]">PA</th>
-                        <th className="text-right py-2.5 px-3 w-[64px]">PTS</th>
+                  {/* ✅ min-width para que no se aplaste */}
+                  <table className="w-full text-sm min-w-[520px]">
+                    <thead className="text-xs text-neutral-700 dark:text-white/60">
+                      <tr>
+                        <th className="text-left py-3 pr-2 w-[44px]">#</th>
+                        <th className="text-left py-3">Team</th>
+                        <th className="text-right py-3 w-[52px]">PJ</th>
+                        <th className="text-right py-3 w-[52px]">W</th>
+                        <th className="text-right py-3 w-[52px]">D</th>
+                        <th className="text-right py-3 w-[52px]">L</th>
+                        <th className="text-right py-3 w-[60px]">PF</th>
+                        <th className="text-right py-3 w-[60px]">PA</th>
+                        <th className="text-right py-3 w-[64px]">PTS</th>
                       </tr>
                     </thead>
 
@@ -979,8 +971,8 @@ export default function LeagueClient() {
 
                         return (
                           <tr key={r.teamId} className={rowClass}>
-                            <td className="py-2.5 px-3 text-[11px] opacity-70 tabular-nums">{r.position ?? ""}</td>
-                            <td className="py-2.5 px-3 font-medium">
+                            <td className="py-3 pr-2 text-xs opacity-70 tabular-nums">{r.position ?? ""}</td>
+                            <td className="py-3 font-medium">
                               <div className="flex items-center gap-2 min-w-0">
                                 <TeamAvatar name={r.team} />
                                 <span className="truncate">{r.team}</span>
@@ -997,13 +989,13 @@ export default function LeagueClient() {
                                 ) : null}
                               </div>
                             </td>
-                            <td className="py-2.5 px-2 text-right tabular-nums">{r.pj}</td>
-                            <td className="py-2.5 px-2 text-right tabular-nums">{r.w}</td>
-                            <td className="py-2.5 px-2 text-right tabular-nums">{r.d}</td>
-                            <td className="py-2.5 px-2 text-right tabular-nums">{r.l}</td>
-                            <td className="py-2.5 px-2 text-right tabular-nums">{r.pf}</td>
-                            <td className="py-2.5 px-2 text-right tabular-nums">{r.pa}</td>
-                            <td className="py-2.5 px-3 text-right font-extrabold tabular-nums">{r.pts}</td>
+                            <td className="py-3 text-right tabular-nums">{r.pj}</td>
+                            <td className="py-3 text-right tabular-nums">{r.w}</td>
+                            <td className="py-3 text-right tabular-nums">{r.d}</td>
+                            <td className="py-3 text-right tabular-nums">{r.l}</td>
+                            <td className="py-3 text-right tabular-nums">{r.pf}</td>
+                            <td className="py-3 text-right tabular-nums">{r.pa}</td>
+                            <td className="py-3 text-right font-extrabold tabular-nums">{r.pts}</td>
                           </tr>
                         );
                       })}
@@ -1013,9 +1005,7 @@ export default function LeagueClient() {
               </>
             )}
 
-            <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">
-              (Si una liga todavía no tiene FT, te muestra equipos con 0s.)
-            </div>
+            <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">(Si una liga todavía no tiene FT, te muestra equipos con 0s.)</div>
           </div>
         </aside>
       </main>
@@ -1032,7 +1022,7 @@ export default function LeagueClient() {
               lopresttivito@gmail.com
             </a>
             <span className="mx-2">•</span>
-            <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
+            <a className="underline" href="https://www.linkedin.com/in/vitolopresttivito/" target="_blank" rel="noreferrer">
               LinkedIn
             </a>
           </div>

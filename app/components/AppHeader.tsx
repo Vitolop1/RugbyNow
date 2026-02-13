@@ -1,3 +1,4 @@
+// app/components/AppHeader.tsx
 "use client";
 
 import Image from "next/image";
@@ -13,7 +14,6 @@ type Props = {
   tab?: "ALL" | "LIVE";
   setTab?: (t: "ALL" | "LIVE") => void;
 
-  // opcional: si alguna página quiere controlar el idioma desde afuera
   lang?: Lang;
   onLangChange?: (l: Lang) => void;
 };
@@ -57,7 +57,6 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
 
   const [logoOk, setLogoOk] = useState(true);
 
-  // idioma interno (si no te pasan props)
   const [langLocal, setLangLocal] = useState<Lang>("en");
   const effectiveLang = lang ?? langLocal;
 
@@ -81,7 +80,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
     window.dispatchEvent(new Event("tz-change"));
   }, [timeZone]);
 
-  // LANG: init + sync
+  // LANG
   useEffect(() => {
     setLangLocal(readLangFromStorage());
 
@@ -109,138 +108,112 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
   }, []);
 
   const setLanguageEverywhere = (next: Lang) => {
-    // si la página quiere controlarlo, respetamos eso
     if (onLangChange) onLangChange(next);
 
-    // y siempre lo guardamos global para que afecte a toda la app
     localStorage.setItem("lang", next);
     setLangLocal(next);
     window.dispatchEvent(new Event("lang-change"));
   };
 
-return (
-  <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
-    <div className="mx-auto max-w-7xl px-6 py-4 grid grid-cols-3 items-center gap-4">
-      {/* LEFT: Logo + Language + Timezone */}
-      <div className="flex items-center gap-3 min-w-0">
-        <Link href="/" className="flex items-center gap-3 shrink-0">
-          <div className="h-12 w-12 rounded-xl shadow overflow-hidden bg-white/80 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
-            {logoOk ? (
-              <Image
-                src="/logo.jpg"
-                alt="RugbyNow logo"
-                width={48}
-                height={48}
-                className="h-12 w-12 object-cover"
-                onError={() => setLogoOk(false)}
-                priority
-              />
-            ) : (
-              <span className="text-xs font-black">RN</span>
-            )}
-          </div>
-        </Link>
+  return (
+    <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
+      <div className="relative mx-auto max-w-[1500px] px-4 sm:px-6 py-3 flex items-center">
+        {/* LEFT: pegado a la izquierda */}
+        <div className="flex items-center gap-3 min-w-0">
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <div className="h-12 w-12 rounded-xl shadow overflow-hidden bg-white/80 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
+              {logoOk ? (
+                <Image
+                  src="/logo.jpg"
+                  alt="RugbyNow logo"
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 object-cover"
+                  onError={() => setLogoOk(false)}
+                  priority
+                />
+              ) : (
+                <span className="text-xs font-black">RN</span>
+              )}
+            </div>
+          </Link>
 
-        {/* Language selector */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-white/5 shrink-0">
-          <span className="text-sm" aria-hidden="true">🌐</span>
+          {/* Language selector */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-white/5 shrink-0">
+            <span className="text-sm" aria-hidden="true">
+              🌐
+            </span>
+            <select
+              value={effectiveLang}
+              onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
+              className="bg-transparent text-sm font-semibold outline-none cursor-pointer text-neutral-900 dark:text-white"
+              aria-label="Select language"
+            >
+              <option value="en">EN</option>
+              <option value="es">ES</option>
+              <option value="fr">FR</option>
+            </select>
+          </div>
+
+          {/* Timezone */}
           <select
-            value={effectiveLang}
-            onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
-            className="bg-transparent text-sm font-semibold outline-none cursor-pointer text-neutral-900 dark:text-white"
-            aria-label="Select language"
+            value={timeZone}
+            onChange={(e) => setTimeZone(e.target.value)}
+            className="px-3 py-2 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0"
+            title="Timezone"
           >
-            <option value="en">EN</option>
-            <option value="es">ES</option>
-            <option value="fr">FR</option>
+            <option value="America/New_York">New York (ET)</option>
+            <option value="America/Chicago">Chicago (CT)</option>
+            <option value="America/Denver">Denver (MT)</option>
+            <option value="America/Los_Angeles">Los Angeles (PT)</option>
+            <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
+            <option value="Europe/London">London (GMT)</option>
           </select>
         </div>
 
-        {/* Timezone (moved LEFT) */}
-        <select
-          value={timeZone}
-          onChange={(e) => setTimeZone(e.target.value)}
-          className="px-3 py-2 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0"
-          title="Timezone"
-        >
-          <option value="America/New_York">New York (ET)</option>
-          <option value="America/Chicago">Chicago (CT)</option>
-          <option value="America/Denver">Denver (MT)</option>
-          <option value="America/Los_Angeles">Los Angeles (PT)</option>
-          <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
-          <option value="Europe/London">London (GMT)</option>
-        </select>
+        {/* CENTER: siempre centrado */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex justify-center">
+          <Link href="/" className="select-none">
+            <h1 className="text-[34px] leading-none font-extrabold tracking-tight whitespace-nowrap">
+              Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
+            </h1>
+          </Link>
+        </div>
+
+        {/* RIGHT */}
+        <div className="ml-auto flex items-center justify-end gap-3 whitespace-nowrap">
+          <div
+            className="w-[180px] h-[60px] px-4 py-2 rounded-2xl border
+            bg-white/80 border-neutral-200
+            dark:bg-neutral-900 dark:border-white/10
+            flex flex-col justify-center"
+          >
+            <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Today</div>
+            <div className="mt-1 text-base font-extrabold leading-tight truncate">{formatTodayTZ(now, timeZone)}</div>
+          </div>
+
+          <div
+            className="w-[180px] h-[60px] px-4 py-2 rounded-2xl border
+            bg-white/80 border-neutral-200
+            dark:bg-neutral-900 dark:border-white/10
+            flex flex-col justify-center"
+          >
+            <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
+            <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
+              {formatClockTZ(now, timeZone)}
+              <span className="ml-1 text-sm font-black opacity-80">{formatSecondsTZ(now, timeZone)}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setDark((v) => !v)}
+            className="px-3 py-2 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10"
+            title="Toggle theme"
+          >
+            {dark ? "☀️" : "🌙"}
+          </button>
+        </div>
       </div>
-
-      {/* CENTER: BIG TITLE */}
-      <div className="flex justify-center min-w-0">
-        <Link href="/" className="select-none">
-          <h1 className="text-[36px] leading-none font-extrabold tracking-tight whitespace-nowrap">
-            Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
-          </h1>
-        </Link>
-      </div>
-
-      {/* RIGHT: Time boxes + Theme */}
-{/* RIGHT: Time boxes + Theme */}
-<div className="flex items-center justify-end gap-3 whitespace-nowrap">
-
-  {/* today box */}
-  <div className="w-[180px] h-[60px] px-4 py-2 rounded-2xl border 
-    bg-white/80 border-neutral-200 
-    dark:bg-neutral-900 dark:border-white/10
-    flex flex-col justify-center">
-    
-    <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60 ">
-      Today
-    </div>
-
-    <div className="mt-1 text-base font-extrabold leading-tight truncate">
-      {formatTodayTZ(now, timeZone)}
-    </div>
-  </div>
-
-  {/* time box */}
-  <div className="w-[180px] h-[60px] px-4 py-2 rounded-2xl border 
-    bg-white/80 border-neutral-200 
-    dark:bg-neutral-900 dark:border-white/10
-    flex flex-col justify-center">
-
-    <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60 ">
-      Time
-    </div>
-
-    <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
-      {formatClockTZ(now, timeZone)}
-      <span className="ml-1 text-sm font-black opacity-80">
-        {formatSecondsTZ(now, timeZone)}
-      </span>
-    </div>
-  </div>
-
-  {/* Theme */}
-  <button
-    onClick={() => setDark((v) => !v)}
-    className="px-3 py-2 rounded-full text-sm border 
-      bg-white/80 border-neutral-200 
-      dark:bg-neutral-900 dark:border-white/10"
-    title="Toggle theme"
-  >
-    {dark ? "☀️" : "🌙"}
-  </button>
-
-</div>
-
-
-    </div>
-  </header>
-);
-
-
-
-
-
-
-
-
+    </header>
+  );
 }

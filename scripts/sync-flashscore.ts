@@ -60,12 +60,6 @@ function urlsFromEnv() {
     .filter(Boolean);
 }
 
-/**
- * Normaliza URLs de Flashscore:
- * - saca hash y query
- * - saca trailing slash
- * - saca /fixtures al final del path si está
- */
 function normalizeFlashUrl(raw: string) {
   const u = new URL(raw.trim());
   u.search = "";
@@ -78,10 +72,6 @@ function normalizeFlashUrl(raw: string) {
   return u.toString();
 }
 
-/**
- * Devuelve el slug interno de tu DB en base a la URL de Flashscore.
- * /rugby-union/{region}/{competition}/...
- */
 function competitionSlugFromUrl(url: string) {
   const normalized = normalizeFlashUrl(url);
   const u = new URL(normalized);
@@ -89,8 +79,7 @@ function competitionSlugFromUrl(url: string) {
   const parts = u.pathname.split("/").filter(Boolean);
   if (parts.length < 3) return null;
 
-  const sport = parts[0];
-  if (sport !== "rugby-union") return null;
+  if (parts[0] !== "rugby-union") return null;
 
   const compSlug = parts[2];
 
@@ -147,16 +136,42 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
   return { seasonId: best.id as number, seasonName: best.name as string };
 }
 
+/**
+ * Devuelve:
+ * - teamsMap: norm(name) -> id
+ * - teamsNames: array con nombres norm para sugerencias
+ */
 async function getTeamsMap() {
   const { data, error } = await supabase.from("teams").select("id,name");
   if (error) throw error;
 
   const map = new Map<string, number>();
+  const names: string[] = [];
+
   for (const t of data || []) {
-    map.set(norm((t as any).name), (t as any).id);
+    const n = norm((t as any).name);
+    map.set(n, (t as any).id);
+    names.push(n);
   }
 
-  return map;
+  // ✅ ALIASES (REEMPLAZÁ LOS IDs POR LOS REALES DE TU TABLA teams)
+  // --- Serie A Elite ---
+  // map.set(norm("Emilia"), 999);
+  // map.set(norm("Petrarca Padova"), 999);
+  // map.set(norm("Rugby Lyons"), 999);
+
+  // --- Top14 ---
+  // map.set(norm("Aviron Bayonnais"), 999);         // Bayonne
+  // map.set(norm("RC Toulonnais"), 999);            // Toulon
+  // map.set(norm("Stade Francais Paris"), 999);     // Stade Français
+
+  // --- SRA ---
+  // map.set(norm("Cobras"), 999);
+  // map.set(norm("Capibaras"), 999);
+  // map.set(norm("Penarol"), 999);                  // Peñarol (sin tilde)
+  // map.set(norm("Pampas XV"), 999);
+
+  return { teamsMap: map, teamNamesNorm: names };
 }
 
 async function getCandidates(seasonId: number) {
@@ -312,6 +327,32 @@ function dedupeScrapedRows(
   return out;
 }
 
+// sugerencias simples para unmapped: contiene / incluido
+function suggestTeams(unmappedName: string, teamNamesNorm: string[], limit = 6) {
+  const u = norm(unmappedName);
+  if (!u) return [];
+
+  const hits = teamNamesNorm
+    .filter((t) => t.includes(u) || u.includes(t))
+    .slice(0, limit);
+
+  // si no hay hits por "includes", probamos por tokens
+  if (hits.length > 0) return hits;
+
+  const tokens = u.split(" ").filter(Boolean);
+  const scored = teamNamesNorm
+    .map((t) => {
+      const score = tokens.reduce((acc, tok) => acc + (t.includes(tok) ? 1 : 0), 0);
+      return { t, score };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((x) => x.t);
+
+  return scored;
+}
+
 async function main() {
   const urls = urlsFromEnv();
   console.log("URLs:", urls);
@@ -319,7 +360,7 @@ async function main() {
   const { error: pingErr } = await supabase.from("competitions").select("id").limit(1);
   if (pingErr) throw pingErr;
 
-  const teamsMap = await getTeamsMap();
+  const { teamsMap, teamNamesNorm } = await getTeamsMap();
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
@@ -327,7 +368,6 @@ async function main() {
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
   });
 
-  // Bloquea recursos pesados para reducir timeouts
   await page.route("**/*", (route) => {
     const type = route.request().resourceType();
     if (type === "image" || type === "font" || type === "media") return route.abort();
@@ -357,7 +397,6 @@ async function main() {
       index.set(key, arr);
     }
 
-    // ✅ FIX: no uses networkidle, retry, y si falla no rompe el job
     try {
       await gotoWithRetry(page, url, 3);
     } catch (e) {
@@ -429,7 +468,14 @@ async function main() {
       const top = Array.from(unmapped.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 12);
+
       console.log("Unmapped team names (top):", top);
+
+      // ✅ NUEVO: sugerencias
+      for (const [name] of top) {
+        const sug = suggestTeams(name, teamNamesNorm, 6);
+        if (sug.length > 0) console.log(`  -> suggestions for "${name}":`, sug);
+      }
     }
   }
 

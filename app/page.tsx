@@ -1,6 +1,5 @@
-// app/page.tsx (Home)  -- version corregida con:
-// 1) score "—" cuando es NS y null/null (no 0-0)
-// 2) auto-refresh: si hay LIVE -> 10s, si no -> 60s
+// app/page.tsx (Home)
+// Cambios: en la lista de partidos (cada row) la hora/timeLabel MÁS GRANDE + EN NEGRITA
 "use client";
 
 import Link from "next/link";
@@ -79,7 +78,6 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   );
 }
 
-// ---------- Date helpers ----------
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -102,7 +100,6 @@ function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
 
-// ---------- TZ helpers ----------
 function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
@@ -110,31 +107,21 @@ function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZo
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
 
-// ✅ Score helper
 function displayScore(status: MatchStatus, hs: number | null, as: number | null) {
   if (status === "NS" && hs == null && as == null) return "—";
   return `${hs ?? 0} - ${as ?? 0}`;
 }
 
 export default function Home() {
-  // THEME
   const [dark, setDark] = useState(false);
-
-  // TIMEZONE
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
-
-  // FILTERS
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-
-  // DATE
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
 
-  // LEFT LISTS
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
   const [compError, setCompError] = useState("");
 
-  // MATCH DATA
   const [blocks, setBlocks] = useState<LeagueBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -142,7 +129,6 @@ export default function Home() {
   const todayLocal = new Date();
   const selectedISO = toISODateLocal(selectedDate);
 
-  // theme init
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     setDark(saved === "dark");
@@ -152,7 +138,6 @@ export default function Home() {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // tz init/save
   useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
@@ -161,18 +146,17 @@ export default function Home() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
-  // load competitions once
   useEffect(() => {
     const loadComps = async () => {
       setCompLoading(true);
       setCompError("");
 
-      const { data, error } = await supabase.from("competitions").select("id, name, slug, region").order("name", {
-        ascending: true,
-      });
+      const { data, error } = await supabase
+        .from("competitions")
+        .select("id, name, slug, region")
+        .order("name", { ascending: true });
 
       if (error) {
-        console.error("Error loading competitions:", error);
         setCompetitions([]);
         setCompError(error.message ?? "Unknown competitions error");
         setCompLoading(false);
@@ -186,7 +170,6 @@ export default function Home() {
     loadComps();
   }, []);
 
-  // ✅ load matches + auto-refresh
   useEffect(() => {
     let cancelled = false;
     let timer: any = null;
@@ -225,7 +208,6 @@ export default function Home() {
       if (cancelled) return;
 
       if (error) {
-        console.error("Error loading matches:", error);
         setBlocks([]);
         setLoadError(error.message ?? "Unknown matches error");
         setLoading(false);
@@ -235,7 +217,6 @@ export default function Home() {
 
       const rows = (data || []) as unknown as DbMatchRow[];
       const map = new Map<string, LeagueBlock>();
-
       let hasLive = false;
 
       for (const r of rows) {
@@ -282,7 +263,6 @@ export default function Home() {
     };
   }, [selectedDate, timeZone]);
 
-  // LIVE filter
   const filteredBlocks = useMemo(() => {
     if (tab !== "LIVE") return blocks;
     return blocks
@@ -291,15 +271,7 @@ export default function Home() {
   }, [blocks, tab]);
 
   return (
-    <div
-      className="
-        min-h-screen transition-colors duration-300
-        bg-gradient-to-br
-        from-green-500 via-green-600 to-green-600
-        dark:bg-black dark:from-black dark:via-black dark:to-black
-        text-neutral-900 dark:text-white
-      "
-    >
+    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-500 via-green-600 to-green-600 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
       <AppHeader showTabs tab={tab} setTab={setTab} />
 
       <main className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
@@ -312,7 +284,6 @@ export default function Home() {
                 <button
                   onClick={() => setSelectedDate((d) => addDays(d, -1))}
                   className="px-2 py-1 rounded-lg text-xs border bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                  aria-label="Previous day"
                 >
                   ←
                 </button>
@@ -326,10 +297,7 @@ export default function Home() {
 
                 <button
                   onClick={() => setSelectedDate((d) => addDays(d, +1))}
-                  className="px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-emerald-600
-                             bg-emerald-600 text-white hover:bg-emerald-700
-                             dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-                  aria-label="Next day"
+                  className="px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
                 >
                   NEXT →
                 </button>
@@ -372,9 +340,7 @@ export default function Home() {
                   <Link
                     key={c.slug}
                     href={`/leagues/${c.slug}`}
-                    className="block w-full text-left px-3 py-2 rounded-xl border transition
-                      bg-white/80 border-neutral-200 hover:bg-white
-                      dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                    className="block w-full text-left px-3 py-2 rounded-xl border transition bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
                   >
                     <div className="text-sm font-medium">{c.name}</div>
                     {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
@@ -389,8 +355,9 @@ export default function Home() {
           <div>
             <h2 className="text-xl font-bold">Matches</h2>
             <p className="text-sm text-neutral-700 dark:text-white/60">
-              Date: <span className="font-semibold">{niceDate(selectedDate)}</span> • {tab === "LIVE" ? "Live only" : "All matches"} •
-              TZ: <span className="font-semibold">{timeZone}</span>
+              Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
+              {tab === "LIVE" ? "Live only" : "All matches"} • TZ:{" "}
+              <span className="font-semibold">{timeZone}</span>
             </p>
           </div>
 
@@ -431,8 +398,12 @@ export default function Home() {
                           : "hover:bg-white/60 dark:hover:bg-white/5"
                       }`}
                     >
-                      <div className="w-28">
-                        <div className="text-sm text-neutral-700 dark:text-white/70">{m.timeLabel}</div>
+                      <div className="w-32">
+                        {/* ✅ ACÁ: hora/timeLabel más grande + en negrita */}
+                        <div className="text-lg font-extrabold tracking-tight text-neutral-900 dark:text-white">
+                          {m.timeLabel}
+                        </div>
+
                         <div className="mt-1">
                           <StatusBadge status={m.status} />
                         </div>
@@ -441,12 +412,16 @@ export default function Home() {
                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium">{m.home}</span>
-                          <span className="font-extrabold tabular-nums">{displayScore(m.status, m.hs, m.as).split(" - ")[0]}</span>
+                          <span className="font-extrabold tabular-nums">
+                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : (m.hs ?? 0)}
+                          </span>
                         </div>
 
                         <div className="flex items-center justify-between rounded-xl bg-white/80 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium">{m.away}</span>
-                          <span className="font-extrabold tabular-nums">{displayScore(m.status, m.hs, m.as).split(" - ")[1] ?? "—"}</span>
+                          <span className="font-extrabold tabular-nums">
+                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : (m.as ?? 0)}
+                          </span>
                         </div>
                       </div>
 

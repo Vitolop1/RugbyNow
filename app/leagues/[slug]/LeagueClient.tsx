@@ -1,4 +1,5 @@
 // app/leagues/[slug]/LeagueClient.tsx
+// Cambios: hora/timeLabel MÁS GRANDE + EN NEGRITA (y un poquito más “visible”)
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -93,7 +94,7 @@ function parseRound(v: any): number | null {
   return null;
 }
 
-// ✅ Score helper: upcoming matches should show "—" not "0 - 0"
+// Score helper: upcoming matches should show "—" not "0 - 0"
 function formatScore(status: MatchStatus, hs: number | null, as: number | null) {
   if (status === "NS" && hs == null && as == null) return "—";
   const home = hs ?? 0;
@@ -101,7 +102,7 @@ function formatScore(status: MatchStatus, hs: number | null, as: number | null) 
   return `${home} - ${away}`;
 }
 
-// ---------- i18n (simple & scalable) ----------
+// ---------- i18n ----------
 type Lang = "en" | "es" | "fr";
 
 const I18N: Record<Lang, Record<string, string>> = {
@@ -159,22 +160,16 @@ export default function LeagueClient() {
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
   const [lang, setLang] = useState<Lang>("en");
 
-  // sidebar leagues
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-
-  // current league
   const [comp, setComp] = useState<Competition | null>(null);
   const [season, setSeason] = useState<Season | null>(null);
 
-  // rounds meta + selected round
   const [roundMeta, setRoundMeta] = useState<RoundMeta[]>([]);
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
 
-  // matches + standings
   const [matches, setMatches] = useState<DbMatchRow[]>([]);
   const [standings, setStandings] = useState<StandingRow[]>([]);
 
-  // loading/error
   const [loadingLeague, setLoadingLeague] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [err, setErr] = useState("");
@@ -228,7 +223,6 @@ export default function LeagueClient() {
     loadComps();
   }, []);
 
-  // --- queries ---
   async function fetchMatchesForRound(seasonId: number, round: number) {
     const { data, error } = await supabase
       .from("matches")
@@ -299,7 +293,7 @@ export default function LeagueClient() {
     setStandings(rows);
   }
 
-  // --- MAIN LOAD: comp + season + roundMeta + default round ---
+  // --- MAIN LOAD ---
   useEffect(() => {
     const loadLeagueEverything = async () => {
       setLoadingLeague(true);
@@ -367,7 +361,7 @@ export default function LeagueClient() {
     loadLeagueEverything();
   }, [slug]);
 
-  // ✅ Load matches + auto-refresh (LIVE -> 10s, else -> 60s)
+  // --- matches + auto-refresh ---
   useEffect(() => {
     if (!season || selectedRound == null) return;
 
@@ -404,7 +398,6 @@ export default function LeagueClient() {
     };
   }, [season?.id, selectedRound]);
 
-  // --- slider helpers ---
   const roundsList = useMemo(() => roundMeta.map((m) => m.round), [roundMeta]);
   const selectedIdx = useMemo(() => {
     if (selectedRound == null) return -1;
@@ -428,7 +421,7 @@ export default function LeagueClient() {
       />
 
       <main className="mx-auto max-w-7xl px-4 py-6 grid grid-cols-1 xl:grid-cols-[320px_1fr_360px] gap-6">
-        {/* LEFT: Sidebar */}
+        {/* LEFT */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div className="flex items-center justify-between gap-2">
             <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
@@ -461,9 +454,8 @@ export default function LeagueClient() {
           </div>
         </aside>
 
-        {/* CENTER: Matches */}
+        {/* CENTER */}
         <section className="space-y-4 min-w-0">
-          {/* Header */}
           <div>
             <div className="text-sm text-neutral-700 dark:text-white/70">{t("league")}</div>
             <h1 className="text-2xl font-extrabold">{comp?.name ?? (slug as any)}</h1>
@@ -472,7 +464,6 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* TOP SLIDER ONLY */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-center gap-2 flex-wrap">
               <button
@@ -494,7 +485,8 @@ export default function LeagueClient() {
 
               <button
                 onClick={() => {
-                  if (selectedIdx >= 0 && selectedIdx < roundsList.length - 1) setSelectedRound(roundsList[selectedIdx + 1]);
+                  if (selectedIdx >= 0 && selectedIdx < roundsList.length - 1)
+                    setSelectedRound(roundsList[selectedIdx + 1]);
                 }}
                 disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
                 className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
@@ -529,7 +521,6 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* State */}
           {loadingLeague ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
               {t("loadingLeague")}
@@ -565,13 +556,18 @@ export default function LeagueClient() {
                   return (
                     <div
                       key={m.id}
-                      className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md shadow-sm
-                      dark:border-white/10 dark:bg-white/5 overflow-hidden"
+                      className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md shadow-sm dark:border-white/10 dark:bg-white/5 overflow-hidden"
                     >
                       <div className="px-4 py-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
-                          <div className="text-sm font-extrabold">{timeLabel}</div>
+                          <div className="text-xs text-neutral-700 dark:text-white/70">
+                            {formatDateShort(m.match_date)}
+                          </div>
+
+                          {/* ✅ ACÁ: hora/timeLabel más grande + en negrita */}
+                          <div className="mt-0.5 text-lg sm:text-xl font-extrabold tracking-tight">
+                            {timeLabel}
+                          </div>
 
                           <div className="mt-1">
                             <StatusBadge status={m.status} />
@@ -585,26 +581,19 @@ export default function LeagueClient() {
 
                       <div className="px-4 pb-4">
                         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 items-stretch">
-                          <div
-                            className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
-                            dark:border-white/10 dark:bg-white/10 flex items-center"
-                          >
-                            <span className="font-semibold text-sm sm:text-base truncate">{m.home_team?.name ?? "TBD"}</span>
+                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3 dark:border-white/10 dark:bg-white/10 flex items-center">
+                            <span className="font-semibold text-sm sm:text-base truncate">
+                              {m.home_team?.name ?? "TBD"}
+                            </span>
                           </div>
 
-                          <div
-                            className="min-w-[112px] sm:min-w-[132px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white
-                            px-4 py-3 flex items-center justify-center tabular-nums shadow-sm"
-                          >
+                          <div className="min-w-[112px] sm:min-w-[132px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white px-4 py-3 flex items-center justify-center tabular-nums shadow-sm">
                             <span className="text-base sm:text-lg font-extrabold">
                               {formatScore(m.status, m.home_score, m.away_score)}
                             </span>
                           </div>
 
-                          <div
-                            className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3
-                            dark:border-white/10 dark:bg-white/10 flex items-center justify-end"
-                          >
+                          <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-3 dark:border-white/10 dark:bg-white/10 flex items-center justify-end">
                             <span className="font-semibold text-sm sm:text-base truncate text-right">
                               {m.away_team?.name ?? "TBD"}
                             </span>
@@ -619,7 +608,7 @@ export default function LeagueClient() {
           )}
         </section>
 
-        {/* RIGHT: Standings */}
+        {/* RIGHT */}
         <aside className="space-y-4 min-w-0">
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-6 dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-baseline justify-between gap-3">

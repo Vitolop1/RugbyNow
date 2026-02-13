@@ -33,9 +33,9 @@ jobs:
           echo "---- find sync ----"
           find . -maxdepth 5 -type f -name "sync-flashscore.*" -print
 
-      - name: Run sync
+      - name: Run sync (TS)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
-        run: node scripts/sync-flashscore.ts
+        run: npx tsx scripts/sync-flashscore.ts

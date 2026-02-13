@@ -34,13 +34,15 @@ function parseScore(x: string) {
 function detectStatusAndMinute(raw: string) {
   const s = (raw || "").toUpperCase().trim();
 
-  if (s.includes("FT") || s.includes("FINAL")) return { status: "FT" as MatchStatus, minute: null as number | null };
+  if (s.includes("FT") || s.includes("FINAL")) {
+    return { status: "FT" as MatchStatus, minute: null as number | null };
+  }
 
-  // minutos tipo: 52' o 52
+  // minutos tipo: 52' (live)
   const m = s.match(/(\d{1,3})\s*'?/);
   if (m && s.includes("'")) return { status: "LIVE" as MatchStatus, minute: parseInt(m[1], 10) };
 
-  // HT / 1st / 2nd etc.
+  // HT / LIVE etc.
   if (s.includes("HT") || s.includes("LIVE")) return { status: "LIVE" as MatchStatus, minute: null as number | null };
 
   return { status: "NS" as MatchStatus, minute: null as number | null };
@@ -97,7 +99,7 @@ async function getTeamsMap() {
 }
 
 async function getCandidates(seasonId: number) {
-  // “C”: actualizamos solo los que NO están FT, y cerca de hoy (para no scrapear de más)
+  // actualizamos solo NO-FT, y cerca de hoy
   const today = new Date();
   const from = new Date(today);
   from.setDate(from.getDate() - 3);
@@ -119,39 +121,40 @@ async function getCandidates(seasonId: number) {
   return (data || []) as any[];
 }
 
+/**
+ * ✅ FIX CRÍTICO:
+ * NO usar arrow function dentro de page.evaluate
+ * porque tsx/esbuild mete __name(...) y rompe en GitHub Actions.
+ */
 async function scrapeFixturesPage(page: any) {
-  // intentamos ser robustos: flashscore cambia selectores, entonces agarramos varias opciones
-  const rows = await page.evaluate(() => {
+  const rows = await page.evaluate(function () {
     const pickText = (el: Element | null) => (el ? (el as HTMLElement).innerText.trim() : "");
     const out: any[] = [];
 
-    // filas de partidos suelen tener ids tipo g_1_xxx o clases event__match/event__row
     const candidates = Array.from(
-      document.querySelectorAll(
-        '[id^="g_"], .event__match, .event__row, [data-event-id], .event'
-      )
+      document.querySelectorAll('[id^="g_"], .event__match, .event__row, [data-event-id], .event')
     );
 
     for (const r of candidates) {
       const home =
         pickText(r.querySelector(".event__participant--home")) ||
         pickText(r.querySelector(".event__homeParticipant")) ||
-        pickText(r.querySelectorAll(".event__participant")[0] || null);
+        pickText((r.querySelectorAll(".event__participant")[0] as any) || null);
 
       const away =
         pickText(r.querySelector(".event__participant--away")) ||
         pickText(r.querySelector(".event__awayParticipant")) ||
-        pickText(r.querySelectorAll(".event__participant")[1] || null);
+        pickText((r.querySelectorAll(".event__participant")[1] as any) || null);
 
       if (!home || !away) continue;
 
       const hs =
         pickText(r.querySelector(".event__score--home")) ||
-        pickText(r.querySelectorAll(".event__score")[0] || null);
+        pickText((r.querySelectorAll(".event__score")[0] as any) || null);
 
       const as =
         pickText(r.querySelector(".event__score--away")) ||
-        pickText(r.querySelectorAll(".event__score")[1] || null);
+        pickText((r.querySelectorAll(".event__score")[1] as any) || null);
 
       const statusOrTime =
         pickText(r.querySelector(".event__time")) ||
@@ -221,14 +224,12 @@ async function main() {
       const possible = index.get(key);
       if (!possible || possible.length === 0) continue;
 
-      // elegimos el primero (en la ventana de fechas que traemos suele ser único)
       const target = possible[0];
 
       const hs = parseScore(row.hs);
       const as = parseScore(row.as);
       const { status, minute } = detectStatusAndMinute(row.statusOrTime);
 
-      // No pisemos con null si no hay score
       const patch: any = {
         status,
         minute,

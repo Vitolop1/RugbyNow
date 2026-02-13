@@ -25,6 +25,40 @@ function norm(s: string) {
     .trim();
 }
 
+/**
+ * Aliases: nombres que te vienen desde Flashscore (ES / abreviados)
+ * -> nombre canónico tal como está guardado en tu tabla teams (normalizado).
+ *
+ * IMPORTANT: Guardá las keys y values en formato "como se ve", nosotros hacemos norm() al final.
+ */
+const TEAM_ALIASES: Record<string, string> = {
+  // Six Nations (Flashscore ES -> DB EN)
+  Irlanda: "Ireland",
+  Italia: "Italy",
+  Escocia: "Scotland",
+  Inglaterra: "England",
+  Gales: "Wales",
+  Francia: "France",
+
+  // SRA (Flashscore a veces muestra corto)
+  Cobras: "Cobras Brasil Rugby",
+  Capibaras: "Capibaras XV",
+  Peñarol: "Peñarol Rugby",
+  "Pampas XV": "Pampas",
+
+  // Serie A Elite (Italia)
+  Emilia: "Valorugby Emilia",
+  "Petrarca Padova": "Petrarca",
+  "Rugby Lyons": "Lyons Piacenza",
+};
+
+function canonicalTeamKey(rawName: string) {
+  const n = norm(rawName);
+  const mapped = TEAM_ALIASES[rawName] || TEAM_ALIASES[n] || TEAM_ALIASES[n.toLowerCase()] || TEAM_ALIASES[n.trim()];
+  // Si el alias existe, devolvemos el nombre mapeado normalizado; si no, devolvemos el original normalizado.
+  return norm(mapped ?? rawName);
+}
+
 function parseScore(x: string) {
   const t = (x || "").trim().replace("–", "-");
   if (t === "-" || t === "") return null;
@@ -101,9 +135,16 @@ async function getTeamsMap() {
   const map = new Map<string, number>();
   for (const t of data || []) map.set(norm((t as any).name), (t as any).id);
 
-  // ✅ ALIASES RÁPIDOS (temporal): agregá acá cosas que veas en logs
-  // map.set(norm("Ireland"), 123);
-  // map.set(norm("Irlanda"), 123);
+  // También metemos en el map las values de TEAM_ALIASES por si alguna vez vienen igualitas
+  // (no es estrictamente necesario, pero ayuda).
+  for (const [_k, v] of Object.entries(TEAM_ALIASES)) {
+    const key = norm(v);
+    // No pisamos si ya existe
+    if (!map.has(key)) {
+      // OJO: no tenemos el id acá si no está en teams, así que no agregamos.
+      // Esto queda a propósito vacío.
+    }
+  }
 
   return map;
 }
@@ -137,8 +178,6 @@ function dateDistanceDays(isoDate: string) {
 }
 
 function pickBestCandidate(possible: any[]) {
-  // ✅ el más cercano a hoy por match_date
-  // (si querés mejorarlo: priorizar hoy, luego próximos, etc.)
   return possible
     .slice()
     .sort((a, b) => dateDistanceDays(a.match_date) - dateDistanceDays(b.match_date))[0];
@@ -193,7 +232,9 @@ async function scrapeFixturesPage(page: any) {
   return rows as Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>;
 }
 
-function dedupeScrapedRows(rows: Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>) {
+function dedupeScrapedRows(
+  rows: Array<{ home: string; away: string; hs: string; as: string; statusOrTime: string }>
+) {
   const seen = new Set<string>();
   const out: typeof rows = [];
 
@@ -259,18 +300,19 @@ async function main() {
 
     console.log("Scraped rows (deduped):", scraped.length);
 
-    // ✅ para diagnosticar six-nations y otros alias
+    // ✅ para diagnosticar alias
     const unmapped = new Map<string, number>();
 
     let updatedHere = 0;
     const updatedIds = new Set<number>(); // ✅ evita updates dobles por id
 
     for (const row of scraped) {
-      const homeNorm = norm(row.home);
-      const awayNorm = norm(row.away);
+      // 🔥 acá está el fix: canonicalTeamKey()
+      const homeKey = canonicalTeamKey(row.home);
+      const awayKey = canonicalTeamKey(row.away);
 
-      const homeId = teamsMap.get(homeNorm);
-      const awayId = teamsMap.get(awayNorm);
+      const homeId = teamsMap.get(homeKey);
+      const awayId = teamsMap.get(awayKey);
 
       if (!homeId) unmapped.set(row.home, (unmapped.get(row.home) || 0) + 1);
       if (!awayId) unmapped.set(row.away, (unmapped.get(row.away) || 0) + 1);
@@ -283,7 +325,7 @@ async function main() {
       const target = pickBestCandidate(possible);
       if (!target?.id) continue;
 
-      if (updatedIds.has(target.id)) continue; // ✅ evita doble conteo y doble update
+      if (updatedIds.has(target.id)) continue; // ✅ evita doble update
       updatedIds.add(target.id);
 
       const hs = parseScore(row.hs);
@@ -303,7 +345,7 @@ async function main() {
 
     console.log(`Updated in ${compSlug}:`, updatedHere);
 
-    // ✅ Log unmapped teams (clave para arreglar six-nations)
+    // ✅ Log unmapped teams (clave para arreglar lo que falte)
     if (unmapped.size > 0) {
       const top = Array.from(unmapped.entries())
         .sort((a, b) => b[1] - a[1])

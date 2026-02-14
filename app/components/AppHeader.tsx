@@ -215,7 +215,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
             <select
               value={timeZone}
               onChange={(e) => setTimeZone(e.target.value)}
-              className="px-2 py-1.5 rounded-full text-xs sm:text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0 w-[150px] sm:w-auto"
+              className="px-2 py-1.5 rounded-full text-xs sm:text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0 w-[110px] sm:w-auto"
               title="Timezone"
             >
               <option value="America/New_York">New York (ET)</option>

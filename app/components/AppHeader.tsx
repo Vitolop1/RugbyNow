@@ -191,105 +191,107 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
           <div className="ml-auto h-11 w-11 sm:h-12 sm:w-12" />
         </div>
 
-        {/* ROW 2: ALL controls in one line (incl. theme) */}
-        <div className="mt-3 flex flex-col md:flex-row md:items-center gap-3">
-          <div className="flex items-center gap-2 flex-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch]">
-            {/* Language */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 px-2 py-1.5 dark:border-white/10 dark:bg-white/5 shrink-0">
-              <span className="text-sm" aria-hidden="true">
-                🌐
-              </span>
-              <select
-                value={effectiveLang}
-                onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
-                className="bg-transparent text-xs sm:text-sm font-semibold outline-none cursor-pointer text-neutral-900 dark:text-white"
-                aria-label="Select language"
-              >
-                <option value="en">EN</option>
-                <option value="es">ES</option>
-                <option value="fr">FR</option>
-              </select>
-            </div>
+     {/* ROW 2: controls + theme pinned to the right */}
+<div className="mt-3 flex flex-col md:flex-row md:items-center gap-3">
+  {/* Left controls row (full width, with reserved space for theme button) */}
+  <div className="relative flex items-center gap-2 flex-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch] h-9 w-full pr-12">
+    {/* Language */}
+    <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 px-2 py-1.5 dark:border-white/10 dark:bg-white/5 shrink-0">
+      <span className="text-sm" aria-hidden="true">
+        🌐
+      </span>
+      <select
+        value={effectiveLang}
+        onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
+        className="bg-transparent text-xs sm:text-sm font-semibold outline-none cursor-pointer text-neutral-900 dark:text-white"
+        aria-label="Select language"
+      >
+        <option value="en">EN</option>
+        <option value="es">ES</option>
+        <option value="fr">FR</option>
+      </select>
+    </div>
 
-            {/* Timezone */}
-            <select
-              value={timeZone}
-              onChange={(e) => setTimeZone(e.target.value)}
-              className="px-2 py-1.5 rounded-full text-xs sm:text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0 w-[110px] sm:w-auto"
-              title="Timezone"
-            >
-              <option value="America/New_York">New York (ET)</option>
-              <option value="America/Chicago">Chicago (CT)</option>
-              <option value="America/Denver">Denver (MT)</option>
-              <option value="America/Los_Angeles">Los Angeles (PT)</option>
-              <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
-              <option value="Europe/London">London (GMT)</option>
-            </select>
+    {/* Timezone */}
+    <select
+      value={timeZone}
+      onChange={(e) => setTimeZone(e.target.value)}
+      className="px-2 py-1.5 rounded-full text-xs sm:text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0 w-[110px] sm:w-auto"
+      title="Timezone"
+    >
+      <option value="America/New_York">New York (ET)</option>
+      <option value="America/Chicago">Chicago (CT)</option>
+      <option value="America/Denver">Denver (MT)</option>
+      <option value="America/Los_Angeles">Los Angeles (PT)</option>
+      <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
+      <option value="Europe/London">London (GMT)</option>
+    </select>
 
-            {/* Tabs */}
-            {showTabs && tab && setTab ? (
-              <div className="inline-flex rounded-full border border-neutral-200 bg-white/80 dark:bg-neutral-900 dark:border-white/10 overflow-hidden shrink-0">
-                <button
-                  onClick={() => setTab("ALL")}
-                  className={`px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
-                    tab === "ALL" ? "bg-emerald-600 text-white" : "hover:bg-black/5 dark:hover:bg-white/5"
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setTab("LIVE")}
-                  className={`px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
-                    tab === "LIVE" ? "bg-red-600 text-white" : "hover:bg-black/5 dark:hover:bg-white/5"
-                  }`}
-                >
-                  Live
-                </button>
-              </div>
-            ) : null}
-
-            {/* Theme button (same row, same height) */}
-            <button
-              onClick={() => setDark((v) => !v)}
-              className="h-9 w-9 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex items-center justify-center shrink-0"
-              title="Toggle theme"
-            >
-              {dark ? "☀️" : "🌙"}
-            </button>
-          </div>
-
-          {/* Time widgets: md+ */}
-          <div className="hidden md:flex md:ml-auto items-center gap-3">
-            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex flex-col justify-center">
-              <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Today</div>
-              <div className="mt-1 text-base font-extrabold leading-tight truncate">
-                {mounted && now ? formatTodayTZ(now, timeZone) : "—"}
-              </div>
-            </div>
-
-            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex flex-col justify-center">
-              <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
-              <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
-                {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
-                <span className="ml-1 text-sm font-black opacity-80">
-                  {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile mini time */}
-          <div className="md:hidden text-xs opacity-75">
-            {mounted && now ? (
-              <span className="font-semibold">
-                {formatTodayTZ(now, timeZone)} • {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
-              </span>
-            ) : (
-              <span>—</span>
-            )}
-          </div>
-        </div>
+    {/* Tabs */}
+    {showTabs && tab && setTab ? (
+      <div className="inline-flex rounded-full border border-neutral-200 bg-white/80 dark:bg-neutral-900 dark:border-white/10 overflow-hidden shrink-0">
+        <button
+          onClick={() => setTab("ALL")}
+          className={`px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
+            tab === "ALL" ? "bg-emerald-600 text-white" : "hover:bg-black/5 dark:hover:bg-white/5"
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setTab("LIVE")}
+          className={`px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
+            tab === "LIVE" ? "bg-red-600 text-white" : "hover:bg-black/5 dark:hover:bg-white/5"
+          }`}
+        >
+          Live
+        </button>
       </div>
-    </header>
+    ) : null}
+
+    {/* Theme button pinned to the right of the row */}
+    <button
+      onClick={() => setDark((v) => !v)}
+      className="absolute right-0 top-0 h-9 w-9 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex items-center justify-center"
+      title="Toggle theme"
+    >
+      {dark ? "☀️" : "🌙"}
+    </button>
+  </div>
+
+  {/* Time widgets: md+ */}
+  <div className="hidden md:flex md:ml-auto items-center gap-3">
+    <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex flex-col justify-center">
+      <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Today</div>
+      <div className="mt-1 text-base font-extrabold leading-tight truncate">
+        {mounted && now ? formatTodayTZ(now, timeZone) : "—"}
+      </div>
+    </div>
+
+    <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex flex-col justify-center">
+      <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
+      <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
+        {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
+        <span className="ml-1 text-sm font-black opacity-80">{mounted && now ? formatSecondsTZ(now, timeZone) : "--"}</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Mobile mini time */}
+  <div className="md:hidden text-xs opacity-75">
+    {mounted && now ? (
+      <span className="font-semibold">
+        {formatTodayTZ(now, timeZone)} • {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
+      </span>
+    ) : (
+      <span>—</span>
+    )}
+  </div>
+</div>
+
+        
+
+      </div>
+    </header>   
   );
 }

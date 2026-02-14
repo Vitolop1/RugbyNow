@@ -83,13 +83,15 @@ function competitionSlugFromUrl(url: string) {
 
   const compSlug = parts[2];
 
-  if (compSlug === "top-14") return "top14";
+  // ✅ map a tus slugs reales en Supabase
+  if (compSlug === "top-14") return "fr-top14";
   if (compSlug === "super-rugby-americas") return "sra";
-  if (compSlug === "serie-a-elite") return "serie-a-elite";
-  if (compSlug === "six-nations") return "six-nations";
+  if (compSlug === "serie-a-elite") return "it-serie-a-elite";
+  if (compSlug === "six-nations") return "int-six-nations";
 
   return null;
 }
+
 
 function seasonSortKey(name: string) {
   const s = (name || "").trim();

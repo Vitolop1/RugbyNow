@@ -28,7 +28,6 @@ type Competition = {
   name: string;
   slug: string;
   region: string | null;
-
   country_code: string | null;
   category: string | null;
   group_name: string | null;
@@ -48,18 +47,11 @@ type StandingRow = {
   pf: number;
   pa: number;
   pts: number;
-
   position?: number;
   badge?: "champions" | "europe" | "relegation" | null;
 };
 
-type RoundMeta = {
-  round: number;
-  first_date: string;
-  last_date: string;
-  matches: number;
-};
-
+type RoundMeta = { round: number; first_date: string; last_date: string; matches: number };
 type RoundMeta2 = RoundMeta & { ft: number };
 
 // ---------- UI ----------
@@ -72,7 +64,6 @@ function StatusBadge({ status }: { status: MatchStatus }) {
       </span>
     );
   }
-
   if (status === "FT") {
     return (
       <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
@@ -80,8 +71,6 @@ function StatusBadge({ status }: { status: MatchStatus }) {
       </span>
     );
   }
-
-  // NS / PRE
   return (
     <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
       PRE
@@ -104,18 +93,46 @@ function TeamAvatar({ name }: { name: string }) {
   );
 }
 
-// ---------- Helpers ----------
-function formatDateShort(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  const dt = new Date(y, m - 1, d);
-  return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+// ---------- Helpers (robustos para prod) ----------
+function parseISODateParts(iso: string) {
+  const [y, m, d] = iso.split("-").map((x) => parseInt(x, 10));
+  return { y, m, d };
+}
+
+function parseTimeParts(t: string) {
+  const parts = t.split(":").map((x) => parseInt(x, 10));
+  const hh = parts[0] ?? 0;
+  const mm = parts[1] ?? 0;
+  const ss = parts[2] ?? 0;
+  return { hh, mm, ss };
+}
+
+function formatDateShortTZ(iso: string, timeZone: string) {
+  // usamos UTC midnight para que no dependa del parse del runtime
+  const { y, m, d } = parseISODateParts(iso);
+  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0));
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone,
+  }).format(dt);
 }
 
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
-  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
-  const dt = new Date(`${match_date}T${t}Z`);
-  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
+
+  const { y, m, d } = parseISODateParts(match_date);
+  const { hh, mm, ss } = parseTimeParts(kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time);
+
+  // interpretamos kickoff_time como UTC (porque vos le agregabas "Z")
+  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, hh, mm, ss));
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone,
+  }).format(dt);
 }
 
 function parseRound(v: any): number | null {
@@ -129,15 +146,10 @@ function parseRound(v: any): number | null {
 }
 
 function formatScore(status: MatchStatus, hs: number | null, as: number | null) {
-  // Si no empezó, mostrar una línea clara (aunque la DB tenga 0/0)
   if (status === "NS") return "—";
-
-  // LIVE / FT: si por alguna razón faltan scores, mostrarlos como guiones
   if (hs == null || as == null) return "-";
-
   return `${hs} - ${as}`;
 }
-
 
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
@@ -226,16 +238,12 @@ const I18N: Record<Lang, Record<string, string>> = {
   },
 };
 
-// ---------- Standings rules (frontend) ----------
+// ---------- standings rules ----------
 const STANDINGS_RULES: Record<string, { topChampions?: number; topEurope?: number; bottomRelegation?: number } | undefined> =
   {
     "en-premiership": { topChampions: 4, bottomRelegation: 1 },
-    // "fr-top14": { topChampions: 6, bottomRelegation: 1 },
-    // "it-serie-a-elite": { topChampions: 4, bottomRelegation: 1 },
-    // "int-six-nations": { topChampions: 4 },
   };
 
-// -----------------------------------
 export default function LeagueClient() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug;
@@ -244,6 +252,9 @@ export default function LeagueClient() {
   const dateParam = searchParams.get("date");
   const refISO = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : toISODateLocal(new Date());
   const dateQuery = `?date=${refISO}`;
+
+  const [mounted, setMounted] = useState(false); // ✅ FIX Vercel/hydration
+  useEffect(() => setMounted(true), []);
 
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
   const [lang, setLang] = useState<Lang>("en");
@@ -266,7 +277,7 @@ export default function LeagueClient() {
 
   const t = (key: string) => I18N[lang][key] ?? key;
 
-  // --- TZ + Lang init + sync ---
+  // TZ + Lang init + sync
   useEffect(() => {
     const savedTZ = localStorage.getItem("tz");
     if (savedTZ) setTimeZone(savedTZ);
@@ -301,7 +312,7 @@ export default function LeagueClient() {
     };
   }, []);
 
-  // --- sidebar competitions ---
+  // sidebar competitions
   useEffect(() => {
     const loadComps = async () => {
       const { data, error } = await supabase
@@ -369,7 +380,6 @@ export default function LeagueClient() {
       .sort((a, b) => a.round - b.round);
   }
 
-  // ---- standings ----
   async function fetchTeamsForSeason(seasonId: number) {
     const { data, error } = await supabase
       .from("matches")
@@ -494,7 +504,7 @@ export default function LeagueClient() {
     setStandings(rows);
   }
 
-  // --- MAIN LOAD ---
+  // MAIN LOAD
   useEffect(() => {
     const loadLeagueEverything = async () => {
       setLoadingLeague(true);
@@ -543,8 +553,7 @@ export default function LeagueClient() {
       try {
         const meta = await fetchRoundMeta(seasonData.id);
         setRoundMeta(meta);
-        if (meta.length > 0) setSelectedRound(pickAutoRound(meta, refISO));
-        else setSelectedRound(null);
+        setSelectedRound(meta.length > 0 ? pickAutoRound(meta, refISO) : null);
       } catch (e: any) {
         setErr(e?.message ?? "Error loading rounds");
         setLoadingLeague(false);
@@ -565,7 +574,7 @@ export default function LeagueClient() {
     loadLeagueEverything();
   }, [slug, refISO]);
 
-  // --- matches + auto-refresh ---
+  // matches + refresh
   useEffect(() => {
     if (!season || selectedRound == null) return;
 
@@ -581,8 +590,7 @@ export default function LeagueClient() {
         setErr("");
 
         const hasLive = m.some((x) => x.status === "LIVE");
-        const nextMs = hasLive ? 10_000 : 60_000;
-        timer = setTimeout(load, nextMs);
+        timer = setTimeout(load, hasLive ? 10_000 : 60_000);
       } catch (e: any) {
         if (cancelled) return;
         setErr(e?.message ?? "Error loading matches");
@@ -601,7 +609,7 @@ export default function LeagueClient() {
     };
   }, [season?.id, selectedRound]);
 
-  // ✅ de-dup competitions
+  // de-dup comps
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {
       const af = !!a.is_featured;
@@ -642,7 +650,6 @@ export default function LeagueClient() {
     return Array.from(map.values());
   }, [competitions]);
 
-  // --- folders ---
   const groupedCompetitions = useMemo(() => {
     const map = new Map<string, Competition[]>();
 
@@ -653,7 +660,6 @@ export default function LeagueClient() {
     }
 
     const entries = Array.from(map.entries());
-
     entries.sort((a, b) => {
       const aFeat = a[1].some((x) => x.is_featured);
       const bFeat = b[1].some((x) => x.is_featured);
@@ -685,10 +691,7 @@ export default function LeagueClient() {
   }, [comp?.group_name]);
 
   const roundsList = useMemo(() => roundMeta.map((m) => m.round), [roundMeta]);
-  const selectedIdx = useMemo(() => {
-    if (selectedRound == null) return -1;
-    return roundsList.indexOf(selectedRound);
-  }, [roundsList, selectedRound]);
+  const selectedIdx = useMemo(() => (selectedRound == null ? -1 : roundsList.indexOf(selectedRound)), [roundsList, selectedRound]);
 
   const hasStandingsRules = !!STANDINGS_RULES[comp?.slug ?? ""];
 
@@ -708,7 +711,8 @@ export default function LeagueClient() {
         }}
       />
 
-      <main className="mx-auto max-w-[1800px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-[360px_1fr_560px] gap-6">
+      {/* ✅ RIGHT MÁS ANCHO + sin aplastar */}
+      <main className="mx-auto max-w-[1800px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-[360px_1fr_minmax(560px,760px)] gap-6">
         {/* LEFT */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div className="flex items-center justify-between gap-2">
@@ -792,65 +796,55 @@ export default function LeagueClient() {
             </div>
           </div>
 
+          {/* rounds */}
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
-                <div className="flex items-start gap-1 flex-wrap">
-                  <button
-                    onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
-                    disabled={selectedIdx <= 0}
-                    className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
-                      bg-white/80 border-neutral-200 hover:bg-white
-                      dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                  >
-                    ←
-                  </button>
+            <div className="flex items-start gap-1 flex-wrap">
+              <button
+                onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
+                disabled={selectedIdx <= 0}
+                className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
+                  bg-white/80 border-neutral-200 hover:bg-white
+                  dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+              >
+                ←
+              </button>
 
-                  <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
-                    {selectedRound != null ? `${t("round")} ${selectedRound}` : t("round")}
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      selectedIdx >= 0 &&
-                      selectedIdx < roundsList.length - 1 &&
-                      setSelectedRound(roundsList[selectedIdx + 1])
-                    }
-                    disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-                    className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
-                      bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
-                      dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-                  >
-                    →
-                  </button>
-
-                  {/* ✅ Fechas en 2 filas (más alto) */}
-                    <div className="flex-5 ml-2 sm:ml-10">
-                      <div className="flex flex-wrap gap-0.5 justify-start min-h-[2px] content-start">
-                        {roundsList.map((r) => {
-                          const active = selectedRound === r;
-                          return (
-                           <button
-                              key={r}
-                              onClick={() => setSelectedRound(r)}
-                              className={`h-8 w-6 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
-                                active
-                                  ? "bg-emerald-600 text-white border-emerald-600"
-                                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                              }`}
-                            >
-                              {r}
-                            </button>
-
-                          );
-                        })}
-                      </div>
-
-                  </div>
-                </div>
+              <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
+                {selectedRound != null ? `${t("round")} ${selectedRound}` : t("round")}
               </div>
 
+              <button
+                onClick={() => selectedIdx >= 0 && selectedIdx < roundsList.length - 1 && setSelectedRound(roundsList[selectedIdx + 1])}
+                disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
+                className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
+                  bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
+                  dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+              >
+                →
+              </button>
 
-
-
+              <div className="ml-2 sm:ml-10 flex-1">
+                <div className="flex flex-wrap gap-0.5 justify-start content-start">
+                  {roundsList.map((r) => {
+                    const active = selectedRound === r;
+                    return (
+                      <button
+                        key={r}
+                        onClick={() => setSelectedRound(r)}
+                        className={`h-8 w-6 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
+                          active
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                        }`}
+                      >
+                        {r}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {loadingLeague ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
@@ -882,7 +876,9 @@ export default function LeagueClient() {
                       ? `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim()
                       : m.status === "FT"
                       ? "FT"
-                      : formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
+                      : mounted
+                      ? formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone)
+                      : "—";
 
                   return (
                     <div
@@ -891,7 +887,9 @@ export default function LeagueClient() {
                     >
                       <div className="px-4 pt-3 pb-2 flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
+                          <div className="text-xs text-neutral-700 dark:text-white/70">
+                            {mounted ? formatDateShortTZ(m.match_date, timeZone) : "—"}
+                          </div>
                           <div className="mt-0.5 text-lg sm:text-xl font-extrabold tracking-tight">{timeLabel}</div>
                         </div>
                         <div className="text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">{m.venue ?? ""}</div>
@@ -903,30 +901,14 @@ export default function LeagueClient() {
                             {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
                             <span className="font-semibold text-sm sm:text-base truncate">{m.home_team?.name ?? "TBD"}</span>
                           </div>
-                     {/* ✅ CENTRO: badge arriba sin achicar el score (absolute) */}
-                      <div className="min-w-[118px] sm:min-w-[140px] relative flex items-stretch">
-                        {/* Badge flotante arriba (no ocupa alto) */}
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
-                          <StatusBadge status={m.status} />
-                        </div>
 
-                        {/* Score box: ocupa toda la altura del row como los equipos */}
-                        <div
-                          className={`w-full rounded-xl px-3 py-2 flex items-center justify-center tabular-nums shadow-sm border ${
-                            m.status === "LIVE"
-                              ? "bg-red-600 text-white border-red-600"
-                              : m.status === "FT"
-                              ? "bg-neutral-200 text-neutral-900 border-neutral-200 dark:bg-neutral-800 dark:text-white dark:border-white/10"
-                              : "bg-white/80 text-neutral-900 border-neutral-200 dark:bg-neutral-900 dark:text-white dark:border-white/10"
-                          }`}
-                        >
-                          <div className="text-base sm:text-lg font-extrabold">
-                            {formatScore(m.status, m.home_score, m.away_score)}
+                          {/* ✅ badge ARRIBA del score, pero compacto (sin absolute raro) */}
+                          <div className="min-w-[118px] sm:min-w-[140px] rounded-xl border border-neutral-200 dark:border-white/10 bg-white/70 dark:bg-neutral-900 px-3 py-2 flex flex-col items-center justify-center gap-1">
+                            <StatusBadge status={m.status} />
+                            <div className="text-base sm:text-lg font-extrabold tabular-nums">
+                              {formatScore(m.status, m.home_score, m.away_score)}
+                            </div>
                           </div>
-                        </div>
-                      </div>
-
-
 
                           <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2 dark:border-white/10 dark:bg-white/10 flex items-center justify-end gap-2">
                             <span className="font-semibold text-sm sm:text-base truncate text-right">{m.away_team?.name ?? "TBD"}</span>
@@ -943,8 +925,8 @@ export default function LeagueClient() {
         </section>
 
         {/* RIGHT */}
-        <aside className="space-y-6 min-w-[150px]">
-          <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-neutral-950">
+        <aside className="space-y-6 min-w-0">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950">
             <div className="flex items-baseline justify-between gap-3 mb-4">
               <div className="font-bold text-base">{t("standings")}</div>
               <div className="text-xs text-neutral-700 dark:text-white/60">
@@ -972,8 +954,9 @@ export default function LeagueClient() {
                   <div className="mb-4 text-[11px] opacity-70">{t("computedFromFT")}</div>
                 )}
 
+                {/* ✅ tabla con min width grande + scroll, así no se aplasta */}
                 <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
-                  <table className="w-full text-sm">
+                  <table className="min-w-[720px] w-full text-sm">
                     <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
                       <tr>
                         <th className="text-left py-3 pl-3 pr-2 w-[44px]">#</th>
@@ -988,16 +971,10 @@ export default function LeagueClient() {
                       </tr>
                     </thead>
 
-                    {/* ✅ líneas entre equipos + línea también antes del 1ro */}
                     <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
                       {standings.map((r, idx) => {
                         const rowClass =
-                          r.badge === "champions"
-                            ? "bg-emerald-600/10"
-                            : r.badge === "relegation"
-                            ? "bg-red-600/10"
-                            : "";
-
+                          r.badge === "champions" ? "bg-emerald-600/10" : r.badge === "relegation" ? "bg-red-600/10" : "";
                         const pos = r.position ?? idx + 1;
 
                         return (
@@ -1067,3 +1044,4 @@ export default function LeagueClient() {
     </div>
   );
 }
+  

@@ -48,12 +48,17 @@ function readLangFromStorage(): Lang {
   return v === "en" || v === "es" || v === "fr" ? (v as Lang) : "en";
 }
 
+function readTZFromStorage(): string | null {
+  const v = localStorage.getItem("tz");
+  return v && v.trim() ? v : null;
+}
+
 export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang, onLangChange }: Props) {
   const [dark, setDark] = useState(false);
 
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
 
-  // ✅ IMPORTANT: no Date.now() in initial render (prevents hydration mismatch)
+  // ✅ avoid hydration mismatch for time widgets
   const [mounted, setMounted] = useState(false);
   const [nowTick, setNowTick] = useState<number | null>(null);
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
@@ -73,17 +78,36 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // TZ
+  // ✅ TZ init + listen (this fixes “doesn’t update on Vercel” when header is already mounted)
   useEffect(() => {
-    const saved = localStorage.getItem("tz");
+    const saved = readTZFromStorage();
     if (saved) setTimeZone(saved);
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "tz" && e.newValue) setTimeZone(e.newValue);
+    };
+    window.addEventListener("storage", onStorage);
+
+    const onTZEvent = () => {
+      const v = readTZFromStorage();
+      if (v) setTimeZone(v);
+    };
+    window.addEventListener("tz-change", onTZEvent as any);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("tz-change", onTZEvent as any);
+    };
   }, []);
+
+  // TZ persist + broadcast
   useEffect(() => {
+    if (!mounted) return; // ✅ don’t write to localStorage before first mount
     localStorage.setItem("tz", timeZone);
     window.dispatchEvent(new Event("tz-change"));
-  }, [timeZone]);
+  }, [timeZone, mounted]);
 
-  // LANG
+  // LANG init + listen
   useEffect(() => {
     setLangLocal(readLangFromStorage());
 
@@ -104,20 +128,19 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
     };
   }, []);
 
-  // ✅ CLOCK (client-only)
+  // CLOCK (client-only)
   useEffect(() => {
     setMounted(true);
 
     const tick = () => setNowTick(Date.now());
     tick();
 
-    const id = setInterval(tick, 1000); // 1s is enough (you display seconds)
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
   const setLanguageEverywhere = (next: Lang) => {
-    if (onLangChange) onLangChange(next);
-
+    onLangChange?.(next);
     localStorage.setItem("lang", next);
     setLangLocal(next);
     window.dispatchEvent(new Event("lang-change"));
@@ -180,8 +203,8 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
         </div>
 
         {/* CENTER */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex justify-center">
-          <Link href="/" className="select-none">
+        <div className="absolute left-1/2 -translate-x-1/2 flex justify-center pointer-events-none">
+          <Link href="/" className="select-none pointer-events-auto">
             <h1 className="text-[34px] leading-none font-extrabold tracking-tight whitespace-nowrap">
               Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
             </h1>
@@ -211,9 +234,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
             <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
             <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
               {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
-              <span className="ml-1 text-sm font-black opacity-80">
-                {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
-              </span>
+              <span className="ml-1 text-sm font-black opacity-80">{mounted && now ? formatSecondsTZ(now, timeZone) : "--"}</span>
             </div>
           </div>
 

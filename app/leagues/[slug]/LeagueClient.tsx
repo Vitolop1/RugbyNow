@@ -72,6 +72,7 @@ function StatusBadge({ status }: { status: MatchStatus }) {
       </span>
     );
   }
+
   if (status === "FT") {
     return (
       <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
@@ -79,8 +80,10 @@ function StatusBadge({ status }: { status: MatchStatus }) {
       </span>
     );
   }
+
+  // NS / PRE
   return (
-    <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
+    <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
       PRE
     </span>
   );
@@ -126,11 +129,15 @@ function parseRound(v: any): number | null {
 }
 
 function formatScore(status: MatchStatus, hs: number | null, as: number | null) {
-  if (status === "NS" && hs == null && as == null) return "—";
-  const home = hs ?? 0;
-  const away = as ?? 0;
-  return `${home} - ${away}`;
+  // Si no empezó, mostrar una línea clara (aunque la DB tenga 0/0)
+  if (status === "NS") return "—";
+
+  // LIVE / FT: si por alguna razón faltan scores, mostrarlos como guiones
+  if (hs == null || as == null) return "-";
+
+  return `${hs} - ${as}`;
 }
+
 
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
@@ -225,7 +232,7 @@ const STANDINGS_RULES: Record<string, { topChampions?: number; topEurope?: numbe
     "en-premiership": { topChampions: 4, bottomRelegation: 1 },
     // "fr-top14": { topChampions: 6, bottomRelegation: 1 },
     // "it-serie-a-elite": { topChampions: 4, bottomRelegation: 1 },
-    // "int-six-nations": { topChampions: 4 }, // si querés “title contenders”, si no, dejalo vacío
+    // "int-six-nations": { topChampions: 4 },
   };
 
 // -----------------------------------
@@ -419,8 +426,10 @@ export default function LeagueClient() {
 
       ftCount += 1;
 
-      const home = table.get(ht.id) ?? { teamId: ht.id, team: ht.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
-      const away = table.get(at.id) ?? { teamId: at.id, team: at.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
+      const home =
+        table.get(ht.id) ?? { teamId: ht.id, team: ht.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
+      const away =
+        table.get(at.id) ?? { teamId: at.id, team: at.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
 
       home.pj += 1;
       away.pj += 1;
@@ -469,7 +478,7 @@ export default function LeagueClient() {
       if (rules?.topChampions && position <= rules.topChampions) badge = "champions";
       else if (rules?.topEurope && position <= rules.topEurope) badge = "europe";
 
-      if (rules?.bottomRelegation && position > total - rules.bottomRelegation) badge = "relegation";
+      if (rules?.bottomRelegation && position > total - (rules.bottomRelegation ?? 0)) badge = "relegation";
 
       return { ...r, position, badge };
     });
@@ -699,8 +708,7 @@ export default function LeagueClient() {
         }}
       />
 
-      {/* ✅ layout más ancho + standings más ancho */}
-      <main className="mx-auto max-w-[1500px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-[360px_1fr_560px] gap-6">
+      <main className="mx-auto max-w-[1800px] px-4 sm:px-6 py-6 grid grid-cols-1 xl:grid-cols-[360px_1fr_560px] gap-6">
         {/* LEFT */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div className="flex items-center justify-between gap-2">
@@ -775,7 +783,7 @@ export default function LeagueClient() {
         </aside>
 
         {/* CENTER */}
-        <section className="space-y-4 min-w-0">
+        <section className="space-y-5 min-w-0">
           <div>
             <div className="text-sm text-neutral-700 dark:text-white/70">{t("league")}</div>
             <h1 className="text-2xl font-extrabold">{comp?.name ?? (slug as any)}</h1>
@@ -785,57 +793,64 @@ export default function LeagueClient() {
           </div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-3 dark:border-white/10 dark:bg-neutral-950">
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
-                disabled={selectedIdx <= 0}
-                className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
-                  bg-white/80 border-neutral-200 hover:bg-white
-                  dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              >
-                ←
-              </button>
+                <div className="flex items-start gap-1 flex-wrap">
+                  <button
+                    onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
+                    disabled={selectedIdx <= 0}
+                    className="px-3 py-2 rounded-full text-xs border transition disabled:opacity-40
+                      bg-white/80 border-neutral-200 hover:bg-white
+                      dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                  >
+                    ←
+                  </button>
 
-              <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
-                {selectedRound != null ? `${t("round")} ${selectedRound}` : t("round")}
-              </div>
+                  <div className="px-3 py-2 rounded-full text-xs border bg-white/70 border-neutral-200 dark:bg-neutral-900 dark:border-white/10">
+                    {selectedRound != null ? `${t("round")} ${selectedRound}` : t("round")}
+                  </div>
 
-              <button
-                onClick={() =>
-                  selectedIdx >= 0 &&
-                  selectedIdx < roundsList.length - 1 &&
-                  setSelectedRound(roundsList[selectedIdx + 1])
-                }
-                disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-                className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
-                  bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
-                  dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-              >
-                →
-              </button>
+                  <button
+                    onClick={() =>
+                      selectedIdx >= 0 &&
+                      selectedIdx < roundsList.length - 1 &&
+                      setSelectedRound(roundsList[selectedIdx + 1])
+                    }
+                    disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
+                    className="px-3 py-2 rounded-full text-xs font-extrabold border-2 border-emerald-600
+                      bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40
+                      dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                  >
+                    →
+                  </button>
 
-              <div className="flex-1 overflow-x-auto">
-                <div className="flex gap-2 justify-end min-w-max">
-                  {roundsList.map((r) => {
-                    const active = selectedRound === r;
-                    return (
-                      <button
-                        key={r}
-                        onClick={() => setSelectedRound(r)}
-                        className={`px-3 py-2 rounded-full text-xs border transition ${
-                          active
-                            ? "bg-emerald-600 text-white border-emerald-600"
-                            : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                        }`}
-                      >
-                        {r}
-                      </button>
-                    );
-                  })}
+                  {/* ✅ Fechas en 2 filas (más alto) */}
+                    <div className="flex-5 ml-2 sm:ml-10">
+                      <div className="flex flex-wrap gap-0.5 justify-start min-h-[2px] content-start">
+                        {roundsList.map((r) => {
+                          const active = selectedRound === r;
+                          return (
+                           <button
+                              key={r}
+                              onClick={() => setSelectedRound(r)}
+                              className={`h-8 w-6 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
+                                active
+                                  ? "bg-emerald-600 text-white border-emerald-600"
+                                  : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                              }`}
+                            >
+                              {r}
+                            </button>
+
+                          );
+                        })}
+                      </div>
+
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+
+
+
+
 
           {loadingLeague ? (
             <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
@@ -874,7 +889,6 @@ export default function LeagueClient() {
                       key={m.id}
                       className="rounded-2xl border border-white/30 bg-white/25 backdrop-blur-md shadow-sm dark:border-white/10 dark:bg-white/5 overflow-hidden"
                     >
-                      {/* ✅ más compacto */}
                       <div className="px-4 pt-3 pb-2 flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="text-xs text-neutral-700 dark:text-white/70">{formatDateShort(m.match_date)}</div>
@@ -883,20 +897,36 @@ export default function LeagueClient() {
                         <div className="text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">{m.venue ?? ""}</div>
                       </div>
 
-                      {/* ✅ badge arriba del score (y achica alto total) */}
                       <div className="px-4 pb-3">
                         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-2 items-stretch">
                           <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2 dark:border-white/10 dark:bg-white/10 flex items-center gap-2">
                             {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
                             <span className="font-semibold text-sm sm:text-base truncate">{m.home_team?.name ?? "TBD"}</span>
                           </div>
+                     {/* ✅ CENTRO: badge arriba sin achicar el score (absolute) */}
+                      <div className="min-w-[118px] sm:min-w-[140px] relative flex items-stretch">
+                        {/* Badge flotante arriba (no ocupa alto) */}
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+                          <StatusBadge status={m.status} />
+                        </div>
 
-                          <div className="min-w-[118px] sm:min-w-[140px] rounded-xl border border-emerald-500/60 bg-emerald-500/80 text-white px-3 py-2 flex flex-col items-center justify-center tabular-nums shadow-sm">
-                            <div className="mb-1">
-                              <StatusBadge status={m.status} />
-                            </div>
-                            <div className="text-base sm:text-lg font-extrabold">{formatScore(m.status, m.home_score, m.away_score)}</div>
+                        {/* Score box: ocupa toda la altura del row como los equipos */}
+                        <div
+                          className={`w-full rounded-xl px-3 py-2 flex items-center justify-center tabular-nums shadow-sm border ${
+                            m.status === "LIVE"
+                              ? "bg-red-600 text-white border-red-600"
+                              : m.status === "FT"
+                              ? "bg-neutral-200 text-neutral-900 border-neutral-200 dark:bg-neutral-800 dark:text-white dark:border-white/10"
+                              : "bg-white/80 text-neutral-900 border-neutral-200 dark:bg-neutral-900 dark:text-white dark:border-white/10"
+                          }`}
+                        >
+                          <div className="text-base sm:text-lg font-extrabold">
+                            {formatScore(m.status, m.home_score, m.away_score)}
                           </div>
+                        </div>
+                      </div>
+
+
 
                           <div className="min-w-0 rounded-xl border border-white/30 bg-white/40 backdrop-blur-sm px-3 py-2 dark:border-white/10 dark:bg-white/10 flex items-center justify-end gap-2">
                             <span className="font-semibold text-sm sm:text-base truncate text-right">{m.away_team?.name ?? "TBD"}</span>
@@ -913,22 +943,21 @@ export default function LeagueClient() {
         </section>
 
         {/* RIGHT */}
-        <aside className="space-y-4 min-w-0">
-          {/* ✅ más ancho + entra todo */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950">
-            <div className="flex items-baseline justify-between gap-3">
-              <div className="font-bold">{t("standings")}</div>
+        <aside className="space-y-6 min-w-[150px]">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-neutral-950">
+            <div className="flex items-baseline justify-between gap-3 mb-4">
+              <div className="font-bold text-base">{t("standings")}</div>
               <div className="text-xs text-neutral-700 dark:text-white/60">
                 {t("season")}: {season?.name ?? "—"}
               </div>
             </div>
 
             {standings.length === 0 ? (
-              <div className="text-sm text-neutral-700 dark:text-white/60 mt-3">{t("comingSoon")}</div>
+              <div className="text-sm text-neutral-700 dark:text-white/60 mt-4">{t("comingSoon")}</div>
             ) : (
               <>
                 {hasStandingsRules ? (
-                  <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                  <div className="mb-4 flex flex-wrap gap-2 text-[11px]">
                     <span className="px-2 py-1 rounded-full bg-emerald-600/15 text-emerald-800 dark:text-emerald-200 border border-emerald-600/25">
                       {t("playoffs")}
                     </span>
@@ -940,15 +969,14 @@ export default function LeagueClient() {
                     </span>
                   </div>
                 ) : (
-                  <div className="mt-3 text-[11px] opacity-70">{t("computedFromFT")}</div>
+                  <div className="mb-4 text-[11px] opacity-70">{t("computedFromFT")}</div>
                 )}
 
-                <div className="mt-3 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
-                  {/* ✅ min-width para que no se aplaste */}
-                  <table className="w-full text-sm min-w-[520px]">
-                    <thead className="text-xs text-neutral-700 dark:text-white/60">
+                <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
                       <tr>
-                        <th className="text-left py-3 pr-2 w-[44px]">#</th>
+                        <th className="text-left py-3 pl-3 pr-2 w-[44px]">#</th>
                         <th className="text-left py-3">Team</th>
                         <th className="text-right py-3 w-[52px]">PJ</th>
                         <th className="text-right py-3 w-[52px]">W</th>
@@ -956,12 +984,13 @@ export default function LeagueClient() {
                         <th className="text-right py-3 w-[52px]">L</th>
                         <th className="text-right py-3 w-[60px]">PF</th>
                         <th className="text-right py-3 w-[60px]">PA</th>
-                        <th className="text-right py-3 w-[64px]">PTS</th>
+                        <th className="text-right py-3 pr-3 w-[64px]">PTS</th>
                       </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
-                      {standings.map((r) => {
+                    {/* ✅ líneas entre equipos + línea también antes del 1ro */}
+                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
+                      {standings.map((r, idx) => {
                         const rowClass =
                           r.badge === "champions"
                             ? "bg-emerald-600/10"
@@ -969,33 +998,38 @@ export default function LeagueClient() {
                             ? "bg-red-600/10"
                             : "";
 
+                        const pos = r.position ?? idx + 1;
+
                         return (
-                          <tr key={r.teamId} className={rowClass}>
-                            <td className="py-3 pr-2 text-xs opacity-70 tabular-nums">{r.position ?? ""}</td>
+                          <tr key={r.teamId} className={`${rowClass} hover:bg-black/5 dark:hover:bg-white/5 transition`}>
+                            <td className="py-3 pl-3 pr-2 text-xs opacity-70 tabular-nums">{pos}</td>
+
                             <td className="py-3 font-medium">
                               <div className="flex items-center gap-2 min-w-0">
                                 <TeamAvatar name={r.team} />
                                 <span className="truncate">{r.team}</span>
 
-                                {r.badge === "champions" ? (
+                                {r.badge === "champions" && (
                                   <span className="ml-1 text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-600 text-white">
                                     TOP
                                   </span>
-                                ) : null}
-                                {r.badge === "relegation" ? (
+                                )}
+
+                                {r.badge === "relegation" && (
                                   <span className="ml-1 text-[10px] font-extrabold px-2 py-1 rounded-full bg-red-600 text-white">
                                     DOWN
                                   </span>
-                                ) : null}
+                                )}
                               </div>
                             </td>
+
                             <td className="py-3 text-right tabular-nums">{r.pj}</td>
                             <td className="py-3 text-right tabular-nums">{r.w}</td>
                             <td className="py-3 text-right tabular-nums">{r.d}</td>
                             <td className="py-3 text-right tabular-nums">{r.l}</td>
                             <td className="py-3 text-right tabular-nums">{r.pf}</td>
                             <td className="py-3 text-right tabular-nums">{r.pa}</td>
-                            <td className="py-3 text-right font-extrabold tabular-nums">{r.pts}</td>
+                            <td className="py-3 pr-3 text-right font-extrabold tabular-nums">{r.pts}</td>
                           </tr>
                         );
                       })}
@@ -1005,7 +1039,9 @@ export default function LeagueClient() {
               </>
             )}
 
-            <div className="text-xs text-neutral-700 dark:text-white/50 mt-3">(Si una liga todavía no tiene FT, te muestra equipos con 0s.)</div>
+            <div className="text-xs text-neutral-700 dark:text-white/50 mt-6">
+              (Si una liga todavía no tiene FT, te muestra equipos con 0s.)
+            </div>
           </div>
         </aside>
       </main>

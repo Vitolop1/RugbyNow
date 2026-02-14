@@ -52,8 +52,11 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
   const [dark, setDark] = useState(false);
 
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
-  const [nowTick, setNowTick] = useState<number>(Date.now());
-  const now = useMemo(() => new Date(nowTick), [nowTick]);
+
+  // ✅ IMPORTANT: no Date.now() in initial render (prevents hydration mismatch)
+  const [mounted, setMounted] = useState(false);
+  const [nowTick, setNowTick] = useState<number | null>(null);
+  const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
 
   const [logoOk, setLogoOk] = useState(true);
 
@@ -101,9 +104,14 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
     };
   }, []);
 
-  // CLOCK
+  // ✅ CLOCK (client-only)
   useEffect(() => {
-    const id = setInterval(() => setNowTick(Date.now()), 250);
+    setMounted(true);
+
+    const tick = () => setNowTick(Date.now());
+    tick();
+
+    const id = setInterval(tick, 1000); // 1s is enough (you display seconds)
     return () => clearInterval(id);
   }, []);
 
@@ -118,7 +126,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
       <div className="relative mx-auto max-w-[1500px] px-4 sm:px-6 py-3 flex items-center">
-        {/* LEFT: pegado a la izquierda */}
+        {/* LEFT */}
         <div className="flex items-center gap-3 min-w-0">
           <Link href="/" className="flex items-center gap-3 shrink-0">
             <div className="h-12 w-12 rounded-xl shadow overflow-hidden bg-white/80 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
@@ -171,7 +179,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
           </select>
         </div>
 
-        {/* CENTER: siempre centrado */}
+        {/* CENTER */}
         <div className="absolute left-1/2 -translate-x-1/2 flex justify-center">
           <Link href="/" className="select-none">
             <h1 className="text-[34px] leading-none font-extrabold tracking-tight whitespace-nowrap">
@@ -189,7 +197,9 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
             flex flex-col justify-center"
           >
             <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Today</div>
-            <div className="mt-1 text-base font-extrabold leading-tight truncate">{formatTodayTZ(now, timeZone)}</div>
+            <div className="mt-1 text-base font-extrabold leading-tight truncate">
+              {mounted && now ? formatTodayTZ(now, timeZone) : "—"}
+            </div>
           </div>
 
           <div
@@ -200,8 +210,10 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
           >
             <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
             <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
-              {formatClockTZ(now, timeZone)}
-              <span className="ml-1 text-sm font-black opacity-80">{formatSecondsTZ(now, timeZone)}</span>
+              {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
+              <span className="ml-1 text-sm font-black opacity-80">
+                {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
+              </span>
             </div>
           </div>
 

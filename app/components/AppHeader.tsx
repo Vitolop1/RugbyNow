@@ -10,6 +10,7 @@ type Lang = "en" | "es" | "fr";
 type Props = {
   title?: React.ReactNode;
   subtitle?: string;
+
   showTabs?: boolean;
   tab?: "ALL" | "LIVE";
   setTab?: (t: "ALL" | "LIVE") => void;
@@ -55,10 +56,8 @@ function readTZFromStorage(): string | null {
 
 export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang, onLangChange }: Props) {
   const [dark, setDark] = useState(false);
-
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
 
-  // ✅ avoid hydration mismatch for time widgets
   const [mounted, setMounted] = useState(false);
   const [nowTick, setNowTick] = useState<number | null>(null);
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
@@ -78,7 +77,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // ✅ TZ init + listen (this fixes “doesn’t update on Vercel” when header is already mounted)
+  // TZ init + listen
   useEffect(() => {
     const saved = readTZFromStorage();
     if (saved) setTimeZone(saved);
@@ -102,7 +101,7 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
 
   // TZ persist + broadcast
   useEffect(() => {
-    if (!mounted) return; // ✅ don’t write to localStorage before first mount
+    if (!mounted) return;
     localStorage.setItem("tz", timeZone);
     window.dispatchEvent(new Event("tz-change"));
   }, [timeZone, mounted]);
@@ -131,10 +130,8 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
   // CLOCK (client-only)
   useEffect(() => {
     setMounted(true);
-
     const tick = () => setNowTick(Date.now());
     tick();
-
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
@@ -146,13 +143,22 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
     window.dispatchEvent(new Event("lang-change"));
   };
 
+  const Brand = (
+    <Link href="/" className="select-none">
+      <h1 className="text-[22px] sm:text-[26px] leading-none font-extrabold tracking-tight whitespace-nowrap">
+        Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
+      </h1>
+      {subtitle ? <div className="text-[11px] opacity-70 mt-1">{subtitle}</div> : null}
+    </Link>
+  );
+
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-black">
-      <div className="relative mx-auto max-w-[1500px] px-4 sm:px-6 py-3 flex items-center">
-        {/* LEFT */}
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-3">
+        {/* ROW 1 (mobile y desktop) */}
+        <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="h-12 w-12 rounded-xl shadow overflow-hidden bg-white/80 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
+            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl shadow overflow-hidden bg-white/80 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
               {logoOk ? (
                 <Image
                   src="/logo.jpg"
@@ -169,82 +175,118 @@ export default function AppHeader({ title, subtitle, showTabs, tab, setTab, lang
             </div>
           </Link>
 
-          {/* Language selector */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-white/5 shrink-0">
-            <span className="text-sm" aria-hidden="true">
-              🌐
-            </span>
-            <select
-              value={effectiveLang}
-              onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
-              className="bg-transparent text-sm font-semibold outline-none cursor-pointer text-neutral-900 dark:text-white"
-              aria-label="Select language"
+          {/* Brand: en mobile alineado y NO absoluto */}
+          <div className="min-w-0 flex-1">
+            {title ? (
+              <div className="min-w-0">
+                <div className="text-[18px] sm:text-[22px] font-extrabold truncate">{title}</div>
+                {subtitle ? <div className="text-[11px] opacity-70 truncate">{subtitle}</div> : null}
+              </div>
+            ) : (
+              Brand
+            )}
+          </div>
+
+          {/* Right controls (compact mobile) */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setDark((v) => !v)}
+              className="h-9 w-9 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex items-center justify-center"
+              title="Toggle theme"
             >
-              <option value="en">EN</option>
-              <option value="es">ES</option>
-              <option value="fr">FR</option>
+              {dark ? "☀️" : "🌙"}
+            </button>
+          </div>
+        </div>
+
+        {/* ROW 2: selectors + time (responsive) */}
+        <div className="mt-3 flex flex-col md:flex-row md:items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Language */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-white/5">
+              <span className="text-sm" aria-hidden="true">
+                🌐
+              </span>
+              <select
+                value={effectiveLang}
+                onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
+                className="bg-transparent text-sm font-semibold outline-none cursor-pointer text-neutral-900 dark:text-white"
+                aria-label="Select language"
+              >
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="fr">FR</option>
+              </select>
+            </div>
+
+            {/* Timezone */}
+            <select
+              value={timeZone}
+              onChange={(e) => setTimeZone(e.target.value)}
+              className="px-3 py-2 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10"
+              title="Timezone"
+            >
+              <option value="America/New_York">New York (ET)</option>
+              <option value="America/Chicago">Chicago (CT)</option>
+              <option value="America/Denver">Denver (MT)</option>
+              <option value="America/Los_Angeles">Los Angeles (PT)</option>
+              <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
+              <option value="Europe/London">London (GMT)</option>
             </select>
+
+            {/* Tabs (si los pedís) */}
+            {showTabs && tab && setTab ? (
+              <div className="inline-flex rounded-full border border-neutral-200 bg-white/80 dark:bg-neutral-900 dark:border-white/10 overflow-hidden">
+                <button
+                  onClick={() => setTab("ALL")}
+                  className={`px-4 py-2 text-sm font-semibold transition ${
+                    tab === "ALL" ? "bg-emerald-600 text-white" : "hover:bg-black/5 dark:hover:bg-white/5"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setTab("LIVE")}
+                  className={`px-4 py-2 text-sm font-semibold transition ${
+                    tab === "LIVE" ? "bg-red-600 text-white" : "hover:bg-black/5 dark:hover:bg-white/5"
+                  }`}
+                >
+                  Live
+                </button>
+              </div>
+            ) : null}
           </div>
 
-          {/* Timezone */}
-          <select
-            value={timeZone}
-            onChange={(e) => setTimeZone(e.target.value)}
-            className="px-3 py-2 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 shrink-0"
-            title="Timezone"
-          >
-            <option value="America/New_York">New York (ET)</option>
-            <option value="America/Chicago">Chicago (CT)</option>
-            <option value="America/Denver">Denver (MT)</option>
-            <option value="America/Los_Angeles">Los Angeles (PT)</option>
-            <option value="America/Argentina/Buenos_Aires">Argentina (ART)</option>
-            <option value="Europe/London">London (GMT)</option>
-          </select>
-        </div>
+          {/* Time widgets: hidden en mobile, visible en md+ */}
+          <div className="hidden md:flex md:ml-auto items-center gap-3">
+            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex flex-col justify-center">
+              <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Today</div>
+              <div className="mt-1 text-base font-extrabold leading-tight truncate">
+                {mounted && now ? formatTodayTZ(now, timeZone) : "—"}
+              </div>
+            </div>
 
-        {/* CENTER */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex justify-center pointer-events-none">
-          <Link href="/" className="select-none pointer-events-auto">
-            <h1 className="text-[34px] leading-none font-extrabold tracking-tight whitespace-nowrap">
-              Rugby<span className="text-emerald-600 dark:text-emerald-400">Now</span>
-            </h1>
-          </Link>
-        </div>
-
-        {/* RIGHT */}
-        <div className="ml-auto flex items-center justify-end gap-3 whitespace-nowrap">
-          <div
-            className="w-[180px] h-[60px] px-4 py-2 rounded-2xl border
-            bg-white/80 border-neutral-200
-            dark:bg-neutral-900 dark:border-white/10
-            flex flex-col justify-center"
-          >
-            <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Today</div>
-            <div className="mt-1 text-base font-extrabold leading-tight truncate">
-              {mounted && now ? formatTodayTZ(now, timeZone) : "—"}
+            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10 flex flex-col justify-center">
+              <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
+              <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
+                {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
+                <span className="ml-1 text-sm font-black opacity-80">
+                  {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div
-            className="w-[180px] h-[60px] px-4 py-2 rounded-2xl border
-            bg-white/80 border-neutral-200
-            dark:bg-neutral-900 dark:border-white/10
-            flex flex-col justify-center"
-          >
-            <div className="text-[11px] font-semibold text-neutral-600 dark:text-white/60">Time</div>
-            <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
-              {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
-              <span className="ml-1 text-sm font-black opacity-80">{mounted && now ? formatSecondsTZ(now, timeZone) : "--"}</span>
-            </div>
+          {/* Mobile mini time (super simple) */}
+          <div className="md:hidden text-xs opacity-75">
+            {mounted && now ? (
+              <span className="font-semibold">
+                {formatTodayTZ(now, timeZone)} • {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
+              </span>
+            ) : (
+              <span>—</span>
+            )}
           </div>
-
-          <button
-            onClick={() => setDark((v) => !v)}
-            className="px-3 py-2 rounded-full text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10"
-            title="Toggle theme"
-          >
-            {dark ? "☀️" : "🌙"}
-          </button>
         </div>
       </div>
     </header>

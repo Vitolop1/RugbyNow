@@ -72,6 +72,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     relegation: "Relegation",
     computedFromFT: "Computed from FT matches",
     openLeague: "Open league →",
+    openLeaguesBtn: "Leagues",
+    close: "Close",
   },
   es: {
     leagues: "Ligas",
@@ -89,6 +91,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     relegation: "Descenso",
     computedFromFT: "Calculado desde partidos FT",
     openLeague: "Abrir liga →",
+    openLeaguesBtn: "Ligas",
+    close: "Cerrar",
   },
   fr: {
     leagues: "Ligues",
@@ -106,6 +110,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     relegation: "Relégation",
     computedFromFT: "Calculé depuis les matchs FT",
     openLeague: "Ouvrir ligue →",
+    openLeaguesBtn: "Ligues",
+    close: "Fermer",
   },
 };
 
@@ -372,6 +378,9 @@ export default function LeagueClient() {
   const [loadingLeague, setLoadingLeague] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [err, setErr] = useState("");
+
+  // ✅ NEW: mobile leagues drawer state
+  const [leaguesOpen, setLeaguesOpen] = useState(false);
 
   const t = (key: string) => I18N[lang][key] ?? key;
 
@@ -748,11 +757,22 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* leagues folders */}
+          {/* ✅ leagues folders (desktop list + mobile button + drawer) */}
           <div>
-            <div className="text-sm font-semibold mb-2 text-neutral-700 dark:text-white/80">{t("leagues")}</div>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
 
-            <div className="space-y-3">
+              {/* mobile button */}
+              <button
+                onClick={() => setLeaguesOpen(true)}
+                className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-neutral-200 bg-white/80 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+              >
+                {t("openLeaguesBtn")}
+              </button>
+            </div>
+
+            {/* desktop list */}
+            <div className="hidden lg:block space-y-3">
               {groupedCompetitions.map(([groupName, comps]) => {
                 const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
                 const featuredCount = comps.filter((x) => x.is_featured).length;
@@ -805,6 +825,85 @@ export default function LeagueClient() {
                 );
               })}
             </div>
+
+            {/* mobile drawer */}
+            {leaguesOpen ? (
+              <div className="lg:hidden fixed inset-0 z-50">
+                {/* overlay */}
+                <button
+                  className="absolute inset-0 bg-black/40"
+                  onClick={() => setLeaguesOpen(false)}
+                  aria-label="Close leagues overlay"
+                />
+
+                {/* panel */}
+                <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-950 shadow-2xl overflow-hidden">
+                  <div className="px-4 py-3 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
+                    <div className="font-extrabold">{t("leagues")}</div>
+                    <button
+                      onClick={() => setLeaguesOpen(false)}
+                      className="px-3 py-1.5 rounded-xl text-xs font-extrabold border border-neutral-200 bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                    >
+                      {t("close")}
+                    </button>
+                  </div>
+
+                  <div className="p-3 overflow-y-auto max-h-[calc(85vh-56px)] space-y-3">
+                    {groupedCompetitions.map(([groupName, comps]) => {
+                      const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
+                      const featuredCount = comps.filter((x) => x.is_featured).length;
+
+                      return (
+                        <div
+                          key={groupName}
+                          className="rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900/40 overflow-hidden"
+                        >
+                          <button
+                            onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                            className="w-full px-3 py-2 flex items-center justify-between text-left"
+                          >
+                            <div className="min-w-0">
+                              <div className="text-sm font-extrabold truncate">{groupName}</div>
+                              <div className="text-[11px] opacity-70">
+                                {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                              </div>
+                            </div>
+                            <span className="text-xs opacity-70">{open ? "−" : "+"}</span>
+                          </button>
+
+                          {open ? (
+                            <div className="px-2 pb-2 space-y-2">
+                              {comps.map((c) => (
+                                <Link
+                                  key={`${c.slug}-${c.id}`}
+                                  href={`/leagues/${c.slug}${dateQuery}`}
+                                  onClick={() => setLeaguesOpen(false)}
+                                  className={`block w-full px-3 py-2 rounded-xl border transition ${
+                                    c.slug === slug
+                                      ? "bg-emerald-600 text-white border-emerald-600"
+                                      : "bg-white border-neutral-200 hover:bg-white/90 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="text-sm font-medium truncate">{c.name}</div>
+                                    {c.is_featured ? (
+                                      <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-600 text-white">
+                                        PIN
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <div className="text-xs opacity-70">{c.region ?? ""}</div>
+                                </Link>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </aside>
 
@@ -853,8 +952,7 @@ export default function LeagueClient() {
               <div className="divide-y divide-neutral-200 dark:divide-white/10">
                 {matches.map((m) => {
                   const label = timeLabelFor(m);
-                  const liveRow =
-                    m.status === "LIVE" ? "ring-1 ring-red-500/40 bg-red-50/60 dark:bg-red-500/10" : "";
+                  const liveRow = m.status === "LIVE" ? "ring-1 ring-red-500/40 bg-red-50/60 dark:bg-red-500/10" : "";
 
                   return (
                     <div key={m.id} className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/60 dark:hover:bg-white/5 ${liveRow}`}>
@@ -874,9 +972,7 @@ export default function LeagueClient() {
                             {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
                             <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
                           </div>
-                          <span className="font-extrabold tabular-nums">
-                            {m.status === "NS" ? "—" : m.home_score ?? 0}
-                          </span>
+                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.home_score ?? 0}</span>
                         </div>
 
                         <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
@@ -884,9 +980,7 @@ export default function LeagueClient() {
                             {m.away_team?.name ? <TeamAvatar name={m.away_team.name} /> : null}
                             <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
                           </div>
-                          <span className="font-extrabold tabular-nums">
-                            {m.status === "NS" ? "—" : m.away_score ?? 0}
-                          </span>
+                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.away_score ?? 0}</span>
                         </div>
                       </div>
 
@@ -911,7 +1005,7 @@ export default function LeagueClient() {
             </div>
           )}
 
-          {/* STANDINGS (abajo, clean, mobile scroll) */}
+          {/* STANDINGS */}
           <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950 min-w-0">
             <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
               <div className="font-bold text-base">{t("standings")}</div>
@@ -940,60 +1034,57 @@ export default function LeagueClient() {
                   <div className="mb-4 text-[11px] opacity-70">{t("computedFromFT")}</div>
                 )}
 
-               <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
-                {/* ✅ más angosta en mobile */}
-                <table className="min-w-[560px] w-full text-sm">
-                  <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
-                    <tr>
-                      <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
-                      <th className="text-left py-2">Team</th>
+                <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
+                  <table className="w-full text-xs table-auto">
+                    <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
+                      <tr>
+                        <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
+                        <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
 
-                      <th className="text-right py-2 w-[30px]">PJ</th>
-                      <th className="text-right py-2 w-[30px]">W</th>
-                      <th className="text-right py-2 w-[30px]">D</th>
-                      <th className="text-right py-2 w-[30px]">L</th>
+                        <th className="text-right py-2 w-[30px]">PJ</th>
+                        <th className="text-right py-2 w-[30px]">W</th>
+                        <th className="text-right py-2 w-[30px]">D</th>
+                        <th className="text-right py-2 w-[30px]">L</th>
 
-                      {/* ✅ PF/PA solo sm+ (en celu desaparecen, PTS queda más cerca) */}
-                      <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
-                      <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
+                        <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
+                        <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
 
-                      <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
-                    </tr>
-                  </thead>
+                        <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
+                      </tr>
+                    </thead>
 
-                  <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
-                    {standings.map((r, idx) => {
-                      const rowClass =
-                        r.badge === "champions" ? "bg-emerald-600/10" : r.badge === "relegation" ? "bg-red-600/10" : "";
-                      const pos = r.position ?? idx + 1;
+                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
+                      {standings.map((r, idx) => {
+                        const rowClass =
+                          r.badge === "champions" ? "bg-emerald-600/10" : r.badge === "relegation" ? "bg-red-600/10" : "";
+                        const pos = r.position ?? idx + 1;
 
-                      return (
-                        <tr key={r.teamId} className={`${rowClass} hover:bg-black/5 dark:hover:bg-white/5 transition`}>
-                          <td className="py-2 pl-2 pr-2 text-xs opacity-70 tabular-nums">{pos}</td>
+                        return (
+                          <tr key={r.teamId} className={`${rowClass} hover:bg-black/5 dark:hover:bg-white/5 transition`}>
+                            <td className="py-2 pl-2 pr-2 text-xs opacity-70 tabular-nums">{pos}</td>
 
-                          <td className="py-2 font-medium">
-                            <div className="flex items-center gap-1 min-w-0">
-                              <TeamAvatar name={r.team} />
-                              <span className="truncate">{r.team}</span>
-                            </div>
-                          </td>
+                            <td className="py-2 font-medium w-[220px] sm:w-[320px] max-w-[320px]">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <TeamAvatar name={r.team} />
+                                <span className="truncate">{r.team}</span>
+                              </div>
+                            </td>
 
-                          <td className="py-2 text-right tabular-nums">{r.pj}</td>
-                          <td className="py-2 text-right tabular-nums">{r.w}</td>
-                          <td className="py-2 text-right tabular-nums">{r.d}</td>
-                          <td className="py-2 text-right tabular-nums">{r.l}</td>
+                            <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                            <td className="py-2 text-right tabular-nums">{r.w}</td>
+                            <td className="py-2 text-right tabular-nums">{r.d}</td>
+                            <td className="py-2 text-right tabular-nums">{r.l}</td>
 
-                          <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
-                          <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
+                            <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
+                            <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
 
-                          <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
+                            <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </>
             )}
           </div>

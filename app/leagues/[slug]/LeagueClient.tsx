@@ -940,50 +940,60 @@ export default function LeagueClient() {
                   <div className="mb-4 text-[11px] opacity-70">{t("computedFromFT")}</div>
                 )}
 
-                <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
-                  <table className="min-w-[720px] w-full text-sm">
-                    <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
-                      <tr>
-                        <th className="text-left py-3 pl-3 pr-2 w-[44px]">#</th>
-                        <th className="text-left py-3">Team</th>
-                        <th className="text-right py-3 w-[52px]">PJ</th>
-                        <th className="text-right py-3 w-[52px]">W</th>
-                        <th className="text-right py-3 w-[52px]">D</th>
-                        <th className="text-right py-3 w-[52px]">L</th>
-                        <th className="text-right py-3 w-[60px]">PF</th>
-                        <th className="text-right py-3 w-[60px]">PA</th>
-                        <th className="text-right py-3 pr-3 w-[64px]">PTS</th>
-                      </tr>
-                    </thead>
+               <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
+                {/* ✅ más angosta en mobile */}
+                <table className="min-w-[560px] w-full text-sm">
+                  <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
+                    <tr>
+                      <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
+                      <th className="text-left py-2">Team</th>
 
-                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
-                      {standings.map((r, idx) => {
-                        const rowClass =
-                          r.badge === "champions" ? "bg-emerald-600/10" : r.badge === "relegation" ? "bg-red-600/10" : "";
-                        const pos = r.position ?? idx + 1;
+                      <th className="text-right py-2 w-[30px]">PJ</th>
+                      <th className="text-right py-2 w-[30px]">W</th>
+                      <th className="text-right py-2 w-[30px]">D</th>
+                      <th className="text-right py-2 w-[30px]">L</th>
 
-                        return (
-                          <tr key={r.teamId} className={`${rowClass} hover:bg-black/5 dark:hover:bg-white/5 transition`}>
-                            <td className="py-3 pl-3 pr-2 text-xs opacity-70 tabular-nums">{pos}</td>
-                            <td className="py-3 font-medium">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <TeamAvatar name={r.team} />
-                                <span className="truncate">{r.team}</span>
-                              </div>
-                            </td>
-                            <td className="py-3 text-right tabular-nums">{r.pj}</td>
-                            <td className="py-3 text-right tabular-nums">{r.w}</td>
-                            <td className="py-3 text-right tabular-nums">{r.d}</td>
-                            <td className="py-3 text-right tabular-nums">{r.l}</td>
-                            <td className="py-3 text-right tabular-nums">{r.pf}</td>
-                            <td className="py-3 text-right tabular-nums">{r.pa}</td>
-                            <td className="py-3 pr-3 text-right font-extrabold tabular-nums">{r.pts}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                      {/* ✅ PF/PA solo sm+ (en celu desaparecen, PTS queda más cerca) */}
+                      <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
+                      <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
+
+                      <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
+                    {standings.map((r, idx) => {
+                      const rowClass =
+                        r.badge === "champions" ? "bg-emerald-600/10" : r.badge === "relegation" ? "bg-red-600/10" : "";
+                      const pos = r.position ?? idx + 1;
+
+                      return (
+                        <tr key={r.teamId} className={`${rowClass} hover:bg-black/5 dark:hover:bg-white/5 transition`}>
+                          <td className="py-2 pl-2 pr-2 text-xs opacity-70 tabular-nums">{pos}</td>
+
+                          <td className="py-2 font-medium">
+                            <div className="flex items-center gap-1 min-w-0">
+                              <TeamAvatar name={r.team} />
+                              <span className="truncate">{r.team}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                          <td className="py-2 text-right tabular-nums">{r.w}</td>
+                          <td className="py-2 text-right tabular-nums">{r.d}</td>
+                          <td className="py-2 text-right tabular-nums">{r.l}</td>
+
+                          <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
+                          <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
+
+                          <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
               </>
             )}
           </div>

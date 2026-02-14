@@ -27,6 +27,6 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          FLASH_URLS: ${{ secrets.FLASH_URLS }}
+          FLASH_URLS: ${{ vars.FLASH_URLS }}
           LIVE_ONLY: "1"
         run: npx tsx scripts/sync-flashscore.ts

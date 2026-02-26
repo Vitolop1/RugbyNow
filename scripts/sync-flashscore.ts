@@ -36,6 +36,7 @@ function parseScore(x: string) {
 function detectStatusAndMinute(raw: string) {
   const s = (raw || "").toUpperCase().trim();
 
+  // postponed/cancelled/abandoned -> treat as NS
   if (/(POSTP|CANC|CANCEL|ABAND|ABD)/.test(s)) {
     return { status: "NS" as MatchStatus, minute: null as number | null };
   }
@@ -44,20 +45,41 @@ function detectStatusAndMinute(raw: string) {
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
+  // LIVE markers
   if (/(HT|LIVE)/.test(s)) {
     return { status: "LIVE" as MatchStatus, minute: null as number | null };
   }
 
+  // minute like 12'
   const m = s.match(/\b(\d{1,3})\s*'\b/);
   if (m) return { status: "LIVE" as MatchStatus, minute: Number.parseInt(m[1], 10) };
 
+  // otherwise pre-match
   return { status: "NS" as MatchStatus, minute: null as number | null };
 }
 
-function urlsFromEnv() {
-  return FLASH_URLS!.split(/\r?\n|,/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+/**
+ * FLASH_URLS supports:
+ * - plain urls (old mode)
+ * - or "slug=url" per line (recommended)
+ *
+ * Example:
+ * fr-top14=https://www.flashscore.es/rugby-union/francia/top-14/...
+ * en-premiership=https://www.flashscore.es/rugby-union/inglaterra/premiership/...
+ */
+function urlsFromEnv(): Array<{ compSlug: string | null; url: string }> {
+  const tokens = FLASH_URLS!.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+
+  const out: Array<{ compSlug: string | null; url: string }> = [];
+  for (const tok of tokens) {
+    if (tok.includes("=")) {
+      const [slugRaw, urlRaw] = tok.split("=").map((x) => x.trim());
+      out.push({ compSlug: slugRaw || null, url: urlRaw });
+    } else {
+      out.push({ compSlug: null, url: tok });
+    }
+  }
+  return out;
 }
 
 function normalizeFlashUrl(raw: string) {
@@ -79,19 +101,27 @@ function competitionSlugFromUrl(url: string) {
   const parts = u.pathname.split("/").filter(Boolean);
   if (parts.length < 3) return null;
 
+  // expected: /rugby-union/<region-or-country>/<competition>/...
   if (parts[0] !== "rugby-union") return null;
 
-  const compSlug = parts[2];
+  const regionOrCountry = parts[1]; // e.g. europe, italy, france, south-america
+  const compSlug = parts[2];        // e.g. six-nations, serie-a-elite, top-14
 
-  // ✅ map a tus slugs reales en Supabase
   if (compSlug === "top-14") return "fr-top14";
-  if (compSlug === "super-rugby-americas") return "sra";
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
+  if (compSlug === "super-rugby-americas") return "sra";
+
+  // extras (for future)
+  if (regionOrCountry === "england" && (compSlug.includes("premier") || compSlug.includes("premiership"))) {
+    return "en-premiership";
+  }
+  if (regionOrCountry === "argentina" && (compSlug.includes("urba") || compSlug.includes("top"))) {
+    return "ar-urba-top14";
+  }
 
   return null;
 }
-
 
 function seasonSortKey(name: string) {
   const s = (name || "").trim();
@@ -138,11 +168,6 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
   return { seasonId: best.id as number, seasonName: best.name as string };
 }
 
-/**
- * Devuelve:
- * - teamsMap: norm(name) -> id (incluye aliases)
- * - teamNamesNorm: nombres norm de equipos reales (para fuzzy)
- */
 async function getTeamsMap() {
   const { data, error } = await supabase.from("teams").select("id,name");
   if (error) throw error;
@@ -156,12 +181,7 @@ async function getTeamsMap() {
     names.push(n);
   }
 
-  // ✅ ALIASES (Flashscore name -> tu teams.id)
-  // Bayonne=51, Capibaras XV=14, Cobras Brasil Rugby=9, Lyon=52, Lyons Piacenza=38,
-  // Pampas=12, Petrarca=31, Stade Français=45, Stade Rochelais=50,
-  // Stade Toulousain=41, Toulon=46, Valorugby Emilia=33
-
-  // --- Serie A Elite ---
+  // ---- aliases (keep your existing ones) ----
   map.set(norm("Emilia"), 33);
   map.set(norm("Valorugby"), 33);
   map.set(norm("Valorugby Emilia"), 33);
@@ -169,7 +189,6 @@ async function getTeamsMap() {
   map.set(norm("Rugby Lyons"), 38);
   map.set(norm("Lyons"), 38);
 
-  // --- Top14 ---
   map.set(norm("Aviron Bayonnais"), 51);
   map.set(norm("Bayonne"), 51);
   map.set(norm("RC Toulonnais"), 46);
@@ -180,17 +199,12 @@ async function getTeamsMap() {
   map.set(norm("Stade Rochelais"), 50);
   map.set(norm("Stade Toulousain"), 41);
 
-  // --- SRA ---
   map.set(norm("Cobras"), 9);
   map.set(norm("Cobras Brasil"), 9);
   map.set(norm("Capibaras"), 14);
   map.set(norm("Capibaras XV"), 14);
   map.set(norm("Pampas XV"), 12);
   map.set(norm("Pampas"), 12);
-
-  // ⚠️ Peñarol no está todavía en tu tabla teams (si lo agregás, poné el ID real)
-  // map.set(norm("Penarol"), <ID>);
-  // map.set(norm("Peñarol"), <ID>);
 
   return { teamsMap: map, teamNamesNorm: names };
 }
@@ -280,9 +294,7 @@ async function maybeAcceptConsent(page: Page) {
         await page.waitForTimeout(500);
         break;
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 }
 
@@ -380,33 +392,14 @@ function dedupeScrapedRows(
   return out;
 }
 
-function suggestTeams(unmappedName: string, teamNamesNorm: string[], limit = 6) {
-  const u = norm(unmappedName);
-  if (!u) return [];
-
-  const hits = teamNamesNorm.filter((t) => t.includes(u) || u.includes(t)).slice(0, limit);
-  if (hits.length > 0) return hits;
-
-  const tokens = u.split(" ").filter(Boolean);
-  return teamNamesNorm
-    .map((t) => {
-      const score = tokens.reduce((acc, tok) => acc + (t.includes(tok) ? 1 : 0), 0);
-      return { t, score };
-    })
-    .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map((x) => x.t);
-}
-
 async function main() {
-  const urls = urlsFromEnv();
-  console.log("URLs:", urls);
+  const inputs = urlsFromEnv();
+  console.log("Inputs:", inputs);
 
   const { error: pingErr } = await supabase.from("competitions").select("id").limit(1);
   if (pingErr) throw pingErr;
 
-  // ✅ Si es LIVE_ONLY, si no hay partidos LIVE en DB, salimos sin abrir Playwright
+  // If LIVE_ONLY and no LIVE matches in DB -> skip opening Playwright
   if (LIVE_ONLY) {
     const { data, error } = await supabase.from("matches").select("id").eq("status", "LIVE").limit(1);
     if (error) throw error;
@@ -434,10 +427,12 @@ async function main() {
   let totalUpdates = 0;
 
   try {
-    for (const url of urls) {
-      const compSlug = competitionSlugFromUrl(url);
+    for (const item of inputs) {
+      const normalized = normalizeFlashUrl(item.url);
+
+      const compSlug = item.compSlug?.trim() || competitionSlugFromUrl(item.url);
       if (!compSlug) {
-        console.log("Skip (unknown comp url):", url, "->", normalizeFlashUrl(url));
+        console.log("Skip (unknown comp url):", item.url, "->", normalized);
         continue;
       }
 
@@ -446,7 +441,6 @@ async function main() {
 
       console.log(`\n== ${compSlug} (${seasonName}) ==`);
       console.log(`Candidates to update: ${candidates.length}`);
-
       if (candidates.length === 0) continue;
 
       const index = new Map<string, any[]>();
@@ -458,9 +452,9 @@ async function main() {
       }
 
       try {
-        await gotoWithRetry(page, url, 3);
+        await gotoWithRetry(page, normalized, 3);
       } catch (e) {
-        console.log("ERROR: could not load url after retries, skipping:", url);
+        console.log("ERROR: could not load url after retries, skipping:", normalized);
         console.log(e);
         continue;
       }
@@ -472,7 +466,7 @@ async function main() {
           timeout: 25000,
         });
       } catch {
-        console.log("WARN: selector not found quickly, continuing anyway:", url);
+        console.log("WARN: selector not found quickly, continuing anyway:", normalized);
       }
 
       await page.waitForTimeout(1200);
@@ -482,33 +476,26 @@ async function main() {
 
       console.log("Scraped rows (deduped):", scraped.length);
 
-      const unmapped = new Map<string, number>();
       let updatedHere = 0;
       const updatedIds = new Set<number>();
 
       for (const row of scraped) {
         const homeId = resolveTeamId(row.home, teamsMap, teamNamesNorm);
         const awayId = resolveTeamId(row.away, teamsMap, teamNamesNorm);
-
-        if (!homeId) unmapped.set(row.home, (unmapped.get(row.home) || 0) + 1);
-        if (!awayId) unmapped.set(row.away, (unmapped.get(row.away) || 0) + 1);
         if (!homeId || !awayId) continue;
 
-        // 1) normal
+        // try normal then reversed
         let key = `${homeId}__${awayId}`;
         let possible = index.get(key);
 
-        // 2) reversed
         if (!possible || possible.length === 0) {
           key = `${awayId}__${homeId}`;
           possible = index.get(key);
         }
-
         if (!possible || possible.length === 0) continue;
 
         const target = pickBestCandidate(possible);
         if (!target?.id) continue;
-
         if (updatedIds.has(target.id)) continue;
         updatedIds.add(target.id);
 
@@ -516,9 +503,17 @@ async function main() {
         const as = parseScore(row.as);
         const { status, minute } = detectStatusAndMinute(row.statusOrTime);
 
+        // build patch safely
         const patch: any = { status, minute, updated_at: new Date().toISOString() };
-        if (hs !== null) patch.home_score = hs;
-        if (as !== null) patch.away_score = as;
+
+        // If NS, clear scores (prevents fake "0-0")
+        if (status === "NS") {
+          patch.home_score = null;
+          patch.away_score = null;
+        } else {
+          if (hs !== null) patch.home_score = hs;
+          if (as !== null) patch.away_score = as;
+        }
 
         const { error } = await supabase.from("matches").update(patch).eq("id", target.id);
         if (!error) {
@@ -528,19 +523,6 @@ async function main() {
       }
 
       console.log(`Updated in ${compSlug}:`, updatedHere);
-
-      if (unmapped.size > 0) {
-        const top = Array.from(unmapped.entries())
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 12);
-
-        console.log("Unmapped team names (top):", top);
-
-        for (const [name] of top) {
-          const sug = suggestTeams(name, teamNamesNorm, 6);
-          if (sug.length > 0) console.log(`  -> suggestions for "${name}":`, sug);
-        }
-      }
     }
   } finally {
     await browser.close();

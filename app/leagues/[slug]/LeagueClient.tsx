@@ -6,9 +6,9 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
+import { usePrefs, type Lang } from "@/lib/usePrefs";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
-type Lang = "en" | "es" | "fr";
 
 type DbMatchRow = {
   id: number;
@@ -115,12 +115,10 @@ const I18N: Record<Lang, Record<string, string>> = {
   },
 };
 
-// standings rules (igual a tu versión)
 const STANDINGS_RULES: Record<string, { topChampions?: number; topEurope?: number; bottomRelegation?: number } | undefined> = {
   "en-premiership": { topChampions: 4, bottomRelegation: 1 },
 };
 
-// ---------- UI bits ----------
 function StatusBadge({ status }: { status: MatchStatus }) {
   if (status === "LIVE") {
     return (
@@ -159,7 +157,6 @@ function TeamAvatar({ name }: { name: string }) {
   );
 }
 
-// ---------- Helpers ----------
 function parseISODateParts(iso: string) {
   const [y, m, d] = iso.split("-").map((x) => parseInt(x, 10));
   return { y, m, d };
@@ -228,7 +225,6 @@ function pickAutoRound(meta: RoundMeta2[], refISO: string) {
   return (lastIncomplete ?? rounds[rounds.length - 1]).round;
 }
 
-// ---------- standings compute ----------
 async function fetchTeamsForSeason(seasonId: number) {
   const { data, error } = await supabase
     .from("matches")
@@ -350,8 +346,9 @@ async function fetchStandingsZero(seasonId: number) {
     .sort((a, b) => a.team.localeCompare(b.team));
 }
 
-// ---------- main component ----------
 export default function LeagueClient() {
+  const { timeZone, lang, setLangEverywhere } = usePrefs();
+
   const params = useParams<{ slug: string }>();
   const slug = params?.slug;
 
@@ -359,9 +356,6 @@ export default function LeagueClient() {
   const dateParam = searchParams.get("date");
   const refISO = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : toISODateLocal(new Date());
   const dateQuery = `?date=${refISO}`;
-
-  const [timeZone, setTimeZone] = useState<string>("America/New_York");
-  const [lang, setLang] = useState<Lang>("en");
 
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
@@ -379,47 +373,10 @@ export default function LeagueClient() {
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [err, setErr] = useState("");
 
-  // ✅ NEW: mobile leagues drawer state
   const [leaguesOpen, setLeaguesOpen] = useState(false);
 
   const t = (key: string) => I18N[lang][key] ?? key;
 
-  // TZ + Lang init + sync
-  useEffect(() => {
-    const savedTZ = localStorage.getItem("tz");
-    if (savedTZ) setTimeZone(savedTZ);
-
-    const savedLang = localStorage.getItem("lang") as Lang | null;
-    if (savedLang === "en" || savedLang === "es" || savedLang === "fr") setLang(savedLang);
-
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "tz" && e.newValue) setTimeZone(e.newValue);
-      if (e.key === "lang" && e.newValue && (e.newValue === "en" || e.newValue === "es" || e.newValue === "fr")) {
-        setLang(e.newValue as Lang);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-
-    const onTZCustom = () => {
-      const v = localStorage.getItem("tz");
-      if (v) setTimeZone(v);
-    };
-    window.addEventListener("tz-change", onTZCustom as any);
-
-    const onLangCustom = () => {
-      const v = localStorage.getItem("lang");
-      if (v === "en" || v === "es" || v === "fr") setLang(v);
-    };
-    window.addEventListener("lang-change", onLangCustom as any);
-
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("tz-change", onTZCustom as any);
-      window.removeEventListener("lang-change", onLangCustom as any);
-    };
-  }, []);
-
-  // sidebar competitions
   useEffect(() => {
     const loadComps = async () => {
       const { data, error } = await supabase
@@ -487,7 +444,6 @@ export default function LeagueClient() {
       .sort((a, b) => a.round - b.round);
   }
 
-  // MAIN LOAD
   useEffect(() => {
     const loadLeagueEverything = async () => {
       setLoadingLeague(true);
@@ -557,7 +513,6 @@ export default function LeagueClient() {
     loadLeagueEverything();
   }, [slug, refISO]);
 
-  // matches + refresh
   useEffect(() => {
     if (!season || selectedRound == null) return;
 
@@ -592,7 +547,6 @@ export default function LeagueClient() {
     };
   }, [season?.id, selectedRound]);
 
-  // de-dup comps (igual que tu home)
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {
       const af = !!a.is_featured;
@@ -674,11 +628,13 @@ export default function LeagueClient() {
   }, [comp?.group_name]);
 
   const roundsList = useMemo(() => roundMeta.map((m) => m.round), [roundMeta]);
-  const selectedIdx = useMemo(() => (selectedRound == null ? -1 : roundsList.indexOf(selectedRound)), [roundsList, selectedRound]);
+  const selectedIdx = useMemo(
+    () => (selectedRound == null ? -1 : roundsList.indexOf(selectedRound)),
+    [roundsList, selectedRound]
+  );
 
   const hasStandingsRules = !!STANDINGS_RULES[comp?.slug ?? ""];
 
-  // UI: match row label
   const timeLabelFor = (m: DbMatchRow) => {
     if (m.status === "LIVE") return `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim();
     if (m.status === "FT") return "FT";
@@ -690,18 +646,11 @@ export default function LeagueClient() {
       <AppHeader
         subtitle="League view"
         lang={lang}
-        onLangChange={(l) => {
-          setLang(l);
-          localStorage.setItem("lang", l);
-          window.dispatchEvent(new Event("lang-change"));
-        }}
+        onLangChange={(l) => setLangEverywhere(l)}
       />
 
-      {/* ✅ MISMO TIPO DE LAYOUT QUE HOME */}
       <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-        {/* ASIDE (igual vibe que Home) */}
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
-          {/* league header */}
           <div>
             <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("league")}</div>
             <div className="text-lg font-extrabold truncate mt-1">{comp?.name ?? slug}</div>
@@ -710,7 +659,6 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* rounds (compact, no rompe en mobile) */}
           <div className="rounded-xl border border-neutral-200 bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 p-3">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("round")}</div>
@@ -757,12 +705,10 @@ export default function LeagueClient() {
             </div>
           </div>
 
-          {/* ✅ leagues folders (desktop list + mobile button + drawer) */}
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
 
-              {/* mobile button */}
               <button
                 onClick={() => setLeaguesOpen(true)}
                 className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-neutral-200 bg-white/80 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
@@ -771,7 +717,6 @@ export default function LeagueClient() {
               </button>
             </div>
 
-            {/* desktop list */}
             <div className="hidden lg:block space-y-3">
               {groupedCompetitions.map(([groupName, comps]) => {
                 const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
@@ -826,17 +771,10 @@ export default function LeagueClient() {
               })}
             </div>
 
-            {/* mobile drawer */}
             {leaguesOpen ? (
               <div className="lg:hidden fixed inset-0 z-50">
-                {/* overlay */}
-                <button
-                  className="absolute inset-0 bg-black/40"
-                  onClick={() => setLeaguesOpen(false)}
-                  aria-label="Close leagues overlay"
-                />
+                <button className="absolute inset-0 bg-black/40" onClick={() => setLeaguesOpen(false)} aria-label="Close leagues overlay" />
 
-                {/* panel */}
                 <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-950 shadow-2xl overflow-hidden">
                   <div className="px-4 py-3 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
                     <div className="font-extrabold">{t("leagues")}</div>
@@ -907,13 +845,12 @@ export default function LeagueClient() {
           </div>
         </aside>
 
-        {/* MAIN */}
         <section className="space-y-4 min-w-0">
           <div>
             <h2 className="text-xl font-bold">Matches</h2>
             <p className="text-sm text-neutral-700 dark:text-white/60">
-              {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> •{" "}
-              {t("round")}: <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
+              {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> • {t("round")}:{" "}
+              <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
               <span className="font-semibold">{timeZone}</span>
             </p>
           </div>
@@ -956,7 +893,6 @@ export default function LeagueClient() {
 
                   return (
                     <div key={m.id} className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/60 dark:hover:bg-white/5 ${liveRow}`}>
-                      {/* left time */}
                       <div className="w-32 shrink-0">
                         <div className="text-lg font-extrabold tracking-tight">{label}</div>
                         <div className="mt-1 flex items-center gap-2">
@@ -965,14 +901,13 @@ export default function LeagueClient() {
                         </div>
                       </div>
 
-                      {/* teams */}
                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                         <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <div className="flex items-center gap-2 min-w-0">
                             {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
                             <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
                           </div>
-                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.home_score ?? 0}</span>
+                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.home_score ?? "-"}</span>
                         </div>
 
                         <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
@@ -980,11 +915,10 @@ export default function LeagueClient() {
                             {m.away_team?.name ? <TeamAvatar name={m.away_team.name} /> : null}
                             <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
                           </div>
-                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.away_score ?? 0}</span>
+                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.away_score ?? "-"}</span>
                         </div>
                       </div>
 
-                      {/* right meta */}
                       <div className="hidden md:block w-48 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
                         {m.venue ? <div className="truncate">{m.venue}</div> : null}
                         <div className="mt-1 font-extrabold tabular-nums">{formatScore(m.status, m.home_score, m.away_score)}</div>
@@ -995,17 +929,13 @@ export default function LeagueClient() {
               </div>
 
               <div className="px-4 py-3 border-t border-neutral-200 dark:border-white/10 flex justify-end">
-                <Link
-                  href={`/leagues/${slug}${dateQuery}`}
-                  className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
-                >
+                <Link href={`/leagues/${slug}${dateQuery}`} className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-600 text-white hover:bg-emerald-700">
                   {t("openLeague")}
                 </Link>
               </div>
             </div>
           )}
 
-          {/* STANDINGS */}
           <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950 min-w-0">
             <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
               <div className="font-bold text-base">{t("standings")}</div>
@@ -1040,15 +970,12 @@ export default function LeagueClient() {
                       <tr>
                         <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
                         <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
-
                         <th className="text-right py-2 w-[30px]">PJ</th>
                         <th className="text-right py-2 w-[30px]">W</th>
                         <th className="text-right py-2 w-[30px]">D</th>
                         <th className="text-right py-2 w-[30px]">L</th>
-
                         <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
                         <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
-
                         <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
                       </tr>
                     </thead>

@@ -28,8 +28,6 @@ type Competition = {
   name: string;
   slug: string;
   region: string | null;
-
-  // ✅ para folders
   country_code?: string | null;
   category?: string | null;
   group_name?: string | null;
@@ -60,10 +58,6 @@ type DbMatchRow = {
           name: string;
           slug: string;
           region: string | null;
-          group_name?: string | null;
-          category?: string | null;
-          sort_order?: number | null;
-          is_featured?: boolean | null;
         } | null;
       }
     | null;
@@ -113,19 +107,22 @@ function niceDate(d: Date) {
 function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
+
 function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
   const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
+
 function displayScore(status: MatchStatus, hs: number | null, as: number | null) {
-  if (status === "NS" && hs == null && as == null) return "—";
-  return `${hs ?? 0} - ${as ?? 0}`;
+  // ✅ FIX: if NS always show dash (avoid fake 0-0)
+  if (status === "NS") return "—";
+  if (hs == null || as == null) return "-";
+  return `${hs} - ${as}`;
 }
 
 export default function Home() {
-  const [dark, setDark] = useState(false);
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
@@ -145,15 +142,6 @@ export default function Home() {
   const dateQuery = `?date=${selectedISO}`;
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    setDark(saved === "dark");
-  }, []);
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
-
-  useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
   }, []);
@@ -161,7 +149,6 @@ export default function Home() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
-  // ✅ load competitions PRO
   useEffect(() => {
     const loadComps = async () => {
       setCompLoading(true);
@@ -189,7 +176,6 @@ export default function Home() {
     loadComps();
   }, []);
 
-  // ✅ de-dup competitions (fix duplicates in home)
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {
       const af = !!a.is_featured;
@@ -203,7 +189,6 @@ export default function Home() {
       return a.id < b.id ? a : b;
     };
 
-    // 1) de-dup por slug
     const bySlug = new Map<string, Competition>();
     for (const c of competitions) {
       const k = (c.slug ?? "").trim().toLowerCase();
@@ -214,7 +199,6 @@ export default function Home() {
 
     const list = Array.from(bySlug.values());
 
-    // 2) de-dup por grupo+categoria+nombre (por si te quedaron “clones” con slugs distintos)
     const keyOf = (c: Competition) => {
       const g = (c.group_name ?? "").trim().toLowerCase();
       const n = (c.name ?? "").trim().toLowerCase();
@@ -232,7 +216,6 @@ export default function Home() {
     return Array.from(map.values());
   }, [competitions]);
 
-  // ✅ grouped folders
   const groupedCompetitions = useMemo(() => {
     const map = new Map<string, Competition[]>();
     for (const c of dedupedCompetitions) {
@@ -267,7 +250,6 @@ export default function Home() {
     return entries;
   }, [dedupedCompetitions]);
 
-  // ✅ load matches by date (same as you had)
   useEffect(() => {
     let cancelled = false;
     let timer: any = null;
@@ -331,12 +313,16 @@ export default function Home() {
             ? "FT"
             : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
 
+        // ✅ FIX: for NS, force null scores even if DB has 0 defaults
+        const hs = r.status === "NS" ? null : r.home_score;
+        const as = r.status === "NS" ? null : r.away_score;
+
         const match: Match = {
           timeLabel: kickoffLabel,
           home: r.home_team?.name ?? "TBD",
           away: r.away_team?.name ?? "TBD",
-          hs: r.home_score,
-          as: r.away_score,
+          hs,
+          as,
           status: r.status,
         };
 
@@ -370,7 +356,6 @@ export default function Home() {
     <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-300 via-green-600 to-green-400 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
       <AppHeader showTabs tab={tab} setTab={setTab} />
 
-      {/* ✅ MÁS ANCHO */}
       <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
         <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
           <div>
@@ -545,14 +530,14 @@ export default function Home() {
                         <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium truncate">{m.home}</span>
                           <span className="font-extrabold tabular-nums">
-                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : m.hs ?? 0}
+                            {m.status === "NS" ? "—" : m.hs ?? "-"}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
                           <span className="font-medium truncate">{m.away}</span>
                           <span className="font-extrabold tabular-nums">
-                            {displayScore(m.status, m.hs, m.as) === "—" ? "—" : m.as ?? 0}
+                            {m.status === "NS" ? "—" : m.as ?? "-"}
                           </span>
                         </div>
                       </div>
@@ -564,7 +549,6 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* CTA pro: ir a la liga con la fecha elegida */}
                 <div className="px-4 py-3 border-t border-neutral-200 dark:border-white/10 flex justify-end">
                   <Link
                     href={`/leagues/${block.slug}${dateQuery}`}

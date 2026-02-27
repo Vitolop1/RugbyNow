@@ -1,0 +1,534 @@
+# scripts/sync_flashscore.py
+# ------------------------------------------------------------
+# Sync Flashscore (results + fixtures) into Supabase
+# - Reads competitions from Supabase table: competitions
+# - For each competition that has results_url / fixtures_url:
+#     - loads the page with Playwright
+#     - parses matches from DOM (NO inner_text heuristics for teams/scores)
+#     - upserts teams, seasons, matches into Supabase
+#
+# Requirements:
+#   pip install playwright python-dotenv supabase
+#   playwright install
+#
+# Env (.env.local):
+#   SUPABASE_URL=...
+#   SUPABASE_SERVICE_ROLE_KEY=...
+# ------------------------------------------------------------
+
+import os
+import re
+import asyncio
+from datetime import datetime, timezone
+
+from dotenv import load_dotenv
+from supabase import create_client
+from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+
+
+# -------------------------
+# ENV + SUPABASE
+# -------------------------
+load_dotenv(".env.local")
+
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_SERVICE_ROLE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+sb = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+
+# -------------------------
+# HELPERS
+# -------------------------
+MONTHS_NUM = {
+    "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+    "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12,
+}
+
+MONTH_RE = r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
+
+BAD_EXACT = {
+    "RUGBY UNION",
+    "SOUTH AMERICA:",
+    "SOUTH AMERICA",
+    "ENGLAND:",
+    "FRANCE:",
+    "EUROPE:",
+    "WORLD:",
+    "ARGENTINA:",
+    "USA:",
+}
+
+def _clean(s: str) -> str:
+    if not s:
+        return ""
+    return re.sub(r"\s+", " ", s).strip()
+
+def slugify(s: str) -> str:
+    s = (s or "").strip().lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    s = re.sub(r"-+", "-", s).strip("-")
+    return s
+
+def _is_bad_team(s: str) -> bool:
+    if not s:
+        return True
+    if s in BAD_EXACT:
+        return True
+    # evita headers tipo “SOUTH AMERICA:”
+    if s.isupper() and len(s) <= 25 and (":" in s or " " in s):
+        return True
+    # evita abreviaturas tipo "FRO"
+    if len(s) <= 3:
+        return True
+    return False
+
+async def _get_best_text(loc):
+    # primero, atributos que suelen tener el nombre completo
+    for attr in ("title", "aria-label", "data-tooltip"):
+        try:
+            v = _clean(await loc.get_attribute(attr) or "")
+            if v and len(v) > 3:
+                return v
+        except:
+            pass
+    # fallback al texto visible
+    try:
+        return _clean(await loc.inner_text())
+    except:
+        return ""
+
+
+# -------------------------
+# SUPABASE DB OPS
+# -------------------------
+def get_competitions_with_urls():
+    r = (
+        sb.table("competitions")
+        .select("id,name,slug,results_url,fixtures_url,standings_url")
+        .execute()
+    )
+    comps = []
+    for c in (r.data or []):
+        if c.get("slug") and (c.get("results_url") or c.get("fixtures_url")):
+            comps.append(c)
+    return comps
+
+def get_or_create_season(competition_id: int, season_name: str) -> int:
+    r = (
+        sb.table("seasons")
+        .select("id,name")
+        .eq("competition_id", competition_id)
+        .eq("name", season_name)
+        .limit(1)
+        .execute()
+    )
+    if r.data:
+        return r.data[0]["id"]
+
+    ins = (
+        sb.table("seasons")
+        .insert({"competition_id": competition_id, "name": season_name})
+        .execute()
+    )
+    return ins.data[0]["id"]
+
+def upsert_team(name: str) -> int:
+    team_slug = slugify(name)
+    r = sb.table("teams").select("id").eq("slug", team_slug).limit(1).execute()
+    if r.data:
+        return r.data[0]["id"]
+    ins = sb.table("teams").insert({"name": name, "slug": team_slug}).execute()
+    return ins.data[0]["id"]
+
+def upsert_matches_bulk(
+    season_id: int,
+    competition_slug: str,
+    season_name: str,
+    items: list,
+    source_url: str,
+):
+    # one-by-one (seguro) — si querés más velocidad, después hacemos batch
+    for it in items:
+        home_id = upsert_team(it["home"])
+        away_id = upsert_team(it["away"])
+
+        key = build_source_event_key(
+            competition_slug=competition_slug,
+            season_name=season_name,
+            match_date=it["match_date"],
+            kickoff_time=it["kickoff_time"],
+            home=it["home"],
+            away=it["away"],
+        )
+
+        payload = {
+            "season_id": season_id,
+            "round": it.get("round"),
+            "match_date": it["match_date"],
+            "kickoff_time": it["kickoff_time"],
+            "status": it["status"],
+            "home_team_id": home_id,
+            "away_team_id": away_id,
+            "home_score": it.get("home_score"),
+            "away_score": it.get("away_score"),
+            "source": "flashscore",
+            "source_event_key": key,
+            "source_url": source_url,
+        }
+
+        sb.table("matches").upsert(payload, on_conflict="source,source_event_key").execute()
+
+
+# -------------------------
+# SEASON + DATE LOGIC
+# -------------------------
+async def detect_season_name(page, fallback: str):
+    """
+    Flashscore suele mostrar '2025/2026' en algún lugar.
+    Buscamos un patrón YYYY/YYYY en el texto visible de la página.
+    """
+    try:
+        # probamos lugares típicos
+        for sel in [".heading__info", ".heading__name", "header", "body"]:
+            loc = page.locator(sel).first
+            if await loc.count() == 0:
+                continue
+            txt = _clean(await loc.inner_text())
+            m = re.search(r"\b(20\d{2})/(20\d{2})\b", txt)
+            if m:
+                return f"{m.group(1)}/{m.group(2)}"
+    except:
+        pass
+    return fallback
+
+def infer_season_fallback(now_utc: datetime) -> str:
+    """
+    Rugby seasons in many comps are like 2025/2026.
+    Simple fallback:
+      - If month >= 7 -> season is currentYear/currentYear+1
+      - Else -> previousYear/currentYear
+    """
+    y = now_utc.year
+    if now_utc.month >= 7:
+        return f"{y}/{y+1}"
+    return f"{y-1}/{y}"
+
+def year_for_match(season_name: str, month_abbr: str) -> int:
+    """
+    If season is '2025/2026':
+      - months Jul-Dec => 2025
+      - months Jan-Jun => 2026
+    """
+    mnum = MONTHS_NUM[month_abbr]
+    a, b = season_name.split("/")
+    y1, y2 = int(a), int(b)
+    if mnum >= 7:
+        return y1
+    return y2
+
+def build_match_date(season_name: str, mon: str, day: int) -> str:
+    y = year_for_match(season_name, mon)
+    mm = MONTHS_NUM[mon]
+    dd = int(day)
+    return f"{y:04d}-{mm:02d}-{dd:02d}"
+
+def parse_kickoff_time_from_row_text(txt: str) -> str:
+    """
+    Flashscore a veces muestra 12h (AM/PM), a veces 24h.
+    Si no hay hora, devolvemos 00:00:00.
+    """
+    txt = txt or ""
+    tm = re.search(r"\b(\d{1,2}):(\d{2})(?:\s?(AM|PM))?\b", txt)
+    if not tm:
+        return "00:00:00"
+
+    hh = int(tm.group(1))
+    mm = int(tm.group(2))
+    ap = tm.group(3)
+    if ap:
+        ap = ap.upper()
+        if ap == "PM" and hh != 12:
+            hh += 12
+        if ap == "AM" and hh == 12:
+            hh = 0
+    return f"{hh:02d}:{mm:02d}:00"
+
+def build_source_event_key(competition_slug: str, season_name: str, match_date: str, kickoff_time: str, home: str, away: str) -> str:
+    # clave estable (sin round) para evitar duplicados
+    return slugify(f"{competition_slug}|{season_name}|{match_date}|{kickoff_time}|{home}|{away}")
+
+
+# -------------------------
+# PLAYWRIGHT SCRAPE
+# -------------------------
+async def accept_cookies_if_any(page):
+    # Flashscore mete banners distintos. Intentamos los más comunes.
+    candidates = [
+        "button:has-text('I Accept')",
+        "button:has-text('Accept')",
+        "button:has-text('Accept all')",
+        "button:has-text('AGREE')",
+        "button:has-text('Agree')",
+    ]
+    for sel in candidates:
+        try:
+            btn = page.locator(sel).first
+            if await btn.count() > 0:
+                await btn.click(timeout=1500)
+                await page.wait_for_timeout(300)
+                return
+        except:
+            pass
+
+async def expand_all_events(page):
+    """
+    Algunas páginas cargan más partidos al scrollear o con un botón de "Show more".
+    Hacemos:
+      - scroll varias veces
+      - click en 'Show more matches' si aparece
+    """
+    for _ in range(10):
+        try:
+            await page.mouse.wheel(0, 3000)
+            await page.wait_for_timeout(400)
+        except:
+            pass
+
+        # si existe botón show more, lo clickeamos
+        for sel in [
+            "a:has-text('Show more matches')",
+            "button:has-text('Show more matches')",
+            "a:has-text('Show more')",
+            "button:has-text('Show more')",
+        ]:
+            try:
+                b = page.locator(sel).first
+                if await b.count() > 0:
+                    await b.click(timeout=1200)
+                    await page.wait_for_timeout(700)
+            except:
+                pass
+
+async def parse_rows_to_items(page, rows, status: str):
+    """
+    rows: idealmente page.locator(".event__match")
+    status: "FT" (results) o "NS" (fixtures)
+    """
+    items = []
+
+    count = await rows.count()
+    count = min(count, 800)
+
+    for i in range(count):
+        row = rows.nth(i)
+
+        try:
+            # 1) Home/Away DOM-first
+            hloc = row.locator(".event__participant--home").first
+            aloc = row.locator(".event__participant--away").first
+
+            if await hloc.count() == 0 or await aloc.count() == 0:
+                continue
+
+            home = await _get_best_text(hloc)
+            away = await _get_best_text(aloc)
+
+            if _is_bad_team(home) or _is_bad_team(away):
+                continue
+
+            # 2) Texto row SOLO para fecha/hora/round (no para equipos/score)
+            try:
+                txt = (await row.inner_text()).strip()
+            except:
+                txt = ""
+
+            if not txt:
+                continue
+            if "Advertisement" in txt or "We Care About Your Privacy" in txt:
+                continue
+
+            # Fecha (Mes + día) — si no aparece, lo saltamos (porque no podemos armar match_date)
+            dm = re.search(rf"\b{MONTH_RE}\s+(\d{{1,2}})\b", txt)
+            if not dm:
+                continue
+            mon = dm.group(1)
+            day = int(dm.group(2))
+
+            kickoff_time = parse_kickoff_time_from_row_text(txt)
+
+            # Round (si existe)
+            round_num = None
+            rm = re.search(r"Round\s+(\d+)", txt, re.I)
+            if rm:
+                round_num = int(rm.group(1))
+
+            # 3) Score DOM-first
+            home_score = None
+            away_score = None
+
+            if status == "FT":
+                hs_loc = row.locator(".event__score--home").first
+                as_loc = row.locator(".event__score--away").first
+
+                if await hs_loc.count() == 0 or await as_loc.count() == 0:
+                    # fallback alternativo
+                    hs_loc = row.locator(".event__score").nth(0)
+                    as_loc = row.locator(".event__score").nth(1)
+
+                if await hs_loc.count() == 0 or await as_loc.count() == 0:
+                    continue
+
+                hs = _clean(await hs_loc.inner_text())
+                a_s = _clean(await as_loc.inner_text())
+
+                if not re.fullmatch(r"\d{1,3}", hs) or not re.fullmatch(r"\d{1,3}", a_s):
+                    continue
+
+                home_score = int(hs)
+                away_score = int(a_s)
+
+                if not (0 <= home_score <= 120 and 0 <= away_score <= 120):
+                    continue
+
+            items.append({
+                "round": round_num,
+                "month": mon,
+                "day": day,
+                "home": home,
+                "away": away,
+                "home_score": home_score,
+                "away_score": away_score,
+                "status": status,
+                "kickoff_time": kickoff_time,
+            })
+
+        except:
+            continue
+
+    return items
+
+async def scrape_competition(page, comp: dict):
+    """
+    Returns:
+      (season_name, results_items, fixtures_items)
+    """
+    now_utc = datetime.now(timezone.utc)
+    season_fallback = infer_season_fallback(now_utc)
+
+    results_items = []
+    fixtures_items = []
+
+    # RESULTS
+    if comp.get("results_url"):
+        await page.goto(comp["results_url"], wait_until="domcontentloaded", timeout=60000)
+        await accept_cookies_if_any(page)
+        try:
+            await page.wait_for_selector(".event__match", timeout=15000)
+        except PlaywrightTimeoutError:
+            # a veces tarda más si hay banners
+            await page.wait_for_timeout(2000)
+
+        await expand_all_events(page)
+        season_name = await detect_season_name(page, fallback=season_fallback)
+
+        rows = page.locator(".event__match")
+        parsed = await parse_rows_to_items(page, rows, status="FT")
+
+        # armar match_date usando season + mon/day
+        for it in parsed:
+            it["match_date"] = build_match_date(season_name, it["month"], it["day"])
+            it["source_event_key"] = build_source_event_key(
+                comp["slug"], season_name, it["match_date"], it["kickoff_time"], it["home"], it["away"]
+            )
+        results_items = parsed
+    else:
+        season_name = season_fallback
+
+    # FIXTURES
+    if comp.get("fixtures_url"):
+        await page.goto(comp["fixtures_url"], wait_until="domcontentloaded", timeout=60000)
+        await accept_cookies_if_any(page)
+        try:
+            await page.wait_for_selector(".event__match", timeout=15000)
+        except PlaywrightTimeoutError:
+            await page.wait_for_timeout(2000)
+
+        await expand_all_events(page)
+
+        # si results no existía, detectamos season acá
+        season_name = await detect_season_name(page, fallback=season_name)
+
+        rows = page.locator(".event__match")
+        parsed = await parse_rows_to_items(page, rows, status="NS")
+
+        for it in parsed:
+            it["match_date"] = build_match_date(season_name, it["month"], it["day"])
+            it["source_event_key"] = build_source_event_key(
+                comp["slug"], season_name, it["match_date"], it["kickoff_time"], it["home"], it["away"]
+            )
+        fixtures_items = parsed
+
+    return season_name, results_items, fixtures_items
+
+
+# -------------------------
+# MAIN
+# -------------------------
+async def main():
+    comps = get_competitions_with_urls()
+    print(f"Found competitions with URLs: {len(comps)}")
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context(
+            viewport={"width": 1280, "height": 900},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+        )
+        page = await context.new_page()
+
+        for comp in comps:
+            print(f"\n=== {comp['name']} ({comp['slug']}) ===")
+
+            try:
+                season_name, results_items, fixtures_items = await scrape_competition(page, comp)
+            except Exception as e:
+                print(f"❌ scrape failed: {comp['slug']} -> {repr(e)}")
+                continue
+
+            print(f"season: {season_name}")
+            print(f"parsed results: {len(results_items)}")
+            if results_items[:3]:
+                print("results preview:", results_items[:3])
+            print(f"parsed fixtures: {len(fixtures_items)}")
+            if fixtures_items[:3]:
+                print("fixtures preview:", fixtures_items[:3])
+
+            season_id = get_or_create_season(comp["id"], season_name)
+
+            if results_items and comp.get("results_url"):
+                upsert_matches_bulk(
+                    season_id=season_id,
+                    competition_slug=comp["slug"],
+                    season_name=season_name,
+                    items=results_items,
+                    source_url=comp["results_url"],
+                )
+
+            if fixtures_items and comp.get("fixtures_url"):
+                upsert_matches_bulk(
+                    season_id=season_id,
+                    competition_slug=comp["slug"],
+                    season_name=season_name,
+                    items=fixtures_items,
+                    source_url=comp["fixtures_url"],
+                )
+
+            print("✅ upsert ok")
+
+        await context.close()
+        await browser.close()
+
+    print("\n✅ done")
+
+if __name__ == "__main__":
+    asyncio.run(main())

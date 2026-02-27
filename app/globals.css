@@ -5,3 +5,29 @@
 
 /* ✅ TEST: si esto no aparece, el CSS NO está cargando */
 body { outline: 6px solid red !important; }
+
+/* RugbyNow scrollbars: visibles en dark y en fondo verde */
+.rn-scroll {
+  scrollbar-width: thin;                 /* Firefox */
+  scrollbar-color: rgba(255,255,255,.35) rgba(255,255,255,.12);
+}
+
+.rn-scroll::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.rn-scroll::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.10);
+  border-radius: 999px;
+}
+
+.rn-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.35);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.10);
+}
+
+.rn-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,.50);
+}

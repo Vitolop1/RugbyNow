@@ -74,13 +74,13 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   }
   if (status === "FT") {
     return (
-      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
+      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white border border-white/15">
         FT
       </span>
     );
   }
   return (
-    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
+    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white/90 border border-white/15">
       PRE
     </span>
   );
@@ -113,13 +113,6 @@ function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZo
   const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
   const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
-}
-
-function displayScore(status: MatchStatus, hs: number | null, as: number | null) {
-  // ✅ FIX: if NS always show dash (avoid fake 0-0)
-  if (status === "NS") return "—";
-  if (hs == null || as == null) return "-";
-  return `${hs} - ${as}`;
 }
 
 export default function Home() {
@@ -313,7 +306,6 @@ export default function Home() {
             ? "FT"
             : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
 
-        // ✅ FIX: for NS, force null scores even if DB has 0 defaults
         const hs = r.status === "NS" ? null : r.home_score;
         const as = r.status === "NS" ? null : r.away_score;
 
@@ -353,234 +345,230 @@ export default function Home() {
   }, [blocks, tab]);
 
   return (
-    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-300 via-green-600 to-green-400 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
-      <AppHeader showTabs tab={tab} setTab={setTab} />
+    <div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
+      {/* glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-44 left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-emerald-300/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-lime-200/10 blur-3xl" />
+      </div>
 
-      <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">Fechas</div>
+      <div className="relative">
+        <AppHeader showTabs tab={tab} setTab={setTab} />
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSelectedDate((d) => addDays(d, -1))}
-                  className="px-2 py-1 rounded-lg text-xs border bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+        <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
+          {/* ASIDE */}
+          <aside className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4 h-fit space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-semibold text-white/90">Fechas</div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedDate((d) => addDays(d, -1))}
+                    className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
+                  >
+                    ←
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedDate(new Date())}
+                    className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
+                  >
+                    Today
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedDate((d) => addDays(d, +1))}
+                    className="px-3 py-1.5 rounded-lg text-xs font-extrabold border border-emerald-300/30 bg-emerald-400/25 hover:bg-emerald-400/35 transition"
+                  >
+                    NEXT →
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="date"
+                  value={selectedISO}
+                  onChange={(e) => setSelectedDate(fromISODateLocal(e.target.value))}
+                  className="w-full px-3 py-2 rounded-xl text-sm border border-white/15 bg-white/10 text-white outline-none"
+                />
+                <span
+                  className={`px-2 py-1 rounded-full text-[11px] border whitespace-nowrap ${
+                    isSameDay(selectedDate, todayLocal)
+                      ? "bg-emerald-400/30 text-white border-emerald-200/30"
+                      : "bg-white/10 border-white/15 text-white/80"
+                  }`}
                 >
-                  ←
-                </button>
+                  {isSameDay(selectedDate, todayLocal) ? "HOY" : "OTRO"}
+                </span>
+              </div>
 
-                <button
-                  onClick={() => setSelectedDate(new Date())}
-                  className="px-2 py-1 rounded-lg text-xs border bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                >
-                  Today
-                </button>
-
-                <button
-                  onClick={() => setSelectedDate((d) => addDays(d, +1))}
-                  className="px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-                >
-                  NEXT →
-                </button>
+              <div className="text-xs text-white/70">
+                Seleccionada: <span className="font-semibold text-white">{niceDate(selectedDate)}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <input
-                type="date"
-                value={selectedISO}
-                onChange={(e) => setSelectedDate(fromISODateLocal(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl text-sm border bg-white/80 border-neutral-200 dark:bg-neutral-900 dark:border-white/10"
-              />
-              <span
-                className={`px-2 py-1 rounded-full text-[11px] border whitespace-nowrap ${
-                  isSameDay(selectedDate, todayLocal)
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "bg-white/70 border-neutral-200 text-neutral-700 dark:bg-neutral-900 dark:border-white/10 dark:text-white/70"
-                }`}
-              >
-                {isSameDay(selectedDate, todayLocal) ? "HOY" : "OTRO"}
-              </span>
+            <div>
+              <div className="text-sm font-semibold mb-2 text-white/90">Ligas</div>
+
+              {compLoading ? (
+                <div className="text-xs text-white/70">Cargando ligas...</div>
+              ) : compError ? (
+                <div className="text-xs text-red-200">{compError}</div>
+              ) : (
+                <div className="space-y-3">
+                  {groupedCompetitions.map(([groupName, comps]) => {
+                    const open = openGroups[groupName] ?? false;
+                    const featuredCount = comps.filter((x) => x.is_featured).length;
+
+                    return (
+                      <div key={groupName} className="rounded-xl border border-white/15 bg-white/10 overflow-hidden">
+                        <button
+                          onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                          className="w-full px-3 py-2 flex items-center justify-between text-left"
+                          aria-label={`Toggle group ${groupName}`}
+                        >
+                          <div className="min-w-0">
+                            <div className="text-sm font-extrabold truncate text-white">{groupName}</div>
+                            <div className="text-[11px] text-white/70">
+                              {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                            </div>
+                          </div>
+                          <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+                        </button>
+
+                        {open ? (
+                          <div className="px-2 pb-2 space-y-2">
+                            {comps.map((c) => (
+                              <Link
+                                key={`${c.slug}-${c.id}`}
+                                href={`/leagues/${c.slug}${dateQuery}`}
+                                className="block w-full text-left px-3 py-2 rounded-xl border border-white/15 transition bg-black/20 hover:bg-black/30"
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="text-sm font-medium truncate text-white">{c.name}</div>
+                                  {c.is_featured ? (
+                                    <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
+                                      PIN
+                                    </span>
+                                  ) : null}
+                                </div>
+                                {c.region ? <div className="text-xs text-white/70">{c.region}</div> : null}
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </aside>
+
+          {/* MAIN */}
+          <section className="space-y-4 min-w-0">
+            <div>
+              <h2 className="text-xl font-bold text-white">Matches</h2>
+              <p className="text-sm text-white/80">
+                Date: <span className="font-semibold text-white">{niceDate(selectedDate)}</span> •{" "}
+                {tab === "LIVE" ? "Live only" : "All matches"} • TZ:{" "}
+                <span className="font-semibold text-white">{timeZone}</span>
+              </p>
             </div>
 
-            <div className="text-xs text-neutral-700 dark:text-white/60">
-              Seleccionada: <span className="font-semibold">{niceDate(selectedDate)}</span>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold mb-2 text-neutral-700 dark:text-white/80">Ligas</div>
-
-            {compLoading ? (
-              <div className="text-xs text-neutral-700 dark:text-white/60">Cargando ligas...</div>
-            ) : compError ? (
-              <div className="text-xs text-red-700 dark:text-red-300">{compError}</div>
+            {loading ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">
+                Loading matches...
+              </div>
+            ) : loadError ? (
+              <div className="rounded-2xl border border-red-200/30 bg-black/20 backdrop-blur p-6 text-white">
+                <div className="font-bold">Supabase error</div>
+                <div className="mt-2 text-sm text-white/80">{loadError}</div>
+              </div>
+            ) : filteredBlocks.length === 0 ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">
+                No matches for this date (but sidebar stays 😉)
+              </div>
             ) : (
-              <div className="space-y-3">
-                {groupedCompetitions.map(([groupName, comps]) => {
-                  const open = openGroups[groupName] ?? false;
-                  const featuredCount = comps.filter((x) => x.is_featured).length;
+              filteredBlocks.map((block) => (
+                <div key={block.slug} className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur overflow-hidden">
+                  <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
+                      <div className="font-semibold truncate text-white">{block.league}</div>
+                    </div>
+                    <div className="text-sm text-white/70">{block.region}</div>
+                  </div>
 
-                  return (
-                    <div
-                      key={groupName}
-                      className="rounded-xl border border-neutral-200 bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 overflow-hidden"
-                    >
-                      <button
-                        onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
-                        className="w-full px-3 py-2 flex items-center justify-between text-left"
-                        aria-label={`Toggle group ${groupName}`}
+                  <div className="divide-y divide-white/10">
+                    {block.matches.map((m, idx) => (
+                      <div
+                        key={`${block.slug}-${idx}-${m.timeLabel}-${m.home}-${m.away}`}
+                        className={`px-4 py-3 flex items-center gap-4 transition ${
+                          m.status === "LIVE" ? "ring-1 ring-red-300/40 bg-red-400/10" : "hover:bg-white/5"
+                        }`}
                       >
-                        <div className="min-w-0">
-                          <div className="text-sm font-extrabold truncate">{groupName}</div>
-                          <div className="text-[11px] opacity-70">
-                            {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                        <div className="w-32 shrink-0">
+                          <div className="text-lg font-extrabold tracking-tight text-white">{m.timeLabel}</div>
+                          <div className="mt-1">
+                            <StatusBadge status={m.status} />
                           </div>
                         </div>
-                        <span className="text-xs opacity-70">{open ? "−" : "+"}</span>
-                      </button>
 
-                      {open ? (
-                        <div className="px-2 pb-2 space-y-2">
-                          {comps.map((c) => (
-                            <Link
-                              key={`${c.slug}-${c.id}`}
-                              href={`/leagues/${c.slug}${dateQuery}`}
-                              className="block w-full text-left px-3 py-2 rounded-xl border transition bg-white border-neutral-200 hover:bg-white/90 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                            >
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="text-sm font-medium truncate">{c.name}</div>
-                                {c.is_featured ? (
-                                  <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-600 text-white">
-                                    PIN
-                                  </span>
-                                ) : null}
-                              </div>
-                              {c.region ? <div className="text-xs opacity-70">{c.region}</div> : null}
-                            </Link>
-                          ))}
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                          <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                            <span className="font-medium truncate text-white">{m.home}</span>
+                            <span className="font-extrabold tabular-nums text-white">{m.status === "NS" ? "—" : m.hs ?? "-"}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                            <span className="font-medium truncate text-white">{m.away}</span>
+                            <span className="font-extrabold tabular-nums text-white">{m.status === "NS" ? "—" : m.as ?? "-"}</span>
+                          </div>
                         </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </aside>
 
-        <section className="space-y-4 min-w-0">
-          <div>
-            <h2 className="text-xl font-bold">Matches</h2>
-            <p className="text-sm text-neutral-700 dark:text-white/60">
-              Date: <span className="font-semibold">{niceDate(selectedDate)}</span> •{" "}
-              {tab === "LIVE" ? "Live only" : "All matches"} • TZ:{" "}
-              <span className="font-semibold">{timeZone}</span>
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              Loading matches...
-            </div>
-          ) : loadError ? (
-            <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
-              <div className="font-bold">Supabase error</div>
-              <div className="mt-2 text-sm opacity-80">{loadError}</div>
-            </div>
-          ) : filteredBlocks.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              No matches for this date (but sidebar stays 😉)
-            </div>
-          ) : (
-            filteredBlocks.map((block) => (
-              <div
-                key={block.slug}
-                className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950"
-              >
-                <div className="px-4 py-3 flex items-center justify-between border-b border-neutral-200 dark:border-white/10">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
-                    <div className="font-semibold truncate">{block.league}</div>
+                        <div className="hidden md:block w-36 text-right text-xs text-white/70 shrink-0">
+                          {m.status === "LIVE" ? "Live action" : m.status === "FT" ? "Final" : "Upcoming"}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-sm text-neutral-700 dark:text-white/60">{block.region}</div>
-                </div>
 
-                <div className="divide-y divide-neutral-200 dark:divide-white/10">
-                  {block.matches.map((m, idx) => (
-                    <div
-                      key={`${block.slug}-${idx}-${m.timeLabel}-${m.home}-${m.away}`}
-                      className={`px-4 py-3 flex items-center gap-4 transition ${
-                        m.status === "LIVE"
-                          ? "ring-1 ring-red-500/40 bg-red-50/60 dark:bg-red-500/10"
-                          : "hover:bg-white/60 dark:hover:bg-white/5"
-                      }`}
+                  <div className="px-4 py-3 border-t border-white/15 flex justify-end">
+                    <Link
+                      href={`/leagues/${block.slug}${dateQuery}`}
+                      className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30 hover:bg-emerald-300/35 transition"
                     >
-                      <div className="w-32 shrink-0">
-                        <div className="text-lg font-extrabold tracking-tight text-neutral-900 dark:text-white">
-                          {m.timeLabel}
-                        </div>
-                        <div className="mt-1">
-                          <StatusBadge status={m.status} />
-                        </div>
-                      </div>
-
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
-                        <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <span className="font-medium truncate">{m.home}</span>
-                          <span className="font-extrabold tabular-nums">
-                            {m.status === "NS" ? "—" : m.hs ?? "-"}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <span className="font-medium truncate">{m.away}</span>
-                          <span className="font-extrabold tabular-nums">
-                            {m.status === "NS" ? "—" : m.as ?? "-"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="hidden md:block w-36 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
-                        {m.status === "LIVE" ? "Live action" : m.status === "FT" ? "Final" : "Upcoming"}
-                      </div>
-                    </div>
-                  ))}
+                      Open league →
+                    </Link>
+                  </div>
                 </div>
+              ))
+            )}
+          </section>
+        </main>
 
-                <div className="px-4 py-3 border-t border-neutral-200 dark:border-white/10 flex justify-end">
-                  <Link
-                    href={`/leagues/${block.slug}${dateQuery}`}
-                    className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
-                  >
-                    Open league →
-                  </Link>
-                </div>
-              </div>
-            ))
-          )}
-        </section>
-      </main>
-
-      <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-neutral-800 dark:text-white/40">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            RugbyNow • Built by <span className="font-semibold">Vito Loprestti</span> • TZ:{" "}
-            <span className="font-semibold">{timeZone}</span>
+        <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-white/70">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              RugbyNow • Built by <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
+              <span className="font-semibold text-white">{timeZone}</span>
+            </div>
+            <div className="opacity-90">
+              Contact:{" "}
+              <a className="underline" href="mailto:lopresttivito@gmail.com">
+                lopresttivito@gmail.com
+              </a>
+              <span className="mx-2">•</span>
+              <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
+                LinkedIn
+              </a>
+            </div>
           </div>
-          <div className="opacity-90">
-            Contact:{" "}
-            <a className="underline" href="mailto:lopresttivito@gmail.com">
-              lopresttivito@gmail.com
-            </a>
-            <span className="mx-2">•</span>
-            <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
-              LinkedIn
-            </a>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }

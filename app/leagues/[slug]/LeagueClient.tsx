@@ -642,103 +642,180 @@ export default function LeagueClient() {
   };
 
   return (
-    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-300 via-green-600 to-green-400 dark:bg-black dark:from-black dark:via-black dark:to-black text-neutral-900 dark:text-white">
-      <AppHeader
+<div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
+  <div className="pointer-events-none absolute inset-0">
+    <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
+    <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-green-300/10 blur-3xl" />
+  </div>        {/* soft background glow */}
+        <div className="pointer-events-none fixed inset-0 -z-10">
+          <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl dark:bg-emerald-400/10" />
+          <div className="absolute top-40 right-[-120px] h-[420px] w-[420px] rounded-full bg-sky-500/15 blur-3xl dark:bg-sky-400/10" />
+        </div>      <AppHeader
         subtitle="League view"
         lang={lang}
         onLangChange={(l) => setLangEverywhere(l)}
       />
 
-      <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-        <aside className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4 h-fit dark:border-white/10 dark:bg-neutral-950 space-y-4">
-          <div>
-            <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("league")}</div>
-            <div className="text-lg font-extrabold truncate mt-1">{comp?.name ?? slug}</div>
-            <div className="text-xs text-neutral-700 dark:text-white/60 mt-1">
-              {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
-            </div>
+     <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
+  {/* SIDEBAR */}
+  <aside className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-4 h-fit text-white space-y-4">
+    <div>
+      <div className="text-sm font-semibold text-white/80">{t("league")}</div>
+      <div className="text-lg font-extrabold truncate mt-1">{comp?.name ?? slug}</div>
+      <div className="text-xs text-white/70 mt-1">
+        {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
+      </div>
+    </div>
+
+    <div className="rounded-xl border border-white/10 bg-black/15 p-3">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="text-sm font-semibold text-white/85">{t("round")}</div>
+        <div className="text-xs text-white/70">{selectedRound != null ? `#${selectedRound}` : "—"}</div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
+          disabled={selectedIdx <= 0}
+          className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 disabled:opacity-40 text-white"
+        >
+          ←
+        </button>
+
+        <div className="flex-1 overflow-x-auto">
+          <div className="flex gap-1 pb-1 [-webkit-overflow-scrolling:touch]">
+            {roundsList.map((r) => {
+              const active = selectedRound === r;
+              return (
+                <button
+                  key={r}
+                  onClick={() => setSelectedRound(r)}
+                  className={`h-8 w-8 shrink-0 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
+                    active
+                      ? "bg-emerald-400 text-black border-emerald-300"
+                      : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
+                  }`}
+                >
+                  {r}
+                </button>
+              );
+            })}
           </div>
+        </div>
 
-          <div className="rounded-xl border border-neutral-200 bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 p-3">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("round")}</div>
-              <div className="text-xs opacity-70">{selectedRound != null ? `#${selectedRound}` : "—"}</div>
-            </div>
+        <button
+          onClick={() =>
+            selectedIdx >= 0 && selectedIdx < roundsList.length - 1 && setSelectedRound(roundsList[selectedIdx + 1])
+          }
+          disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
+          className="px-2 py-1 rounded-lg text-xs font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40"
+        >
+          →
+        </button>
+      </div>
+    </div>
 
-            <div className="flex items-center gap-2">
+    <div>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="text-sm font-semibold text-white/85">{t("leagues")}</div>
+
+        <button
+          onClick={() => setLeaguesOpen(true)}
+          className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15 text-white"
+        >
+          {t("openLeaguesBtn")}
+        </button>
+      </div>
+
+      <div className="hidden lg:block space-y-3">
+        {groupedCompetitions.map(([groupName, comps]) => {
+          const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
+          const featuredCount = comps.filter((x) => x.is_featured).length;
+
+          return (
+            <div key={groupName} className="rounded-xl border border-white/10 bg-black/15 overflow-hidden">
               <button
-                onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
-                disabled={selectedIdx <= 0}
-                className="px-2 py-1 rounded-lg text-xs border bg-white/80 border-neutral-200 hover:bg-white disabled:opacity-40 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                className="w-full px-3 py-2 flex items-center justify-between text-left"
+                aria-label={`Toggle group ${groupName}`}
               >
-                ←
-              </button>
-
-              <div className="flex-1 overflow-x-auto">
-                <div className="flex gap-1 pb-1 [-webkit-overflow-scrolling:touch]">
-                  {roundsList.map((r) => {
-                    const active = selectedRound === r;
-                    return (
-                      <button
-                        key={r}
-                        onClick={() => setSelectedRound(r)}
-                        className={`h-8 w-8 shrink-0 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
-                          active
-                            ? "bg-emerald-600 text-white border-emerald-600"
-                            : "bg-white/80 border-neutral-200 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                        }`}
-                      >
-                        {r}
-                      </button>
-                    );
-                  })}
+                <div className="min-w-0">
+                  <div className="text-sm font-extrabold truncate text-white">{groupName}</div>
+                  <div className="text-[11px] text-white/70">
+                    {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                  </div>
                 </div>
-              </div>
+                <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+              </button>
 
+              {open ? (
+                <div className="px-2 pb-2 space-y-2">
+                  {comps.map((c) => (
+                    <Link
+                      key={`${c.slug}-${c.id}`}
+                      href={`/leagues/${c.slug}${dateQuery}`}
+                      className={`block w-full px-3 py-2 rounded-xl border transition ${
+                        c.slug === slug
+                          ? "bg-emerald-400 text-black border-emerald-300"
+                          : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-medium truncate">{c.name}</div>
+                        {c.is_featured ? (
+                          <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300 text-black">
+                            PIN
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="text-xs opacity-80">{c.region ?? ""}</div>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Mobile overlay */}
+      {leaguesOpen ? (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <button
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setLeaguesOpen(false)}
+            aria-label="Close leagues overlay"
+          />
+
+          <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-white/10 bg-[#071a12] shadow-2xl overflow-hidden text-white">
+            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+              <div className="font-extrabold">{t("leagues")}</div>
               <button
-                onClick={() => selectedIdx >= 0 && selectedIdx < roundsList.length - 1 && setSelectedRound(roundsList[selectedIdx + 1])}
-                disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-                className="px-2 py-1 rounded-lg text-xs font-extrabold border-2 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40 dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                onClick={() => setLeaguesOpen(false)}
+                className="px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15"
               >
-                →
+                {t("close")}
               </button>
             </div>
-          </div>
 
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="text-sm font-semibold text-neutral-700 dark:text-white/80">{t("leagues")}</div>
-
-              <button
-                onClick={() => setLeaguesOpen(true)}
-                className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-neutral-200 bg-white/80 hover:bg-white dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-              >
-                {t("openLeaguesBtn")}
-              </button>
-            </div>
-
-            <div className="hidden lg:block space-y-3">
+            <div className="p-3 overflow-y-auto max-h-[calc(85vh-56px)] space-y-3">
               {groupedCompetitions.map(([groupName, comps]) => {
                 const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
                 const featuredCount = comps.filter((x) => x.is_featured).length;
 
                 return (
-                  <div
-                    key={groupName}
-                    className="rounded-xl border border-neutral-200 bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 overflow-hidden"
-                  >
+                  <div key={groupName} className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
                     <button
                       onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
                       className="w-full px-3 py-2 flex items-center justify-between text-left"
-                      aria-label={`Toggle group ${groupName}`}
                     >
                       <div className="min-w-0">
                         <div className="text-sm font-extrabold truncate">{groupName}</div>
-                        <div className="text-[11px] opacity-70">
+                        <div className="text-[11px] text-white/70">
                           {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
                         </div>
                       </div>
-                      <span className="text-xs opacity-70">{open ? "−" : "+"}</span>
+                      <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
                     </button>
 
                     {open ? (
@@ -747,21 +824,22 @@ export default function LeagueClient() {
                           <Link
                             key={`${c.slug}-${c.id}`}
                             href={`/leagues/${c.slug}${dateQuery}`}
+                            onClick={() => setLeaguesOpen(false)}
                             className={`block w-full px-3 py-2 rounded-xl border transition ${
                               c.slug === slug
-                                ? "bg-emerald-600 text-white border-emerald-600"
-                                : "bg-white border-neutral-200 hover:bg-white/90 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
+                                ? "bg-emerald-400 text-black border-emerald-300"
+                                : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
                             }`}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="text-sm font-medium truncate">{c.name}</div>
                               {c.is_featured ? (
-                                <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-600 text-white">
+                                <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300 text-black">
                                   PIN
                                 </span>
                               ) : null}
                             </div>
-                            <div className="text-xs opacity-70">{c.region ?? ""}</div>
+                            <div className="text-xs opacity-80">{c.region ?? ""}</div>
                           </Link>
                         ))}
                       </div>
@@ -770,254 +848,175 @@ export default function LeagueClient() {
                 );
               })}
             </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  </aside>
 
-            {leaguesOpen ? (
-              <div className="lg:hidden fixed inset-0 z-50">
-                <button className="absolute inset-0 bg-black/40" onClick={() => setLeaguesOpen(false)} aria-label="Close leagues overlay" />
+  {/* CONTENT */}
+  <section className="space-y-4 min-w-0 text-white">
+    <div>
+      <h2 className="text-xl font-bold">Matches</h2>
+      <p className="text-sm text-white/80">
+        {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> • {t("round")}:{" "}
+        <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
+        <span className="font-semibold">{timeZone}</span>
+      </p>
+    </div>
 
-                <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-950 shadow-2xl overflow-hidden">
-                  <div className="px-4 py-3 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
-                    <div className="font-extrabold">{t("leagues")}</div>
-                    <button
-                      onClick={() => setLeaguesOpen(false)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-extrabold border border-neutral-200 bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                    >
-                      {t("close")}
-                    </button>
-                  </div>
+    {loadingLeague ? (
+      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
+        {t("loadingLeague")}
+      </div>
+    ) : err ? (
+      <div className="rounded-2xl border border-red-400/40 bg-red-500/10 backdrop-blur p-6 text-white">
+        <div className="font-bold">Error</div>
+        <div className="mt-2 text-sm opacity-90">{err}</div>
+      </div>
+    ) : roundMeta.length === 0 ? (
+      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
+        {t("noMatchesSeason")}
+      </div>
+    ) : loadingMatches ? (
+      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
+        {t("loadingMatches")}
+      </div>
+    ) : matches.length === 0 ? (
+      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
+        {t("noMatchesRound")}
+      </div>
+    ) : (
+      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur overflow-hidden">
+        <div className="px-4 py-3 flex items-center justify-between border-b border-white/10">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
+            <div className="font-semibold truncate">{comp?.name ?? "League"}</div>
+          </div>
+          <div className="text-sm text-white/70 truncate">{comp?.region ?? ""}</div>
+        </div>
 
-                  <div className="p-3 overflow-y-auto max-h-[calc(85vh-56px)] space-y-3">
-                    {groupedCompetitions.map(([groupName, comps]) => {
-                      const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
-                      const featuredCount = comps.filter((x) => x.is_featured).length;
+        <div className="divide-y divide-white/10">
+          {matches.map((m) => {
+            const label = timeLabelFor(m);
+            const liveRow = m.status === "LIVE" ? "ring-1 ring-red-400/40 bg-red-500/10" : "";
 
-                      return (
-                        <div
-                          key={groupName}
-                          className="rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900/40 overflow-hidden"
-                        >
-                          <button
-                            onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
-                            className="w-full px-3 py-2 flex items-center justify-between text-left"
-                          >
-                            <div className="min-w-0">
-                              <div className="text-sm font-extrabold truncate">{groupName}</div>
-                              <div className="text-[11px] opacity-70">
-                                {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
-                              </div>
-                            </div>
-                            <span className="text-xs opacity-70">{open ? "−" : "+"}</span>
-                          </button>
-
-                          {open ? (
-                            <div className="px-2 pb-2 space-y-2">
-                              {comps.map((c) => (
-                                <Link
-                                  key={`${c.slug}-${c.id}`}
-                                  href={`/leagues/${c.slug}${dateQuery}`}
-                                  onClick={() => setLeaguesOpen(false)}
-                                  className={`block w-full px-3 py-2 rounded-xl border transition ${
-                                    c.slug === slug
-                                      ? "bg-emerald-600 text-white border-emerald-600"
-                                      : "bg-white border-neutral-200 hover:bg-white/90 dark:bg-neutral-900 dark:border-white/10 dark:hover:bg-neutral-800"
-                                  }`}
-                                >
-                                  <div className="flex items-center justify-between gap-2">
-                                    <div className="text-sm font-medium truncate">{c.name}</div>
-                                    {c.is_featured ? (
-                                      <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-600 text-white">
-                                        PIN
-                                      </span>
-                                    ) : null}
-                                  </div>
-                                  <div className="text-xs opacity-70">{c.region ?? ""}</div>
-                                </Link>
-                              ))}
-                            </div>
-                          ) : null}
-                        </div>
-                      );
-                    })}
+            return (
+              <div
+                key={m.id}
+                className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/5 ${liveRow}`}
+              >
+                <div className="w-32 shrink-0">
+                  <div className="text-lg font-extrabold tracking-tight">{label}</div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <StatusBadge status={m.status} />
+                    <span className="text-xs text-white/70">{formatDateShortTZ(m.match_date, timeZone)}</span>
                   </div>
                 </div>
-              </div>
-            ) : null}
-          </div>
-        </aside>
 
-        <section className="space-y-4 min-w-0">
-          <div>
-            <h2 className="text-xl font-bold">Matches</h2>
-            <p className="text-sm text-neutral-700 dark:text-white/60">
-              {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> • {t("round")}:{" "}
-              <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
-              <span className="font-semibold">{timeZone}</span>
-            </p>
-          </div>
-
-          {loadingLeague ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              {t("loadingLeague")}
-            </div>
-          ) : err ? (
-            <div className="rounded-2xl border border-red-300 bg-white/70 backdrop-blur p-6 text-neutral-800 dark:border-red-500/40 dark:bg-neutral-950 dark:text-white/80">
-              <div className="font-bold">Error</div>
-              <div className="mt-2 text-sm opacity-80">{err}</div>
-            </div>
-          ) : roundMeta.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              {t("noMatchesSeason")}
-            </div>
-          ) : loadingMatches ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              {t("loadingMatches")}
-            </div>
-          ) : matches.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-8 text-center text-neutral-700 dark:border-white/10 dark:bg-neutral-950 dark:text-white/70">
-              {t("noMatchesRound")}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur overflow-hidden dark:border-white/10 dark:bg-neutral-950">
-              <div className="px-4 py-3 flex items-center justify-between border-b border-neutral-200 dark:border-white/10">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
-                  <div className="font-semibold truncate">{comp?.name ?? "League"}</div>
-                </div>
-                <div className="text-sm text-neutral-700 dark:text-white/60 truncate">{comp?.region ?? ""}</div>
-              </div>
-
-              <div className="divide-y divide-neutral-200 dark:divide-white/10">
-                {matches.map((m) => {
-                  const label = timeLabelFor(m);
-                  const liveRow = m.status === "LIVE" ? "ring-1 ring-red-500/40 bg-red-50/60 dark:bg-red-500/10" : "";
-
-                  return (
-                    <div key={m.id} className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/60 dark:hover:bg-white/5 ${liveRow}`}>
-                      <div className="w-32 shrink-0">
-                        <div className="text-lg font-extrabold tracking-tight">{label}</div>
-                        <div className="mt-1 flex items-center gap-2">
-                          <StatusBadge status={m.status} />
-                          <span className="text-xs opacity-70">{formatDateShortTZ(m.match_date, timeZone)}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
-                        <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <div className="flex items-center gap-2 min-w-0">
-                            {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
-                            <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
-                          </div>
-                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.home_score ?? "-"}</span>
-                        </div>
-
-                        <div className="flex items-center justify-between rounded-xl bg-white/90 border border-neutral-200 px-3 py-2 dark:bg-neutral-900 dark:border-white/10">
-                          <div className="flex items-center gap-2 min-w-0">
-                            {m.away_team?.name ? <TeamAvatar name={m.away_team.name} /> : null}
-                            <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
-                          </div>
-                          <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.away_score ?? "-"}</span>
-                        </div>
-                      </div>
-
-                      <div className="hidden md:block w-48 text-right text-xs text-neutral-700 dark:text-white/50 shrink-0">
-                        {m.venue ? <div className="truncate">{m.venue}</div> : null}
-                        <div className="mt-1 font-extrabold tabular-nums">{formatScore(m.status, m.home_score, m.away_score)}</div>
-                      </div>
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                  <div className="flex items-center justify-between rounded-xl bg-black/20 border border-white/10 px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
+                      <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
                     </div>
+                    <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.home_score ?? "-"}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl bg-black/20 border border-white/10 px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {m.away_team?.name ? <TeamAvatar name={m.away_team.name} /> : null}
+                      <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
+                    </div>
+                    <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.away_score ?? "-"}</span>
+                  </div>
+                </div>
+
+                <div className="hidden md:block w-48 text-right text-xs text-white/70 shrink-0">
+                  {m.venue ? <div className="truncate">{m.venue}</div> : null}
+                  <div className="mt-1 font-extrabold tabular-nums text-white">{formatScore(m.status, m.home_score, m.away_score)}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="px-4 py-3 border-t border-white/10 flex justify-end">
+          <Link
+            href={`/leagues/${slug}${dateQuery}`}
+            className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-400 text-black hover:bg-emerald-300"
+          >
+            {t("openLeague")}
+          </Link>
+        </div>
+      </div>
+    )}
+
+    {/* STANDINGS CARD */}
+    <div className="rounded-2xl border border-white/10 bg-white/10 p-4 sm:p-6 backdrop-blur min-w-0">
+      <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
+        <div className="font-bold text-base">{t("standings")}</div>
+        <div className="text-xs text-white/70 truncate">
+          {t("season")}: {season?.name ?? "—"}
+        </div>
+      </div>
+
+      {standings.length === 0 ? (
+        <div className="text-sm text-white/80 mt-4">{t("comingSoon")}</div>
+      ) : (
+        <>
+          <div className="mb-3 text-[11px] text-white/70">{t("computedFromFT")}</div>
+
+          <div className="mt-2 overflow-x-auto rounded-xl border border-white/10 bg-black/20">
+            <table className="w-full text-xs table-auto">
+              <thead className="text-xs text-white/70 border-b border-white/10">
+                <tr>
+                  <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
+                  <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
+                  <th className="text-right py-2 w-[30px]">PJ</th>
+                  <th className="text-right py-2 w-[30px]">W</th>
+                  <th className="text-right py-2 w-[30px]">D</th>
+                  <th className="text-right py-2 w-[30px]">L</th>
+                  <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
+                  <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
+                  <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-white/10">
+                {standings.map((r, idx) => {
+                  const pos = r.position ?? idx + 1;
+                  return (
+                    <tr key={r.teamId} className="hover:bg-white/5 transition">
+                      <td className="py-2 pl-2 pr-2 text-xs text-white/70 tabular-nums">{pos}</td>
+
+                      <td className="py-2 font-medium w-[220px] sm:w-[320px] max-w-[320px]">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <TeamAvatar name={r.team} />
+                          <span className="truncate">{r.team}</span>
+                        </div>
+                      </td>
+
+                      <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                      <td className="py-2 text-right tabular-nums">{r.w}</td>
+                      <td className="py-2 text-right tabular-nums">{r.d}</td>
+                      <td className="py-2 text-right tabular-nums">{r.l}</td>
+
+                      <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
+                      <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
+
+                      <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                    </tr>
                   );
                 })}
-              </div>
-
-              <div className="px-4 py-3 border-t border-neutral-200 dark:border-white/10 flex justify-end">
-                <Link href={`/leagues/${slug}${dateQuery}`} className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-600 text-white hover:bg-emerald-700">
-                  {t("openLeague")}
-                </Link>
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm dark:border-white/10 dark:bg-neutral-950 min-w-0">
-            <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
-              <div className="font-bold text-base">{t("standings")}</div>
-              <div className="text-xs text-neutral-700 dark:text-white/60 truncate">
-                {t("season")}: {season?.name ?? "—"}
-              </div>
-            </div>
-
-            {standings.length === 0 ? (
-              <div className="text-sm text-neutral-700 dark:text-white/60 mt-4">{t("comingSoon")}</div>
-            ) : (
-              <>
-                {hasStandingsRules ? (
-                  <div className="mb-4 flex flex-wrap gap-2 text-[11px]">
-                    <span className="px-2 py-1 rounded-full bg-emerald-600/15 text-emerald-800 dark:text-emerald-200 border border-emerald-600/25">
-                      {t("playoffs")}
-                    </span>
-                    <span className="px-2 py-1 rounded-full bg-red-600/15 text-red-800 dark:text-red-200 border border-red-600/25">
-                      {t("relegation")}
-                    </span>
-                    <span className="px-2 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 opacity-80">
-                      {t("computedFromFT")}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="mb-4 text-[11px] opacity-70">{t("computedFromFT")}</div>
-                )}
-
-                <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-900">
-                  <table className="w-full text-xs table-auto">
-                    <thead className="text-xs text-neutral-600 dark:text-white/60 border-b border-neutral-200 dark:border-white/10">
-                      <tr>
-                        <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
-                        <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
-                        <th className="text-right py-2 w-[30px]">PJ</th>
-                        <th className="text-right py-2 w-[30px]">W</th>
-                        <th className="text-right py-2 w-[30px]">D</th>
-                        <th className="text-right py-2 w-[30px]">L</th>
-                        <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
-                        <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
-                        <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
-                      </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10 border-t border-neutral-200 dark:border-white/10">
-                      {standings.map((r, idx) => {
-                        const rowClass =
-                          r.badge === "champions" ? "bg-emerald-600/10" : r.badge === "relegation" ? "bg-red-600/10" : "";
-                        const pos = r.position ?? idx + 1;
-
-                        return (
-                          <tr key={r.teamId} className={`${rowClass} hover:bg-black/5 dark:hover:bg-white/5 transition`}>
-                            <td className="py-2 pl-2 pr-2 text-xs opacity-70 tabular-nums">{pos}</td>
-
-                            <td className="py-2 font-medium w-[220px] sm:w-[320px] max-w-[320px]">
-                              <div className="flex items-center gap-1 min-w-0">
-                                <TeamAvatar name={r.team} />
-                                <span className="truncate">{r.team}</span>
-                              </div>
-                            </td>
-
-                            <td className="py-2 text-right tabular-nums">{r.pj}</td>
-                            <td className="py-2 text-right tabular-nums">{r.w}</td>
-                            <td className="py-2 text-right tabular-nums">{r.d}</td>
-                            <td className="py-2 text-right tabular-nums">{r.l}</td>
-
-                            <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
-                            <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
-
-                            <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
+              </tbody>
+            </table>
           </div>
-        </section>
-      </main>
-
+        </>
+      )}
+    </div>
+  </section>
+</main>
       <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-neutral-800 dark:text-white/40">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="min-w-0">

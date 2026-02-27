@@ -1,0 +1,30 @@
+name: sync-standings (every 6h)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+concurrency:
+  group: rugby-now-standings
+  cancel-in-progress: true
+
+jobs:
+  sync_standings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Run standings sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STANDINGS_URLS: ${{ vars.STANDINGS_URLS }}
+        run: npx tsx scripts/sync-standings.ts

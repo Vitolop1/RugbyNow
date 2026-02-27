@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 
@@ -35,10 +36,7 @@ type Competition = {
   is_featured?: boolean | null;
 };
 
-/**
- * matches_view row type (from the SQL view)
- */
-type DbMatchViewRow = {
+type DbMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
@@ -49,21 +47,21 @@ type DbMatchViewRow = {
   round: number | null;
   venue: string | null;
 
-  home_team_id: number | null;
-  home_team_name: string | null;
-  home_team_slug: string | null;
+  home_team: { id: number; name: string; slug: string } | null;
+  away_team: { id: number; name: string; slug: string } | null;
 
-  away_team_id: number | null;
-  away_team_name: string | null;
-  away_team_slug: string | null;
-
-  season_id: number | null;
-  season_name: string | null;
-
-  competition_id: number | null;
-  competition_name: string | null;
-  competition_slug: string | null;
-  competition_region: string | null;
+  season:
+    | {
+        id: number;
+        name: string;
+        competition: {
+          id: number;
+          name: string;
+          slug: string;
+          region: string | null;
+        } | null;
+      }
+    | null;
 };
 
 function StatusBadge({ status }: { status: MatchStatus }) {
@@ -111,21 +109,41 @@ function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
 
-/**
- * IMPORTANT: This assumes kickoff_time in DB is UTC (or intended to be treated as UTC).
- * If your kickoff_time is local-to-competition, remove the trailing "Z".
- */
 function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
-  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time; // supports HH:MM or HH:MM:SS
+  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
+  // Si tu kickoff_time está guardado como UTC, esto está perfecto.
   const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
 
+// Dedupe simple para esconder duplicados aunque existan en DB.
+// Clave por compSlug + match_date + kickoff_time + home + away + status
+function dedupeBlock(block: LeagueBlock) {
+  const seen = new Set<string>();
+  const out: Match[] = [];
+  for (const m of block.matches) {
+    const key = `${block.slug}|${m.timeLabel}|${m.home}|${m.away}|${m.status}|${m.hs ?? ""}|${m.as ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(m);
+  }
+  return { ...block, matches: out };
+}
+
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
+
+  // Inicial: si viene ?date=YYYY-MM-DD, úsalo.
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const d = searchParams?.get("date");
+    if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) return fromISODateLocal(d);
+    return new Date();
+  });
 
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
@@ -141,6 +159,10 @@ export default function Home() {
   const selectedISO = toISODateLocal(selectedDate);
   const dateQuery = `?date=${selectedISO}`;
 
+  // Evita loop infinito cuando sincronizamos URL
+  const lastPushedISO = useRef<string>("");
+
+  // TZ persist
   useEffect(() => {
     const saved = localStorage.getItem("tz");
     if (saved) setTimeZone(saved);
@@ -149,6 +171,26 @@ export default function Home() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
+  // Sync state <- URL cuando cambia el searchParams (ej: usuario pega link)
+  useEffect(() => {
+    const d = searchParams?.get("date");
+    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+    const iso = d;
+    if (iso !== toISODateLocal(selectedDate)) {
+      setSelectedDate(fromISODateLocal(iso));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Sync URL <- state cuando cambia la fecha (para que navegar funcione)
+  useEffect(() => {
+    if (lastPushedISO.current === selectedISO) return;
+    lastPushedISO.current = selectedISO;
+    router.replace(`/${dateQuery}`, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedISO]);
+
+  // Load competitions
   useEffect(() => {
     const loadComps = async () => {
       setCompLoading(true);
@@ -250,6 +292,7 @@ export default function Home() {
     return entries;
   }, [dedupedCompetitions]);
 
+  // Load matches for selected date
   useEffect(() => {
     let cancelled = false;
     let timer: any = null;
@@ -261,7 +304,7 @@ export default function Home() {
       const dayISO = toISODateLocal(selectedDate);
 
       const { data, error } = await supabase
-        .from("matches_view")
+        .from("matches")
         .select(
           `
           id,
@@ -273,15 +316,18 @@ export default function Home() {
           away_score,
           round,
           venue,
-          home_team_name,
-          away_team_name,
-          competition_name,
-          competition_slug,
-          competition_region
+          home_team:home_team_id ( id, name, slug ),
+          away_team:away_team_id ( id, name, slug ),
+          season:season_id (
+            id,
+            name,
+            competition:competition_id ( id, name, slug, region )
+          )
         `
         )
         .eq("match_date", dayISO)
-        .order("kickoff_time", { ascending: true });
+        .order("kickoff_time", { ascending: true })
+        .limit(2000);
 
       if (cancelled) return;
 
@@ -293,16 +339,16 @@ export default function Home() {
         return;
       }
 
-      const rows = (data || []) as unknown as DbMatchViewRow[];
+      const rows = (data || []) as unknown as DbMatchRow[];
       const map = new Map<string, LeagueBlock>();
       let hasLive = false;
 
       for (const r of rows) {
         if (r.status === "LIVE") hasLive = true;
 
-        const compName = r.competition_name ?? "Unknown Competition";
-        const compSlug = r.competition_slug ?? "unknown";
-        const region = r.competition_region ?? "";
+        const compName = r.season?.competition?.name ?? "Unknown Competition";
+        const compSlug = r.season?.competition?.slug ?? "unknown";
+        const region = r.season?.competition?.region ?? "";
 
         const kickoffLabel =
           r.status === "LIVE"
@@ -316,8 +362,8 @@ export default function Home() {
 
         const match: Match = {
           timeLabel: kickoffLabel,
-          home: r.home_team_name ?? "TBD",
-          away: r.away_team_name ?? "TBD",
+          home: r.home_team?.name ?? "TBD",
+          away: r.away_team?.name ?? "TBD",
           hs,
           as,
           status: r.status,
@@ -327,7 +373,10 @@ export default function Home() {
         map.get(compSlug)!.matches.push(match);
       }
 
-      setBlocks(Array.from(map.values()));
+      const blocksRaw = Array.from(map.values());
+      const blocksDeduped = blocksRaw.map(dedupeBlock);
+
+      setBlocks(blocksDeduped);
       setLoading(false);
 
       const nextMs = hasLive ? 10_000 : 60_000;
@@ -351,7 +400,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
-      {/* glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-44 left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-emerald-300/15 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-lime-200/10 blur-3xl" />
@@ -361,7 +409,6 @@ export default function Home() {
         <AppHeader showTabs tab={tab} setTab={setTab} />
 
         <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-          {/* ASIDE */}
           <aside className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4 h-fit space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -472,7 +519,6 @@ export default function Home() {
             </div>
           </aside>
 
-          {/* MAIN */}
           <section className="space-y-4 min-w-0">
             <div>
               <h2 className="text-xl font-bold text-white">Matches</h2>

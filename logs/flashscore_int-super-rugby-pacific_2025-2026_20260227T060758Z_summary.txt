@@ -1,0 +1,20 @@
+competition: Super Rugby Pacific (int-super-rugby-pacific)
+season: 2025/2026
+results: 10
+fixtures: 67
+upsert_ok: 77
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Crusaders', 'away': 'Brumbies', 'home_score': 24, 'away_score': 50, 'status': 'FT', 'kickoff_time': '21:35:00', 'match_date': '2026-02-21', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-21-21-35-00-crusaders-brumbies'}
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Western Force', 'away': 'Blues', 'home_score': 32, 'away_score': 42, 'status': 'FT', 'kickoff_time': '03:35:00', 'match_date': '2026-02-21', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-21-03-35-00-western-force-blues'}
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Highlanders', 'away': 'Chiefs', 'home_score': 23, 'away_score': 26, 'status': 'FT', 'kickoff_time': '01:05:00', 'match_date': '2026-02-21', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-21-01-05-00-highlanders-chiefs'}
+{'round': None, 'month': 'Feb', 'day': 20, 'home': 'Waratahs', 'away': 'Fijian Drua', 'home_score': 36, 'away_score': 13, 'status': 'FT', 'kickoff_time': '03:35:00', 'match_date': '2026-02-20', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-20-03-35-00-waratahs-fijian-drua'}
+{'round': None, 'month': 'Feb', 'day': 20, 'home': 'Hurricanes', 'away': 'Moana Pasifika', 'home_score': 52, 'away_score': 10, 'status': 'FT', 'kickoff_time': '01:05:00', 'match_date': '2026-02-20', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-20-01-05-00-hurricanes-moana-pasifika'}
+
+fixtures_preview:
+{'round': None, 'month': 'Feb', 'day': 27, 'home': 'Moana Pasifika', 'away': 'Western Force', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '01:05:00', 'match_date': '2026-02-27', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-27-01-05-00-moana-pasifika-western-force'}
+{'round': None, 'month': 'Feb', 'day': 27, 'home': 'Reds', 'away': 'Highlanders', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '03:35:00', 'match_date': '2026-02-27', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-27-03-35-00-reds-highlanders'}
+{'round': None, 'month': 'Feb', 'day': 27, 'home': 'Fijian Drua', 'away': 'Hurricanes', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '22:35:00', 'match_date': '2026-02-27', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-27-22-35-00-fijian-drua-hurricanes'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Chiefs', 'away': 'Crusaders', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '01:05:00', 'match_date': '2026-02-28', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-28-01-05-00-chiefs-crusaders'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Brumbies', 'away': 'Blues', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '03:35:00', 'match_date': '2026-02-28', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-28-03-35-00-brumbies-blues'}

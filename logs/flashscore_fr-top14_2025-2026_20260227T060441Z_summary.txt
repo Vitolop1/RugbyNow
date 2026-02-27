@@ -1,0 +1,20 @@
+competition: Top 14 (fr-top14)
+season: 2025/2026
+results: 119
+fixtures: 63
+upsert_ok: 182
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Feb', 'day': 22, 'home': 'USA Perpignan', 'away': 'Section Paloise', 'home_score': 40, 'away_score': 24, 'status': 'FT', 'kickoff_time': '12:15:00', 'match_date': '2026-02-22', 'source_event_key': 'fr-top14-2025-2026-2026-02-22-12-15-00-usa-perpignan-section-paloise'}
+{'round': None, 'month': 'Feb', 'day': 15, 'home': 'Stade Francais Paris', 'away': 'Stade Toulousain', 'home_score': 9, 'away_score': 13, 'status': 'FT', 'kickoff_time': '15:05:00', 'match_date': '2026-02-15', 'source_event_key': 'fr-top14-2025-2026-2026-02-15-15-05-00-stade-francais-paris-stade-toulousain'}
+{'round': None, 'month': 'Feb', 'day': 14, 'home': 'RC Toulonnais', 'away': 'Clermont', 'home_score': 14, 'away_score': 34, 'status': 'FT', 'kickoff_time': '15:00:00', 'match_date': '2026-02-14', 'source_event_key': 'fr-top14-2025-2026-2026-02-14-15-00-00-rc-toulonnais-clermont'}
+{'round': None, 'month': 'Feb', 'day': 14, 'home': 'Aviron Bayonnais', 'away': 'Racing 92', 'home_score': 36, 'away_score': 41, 'status': 'FT', 'kickoff_time': '10:35:00', 'match_date': '2026-02-14', 'source_event_key': 'fr-top14-2025-2026-2026-02-14-10-35-00-aviron-bayonnais-racing-92'}
+{'round': None, 'month': 'Feb', 'day': 14, 'home': 'Lyon', 'away': 'Montauban', 'home_score': 73, 'away_score': 12, 'status': 'FT', 'kickoff_time': '10:35:00', 'match_date': '2026-02-14', 'source_event_key': 'fr-top14-2025-2026-2026-02-14-10-35-00-lyon-montauban'}
+
+fixtures_preview:
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Clermont', 'away': 'Aviron Bayonnais', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '08:30:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-08-30-00-clermont-aviron-bayonnais'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Lyon', 'away': 'RC Toulonnais', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:35:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-10-35-00-lyon-rc-toulonnais'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Montpellier', 'away': 'Racing 92', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:35:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-10-35-00-montpellier-racing-92'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Stade Francais Paris', 'away': 'USA Perpignan', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:35:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-10-35-00-stade-francais-paris-usa-perpignan'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Stade Toulousain', 'away': 'Montauban', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:35:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-10-35-00-stade-toulousain-montauban'}

@@ -35,7 +35,10 @@ type Competition = {
   is_featured?: boolean | null;
 };
 
-type DbMatchRow = {
+/**
+ * matches_view row type (from the SQL view)
+ */
+type DbMatchViewRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
@@ -46,21 +49,21 @@ type DbMatchRow = {
   round: number | null;
   venue: string | null;
 
-  home_team: { id: number; name: string; slug: string } | null;
-  away_team: { id: number; name: string; slug: string } | null;
+  home_team_id: number | null;
+  home_team_name: string | null;
+  home_team_slug: string | null;
 
-  season:
-    | {
-        id: number;
-        name: string;
-        competition: {
-          id: number;
-          name: string;
-          slug: string;
-          region: string | null;
-        } | null;
-      }
-    | null;
+  away_team_id: number | null;
+  away_team_name: string | null;
+  away_team_slug: string | null;
+
+  season_id: number | null;
+  season_name: string | null;
+
+  competition_id: number | null;
+  competition_name: string | null;
+  competition_slug: string | null;
+  competition_region: string | null;
 };
 
 function StatusBadge({ status }: { status: MatchStatus }) {
@@ -108,9 +111,13 @@ function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
 
+/**
+ * IMPORTANT: This assumes kickoff_time in DB is UTC (or intended to be treated as UTC).
+ * If your kickoff_time is local-to-competition, remove the trailing "Z".
+ */
 function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
-  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
+  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time; // supports HH:MM or HH:MM:SS
   const dt = new Date(`${match_date}T${t}Z`);
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
 }
@@ -254,7 +261,7 @@ export default function Home() {
       const dayISO = toISODateLocal(selectedDate);
 
       const { data, error } = await supabase
-        .from("matches")
+        .from("matches_view")
         .select(
           `
           id,
@@ -266,13 +273,11 @@ export default function Home() {
           away_score,
           round,
           venue,
-          home_team:home_team_id ( id, name, slug ),
-          away_team:away_team_id ( id, name, slug ),
-          season:season_id (
-            id,
-            name,
-            competition:competition_id ( id, name, slug, region )
-          )
+          home_team_name,
+          away_team_name,
+          competition_name,
+          competition_slug,
+          competition_region
         `
         )
         .eq("match_date", dayISO)
@@ -288,16 +293,16 @@ export default function Home() {
         return;
       }
 
-      const rows = (data || []) as unknown as DbMatchRow[];
+      const rows = (data || []) as unknown as DbMatchViewRow[];
       const map = new Map<string, LeagueBlock>();
       let hasLive = false;
 
       for (const r of rows) {
         if (r.status === "LIVE") hasLive = true;
 
-        const compName = r.season?.competition?.name ?? "Unknown Competition";
-        const compSlug = r.season?.competition?.slug ?? "unknown";
-        const region = r.season?.competition?.region ?? "";
+        const compName = r.competition_name ?? "Unknown Competition";
+        const compSlug = r.competition_slug ?? "unknown";
+        const region = r.competition_region ?? "";
 
         const kickoffLabel =
           r.status === "LIVE"
@@ -311,8 +316,8 @@ export default function Home() {
 
         const match: Match = {
           timeLabel: kickoffLabel,
-          home: r.home_team?.name ?? "TBD",
-          away: r.away_team?.name ?? "TBD",
+          home: r.home_team_name ?? "TBD",
+          away: r.away_team_name ?? "TBD",
           hs,
           as,
           status: r.status,

@@ -1,0 +1,20 @@
+competition: Premiership Rugby (en-premiership-rugby)
+season: 2025/2026
+results: 50
+fixtures: 40
+upsert_ok: 90
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Jan', 'day': 24, 'home': 'Sale Sharks', 'away': 'Northampton Saints', 'home_score': 29, 'away_score': 43, 'status': 'FT', 'kickoff_time': '12:30:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-12-30-00-sale-sharks-northampton-saints'}
+{'round': None, 'month': 'Jan', 'day': 24, 'home': 'Harlequins', 'away': 'Leicester Tigers', 'home_score': 7, 'away_score': 36, 'status': 'FT', 'kickoff_time': '10:05:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-10-05-00-harlequins-leicester-tigers'}
+{'round': None, 'month': 'Jan', 'day': 24, 'home': 'Exeter Chiefs', 'away': 'Bristol', 'home_score': 3, 'away_score': 8, 'status': 'FT', 'kickoff_time': '10:00:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-10-00-00-exeter-chiefs-bristol'}
+{'round': None, 'month': 'Jan', 'day': 24, 'home': 'Saracens', 'away': 'Newcastle Red Bulls', 'home_score': 73, 'away_score': 14, 'status': 'FT', 'kickoff_time': '10:00:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-10-00-00-saracens-newcastle-red-bulls'}
+{'round': None, 'month': 'Jan', 'day': 23, 'home': 'Gloucester', 'away': 'Bath', 'home_score': 26, 'away_score': 30, 'status': 'FT', 'kickoff_time': '14:45:00', 'match_date': '2026-01-23', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-23-14-45-00-gloucester-bath'}
+
+fixtures_preview:
+{'round': None, 'month': 'Mar', 'day': 20, 'home': 'Bath', 'away': 'Saracens', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '15:45:00', 'match_date': '2026-03-20', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-20-15-45-00-bath-saracens'}
+{'round': None, 'month': 'Mar', 'day': 21, 'home': 'Harlequins', 'away': 'Gloucester', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:00:00', 'match_date': '2026-03-21', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-21-11-00-00-harlequins-gloucester'}
+{'round': None, 'month': 'Mar', 'day': 21, 'home': 'Northampton Saints', 'away': 'Newcastle Red Bulls', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:00:00', 'match_date': '2026-03-21', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-21-11-00-00-northampton-saints-newcastle-red-bulls'}
+{'round': None, 'month': 'Mar', 'day': 21, 'home': 'Exeter Chiefs', 'away': 'Sale Sharks', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:05:00', 'match_date': '2026-03-21', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-21-11-05-00-exeter-chiefs-sale-sharks'}
+{'round': None, 'month': 'Mar', 'day': 22, 'home': 'Leicester Tigers', 'away': 'Bristol', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:00:00', 'match_date': '2026-03-22', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-22-11-00-00-leicester-tigers-bristol'}

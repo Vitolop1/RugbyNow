@@ -1,0 +1,19 @@
+competition: Super Rugby Americas (sra)
+season: 2025/2026
+results: 4
+fixtures: 52
+upsert_ok: 56
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Feb', 'day': 23, 'home': 'Dogos XV', 'away': 'Cobras', 'home_score': 21, 'away_score': 19, 'status': 'FT', 'kickoff_time': '18:00:00', 'match_date': '2026-02-23', 'source_event_key': 'sra-2025-2026-2026-02-23-18-00-00-dogos-xv-cobras'}
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Capibaras', 'away': 'Penarol', 'home_score': 34, 'away_score': 7, 'status': 'FT', 'kickoff_time': '18:30:00', 'match_date': '2026-02-21', 'source_event_key': 'sra-2025-2026-2026-02-21-18-30-00-capibaras-penarol'}
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Yacare XV', 'away': 'Pampas XV', 'home_score': 17, 'away_score': 30, 'status': 'FT', 'kickoff_time': '16:30:00', 'match_date': '2026-02-21', 'source_event_key': 'sra-2025-2026-2026-02-21-16-30-00-yacare-xv-pampas-xv'}
+{'round': None, 'month': 'Feb', 'day': 20, 'home': 'Tarucas', 'away': 'Selknam', 'home_score': 41, 'away_score': 13, 'status': 'FT', 'kickoff_time': '18:00:00', 'match_date': '2026-02-20', 'source_event_key': 'sra-2025-2026-2026-02-20-18-00-00-tarucas-selknam'}
+
+fixtures_preview:
+{'round': None, 'month': 'Feb', 'day': 27, 'home': 'Penarol', 'away': 'Tarucas', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-27', 'source_event_key': 'sra-2025-2026-2026-02-27-14-00-00-penarol-tarucas'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Capibaras', 'away': 'Cobras', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-28', 'source_event_key': 'sra-2025-2026-2026-02-28-14-00-00-capibaras-cobras'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Pampas XV', 'away': 'Dogos XV', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-28', 'source_event_key': 'sra-2025-2026-2026-02-28-14-00-00-pampas-xv-dogos-xv'}
+{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Selknam', 'away': 'Yacare XV', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-28', 'source_event_key': 'sra-2025-2026-2026-02-28-14-00-00-selknam-yacare-xv'}
+{'round': None, 'month': 'Mar', 'day': 6, 'home': 'Pampas XV', 'away': 'Capibaras', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-03-06', 'source_event_key': 'sra-2025-2026-2026-03-06-14-00-00-pampas-xv-capibaras'}

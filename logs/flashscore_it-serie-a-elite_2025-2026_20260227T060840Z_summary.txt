@@ -1,0 +1,20 @@
+competition: Serie A Elite (it-serie-a-elite)
+season: 2025/2026
+results: 55
+fixtures: 35
+upsert_ok: 90
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Feb', 'day': 15, 'home': 'Rovigo', 'away': 'Mogliano', 'home_score': 28, 'away_score': 0, 'status': 'FT', 'kickoff_time': '09:00:00', 'match_date': '2026-02-15', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-15-09-00-00-rovigo-mogliano'}
+{'round': None, 'month': 'Feb', 'day': 15, 'home': 'Fiamme Oro', 'away': 'Rugby Lyons', 'home_score': 73, 'away_score': 7, 'status': 'FT', 'kickoff_time': '08:30:00', 'match_date': '2026-02-15', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-15-08-30-00-fiamme-oro-rugby-lyons'}
+{'round': None, 'month': 'Feb', 'day': 15, 'home': 'Colorno', 'away': 'Petrarca Padova', 'home_score': 7, 'away_score': 61, 'status': 'FT', 'kickoff_time': '08:00:00', 'match_date': '2026-02-15', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-15-08-00-00-colorno-petrarca-padova'}
+{'round': None, 'month': 'Feb', 'day': 14, 'home': 'Viadana', 'away': 'Biella', 'home_score': 50, 'away_score': 0, 'status': 'FT', 'kickoff_time': '07:00:00', 'match_date': '2026-02-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-14-07-00-00-viadana-biella'}
+{'round': None, 'month': 'Feb', 'day': 14, 'home': 'Vicenza', 'away': 'Emilia', 'home_score': 7, 'away_score': 33, 'status': 'FT', 'kickoff_time': '07:00:00', 'match_date': '2026-02-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-14-07-00-00-vicenza-emilia'}
+
+fixtures_preview:
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Emilia', 'away': 'Biella', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-emilia-biella'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Mogliano', 'away': 'Colorno', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-mogliano-colorno'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Petrarca Padova', 'away': 'Fiamme Oro', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-petrarca-padova-fiamme-oro'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Rugby Lyons', 'away': 'Viadana', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-rugby-lyons-viadana'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Vicenza', 'away': 'Rovigo', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-vicenza-rovigo'}

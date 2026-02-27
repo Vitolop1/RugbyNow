@@ -1,29 +1,66 @@
 # scripts/sync_flashscore.py
 # ------------------------------------------------------------
-# Sync Flashscore (results + fixtures) into Supabase
-# - Reads competitions from Supabase table: competitions
-# - For each competition that has results_url / fixtures_url:
-#     - loads the page with Playwright
-#     - parses matches from DOM (NO inner_text heuristics for teams/scores)
-#     - upserts teams, seasons, matches into Supabase
-#
-# Requirements:
-#   pip install playwright python-dotenv supabase
-#   playwright install
-#
-# Env (.env.local):
-#   SUPABASE_URL=...
-#   SUPABASE_SERVICE_ROLE_KEY=...
+# Sync Flashscore (results + fixtures) into Supabase + local logs
+# - Redirects ALL prints + errors to a .txt log file
 # ------------------------------------------------------------
 
 import os
 import re
+import json
+import sys
 import asyncio
 from datetime import datetime, timezone
+from contextlib import redirect_stdout, redirect_stderr
 
 from dotenv import load_dotenv
 from supabase import create_client
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+
+
+# -------------------------
+# SIMPLE LOGGER (stdout/stderr to file)
+# -------------------------
+class Tee:
+    """
+    Write to file and (optionally) also to console.
+    """
+    def __init__(self, file_obj, also_console: bool = True):
+        self.file_obj = file_obj
+        self.also_console = also_console
+        self.console = sys.__stdout__
+
+    def write(self, s):
+        try:
+            self.file_obj.write(s)
+            self.file_obj.flush()
+        except:
+            pass
+        if self.also_console:
+            try:
+                self.console.write(s)
+                self.console.flush()
+            except:
+                pass
+
+    def flush(self):
+        try:
+            self.file_obj.flush()
+        except:
+            pass
+        if self.also_console:
+            try:
+                self.console.flush()
+            except:
+                pass
+
+
+def ensure_logs_dir():
+    os.makedirs("logs", exist_ok=True)
+
+def make_run_log_path():
+    ensure_logs_dir()
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"logs/run_{ts}.txt"
 
 
 # -------------------------
@@ -74,16 +111,13 @@ def _is_bad_team(s: str) -> bool:
         return True
     if s in BAD_EXACT:
         return True
-    # evita headers tipo “SOUTH AMERICA:”
     if s.isupper() and len(s) <= 25 and (":" in s or " " in s):
         return True
-    # evita abreviaturas tipo "FRO"
     if len(s) <= 3:
         return True
     return False
 
 async def _get_best_text(loc):
-    # primero, atributos que suelen tener el nombre completo
     for attr in ("title", "aria-label", "data-tooltip"):
         try:
             v = _clean(await loc.get_attribute(attr) or "")
@@ -91,11 +125,46 @@ async def _get_best_text(loc):
                 return v
         except:
             pass
-    # fallback al texto visible
     try:
         return _clean(await loc.inner_text())
     except:
         return ""
+
+
+# -------------------------
+# LOCAL LOG DUMPS (jsonl + summary)
+# -------------------------
+def make_log_paths(comp_slug: str, season_name: str):
+    ensure_logs_dir()
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    safe_season = season_name.replace("/", "-")
+    base = f"logs/flashscore_{comp_slug}_{safe_season}_{ts}"
+    return base + ".jsonl", base + "_summary.txt"
+
+def write_jsonl(path: str, rows: list[dict]):
+    with open(path, "w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+def write_summary(path: str, comp: dict, season_name: str, results_items: list, fixtures_items: list, upsert_ok: int, upsert_fail: int):
+    lines = []
+    lines.append(f"competition: {comp.get('name')} ({comp.get('slug')})")
+    lines.append(f"season: {season_name}")
+    lines.append(f"results: {len(results_items)}")
+    lines.append(f"fixtures: {len(fixtures_items)}")
+    lines.append(f"upsert_ok: {upsert_ok}")
+    lines.append(f"upsert_fail: {upsert_fail}")
+    lines.append("")
+    lines.append("results_preview:")
+    for it in results_items[:5]:
+        lines.append(str(it))
+    lines.append("")
+    lines.append("fixtures_preview:")
+    for it in fixtures_items[:5]:
+        lines.append(str(it))
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
 
 # -------------------------
@@ -140,55 +209,59 @@ def upsert_team(name: str) -> int:
     ins = sb.table("teams").insert({"name": name, "slug": team_slug}).execute()
     return ins.data[0]["id"]
 
-def upsert_matches_bulk(
-    season_id: int,
-    competition_slug: str,
-    season_name: str,
-    items: list,
-    source_url: str,
-):
-    # one-by-one (seguro) — si querés más velocidad, después hacemos batch
+def build_source_event_key(competition_slug: str, season_name: str, match_date: str, kickoff_time: str, home: str, away: str) -> str:
+    return slugify(f"{competition_slug}|{season_name}|{match_date}|{kickoff_time}|{home}|{away}")
+
+def upsert_matches_bulk(season_id: int, competition_slug: str, season_name: str, items: list, source_url: str):
+    ok = 0
+    fail = 0
+
     for it in items:
-        home_id = upsert_team(it["home"])
-        away_id = upsert_team(it["away"])
+        try:
+            home_id = upsert_team(it["home"])
+            away_id = upsert_team(it["away"])
 
-        key = build_source_event_key(
-            competition_slug=competition_slug,
-            season_name=season_name,
-            match_date=it["match_date"],
-            kickoff_time=it["kickoff_time"],
-            home=it["home"],
-            away=it["away"],
-        )
+            key = build_source_event_key(
+                competition_slug=competition_slug,
+                season_name=season_name,
+                match_date=it["match_date"],
+                kickoff_time=it["kickoff_time"],
+                home=it["home"],
+                away=it["away"],
+            )
 
-        payload = {
-            "season_id": season_id,
-            "round": it.get("round"),
-            "match_date": it["match_date"],
-            "kickoff_time": it["kickoff_time"],
-            "status": it["status"],
-            "home_team_id": home_id,
-            "away_team_id": away_id,
-            "home_score": it.get("home_score"),
-            "away_score": it.get("away_score"),
-            "source": "flashscore",
-            "source_event_key": key,
-            "source_url": source_url,
-        }
+            payload = {
+                "season_id": season_id,
+                "round": it.get("round"),
+                "match_date": it["match_date"],
+                "kickoff_time": it["kickoff_time"],
+                "status": it["status"],
+                "home_team_id": home_id,
+                "away_team_id": away_id,
+                "home_score": it.get("home_score"),
+                "away_score": it.get("away_score"),
+                "source": "flashscore",
+                "source_event_key": key,
+                "source_url": source_url,
+            }
 
-        sb.table("matches").upsert(payload, on_conflict="source,source_event_key").execute()
+            sb.table("matches").upsert(
+                payload,
+                on_conflict="season_id,match_date,home_team_id,away_team_id",
+            ).execute()
+            ok += 1
+        except Exception as e:
+            fail += 1
+            print(f"⚠️ upsert failed for {it.get('match_date')} {it.get('home')} vs {it.get('away')} -> {repr(e)}")
+
+    return ok, fail
 
 
 # -------------------------
 # SEASON + DATE LOGIC
 # -------------------------
 async def detect_season_name(page, fallback: str):
-    """
-    Flashscore suele mostrar '2025/2026' en algún lugar.
-    Buscamos un patrón YYYY/YYYY en el texto visible de la página.
-    """
     try:
-        # probamos lugares típicos
         for sel in [".heading__info", ".heading__name", "header", "body"]:
             loc = page.locator(sel).first
             if await loc.count() == 0:
@@ -202,29 +275,16 @@ async def detect_season_name(page, fallback: str):
     return fallback
 
 def infer_season_fallback(now_utc: datetime) -> str:
-    """
-    Rugby seasons in many comps are like 2025/2026.
-    Simple fallback:
-      - If month >= 7 -> season is currentYear/currentYear+1
-      - Else -> previousYear/currentYear
-    """
     y = now_utc.year
     if now_utc.month >= 7:
         return f"{y}/{y+1}"
     return f"{y-1}/{y}"
 
 def year_for_match(season_name: str, month_abbr: str) -> int:
-    """
-    If season is '2025/2026':
-      - months Jul-Dec => 2025
-      - months Jan-Jun => 2026
-    """
     mnum = MONTHS_NUM[month_abbr]
     a, b = season_name.split("/")
     y1, y2 = int(a), int(b)
-    if mnum >= 7:
-        return y1
-    return y2
+    return y1 if mnum >= 7 else y2
 
 def build_match_date(season_name: str, mon: str, day: int) -> str:
     y = year_for_match(season_name, mon)
@@ -233,10 +293,6 @@ def build_match_date(season_name: str, mon: str, day: int) -> str:
     return f"{y:04d}-{mm:02d}-{dd:02d}"
 
 def parse_kickoff_time_from_row_text(txt: str) -> str:
-    """
-    Flashscore a veces muestra 12h (AM/PM), a veces 24h.
-    Si no hay hora, devolvemos 00:00:00.
-    """
     txt = txt or ""
     tm = re.search(r"\b(\d{1,2}):(\d{2})(?:\s?(AM|PM))?\b", txt)
     if not tm:
@@ -253,16 +309,11 @@ def parse_kickoff_time_from_row_text(txt: str) -> str:
             hh = 0
     return f"{hh:02d}:{mm:02d}:00"
 
-def build_source_event_key(competition_slug: str, season_name: str, match_date: str, kickoff_time: str, home: str, away: str) -> str:
-    # clave estable (sin round) para evitar duplicados
-    return slugify(f"{competition_slug}|{season_name}|{match_date}|{kickoff_time}|{home}|{away}")
-
 
 # -------------------------
 # PLAYWRIGHT SCRAPE
 # -------------------------
 async def accept_cookies_if_any(page):
-    # Flashscore mete banners distintos. Intentamos los más comunes.
     candidates = [
         "button:has-text('I Accept')",
         "button:has-text('Accept')",
@@ -281,12 +332,6 @@ async def accept_cookies_if_any(page):
             pass
 
 async def expand_all_events(page):
-    """
-    Algunas páginas cargan más partidos al scrollear o con un botón de "Show more".
-    Hacemos:
-      - scroll varias veces
-      - click en 'Show more matches' si aparece
-    """
     for _ in range(10):
         try:
             await page.mouse.wheel(0, 3000)
@@ -294,7 +339,6 @@ async def expand_all_events(page):
         except:
             pass
 
-        # si existe botón show more, lo clickeamos
         for sel in [
             "a:has-text('Show more matches')",
             "button:has-text('Show more matches')",
@@ -310,44 +354,29 @@ async def expand_all_events(page):
                 pass
 
 async def parse_rows_to_items(page, rows, status: str):
-    """
-    rows: idealmente page.locator(".event__match")
-    status: "FT" (results) o "NS" (fixtures)
-    """
     items = []
-
-    count = await rows.count()
-    count = min(count, 800)
+    count = min(await rows.count(), 800)
 
     for i in range(count):
         row = rows.nth(i)
-
         try:
-            # 1) Home/Away DOM-first
             hloc = row.locator(".event__participant--home").first
             aloc = row.locator(".event__participant--away").first
-
             if await hloc.count() == 0 or await aloc.count() == 0:
                 continue
 
             home = await _get_best_text(hloc)
             away = await _get_best_text(aloc)
-
             if _is_bad_team(home) or _is_bad_team(away):
                 continue
 
-            # 2) Texto row SOLO para fecha/hora/round (no para equipos/score)
             try:
                 txt = (await row.inner_text()).strip()
             except:
                 txt = ""
-
-            if not txt:
-                continue
-            if "Advertisement" in txt or "We Care About Your Privacy" in txt:
+            if not txt or "Advertisement" in txt or "We Care About Your Privacy" in txt:
                 continue
 
-            # Fecha (Mes + día) — si no aparece, lo saltamos (porque no podemos armar match_date)
             dm = re.search(rf"\b{MONTH_RE}\s+(\d{{1,2}})\b", txt)
             if not dm:
                 continue
@@ -356,22 +385,18 @@ async def parse_rows_to_items(page, rows, status: str):
 
             kickoff_time = parse_kickoff_time_from_row_text(txt)
 
-            # Round (si existe)
             round_num = None
             rm = re.search(r"Round\s+(\d+)", txt, re.I)
             if rm:
                 round_num = int(rm.group(1))
 
-            # 3) Score DOM-first
             home_score = None
             away_score = None
-
             if status == "FT":
                 hs_loc = row.locator(".event__score--home").first
                 as_loc = row.locator(".event__score--away").first
 
                 if await hs_loc.count() == 0 or await as_loc.count() == 0:
-                    # fallback alternativo
                     hs_loc = row.locator(".event__score").nth(0)
                     as_loc = row.locator(".event__score").nth(1)
 
@@ -380,13 +405,11 @@ async def parse_rows_to_items(page, rows, status: str):
 
                 hs = _clean(await hs_loc.inner_text())
                 a_s = _clean(await as_loc.inner_text())
-
                 if not re.fullmatch(r"\d{1,3}", hs) or not re.fullmatch(r"\d{1,3}", a_s):
                     continue
 
                 home_score = int(hs)
                 away_score = int(a_s)
-
                 if not (0 <= home_score <= 120 and 0 <= away_score <= 120):
                     continue
 
@@ -401,31 +424,25 @@ async def parse_rows_to_items(page, rows, status: str):
                 "status": status,
                 "kickoff_time": kickoff_time,
             })
-
         except:
             continue
 
     return items
 
 async def scrape_competition(page, comp: dict):
-    """
-    Returns:
-      (season_name, results_items, fixtures_items)
-    """
     now_utc = datetime.now(timezone.utc)
     season_fallback = infer_season_fallback(now_utc)
 
     results_items = []
     fixtures_items = []
+    season_name = season_fallback
 
-    # RESULTS
     if comp.get("results_url"):
         await page.goto(comp["results_url"], wait_until="domcontentloaded", timeout=60000)
         await accept_cookies_if_any(page)
         try:
             await page.wait_for_selector(".event__match", timeout=15000)
         except PlaywrightTimeoutError:
-            # a veces tarda más si hay banners
             await page.wait_for_timeout(2000)
 
         await expand_all_events(page)
@@ -433,18 +450,13 @@ async def scrape_competition(page, comp: dict):
 
         rows = page.locator(".event__match")
         parsed = await parse_rows_to_items(page, rows, status="FT")
-
-        # armar match_date usando season + mon/day
         for it in parsed:
             it["match_date"] = build_match_date(season_name, it["month"], it["day"])
             it["source_event_key"] = build_source_event_key(
                 comp["slug"], season_name, it["match_date"], it["kickoff_time"], it["home"], it["away"]
             )
         results_items = parsed
-    else:
-        season_name = season_fallback
 
-    # FIXTURES
     if comp.get("fixtures_url"):
         await page.goto(comp["fixtures_url"], wait_until="domcontentloaded", timeout=60000)
         await accept_cookies_if_any(page)
@@ -454,13 +466,10 @@ async def scrape_competition(page, comp: dict):
             await page.wait_for_timeout(2000)
 
         await expand_all_events(page)
-
-        # si results no existía, detectamos season acá
         season_name = await detect_season_name(page, fallback=season_name)
 
         rows = page.locator(".event__match")
         parsed = await parse_rows_to_items(page, rows, status="NS")
-
         for it in parsed:
             it["match_date"] = build_match_date(season_name, it["month"], it["day"])
             it["source_event_key"] = build_source_event_key(
@@ -503,32 +512,69 @@ async def main():
             if fixtures_items[:3]:
                 print("fixtures preview:", fixtures_items[:3])
 
+            # dump parsed matches
+            jsonl_path, summary_path = make_log_paths(comp["slug"], season_name)
+            write_jsonl(jsonl_path, results_items + fixtures_items)
+            print(f"📝 wrote local dump: {jsonl_path}")
+
             season_id = get_or_create_season(comp["id"], season_name)
 
+            upsert_ok = 0
+            upsert_fail = 0
+
             if results_items and comp.get("results_url"):
-                upsert_matches_bulk(
+                ok, fail = upsert_matches_bulk(
                     season_id=season_id,
                     competition_slug=comp["slug"],
                     season_name=season_name,
                     items=results_items,
                     source_url=comp["results_url"],
                 )
+                upsert_ok += ok
+                upsert_fail += fail
 
             if fixtures_items and comp.get("fixtures_url"):
-                upsert_matches_bulk(
+                ok, fail = upsert_matches_bulk(
                     season_id=season_id,
                     competition_slug=comp["slug"],
                     season_name=season_name,
                     items=fixtures_items,
                     source_url=comp["fixtures_url"],
                 )
+                upsert_ok += ok
+                upsert_fail += fail
 
-            print("✅ upsert ok")
+            write_summary(
+                summary_path,
+                comp=comp,
+                season_name=season_name,
+                results_items=results_items,
+                fixtures_items=fixtures_items,
+                upsert_ok=upsert_ok,
+                upsert_fail=upsert_fail,
+            )
+            print(f"📝 wrote summary: {summary_path}")
+            print(f"✅ upsert done (ok={upsert_ok}, fail={upsert_fail})")
 
         await context.close()
         await browser.close()
 
     print("\n✅ done")
 
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    # 1) Create ONE run log that captures everything
+    run_log_path = make_run_log_path()
+
+    # 2) Choose whether you still want console output:
+    ALSO_CONSOLE = False   # <- ponelo True si querés verlo también en terminal
+
+    with open(run_log_path, "w", encoding="utf-8") as f:
+        tee = Tee(f, also_console=ALSO_CONSOLE)
+        with redirect_stdout(tee), redirect_stderr(tee):
+            print(f"Run log: {run_log_path}")
+            try:
+                asyncio.run(main())
+            except Exception as e:
+                print(f"❌ fatal: {repr(e)}")
+                raise

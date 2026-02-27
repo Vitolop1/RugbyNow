@@ -1,0 +1,20 @@
+competition: Six Nations (int-six-nations)
+season: 2025/2026
+results: 9
+fixtures: 6
+upsert_ok: 15
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Feb', 'day': 22, 'home': 'France', 'away': 'Italy', 'home_score': 33, 'away_score': 8, 'status': 'FT', 'kickoff_time': '10:10:00', 'match_date': '2026-02-22', 'source_event_key': 'int-six-nations-2025-2026-2026-02-22-10-10-00-france-italy'}
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Wales', 'away': 'Scotland', 'home_score': 23, 'away_score': 26, 'status': 'FT', 'kickoff_time': '11:40:00', 'match_date': '2026-02-21', 'source_event_key': 'int-six-nations-2025-2026-2026-02-21-11-40-00-wales-scotland'}
+{'round': None, 'month': 'Feb', 'day': 21, 'home': 'England', 'away': 'Ireland', 'home_score': 21, 'away_score': 42, 'status': 'FT', 'kickoff_time': '09:10:00', 'match_date': '2026-02-21', 'source_event_key': 'int-six-nations-2025-2026-2026-02-21-09-10-00-england-ireland'}
+{'round': None, 'month': 'Feb', 'day': 15, 'home': 'Wales', 'away': 'France', 'home_score': 12, 'away_score': 54, 'status': 'FT', 'kickoff_time': '10:10:00', 'match_date': '2026-02-15', 'source_event_key': 'int-six-nations-2025-2026-2026-02-15-10-10-00-wales-france'}
+{'round': None, 'month': 'Feb', 'day': 14, 'home': 'Scotland', 'away': 'England', 'home_score': 31, 'away_score': 20, 'status': 'FT', 'kickoff_time': '11:40:00', 'match_date': '2026-02-14', 'source_event_key': 'int-six-nations-2025-2026-2026-02-14-11-40-00-scotland-england'}
+
+fixtures_preview:
+{'round': None, 'month': 'Mar', 'day': 6, 'home': 'Ireland', 'away': 'Wales', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '15:10:00', 'match_date': '2026-03-06', 'source_event_key': 'int-six-nations-2025-2026-2026-03-06-15-10-00-ireland-wales'}
+{'round': None, 'month': 'Mar', 'day': 7, 'home': 'Scotland', 'away': 'France', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:10:00', 'match_date': '2026-03-07', 'source_event_key': 'int-six-nations-2025-2026-2026-03-07-09-10-00-scotland-france'}
+{'round': None, 'month': 'Mar', 'day': 7, 'home': 'Italy', 'away': 'England', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:40:00', 'match_date': '2026-03-07', 'source_event_key': 'int-six-nations-2025-2026-2026-03-07-11-40-00-italy-england'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Ireland', 'away': 'Scotland', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:10:00', 'match_date': '2026-03-14', 'source_event_key': 'int-six-nations-2025-2026-2026-03-14-10-10-00-ireland-scotland'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Wales', 'away': 'Italy', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '12:40:00', 'match_date': '2026-03-14', 'source_event_key': 'int-six-nations-2025-2026-2026-03-14-12-40-00-wales-italy'}

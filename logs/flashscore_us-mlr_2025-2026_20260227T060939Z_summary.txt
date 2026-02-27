@@ -1,0 +1,15 @@
+competition: Major League Rugby (us-mlr)
+season: 2025/2026
+results: 0
+fixtures: 30
+upsert_ok: 30
+upsert_fail: 0
+
+results_preview:
+
+fixtures_preview:
+{'round': None, 'month': 'Mar', 'day': 28, 'home': 'California Legion', 'away': 'Anthem RC', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '18:00:00', 'match_date': '2026-03-28', 'source_event_key': 'us-mlr-2025-2026-2026-03-28-18-00-00-california-legion-anthem-rc'}
+{'round': None, 'month': 'Apr', 'day': 3, 'home': 'Seattle Seawolves', 'away': 'Old Glory DC', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '22:30:00', 'match_date': '2026-04-03', 'source_event_key': 'us-mlr-2025-2026-2026-04-03-22-30-00-seattle-seawolves-old-glory-dc'}
+{'round': None, 'month': 'Apr', 'day': 4, 'home': 'Anthem RC', 'away': 'Chicago Hounds', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '16:00:00', 'match_date': '2026-04-04', 'source_event_key': 'us-mlr-2025-2026-2026-04-04-16-00-00-anthem-rc-chicago-hounds'}
+{'round': None, 'month': 'Apr', 'day': 4, 'home': 'California Legion', 'away': 'New England Free Jacks', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '19:00:00', 'match_date': '2026-04-04', 'source_event_key': 'us-mlr-2025-2026-2026-04-04-19-00-00-california-legion-new-england-free-jacks'}
+{'round': None, 'month': 'Apr', 'day': 11, 'home': 'New England Free Jacks', 'away': 'Old Glory DC', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '16:00:00', 'match_date': '2026-04-11', 'source_event_key': 'us-mlr-2025-2026-2026-04-11-16-00-00-new-england-free-jacks-old-glory-dc'}

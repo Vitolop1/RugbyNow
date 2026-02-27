@@ -1,0 +1,15 @@
+competition: Nations Championship (int-nations-championship)
+season: 2025/2026
+results: 0
+fixtures: 36
+upsert_ok: 36
+upsert_fail: 0
+
+results_preview:
+
+fixtures_preview:
+{'round': None, 'month': 'Jul', 'day': 4, 'home': 'Australia', 'away': 'Ireland', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '00:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-00-00-00-australia-ireland'}
+{'round': None, 'month': 'Jul', 'day': 4, 'home': 'Fiji', 'away': 'Wales', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '00:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-00-00-00-fiji-wales'}
+{'round': None, 'month': 'Jul', 'day': 4, 'home': 'Japan', 'away': 'Italy', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '00:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-00-00-00-japan-italy'}
+{'round': None, 'month': 'Jul', 'day': 4, 'home': 'New Zealand', 'away': 'France', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '03:10:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-03-10-00-new-zealand-france'}
+{'round': None, 'month': 'Jul', 'day': 4, 'home': 'South Africa', 'away': 'England', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '08:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-08-00-00-south-africa-england'}

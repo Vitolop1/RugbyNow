@@ -1,0 +1,20 @@
+competition: European Rugby Champions Cup (eu-champions-cup)
+season: 2025/2026
+results: 48
+fixtures: 8
+upsert_ok: 56
+upsert_fail: 0
+
+results_preview:
+{'round': None, 'month': 'Jan', 'day': 18, 'home': 'Glasgow Warriors', 'away': 'Saracens', 'home_score': 28, 'away_score': 3, 'status': 'FT', 'kickoff_time': '12:30:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-12-30-00-glasgow-warriors-saracens'}
+{'round': None, 'month': 'Jan', 'day': 18, 'home': 'Northampton Saints', 'away': 'Scarlets', 'home_score': 43, 'away_score': 28, 'status': 'FT', 'kickoff_time': '10:15:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-10-15-00-northampton-saints-scarlets'}
+{'round': None, 'month': 'Jan', 'day': 18, 'home': 'Stade Rochelais', 'away': 'Harlequins', 'home_score': 17, 'away_score': 27, 'status': 'FT', 'kickoff_time': '10:15:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-10-15-00-stade-rochelais-harlequins'}
+{'round': None, 'month': 'Jan', 'day': 18, 'home': 'Bristol', 'away': 'Bordeaux Begles', 'home_score': 15, 'away_score': 27, 'status': 'FT', 'kickoff_time': '08:00:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-08-00-00-bristol-bordeaux-begles'}
+{'round': None, 'month': 'Jan', 'day': 17, 'home': 'Gloucester', 'away': 'RC Toulonnais', 'home_score': 14, 'away_score': 31, 'status': 'FT', 'kickoff_time': '15:00:00', 'match_date': '2026-01-17', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-17-15-00-00-gloucester-rc-toulonnais'}
+
+fixtures_preview:
+{'round': None, 'month': 'Apr', 'day': 3, 'home': 'Northampton Saints', 'away': 'Castres Olympique', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '15:00:00', 'match_date': '2026-04-03', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-03-15-00-00-northampton-saints-castres-olympique'}
+{'round': None, 'month': 'Apr', 'day': 4, 'home': 'Bath', 'away': 'Saracens', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:00:00', 'match_date': '2026-04-04', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-04-10-00-00-bath-saracens'}
+{'round': None, 'month': 'Apr', 'day': 4, 'home': 'RC Toulonnais', 'away': 'Stormers', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:00:00', 'match_date': '2026-04-04', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-04-10-00-00-rc-toulonnais-stormers'}
+{'round': None, 'month': 'Apr', 'day': 4, 'home': 'Glasgow Warriors', 'away': 'Bulls', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '12:30:00', 'match_date': '2026-04-04', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-04-12-30-00-glasgow-warriors-bulls'}
+{'round': None, 'month': 'Apr', 'day': 4, 'home': 'Stade Toulousain', 'away': 'Bristol', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '12:30:00', 'match_date': '2026-04-04', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-04-12-30-00-stade-toulousain-bristol'}

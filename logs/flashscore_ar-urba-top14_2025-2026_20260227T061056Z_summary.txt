@@ -1,0 +1,15 @@
+competition: URBA Top 14 (ar-urba-top14)
+season: 2025/2026
+results: 0
+fixtures: 156
+upsert_ok: 156
+upsert_fail: 0
+
+results_preview:
+
+fixtures_preview:
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Alumni', 'away': 'CUBA', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-alumni-cuba'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Champagnat', 'away': 'CASI', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-champagnat-casi'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Hindu', 'away': 'Los Tilos', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-hindu-los-tilos'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'La Plata', 'away': 'Atl. Del Rosario', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-la-plata-atl-del-rosario'}
+{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Los Matreros', 'away': 'Regatas Bella Vista', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-los-matreros-regatas-bella-vista'}

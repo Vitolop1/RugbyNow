@@ -1,0 +1,111 @@
+Run log: logs/run_20260227T060338Z.txt
+Found competitions with URLs: 11
+
+=== Premiership Rugby (en-premiership-rugby) ===
+season: 2025/2026
+parsed results: 50
+results preview: [{'round': None, 'month': 'Jan', 'day': 24, 'home': 'Sale Sharks', 'away': 'Northampton Saints', 'home_score': 29, 'away_score': 43, 'status': 'FT', 'kickoff_time': '12:30:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-12-30-00-sale-sharks-northampton-saints'}, {'round': None, 'month': 'Jan', 'day': 24, 'home': 'Harlequins', 'away': 'Leicester Tigers', 'home_score': 7, 'away_score': 36, 'status': 'FT', 'kickoff_time': '10:05:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-10-05-00-harlequins-leicester-tigers'}, {'round': None, 'month': 'Jan', 'day': 24, 'home': 'Exeter Chiefs', 'away': 'Bristol', 'home_score': 3, 'away_score': 8, 'status': 'FT', 'kickoff_time': '10:00:00', 'match_date': '2026-01-24', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-01-24-10-00-00-exeter-chiefs-bristol'}]
+parsed fixtures: 40
+fixtures preview: [{'round': None, 'month': 'Mar', 'day': 20, 'home': 'Bath', 'away': 'Saracens', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '15:45:00', 'match_date': '2026-03-20', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-20-15-45-00-bath-saracens'}, {'round': None, 'month': 'Mar', 'day': 21, 'home': 'Harlequins', 'away': 'Gloucester', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:00:00', 'match_date': '2026-03-21', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-21-11-00-00-harlequins-gloucester'}, {'round': None, 'month': 'Mar', 'day': 21, 'home': 'Northampton Saints', 'away': 'Newcastle Red Bulls', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:00:00', 'match_date': '2026-03-21', 'source_event_key': 'en-premiership-rugby-2025-2026-2026-03-21-11-00-00-northampton-saints-newcastle-red-bulls'}]
+📝 wrote local dump: logs/flashscore_en-premiership-rugby_2025-2026_20260227T060352Z.jsonl
+📝 wrote summary: logs/flashscore_en-premiership-rugby_2025-2026_20260227T060352Z_summary.txt
+✅ upsert done (ok=90, fail=0)
+
+=== Top 14 (fr-top14) ===
+season: 2025/2026
+parsed results: 119
+results preview: [{'round': None, 'month': 'Feb', 'day': 22, 'home': 'USA Perpignan', 'away': 'Section Paloise', 'home_score': 40, 'away_score': 24, 'status': 'FT', 'kickoff_time': '12:15:00', 'match_date': '2026-02-22', 'source_event_key': 'fr-top14-2025-2026-2026-02-22-12-15-00-usa-perpignan-section-paloise'}, {'round': None, 'month': 'Feb', 'day': 15, 'home': 'Stade Francais Paris', 'away': 'Stade Toulousain', 'home_score': 9, 'away_score': 13, 'status': 'FT', 'kickoff_time': '15:05:00', 'match_date': '2026-02-15', 'source_event_key': 'fr-top14-2025-2026-2026-02-15-15-05-00-stade-francais-paris-stade-toulousain'}, {'round': None, 'month': 'Feb', 'day': 14, 'home': 'RC Toulonnais', 'away': 'Clermont', 'home_score': 14, 'away_score': 34, 'status': 'FT', 'kickoff_time': '15:00:00', 'match_date': '2026-02-14', 'source_event_key': 'fr-top14-2025-2026-2026-02-14-15-00-00-rc-toulonnais-clermont'}]
+parsed fixtures: 63
+fixtures preview: [{'round': None, 'month': 'Feb', 'day': 28, 'home': 'Clermont', 'away': 'Aviron Bayonnais', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '08:30:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-08-30-00-clermont-aviron-bayonnais'}, {'round': None, 'month': 'Feb', 'day': 28, 'home': 'Lyon', 'away': 'RC Toulonnais', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:35:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-10-35-00-lyon-rc-toulonnais'}, {'round': None, 'month': 'Feb', 'day': 28, 'home': 'Montpellier', 'away': 'Racing 92', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:35:00', 'match_date': '2026-02-28', 'source_event_key': 'fr-top14-2025-2026-2026-02-28-10-35-00-montpellier-racing-92'}]
+📝 wrote local dump: logs/flashscore_fr-top14_2025-2026_20260227T060441Z.jsonl
+📝 wrote summary: logs/flashscore_fr-top14_2025-2026_20260227T060441Z_summary.txt
+✅ upsert done (ok=182, fail=0)
+
+=== Six Nations (int-six-nations) ===
+season: 2025/2026
+parsed results: 9
+results preview: [{'round': None, 'month': 'Feb', 'day': 22, 'home': 'France', 'away': 'Italy', 'home_score': 33, 'away_score': 8, 'status': 'FT', 'kickoff_time': '10:10:00', 'match_date': '2026-02-22', 'source_event_key': 'int-six-nations-2025-2026-2026-02-22-10-10-00-france-italy'}, {'round': None, 'month': 'Feb', 'day': 21, 'home': 'Wales', 'away': 'Scotland', 'home_score': 23, 'away_score': 26, 'status': 'FT', 'kickoff_time': '11:40:00', 'match_date': '2026-02-21', 'source_event_key': 'int-six-nations-2025-2026-2026-02-21-11-40-00-wales-scotland'}, {'round': None, 'month': 'Feb', 'day': 21, 'home': 'England', 'away': 'Ireland', 'home_score': 21, 'away_score': 42, 'status': 'FT', 'kickoff_time': '09:10:00', 'match_date': '2026-02-21', 'source_event_key': 'int-six-nations-2025-2026-2026-02-21-09-10-00-england-ireland'}]
+parsed fixtures: 6
+fixtures preview: [{'round': None, 'month': 'Mar', 'day': 6, 'home': 'Ireland', 'away': 'Wales', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '15:10:00', 'match_date': '2026-03-06', 'source_event_key': 'int-six-nations-2025-2026-2026-03-06-15-10-00-ireland-wales'}, {'round': None, 'month': 'Mar', 'day': 7, 'home': 'Scotland', 'away': 'France', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:10:00', 'match_date': '2026-03-07', 'source_event_key': 'int-six-nations-2025-2026-2026-03-07-09-10-00-scotland-france'}, {'round': None, 'month': 'Mar', 'day': 7, 'home': 'Italy', 'away': 'England', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '11:40:00', 'match_date': '2026-03-07', 'source_event_key': 'int-six-nations-2025-2026-2026-03-07-11-40-00-italy-england'}]
+📝 wrote local dump: logs/flashscore_int-six-nations_2025-2026_20260227T060559Z.jsonl
+📝 wrote summary: logs/flashscore_int-six-nations_2025-2026_20260227T060559Z_summary.txt
+✅ upsert done (ok=15, fail=0)
+
+=== European Rugby Champions Cup (eu-champions-cup) ===
+season: 2025/2026
+parsed results: 48
+results preview: [{'round': None, 'month': 'Jan', 'day': 18, 'home': 'Glasgow Warriors', 'away': 'Saracens', 'home_score': 28, 'away_score': 3, 'status': 'FT', 'kickoff_time': '12:30:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-12-30-00-glasgow-warriors-saracens'}, {'round': None, 'month': 'Jan', 'day': 18, 'home': 'Northampton Saints', 'away': 'Scarlets', 'home_score': 43, 'away_score': 28, 'status': 'FT', 'kickoff_time': '10:15:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-10-15-00-northampton-saints-scarlets'}, {'round': None, 'month': 'Jan', 'day': 18, 'home': 'Stade Rochelais', 'away': 'Harlequins', 'home_score': 17, 'away_score': 27, 'status': 'FT', 'kickoff_time': '10:15:00', 'match_date': '2026-01-18', 'source_event_key': 'eu-champions-cup-2025-2026-2026-01-18-10-15-00-stade-rochelais-harlequins'}]
+parsed fixtures: 8
+fixtures preview: [{'round': None, 'month': 'Apr', 'day': 3, 'home': 'Northampton Saints', 'away': 'Castres Olympique', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '15:00:00', 'match_date': '2026-04-03', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-03-15-00-00-northampton-saints-castres-olympique'}, {'round': None, 'month': 'Apr', 'day': 4, 'home': 'Bath', 'away': 'Saracens', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:00:00', 'match_date': '2026-04-04', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-04-10-00-00-bath-saracens'}, {'round': None, 'month': 'Apr', 'day': 4, 'home': 'RC Toulonnais', 'away': 'Stormers', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '10:00:00', 'match_date': '2026-04-04', 'source_event_key': 'eu-champions-cup-2025-2026-2026-04-04-10-00-00-rc-toulonnais-stormers'}]
+📝 wrote local dump: logs/flashscore_eu-champions-cup_2025-2026_20260227T060617Z.jsonl
+📝 wrote summary: logs/flashscore_eu-champions-cup_2025-2026_20260227T060617Z_summary.txt
+✅ upsert done (ok=56, fail=0)
+
+=== Rugby World Cup (int-world-cup) ===
+season: 2025/2026
+parsed results: 6
+results preview: [{'round': None, 'month': 'Nov', 'day': 18, 'home': 'Samoa', 'away': 'Belgium', 'home_score': 13, 'away_score': 13, 'status': 'FT', 'kickoff_time': '10:30:00', 'match_date': '2025-11-18', 'source_event_key': 'int-world-cup-2025-2026-2025-11-18-10-30-00-samoa-belgium'}, {'round': None, 'month': 'Nov', 'day': 18, 'home': 'Namibia', 'away': 'Brazil', 'home_score': 40, 'away_score': 31, 'status': 'FT', 'kickoff_time': '08:00:00', 'match_date': '2025-11-18', 'source_event_key': 'int-world-cup-2025-2026-2025-11-18-08-00-00-namibia-brazil'}, {'round': None, 'month': 'Nov', 'day': 13, 'home': 'Samoa', 'away': 'Namibia', 'home_score': 26, 'away_score': 8, 'status': 'FT', 'kickoff_time': '10:30:00', 'match_date': '2025-11-13', 'source_event_key': 'int-world-cup-2025-2026-2025-11-13-10-30-00-samoa-namibia'}]
+parsed fixtures: 33
+fixtures preview: [{'round': None, 'month': 'Oct', 'day': 1, 'home': 'Australia', 'away': 'Hong Kong', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '06:45:00', 'match_date': '2025-10-01', 'source_event_key': 'int-world-cup-2025-2026-2025-10-01-06-45-00-australia-hong-kong'}, {'round': None, 'month': 'Oct', 'day': 1, 'home': 'Wales', 'away': 'Zimbabwe', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '22:45:00', 'match_date': '2025-10-01', 'source_event_key': 'int-world-cup-2025-2026-2025-10-01-22-45-00-wales-zimbabwe'}, {'round': None, 'month': 'Oct', 'day': 2, 'home': 'New Zealand', 'away': 'Chile', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '01:15:00', 'match_date': '2025-10-02', 'source_event_key': 'int-world-cup-2025-2026-2025-10-02-01-15-00-new-zealand-chile'}]
+📝 wrote local dump: logs/flashscore_int-world-cup_2025-2026_20260227T060649Z.jsonl
+📝 wrote summary: logs/flashscore_int-world-cup_2025-2026_20260227T060649Z_summary.txt
+✅ upsert done (ok=39, fail=0)
+
+=== Nations Championship (int-nations-championship) ===
+season: 2025/2026
+parsed results: 0
+parsed fixtures: 36
+fixtures preview: [{'round': None, 'month': 'Jul', 'day': 4, 'home': 'Australia', 'away': 'Ireland', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '00:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-00-00-00-australia-ireland'}, {'round': None, 'month': 'Jul', 'day': 4, 'home': 'Fiji', 'away': 'Wales', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '00:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-00-00-00-fiji-wales'}, {'round': None, 'month': 'Jul', 'day': 4, 'home': 'Japan', 'away': 'Italy', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '00:00:00', 'match_date': '2025-07-04', 'source_event_key': 'int-nations-championship-2025-2026-2025-07-04-00-00-00-japan-italy'}]
+📝 wrote local dump: logs/flashscore_int-nations-championship_2025-2026_20260227T060732Z.jsonl
+📝 wrote summary: logs/flashscore_int-nations-championship_2025-2026_20260227T060732Z_summary.txt
+✅ upsert done (ok=36, fail=0)
+
+=== Super Rugby Pacific (int-super-rugby-pacific) ===
+season: 2025/2026
+parsed results: 10
+results preview: [{'round': None, 'month': 'Feb', 'day': 21, 'home': 'Crusaders', 'away': 'Brumbies', 'home_score': 24, 'away_score': 50, 'status': 'FT', 'kickoff_time': '21:35:00', 'match_date': '2026-02-21', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-21-21-35-00-crusaders-brumbies'}, {'round': None, 'month': 'Feb', 'day': 21, 'home': 'Western Force', 'away': 'Blues', 'home_score': 32, 'away_score': 42, 'status': 'FT', 'kickoff_time': '03:35:00', 'match_date': '2026-02-21', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-21-03-35-00-western-force-blues'}, {'round': None, 'month': 'Feb', 'day': 21, 'home': 'Highlanders', 'away': 'Chiefs', 'home_score': 23, 'away_score': 26, 'status': 'FT', 'kickoff_time': '01:05:00', 'match_date': '2026-02-21', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-21-01-05-00-highlanders-chiefs'}]
+parsed fixtures: 67
+fixtures preview: [{'round': None, 'month': 'Feb', 'day': 27, 'home': 'Moana Pasifika', 'away': 'Western Force', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '01:05:00', 'match_date': '2026-02-27', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-27-01-05-00-moana-pasifika-western-force'}, {'round': None, 'month': 'Feb', 'day': 27, 'home': 'Reds', 'away': 'Highlanders', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '03:35:00', 'match_date': '2026-02-27', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-27-03-35-00-reds-highlanders'}, {'round': None, 'month': 'Feb', 'day': 27, 'home': 'Fijian Drua', 'away': 'Hurricanes', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '22:35:00', 'match_date': '2026-02-27', 'source_event_key': 'int-super-rugby-pacific-2025-2026-2026-02-27-22-35-00-fijian-drua-hurricanes'}]
+📝 wrote local dump: logs/flashscore_int-super-rugby-pacific_2025-2026_20260227T060758Z.jsonl
+📝 wrote summary: logs/flashscore_int-super-rugby-pacific_2025-2026_20260227T060758Z_summary.txt
+✅ upsert done (ok=77, fail=0)
+
+=== Serie A Elite (it-serie-a-elite) ===
+season: 2025/2026
+parsed results: 55
+results preview: [{'round': None, 'month': 'Feb', 'day': 15, 'home': 'Rovigo', 'away': 'Mogliano', 'home_score': 28, 'away_score': 0, 'status': 'FT', 'kickoff_time': '09:00:00', 'match_date': '2026-02-15', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-15-09-00-00-rovigo-mogliano'}, {'round': None, 'month': 'Feb', 'day': 15, 'home': 'Fiamme Oro', 'away': 'Rugby Lyons', 'home_score': 73, 'away_score': 7, 'status': 'FT', 'kickoff_time': '08:30:00', 'match_date': '2026-02-15', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-15-08-30-00-fiamme-oro-rugby-lyons'}, {'round': None, 'month': 'Feb', 'day': 15, 'home': 'Colorno', 'away': 'Petrarca Padova', 'home_score': 7, 'away_score': 61, 'status': 'FT', 'kickoff_time': '08:00:00', 'match_date': '2026-02-15', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-02-15-08-00-00-colorno-petrarca-padova'}]
+parsed fixtures: 35
+fixtures preview: [{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Emilia', 'away': 'Biella', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-emilia-biella'}, {'round': None, 'month': 'Mar', 'day': 14, 'home': 'Mogliano', 'away': 'Colorno', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-mogliano-colorno'}, {'round': None, 'month': 'Mar', 'day': 14, 'home': 'Petrarca Padova', 'away': 'Fiamme Oro', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '09:30:00', 'match_date': '2026-03-14', 'source_event_key': 'it-serie-a-elite-2025-2026-2026-03-14-09-30-00-petrarca-padova-fiamme-oro'}]
+📝 wrote local dump: logs/flashscore_it-serie-a-elite_2025-2026_20260227T060840Z.jsonl
+📝 wrote summary: logs/flashscore_it-serie-a-elite_2025-2026_20260227T060840Z_summary.txt
+✅ upsert done (ok=90, fail=0)
+
+=== Major League Rugby (us-mlr) ===
+season: 2025/2026
+parsed results: 0
+parsed fixtures: 30
+fixtures preview: [{'round': None, 'month': 'Mar', 'day': 28, 'home': 'California Legion', 'away': 'Anthem RC', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '18:00:00', 'match_date': '2026-03-28', 'source_event_key': 'us-mlr-2025-2026-2026-03-28-18-00-00-california-legion-anthem-rc'}, {'round': None, 'month': 'Apr', 'day': 3, 'home': 'Seattle Seawolves', 'away': 'Old Glory DC', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '22:30:00', 'match_date': '2026-04-03', 'source_event_key': 'us-mlr-2025-2026-2026-04-03-22-30-00-seattle-seawolves-old-glory-dc'}, {'round': None, 'month': 'Apr', 'day': 4, 'home': 'Anthem RC', 'away': 'Chicago Hounds', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '16:00:00', 'match_date': '2026-04-04', 'source_event_key': 'us-mlr-2025-2026-2026-04-04-16-00-00-anthem-rc-chicago-hounds'}]
+📝 wrote local dump: logs/flashscore_us-mlr_2025-2026_20260227T060939Z.jsonl
+📝 wrote summary: logs/flashscore_us-mlr_2025-2026_20260227T060939Z_summary.txt
+✅ upsert done (ok=30, fail=0)
+
+=== Super Rugby Americas (sra) ===
+season: 2025/2026
+parsed results: 4
+results preview: [{'round': None, 'month': 'Feb', 'day': 23, 'home': 'Dogos XV', 'away': 'Cobras', 'home_score': 21, 'away_score': 19, 'status': 'FT', 'kickoff_time': '18:00:00', 'match_date': '2026-02-23', 'source_event_key': 'sra-2025-2026-2026-02-23-18-00-00-dogos-xv-cobras'}, {'round': None, 'month': 'Feb', 'day': 21, 'home': 'Capibaras', 'away': 'Penarol', 'home_score': 34, 'away_score': 7, 'status': 'FT', 'kickoff_time': '18:30:00', 'match_date': '2026-02-21', 'source_event_key': 'sra-2025-2026-2026-02-21-18-30-00-capibaras-penarol'}, {'round': None, 'month': 'Feb', 'day': 21, 'home': 'Yacare XV', 'away': 'Pampas XV', 'home_score': 17, 'away_score': 30, 'status': 'FT', 'kickoff_time': '16:30:00', 'match_date': '2026-02-21', 'source_event_key': 'sra-2025-2026-2026-02-21-16-30-00-yacare-xv-pampas-xv'}]
+parsed fixtures: 52
+fixtures preview: [{'round': None, 'month': 'Feb', 'day': 27, 'home': 'Penarol', 'away': 'Tarucas', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-27', 'source_event_key': 'sra-2025-2026-2026-02-27-14-00-00-penarol-tarucas'}, {'round': None, 'month': 'Feb', 'day': 28, 'home': 'Capibaras', 'away': 'Cobras', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-28', 'source_event_key': 'sra-2025-2026-2026-02-28-14-00-00-capibaras-cobras'}, {'round': None, 'month': 'Feb', 'day': 28, 'home': 'Pampas XV', 'away': 'Dogos XV', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:00:00', 'match_date': '2026-02-28', 'source_event_key': 'sra-2025-2026-2026-02-28-14-00-00-pampas-xv-dogos-xv'}]
+📝 wrote local dump: logs/flashscore_sra_2025-2026_20260227T061002Z.jsonl
+📝 wrote summary: logs/flashscore_sra_2025-2026_20260227T061002Z_summary.txt
+✅ upsert done (ok=56, fail=0)
+
+=== URBA Top 14 (ar-urba-top14) ===
+season: 2025/2026
+parsed results: 0
+parsed fixtures: 156
+fixtures preview: [{'round': None, 'month': 'Mar', 'day': 14, 'home': 'Alumni', 'away': 'CUBA', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-alumni-cuba'}, {'round': None, 'month': 'Mar', 'day': 14, 'home': 'Champagnat', 'away': 'CASI', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-champagnat-casi'}, {'round': None, 'month': 'Mar', 'day': 14, 'home': 'Hindu', 'away': 'Los Tilos', 'home_score': None, 'away_score': None, 'status': 'NS', 'kickoff_time': '14:30:00', 'match_date': '2026-03-14', 'source_event_key': 'ar-urba-top14-2025-2026-2026-03-14-14-30-00-hindu-los-tilos'}]
+📝 wrote local dump: logs/flashscore_ar-urba-top14_2025-2026_20260227T061056Z.jsonl
+📝 wrote summary: logs/flashscore_ar-urba-top14_2025-2026_20260227T061056Z_summary.txt
+✅ upsert done (ok=156, fail=0)
+
+✅ done

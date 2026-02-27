@@ -9,9 +9,11 @@ import { usePrefs, type Lang } from "@/lib/usePrefs";
 type Props = {
   title?: React.ReactNode;
   subtitle?: string;
+
   showTabs?: boolean;
   tab?: "ALL" | "LIVE";
   setTab?: (t: "ALL" | "LIVE") => void;
+
   lang?: Lang;
   onLangChange?: (l: Lang) => void;
 };
@@ -51,7 +53,6 @@ export default function AppHeader({
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
 
   const [logoOk, setLogoOk] = useState(true);
-
   const effectiveLang = langProp ?? lang;
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function AppHeader({
       {title ? (
         <div className="min-w-0">
           <div className="text-[18px] sm:text-[22px] font-extrabold truncate">{title}</div>
-          {subtitle ? <div className="text-[11px] opacity-80 truncate">{subtitle}</div> : null}
+          {subtitle ? <div className="text-[11px] text-white/75 truncate">{subtitle}</div> : null}
         </div>
       ) : (
         <h1 className="text-[22px] sm:text-[26px] leading-none font-extrabold tracking-tight whitespace-nowrap">
@@ -82,12 +83,12 @@ export default function AppHeader({
   );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/25 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B3E28]/80 backdrop-blur">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-3">
         {/* ROW 1 */}
         <div className="relative flex items-center">
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl shadow overflow-hidden bg-white/10 border border-white/10 flex items-center justify-center">
+            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl shadow overflow-hidden bg-black/20 border border-white/10 flex items-center justify-center">
               {logoOk ? (
                 <Image
                   src="/logo.jpg"
@@ -106,14 +107,38 @@ export default function AppHeader({
 
           <div className="absolute left-1/2 -translate-x-1/2 max-w-[70%] sm:max-w-[80%]">{CenterTitle}</div>
 
-          <div className="ml-auto h-11 w-11 sm:h-12 sm:w-12" />
+          {/* Right actions */}
+          <div className="ml-auto flex items-center gap-2">
+            <Link
+              href="/leagues"
+              className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30"
+            >
+              Leagues
+            </Link>
+            <Link
+              href="/weekly"
+              className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30"
+            >
+              Weekly
+            </Link>
+            <Link
+              href="/about"
+              className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30"
+            >
+              About
+            </Link>
+
+            {/* keeps layout on mobile */}
+            <div className="sm:hidden h-11 w-11" />
+          </div>
         </div>
 
         {/* ROW 2 */}
         <div className="mt-3 flex flex-col md:flex-row md:items-center gap-3">
+          {/* Controls */}
           <div className="relative flex items-center gap-2 flex-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch] h-9 w-full pr-12">
             {/* Language */}
-            <div className="inline-flex items-center gap-2 h-9 rounded-full border border-white/15 bg-white/10 px-2 shrink-0">
+            <div className="inline-flex items-center gap-2 h-9 rounded-full border border-white/10 bg-black/20 px-2 shrink-0">
               <span className="text-sm" aria-hidden="true">
                 🌐
               </span>
@@ -139,7 +164,7 @@ export default function AppHeader({
             <select
               value={timeZone}
               onChange={(e) => setTZEverywhere(e.target.value)}
-              className="h-9 px-2 rounded-full text-xs sm:text-sm border bg-white/10 border-white/15 text-white shrink-0 w-[130px] sm:w-auto"
+              className="h-9 px-2 rounded-full text-xs sm:text-sm border bg-black/20 border-white/10 text-white shrink-0 w-[140px] sm:w-auto"
               title="Timezone"
             >
               <option className="text-black" value="America/New_York">
@@ -164,11 +189,11 @@ export default function AppHeader({
 
             {/* Tabs */}
             {showTabs && tab && setTab ? (
-              <div className="inline-flex h-9 rounded-full border border-white/15 bg-white/10 overflow-hidden shrink-0">
+              <div className="inline-flex h-9 rounded-full border border-white/10 bg-black/20 overflow-hidden shrink-0">
                 <button
                   onClick={() => setTab("ALL")}
                   className={`h-9 px-3 text-xs sm:text-sm font-semibold transition ${
-                    tab === "ALL" ? "bg-emerald-500 text-black" : "hover:bg-white/10 text-white"
+                    tab === "ALL" ? "bg-emerald-300 text-black" : "hover:bg-white/10 text-white"
                   }`}
                 >
                   All
@@ -187,7 +212,7 @@ export default function AppHeader({
             {/* Theme pinned */}
             <button
               onClick={() => setThemeEverywhere(!dark)}
-              className="absolute right-0 top-0 h-9 w-9 rounded-full text-sm border bg-white/10 border-white/15 text-white flex items-center justify-center hover:bg-white/15"
+              className="absolute right-0 top-0 h-9 w-9 rounded-full text-sm border bg-black/20 border-white/10 text-white flex items-center justify-center hover:bg-white/10"
               title="Toggle theme"
             >
               {dark ? "☀️" : "🌙"}
@@ -196,18 +221,18 @@ export default function AppHeader({
 
           {/* Time widgets md+ */}
           <div className="hidden md:flex md:ml-auto items-center gap-3">
-            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/10 border-white/15 flex flex-col justify-center text-white">
-              <div className="text-[11px] font-semibold opacity-80">Today</div>
+            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-black/20 border-white/10 flex flex-col justify-center text-white">
+              <div className="text-[11px] font-semibold text-white/70">Today</div>
               <div className="mt-1 text-base font-extrabold leading-tight truncate">
-                {mounted && now ? formatTodayTZ(now, timeZone) : "—"}
+                {mounted && now ? formatTodayTZ(now, timeZone) : ""}
               </div>
             </div>
 
-            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-white/10 border-white/15 flex flex-col justify-center text-white">
-              <div className="text-[11px] font-semibold opacity-80">Time</div>
+            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-black/20 border-white/10 flex flex-col justify-center text-white">
+              <div className="text-[11px] font-semibold text-white/70">Time</div>
               <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
                 {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
-                <span className="ml-1 text-sm font-black opacity-80">
+                <span className="ml-1 text-sm font-black text-white/80">
                   {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
                 </span>
               </div>
@@ -221,7 +246,7 @@ export default function AppHeader({
                 {formatTodayTZ(now, timeZone)} • {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
               </span>
             ) : (
-              <span>—</span>
+              <span />
             )}
           </div>
         </div>

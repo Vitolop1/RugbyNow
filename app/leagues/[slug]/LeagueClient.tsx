@@ -133,7 +133,7 @@ const STANDINGS_RULES: Record<
 function LeagueLogo({
   slug,
   alt,
-  size = 22,
+  size = 20,
   fallback = "/league-logos/_placeholder.png",
 }: {
   slug?: string | null;
@@ -149,6 +149,7 @@ function LeagueLogo({
       height={size}
       className="object-contain shrink-0 rounded-sm bg-white/5"
       onError={(e) => {
+        e.currentTarget.onerror = null;
         e.currentTarget.src = fallback;
       }}
     />

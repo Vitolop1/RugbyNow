@@ -1,12 +1,26 @@
 // scripts/backfillResults.ts
+import { loadEnvConfig } from "@next/env";
+loadEnvConfig(process.cwd());
+
 import { createClient } from "@supabase/supabase-js";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
+type ApiResultRow = {
+  date: string;
+  time?: string;
+  home: string;
+  away: string;
+  hs: number;
+  as: number;
+  round?: number;
+  venue?: string;
+};
+
 // ---------- CONFIG ----------
-const SUPABASE_URL = process.env.SUPABASE_URL!;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!; // IMPORTANT: server-side only
-const SCRUMBASE_API_KEY = process.env.SCRUMBASE_API_KEY!;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SCRUMBASE_API_KEY = process.env.SCRUMBASE_API_KEY;
 
 // Si tu API devuelve timezone local, ajustalo. Ideal: guardar kickoff_time en UTC.
 const DEFAULT_KICKOFF_TIME = "00:00:00";
@@ -47,13 +61,18 @@ async function upsertTeam(name: string, countryCode?: string | null) {
     .single();
 
   if (error) throw error;
-  return data as { id: number; name: string; slug: string };
+
+  return data as {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 async function upsertMatch(row: {
   season_id: number;
-  match_date: string; // YYYY-MM-DD
-  kickoff_time: string | null; // HH:MM:SS
+  match_date: string;
+  kickoff_time: string | null;
   status: MatchStatus;
   home_team_id: number;
   away_team_id: number;
@@ -62,7 +81,6 @@ async function upsertMatch(row: {
   round: number | null;
   venue: string | null;
 }) {
-  // Con el unique index matches_unique_key, esto no duplica.
   const { error } = await supabase.from("matches").upsert(row, {
     onConflict: "season_id,match_date,kickoff_time,home_team_id,away_team_id",
   });
@@ -70,26 +88,10 @@ async function upsertMatch(row: {
   if (error) throw error;
 }
 
-// ---------- SCRUMBASE FETCH (placeholder) ----------
-// IMPORTANTE: No puedo garantizar el shape exacto de su JSON sin tu endpoint concreto.
-// Ajustá "fetchResultsFromApi" cuando veas la respuesta real.
+// ---------- SCRUMBASE FETCH ----------
 async function fetchResultsFromApi(params: {
-  // ej: seasonExternalId o competitionExternalId
   query: string;
-}): Promise<
-  Array<{
-    date: string; // YYYY-MM-DD
-    time?: string; // HH:MM o HH:MM:SS
-    home: string;
-    away: string;
-    hs: number;
-    as: number;
-    round?: number;
-    venue?: string;
-  }>
-> {
-  // Ejemplo genérico:
-  // Cambiá la URL al endpoint real que estés usando en Scrumbase.
+}): Promise<ApiResultRow[]> {
   const url = `https://api.scrumbase.com/v1/${params.query}`;
 
   const res = await fetch(url, {
@@ -105,26 +107,28 @@ async function fetchResultsFromApi(params: {
   }
 
   const json = await res.json();
-
-  // TODO: adaptá esto a la forma real del JSON:
   const items = (json?.data ?? json?.results ?? []) as any[];
 
-  return items.map((x) => ({
-    date: String(x.date ?? x.match_date),
-    time: String(x.time ?? x.kickoff_time ?? ""),
-    home: String(x.home_team?.name ?? x.home ?? ""),
-    away: String(x.away_team?.name ?? x.away ?? ""),
-    hs: Number(x.home_score ?? x.hs ?? 0),
-    as: Number(x.away_score ?? x.as ?? 0),
-    round: x.round != null ? Number(x.round) : null,
-    venue: x.venue != null ? String(x.venue) : null,
-  }));
+  return items.map((x): ApiResultRow => {
+    const timeRaw = x.time ?? x.kickoff_time;
+    const roundRaw = x.round;
+    const venueRaw = x.venue;
+
+    return {
+      date: String(x.date ?? x.match_date ?? ""),
+      time: timeRaw == null || timeRaw === "" ? undefined : String(timeRaw),
+      home: String(x.home_team?.name ?? x.home ?? ""),
+      away: String(x.away_team?.name ?? x.away ?? ""),
+      hs: Number(x.home_score ?? x.hs ?? 0),
+      as: Number(x.away_score ?? x.as ?? 0),
+      round: roundRaw == null ? undefined : Number(roundRaw),
+      venue: venueRaw == null || venueRaw === "" ? undefined : String(venueRaw),
+    };
+  });
 }
 
 // ---------- MAIN ----------
 async function main() {
-  // 1) Elegí una season de tu DB
-  // Podés filtrar por competition slug si querés.
   const { data: seasons, error: seasonsErr } = await supabase
     .from("seasons")
     .select("id, name, competition_id")
@@ -135,21 +139,15 @@ async function main() {
 
   console.log("Seasons found:", seasons?.map((s) => `${s.id} - ${s.name}`));
 
-  // 👉 Para empezar, agarrá la última season:
   const seasonId = seasons?.[0]?.id;
   if (!seasonId) throw new Error("No seasons in DB");
 
-  // 2) Traé resultados FT desde API
-  // 🔥 Acá es donde vos elegís qué endpoint usar. Ejemplos:
-  //   query: "competitions/top-14/2026/results"
-  //   query: "seasons/123/results"
-  const apiQuery = process.env.API_QUERY!;
+  const apiQuery = process.env.API_QUERY;
   if (!apiQuery) throw new Error("Set API_QUERY env var (your API endpoint path)");
 
   const results = await fetchResultsFromApi({ query: apiQuery });
   console.log("Results fetched:", results.length);
 
-  // 3) Upsert de teams + matches
   for (const r of results) {
     if (!r.date || !r.home || !r.away) continue;
 

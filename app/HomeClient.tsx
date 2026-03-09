@@ -46,10 +46,8 @@ type DbMatchRow = {
   away_score: number | null;
   round: number | null;
   venue: string | null;
-
   home_team: { id: number; name: string; slug: string } | null;
   away_team: { id: number; name: string; slug: string } | null;
-
   season:
     | {
         id: number;
@@ -133,35 +131,65 @@ function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZo
   }).format(dt);
 }
 
-function dedupeBlock(block: LeagueBlock) {
-  const seen = new Set<string>();
-  const out: Match[] = [];
-
-  for (const m of block.matches) {
-    const key = `${block.slug}|${m.timeLabel}|${m.home}|${m.away}|${m.status}|${m.hs ?? ""}|${m.as ?? ""}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(m);
-  }
-
-  return { ...block, matches: out };
+function normalizeName(s: string) {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-function findNearestPlayableDate(matchDates: string[], preferred: Date) {
-  if (!matchDates.length) return preferred;
+function statusRank(status: MatchStatus) {
+  if (status === "LIVE") return 3;
+  if (status === "FT") return 2;
+  return 1;
+}
 
-  const preferredISO = toISODateLocal(preferred);
+// Dedupe fuerte:
+// - elimina repetidos exactos
+// - elimina espejados (A vs B y B vs A)
+// - si hay conflicto, prioriza LIVE/FT sobre NS
+function dedupeBlock(block: LeagueBlock) {
+  const byKey = new Map<string, Match>();
 
-  if (matchDates.includes(preferredISO)) {
-    return fromISODateLocal(preferredISO);
+  for (const m of block.matches) {
+    const a = normalizeName(m.home);
+    const b = normalizeName(m.away);
+    const teamsKey = [a, b].sort().join("::");
+
+    const scoreKey =
+      m.status === "NS"
+        ? "ns"
+        : `${m.hs ?? "null"}-${m.as ?? "null"}`;
+
+    const key = `${block.slug}|${m.timeLabel}|${teamsKey}|${scoreKey}`;
+
+    const existing = byKey.get(key);
+
+    if (!existing) {
+      byKey.set(key, m);
+      continue;
+    }
+
+    if (statusRank(m.status) > statusRank(existing.status)) {
+      byKey.set(key, m);
+      continue;
+    }
+
+    // si tienen mismo status, preferimos el que tenga score real
+    const existingHasScore = existing.hs !== null || existing.as !== null;
+    const currentHasScore = m.hs !== null || m.as !== null;
+
+    if (!existingHasScore && currentHasScore) {
+      byKey.set(key, m);
+    }
   }
 
-  const sorted = [...matchDates].sort();
-  const next = sorted.find((d) => d >= preferredISO);
-
-  if (next) return fromISODateLocal(next);
-
-  return fromISODateLocal(sorted[sorted.length - 1]);
+  return {
+    ...block,
+    matches: Array.from(byKey.values()),
+  };
 }
 
 export default function HomeClient() {
@@ -202,6 +230,7 @@ export default function HomeClient() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
+  // Sync URL -> state
   useEffect(() => {
     const d = searchParams?.get("date");
     if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
@@ -210,8 +239,9 @@ export default function HomeClient() {
     if (iso !== toISODateLocal(selectedDate)) {
       setSelectedDate(fromISODateLocal(iso));
     }
-  }, [searchParams, selectedDate]);
+  }, [searchParams]);
 
+  // Sync state -> URL
   useEffect(() => {
     if (lastPushedISO.current === selectedISO) return;
     lastPushedISO.current = selectedISO;
@@ -265,7 +295,7 @@ export default function HomeClient() {
       if (!k) continue;
 
       if (!bySlug.has(k)) bySlug.set(k, c);
-      else bySlug.set(k, pickBetter(bySlug.get(k)! as Competition, c));
+      else bySlug.set(k, pickBetter(bySlug.get(k)!, c));
     }
 
     const list = Array.from(bySlug.values());
@@ -281,7 +311,7 @@ export default function HomeClient() {
     for (const c of list) {
       const k = keyOf(c);
       if (!map.has(k)) map.set(k, c);
-      else map.set(k, pickBetter(map.get(k)! as Competition, c));
+      else map.set(k, pickBetter(map.get(k)!, c));
     }
 
     return Array.from(map.values());
@@ -366,28 +396,7 @@ export default function HomeClient() {
         return;
       }
 
-      let rows = (data || []) as unknown as DbMatchRow[];
-
-      if (rows.length === 0) {
-        const { data: nextDates, error: nextDatesError } = await supabase
-          .from("matches")
-          .select("match_date")
-          .gte("match_date", dayISO)
-          .order("match_date", { ascending: true })
-          .limit(50);
-
-        if (!cancelled && !nextDatesError && nextDates && nextDates.length > 0) {
-          const availableDates = Array.from(new Set(nextDates.map((x: { match_date: string }) => x.match_date)));
-          const nextPlayableDate = findNearestPlayableDate(availableDates, selectedDate);
-          const nextISO = toISODateLocal(nextPlayableDate);
-
-          if (nextISO !== dayISO) {
-            setSelectedDate(nextPlayableDate);
-            return;
-          }
-        }
-      }
-
+      const rows = (data || []) as unknown as DbMatchRow[];
       const map = new Map<string, LeagueBlock>();
       let hasLive = false;
 
@@ -603,7 +612,7 @@ export default function HomeClient() {
               </div>
             ) : filteredBlocks.length === 0 ? (
               <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">
-                No matches for this date (but sidebar stays 😉)
+                No matches for this date
               </div>
             ) : (
               filteredBlocks.map((block) => (

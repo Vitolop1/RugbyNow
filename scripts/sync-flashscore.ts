@@ -275,7 +275,10 @@ async function getTeamsMap() {
     names.push(n);
   }
 
-  // Italia
+  // =========================
+  // ITALIA
+  // =========================
+
   map.set(norm("Emilia"), 33);
   map.set(norm("Valorugby"), 33);
   map.set(norm("Valorugby Emilia"), 33);
@@ -287,16 +290,20 @@ async function getTeamsMap() {
   map.set(norm("Lyons"), 38);
   map.set(norm("Lyons Piacenza"), 38);
 
-  // Francia
-  map.set(norm("Aviron Bayonnais"), 141);
-  map.set(norm("Bayonne"), 141);
+  // =========================
+  // FRANCIA
+  // =========================
 
-  map.set(norm("RC Toulonnais"), 140);
-  map.set(norm("Toulon"), 140);
+  map.set(norm("Aviron Bayonnais"), 51);
+  map.set(norm("Bayonne"), 51);
+
+  map.set(norm("RC Toulonnais"), 46);
+  map.set(norm("Toulon"), 46);
 
   map.set(norm("Stade Francais Paris"), 45);
-  map.set(norm("Stade Français"), 45);
+  map.set(norm("Stade Français Paris"), 45);
   map.set(norm("Stade Francais"), 45);
+  map.set(norm("Stade Français"), 45);
 
   map.set(norm("Stade Rochelais"), 50);
   map.set(norm("Stade Toulousain"), 41);
@@ -305,9 +312,90 @@ async function getTeamsMap() {
   map.set(norm("Clermont"), 48);
 
   map.set(norm("Montpellier Hérault Rugby"), 44);
+  map.set(norm("Montpellier Herault Rugby"), 44);
   map.set(norm("Montpellier"), 44);
 
+  map.set(norm("Bordeaux Begles"), 43);
+  map.set(norm("Bordeaux Bègles"), 43);
+
+  map.set(norm("USA Perpignan"), 53);
+  map.set(norm("Perpignan"), 53);
+
+  map.set(norm("Castres"), 47);
+  map.set(norm("Castres Olympique"), 47);
+
+  map.set(norm("Racing"), 49);
+  map.set(norm("Racing 92"), 49);
+
+  map.set(norm("Lyon"), 52);
+  map.set(norm("Montauban"), 54);
+  map.set(norm("Section Paloise"), 42);
+
+  // =========================
+  // CHAMPIONS CUP / URC
+  // =========================
+
+  map.set(norm("Glasgow"), 142);
+  map.set(norm("Glasgow Warriors"), 142);
+
+  map.set(norm("Stormers"), 146);
+  map.set(norm("Sharks"), 147);
+  map.set(norm("Bulls"), 149);
+
+  map.set(norm("Leinster"), 145);
+  map.set(norm("Munster"), 144);
+  map.set(norm("Scarlets"), 143);
+  map.set(norm("Edinburgh"), 148);
+
+  // =========================
+  // PREMIERSHIP
+  // =========================
+
+  map.set(norm("Northampton"), 116);
+  map.set(norm("Northampton Saints"), 116);
+
+  map.set(norm("Leicester"), 118);
+  map.set(norm("Leicester Tigers"), 118);
+
+  map.set(norm("Exeter"), 119);
+  map.set(norm("Exeter Chiefs"), 119);
+
+  map.set(norm("Sale"), 115);
+  map.set(norm("Sale Sharks"), 115);
+
+  map.set(norm("Harlequins"), 117);
+  map.set(norm("Saracens"), 121);
+  map.set(norm("Bath"), 124);
+  map.set(norm("Bristol"), 120);
+  map.set(norm("Gloucester"), 123);
+
+  map.set(norm("Newcastle"), 122);
+  map.set(norm("Newcastle Falcons"), 122);
+  map.set(norm("Newcastle Red Bulls"), 122);
+
+  // =========================
+  // SUPER RUGBY PACIFIC
+  // =========================
+
+  map.set(norm("Fijian Drua"), 177);
+
+  map.set(norm("Force"), 172);
+  map.set(norm("Western Force"), 172);
+
+  map.set(norm("Blues"), 173);
+  map.set(norm("Highlanders"), 174);
+  map.set(norm("Chiefs"), 175);
+  map.set(norm("Waratahs"), 176);
+  map.set(norm("Hurricanes"), 178);
+  map.set(norm("Moana Pasifika"), 179);
+  map.set(norm("Reds"), 180);
+  map.set(norm("Crusaders"), 170);
+  map.set(norm("Brumbies"), 171);
+
+  // =========================
   // SRA
+  // =========================
+
   map.set(norm("Cobras"), 9);
   map.set(norm("Cobras Brasil"), 9);
   map.set(norm("Cobras Brasil Rugby"), 9);
@@ -322,6 +410,155 @@ async function getTeamsMap() {
   map.set(norm("Peñarol"), 7);
   map.set(norm("Penarol Rugby"), 7);
   map.set(norm("Peñarol Rugby"), 7);
+
+  map.set(norm("Dogos"), 11);
+  map.set(norm("Dogos XV"), 11);
+
+  map.set(norm("Yacare"), 10);
+  map.set(norm("Yacare XV"), 10);
+
+  map.set(norm("Tarucas"), 13);
+  map.set(norm("Selknam"), 8);
+
+  // =========================
+  // URBA
+  // =========================
+
+  map.set(norm("Atl. Del Rosario"), 94);
+  map.set(norm("Atletico del Rosario"), 94);
+  map.set(norm("Atlético del Rosario"), 94);
+
+  map.set(norm("CASI"), 90);
+  map.set(norm("CUBA"), 88);
+  map.set(norm("SIC"), 99);
+
+  map.set(norm("Alumni"), 87);
+  map.set(norm("Belgrano"), 100);
+  map.set(norm("Buenos Aires"), 98);
+  map.set(norm("Champagnat"), 89);
+  map.set(norm("Hindu"), 91);
+  map.set(norm("La Plata"), 93);
+  map.set(norm("Los Matreros"), 95);
+  map.set(norm("Los Tilos"), 92);
+  map.set(norm("Newman"), 97);
+  map.set(norm("Regatas Bella Vista"), 96);
+
+  // =========================
+  // MLR
+  // =========================
+
+  map.set(norm("Seattle Seawolves"), 186);
+  map.set(norm("Old Glory DC"), 187);
+  map.set(norm("Chicago Hounds"), 188);
+  map.set(norm("New England Free Jacks"), 189);
+  map.set(norm("California Legion"), 184);
+  map.set(norm("Anthem RC"), 185);
+
+  // =========================
+  // SELECCIONES
+  // =========================
+
+  map.set(norm("USA"), 194);
+  map.set(norm("US"), 194);
+  map.set(norm("U.S.A."), 194);
+  map.set(norm("United States"), 194);
+  map.set(norm("Estados Unidos"), 194);
+  map.set(norm("EE UU"), 194);
+  map.set(norm("EEUU"), 194);
+  map.set(norm("EE. UU."), 194);
+
+  map.set(norm("Fiji"), 165);
+  map.set(norm("Fiyi"), 165);
+
+  const nzId = map.get(norm("New Zealand"));
+  if (nzId) {
+    map.set(norm("Nueva Zelanda"), nzId);
+  }
+
+  const saId = map.get(norm("South Africa"));
+  if (saId) {
+    map.set(norm("Sudafrica"), saId);
+    map.set(norm("Sudáfrica"), saId);
+  }
+
+  const scotlandId = map.get(norm("Scotland"));
+  if (scotlandId) {
+    map.set(norm("Escocia"), scotlandId);
+  }
+
+  const englandId = map.get(norm("England"));
+  if (englandId) {
+    map.set(norm("Inglaterra"), englandId);
+  }
+
+  const walesId = map.get(norm("Wales"));
+  if (walesId) {
+    map.set(norm("Gales"), walesId);
+  }
+
+  const japanId = map.get(norm("Japan"));
+  if (japanId) {
+    map.set(norm("Japon"), japanId);
+    map.set(norm("Japón"), japanId);
+  }
+
+  const romaniaId = map.get(norm("Romania"));
+  if (romaniaId) {
+    map.set(norm("Rumania"), romaniaId);
+    map.set(norm("Rumanía"), romaniaId);
+  }
+
+  const zimbabweId = map.get(norm("Zimbabwe"));
+  if (zimbabweId) {
+    map.set(norm("Zimbabue"), zimbabweId);
+  }
+
+  const franceId = map.get(norm("France"));
+  if (franceId) {
+    map.set(norm("Francia"), franceId);
+  }
+
+  const irelandId = map.get(norm("Ireland"));
+  if (irelandId) {
+    map.set(norm("Irlanda"), irelandId);
+  }
+
+  const italyId = map.get(norm("Italy"));
+  if (italyId) {
+    map.set(norm("Italia"), italyId);
+  }
+
+  const argentinaId = map.get(norm("Argentina"));
+  if (argentinaId) {
+    map.set(norm("Arg"), argentinaId);
+  }
+
+  const georgiaId = map.get(norm("Georgia"));
+  if (georgiaId) {
+    map.set(norm("Georgia"), georgiaId);
+  }
+
+  const portugalId = map.get(norm("Portugal"));
+  if (portugalId) {
+    map.set(norm("Portugal"), portugalId);
+  }
+
+  const spainId = map.get(norm("Spain"));
+  if (spainId) {
+    map.set(norm("Espana"), spainId);
+    map.set(norm("España"), spainId);
+  }
+
+  const belgiumId = map.get(norm("Belgium"));
+  if (belgiumId) {
+    map.set(norm("Belgica"), belgiumId);
+    map.set(norm("Bélgica"), belgiumId);
+  }
+
+  const brazilId = map.get(norm("Brazil"));
+  if (brazilId) {
+    map.set(norm("Brasil"), brazilId);
+  }
 
   return { teamsMap: map, teamNamesNorm: names };
 }

@@ -68,11 +68,10 @@ type ScrapedStandingRow = {
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const FLASH_URLS = process.env.FLASH_URLS;
 const LIVE_ONLY = process.env.LIVE_ONLY === "1";
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !FLASH_URLS) {
-  throw new Error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FLASH_URLS");
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY");
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
@@ -159,7 +158,14 @@ function detectStatusAndMinute(
 }
 
 function urlsFromEnv(): FlashInput[] {
-  const tokens = FLASH_URLS.split(/\r?\n|,/)
+  const raw = process.env.FLASH_URLS;
+
+  if (!raw) {
+    throw new Error("Missing env var: FLASH_URLS");
+  }
+
+  const tokens = raw
+    .split(/\r?\n|,/)
     .map((s) => s.trim())
     .filter(Boolean);
 

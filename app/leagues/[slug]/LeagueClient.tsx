@@ -174,6 +174,7 @@ function TeamLogo({
       height={size}
       className="object-contain shrink-0 rounded-sm bg-white/5"
       onError={(e) => {
+        e.currentTarget.onerror = null; // evita loop infinito
         e.currentTarget.src = fallback;
       }}
     />
@@ -776,9 +777,9 @@ export default function LeagueClient() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-green-300/10 blur-3xl" />
-      </div>
+  <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
+  <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-green-300/10 blur-3xl" />
+</div>
 
       <div className="relative">
         <AppHeader

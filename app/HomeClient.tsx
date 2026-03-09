@@ -68,12 +68,10 @@ function TeamLogo({
   slug,
   alt,
   size = 22,
-  fallback = "/team-logos/_placeholder.png",
 }: {
   slug?: string | null;
   alt: string;
   size?: number;
-  fallback?: string;
 }) {
   return (
     <img
@@ -81,9 +79,10 @@ function TeamLogo({
       alt={alt}
       width={size}
       height={size}
-      className="h-[22px] w-[22px] object-contain shrink-0 rounded-sm bg-white/5"
+      className="object-contain shrink-0 rounded-sm bg-white/5"
       onError={(e) => {
-        e.currentTarget.src = fallback;
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "/team-logos/_placeholder.png";
       }}
     />
   );
@@ -93,12 +92,10 @@ function LeagueLogo({
   slug,
   alt,
   size = 20,
-  fallback = "/league-logos/_placeholder.png",
 }: {
   slug?: string | null;
   alt: string;
   size?: number;
-  fallback?: string;
 }) {
   return (
     <img
@@ -106,9 +103,10 @@ function LeagueLogo({
       alt={alt}
       width={size}
       height={size}
-      className="h-[20px] w-[20px] object-contain shrink-0 rounded-sm bg-white/5"
+      className="object-contain shrink-0 rounded-sm bg-white/5"
       onError={(e) => {
-        e.currentTarget.src = fallback;
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "/league-logos/_placeholder.png";
       }}
     />
   );

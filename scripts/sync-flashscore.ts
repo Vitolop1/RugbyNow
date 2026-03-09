@@ -51,6 +51,19 @@ type ScrapedRow = {
   roundText: string;
   rawText: string;
   dateLabel: string;
+  sourcePage: "results" | "fixtures";
+};
+
+type ScrapedStandingRow = {
+  pos: number | null;
+  team: string;
+  played: number | null;
+  won: number | null;
+  drawn: number | null;
+  lost: number | null;
+  pointsFor: number | null;
+  pointsAgainst: number | null;
+  points: number | null;
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -83,7 +96,7 @@ function slugify(s: string) {
 }
 
 function parseScore(x: string) {
-  const t = (x || "").trim().replace("–", "-");
+  const t = (x || "").trim().replace(/–/g, "-");
   if (t === "-" || t === "") return null;
   if (!/^\d+$/.test(t)) return null;
   return Number.parseInt(t, 10);
@@ -96,41 +109,62 @@ function parseRound(raw: string): number | null {
   const m1 = s.match(/\bround\s+(\d+)\b/i);
   if (m1) return Number.parseInt(m1[1], 10);
 
-  const m2 = s.match(/\b(\d+)\b/);
+  const m2 = s.match(/\b(?:fecha|jornada|week)\s+(\d+)\b/i);
   if (m2) return Number.parseInt(m2[1], 10);
+
+  const m3 = s.match(/\b(\d+)\b/);
+  if (m3) return Number.parseInt(m3[1], 10);
 
   return null;
 }
 
-function detectStatusAndMinute(raw: string) {
+function detectStatusAndMinute(
+  raw: string,
+  hs: number | null,
+  as: number | null,
+  sourcePage: "results" | "fixtures"
+) {
   const s = (raw || "").toUpperCase().trim();
 
-  if (/(POSTP|CANC|CANCEL|ABAND|ABD)/.test(s)) {
+  if (/(POSTP|CANC|CANCEL|ABAND|ABD|AWD|WO)/.test(s)) {
     return { status: "NS" as MatchStatus, minute: null as number | null };
   }
 
-  if (/(FT|FINAL|AET)/.test(s)) {
+  if (/(FT|FINAL|AET|AFTER EXTRA TIME)/.test(s)) {
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
-  if (/(HT|LIVE)/.test(s)) {
+  if (/(HT|HALF TIME|LIVE)/.test(s)) {
     return { status: "LIVE" as MatchStatus, minute: null as number | null };
   }
 
-  const m = s.match(/\b(\d{1,3})\s*'\b/);
-  if (m) {
-    return { status: "LIVE" as MatchStatus, minute: Number.parseInt(m[1], 10) };
+  const minuteMatch = s.match(/\b(\d{1,3})\s*'\b/);
+  if (minuteMatch) {
+    return {
+      status: "LIVE" as MatchStatus,
+      minute: Number.parseInt(minuteMatch[1], 10),
+    };
+  }
+
+  const timeMatch = s.match(/\b\d{1,2}:\d{2}\b/);
+  if (timeMatch) {
+    return { status: "NS" as MatchStatus, minute: null as number | null };
+  }
+
+  if (sourcePage === "results" && hs !== null && as !== null) {
+    return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
   return { status: "NS" as MatchStatus, minute: null as number | null };
 }
 
 function urlsFromEnv(): FlashInput[] {
-  const tokens = FLASH_URLS!.split(/\r?\n|,/)
+  const tokens = FLASH_URLS.split(/\r?\n|,/)
     .map((s) => s.trim())
     .filter(Boolean);
 
   const out: FlashInput[] = [];
+
   for (const tok of tokens) {
     const eq = tok.indexOf("=");
     if (eq > 0) {
@@ -141,6 +175,7 @@ function urlsFromEnv(): FlashInput[] {
       out.push({ compSlug: null, url: tok });
     }
   }
+
   return out;
 }
 
@@ -154,13 +189,22 @@ function normalizeFlashUrl(raw: string) {
 
 function buildFlashVariants(raw: string) {
   const original = normalizeFlashUrl(raw);
-  const base = original.replace(/\/fixtures$/i, "").replace(/\/results$/i, "");
+  const base = original
+    .replace(/\/fixtures$/i, "")
+    .replace(/\/results$/i, "")
+    .replace(/\/standings$/i, "");
 
   if (LIVE_ONLY) {
-    return [`${base}/fixtures`];
+    return {
+      resultsAndFixtures: [`${base}/fixtures`],
+      standings: `${base}/standings`,
+    };
   }
 
-  return [`${base}/results`, `${base}/fixtures`];
+  return {
+    resultsAndFixtures: [`${base}/results`, `${base}/fixtures`],
+    standings: `${base}/standings`,
+  };
 }
 
 function competitionSlugFromUrl(url: string) {
@@ -178,7 +222,6 @@ function competitionSlugFromUrl(url: string) {
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
   if (compSlug === "super-rugby-americas") return "sra";
-
   if (compSlug === "premiership-rugby") return "en-premiership-rugby";
   if (compSlug === "european-rugby-champions-cup") return "eu-champions-cup";
   if (compSlug === "world-cup") return "int-world-cup";
@@ -275,10 +318,6 @@ async function getTeamsMap() {
     names.push(n);
   }
 
-  // =========================
-  // ITALIA
-  // =========================
-
   map.set(norm("Emilia"), 33);
   map.set(norm("Valorugby"), 33);
   map.set(norm("Valorugby Emilia"), 33);
@@ -289,10 +328,6 @@ async function getTeamsMap() {
   map.set(norm("Rugby Lyons"), 38);
   map.set(norm("Lyons"), 38);
   map.set(norm("Lyons Piacenza"), 38);
-
-  // =========================
-  // FRANCIA
-  // =========================
 
   map.set(norm("Aviron Bayonnais"), 51);
   map.set(norm("Bayonne"), 51);
@@ -317,6 +352,7 @@ async function getTeamsMap() {
 
   map.set(norm("Bordeaux Begles"), 43);
   map.set(norm("Bordeaux Bègles"), 43);
+  map.set(norm("Union Bordeaux Bègles"), 43);
 
   map.set(norm("USA Perpignan"), 53);
   map.set(norm("Perpignan"), 53);
@@ -331,25 +367,18 @@ async function getTeamsMap() {
   map.set(norm("Montauban"), 54);
   map.set(norm("Section Paloise"), 42);
 
-  // =========================
-  // CHAMPIONS CUP / URC
-  // =========================
-
   map.set(norm("Glasgow"), 142);
   map.set(norm("Glasgow Warriors"), 142);
 
   map.set(norm("Stormers"), 146);
   map.set(norm("Sharks"), 147);
+  map.set(norm("The Sharks"), 147);
   map.set(norm("Bulls"), 149);
 
   map.set(norm("Leinster"), 145);
   map.set(norm("Munster"), 144);
   map.set(norm("Scarlets"), 143);
   map.set(norm("Edinburgh"), 148);
-
-  // =========================
-  // PREMIERSHIP
-  // =========================
 
   map.set(norm("Northampton"), 116);
   map.set(norm("Northampton Saints"), 116);
@@ -367,17 +396,15 @@ async function getTeamsMap() {
   map.set(norm("Saracens"), 121);
   map.set(norm("Bath"), 124);
   map.set(norm("Bristol"), 120);
+  map.set(norm("Bristol Bears"), 120);
   map.set(norm("Gloucester"), 123);
 
   map.set(norm("Newcastle"), 122);
   map.set(norm("Newcastle Falcons"), 122);
   map.set(norm("Newcastle Red Bulls"), 122);
 
-  // =========================
-  // SUPER RUGBY PACIFIC
-  // =========================
-
   map.set(norm("Fijian Drua"), 177);
+  map.set(norm("Fiji Drua"), 177);
 
   map.set(norm("Force"), 172);
   map.set(norm("Western Force"), 172);
@@ -389,12 +416,10 @@ async function getTeamsMap() {
   map.set(norm("Hurricanes"), 178);
   map.set(norm("Moana Pasifika"), 179);
   map.set(norm("Reds"), 180);
+  map.set(norm("Queensland Reds"), 180);
   map.set(norm("Crusaders"), 170);
   map.set(norm("Brumbies"), 171);
-
-  // =========================
-  // SRA
-  // =========================
+  map.set(norm("ACT Brumbies"), 171);
 
   map.set(norm("Cobras"), 9);
   map.set(norm("Cobras Brasil"), 9);
@@ -420,10 +445,6 @@ async function getTeamsMap() {
   map.set(norm("Tarucas"), 13);
   map.set(norm("Selknam"), 8);
 
-  // =========================
-  // URBA
-  // =========================
-
   map.set(norm("Atl. Del Rosario"), 94);
   map.set(norm("Atletico del Rosario"), 94);
   map.set(norm("Atlético del Rosario"), 94);
@@ -434,18 +455,16 @@ async function getTeamsMap() {
 
   map.set(norm("Alumni"), 87);
   map.set(norm("Belgrano"), 100);
+  map.set(norm("Belgrano Athletic"), 100);
   map.set(norm("Buenos Aires"), 98);
   map.set(norm("Champagnat"), 89);
   map.set(norm("Hindu"), 91);
+  map.set(norm("Hindú"), 91);
   map.set(norm("La Plata"), 93);
   map.set(norm("Los Matreros"), 95);
   map.set(norm("Los Tilos"), 92);
   map.set(norm("Newman"), 97);
   map.set(norm("Regatas Bella Vista"), 96);
-
-  // =========================
-  // MLR
-  // =========================
 
   map.set(norm("Seattle Seawolves"), 186);
   map.set(norm("Old Glory DC"), 187);
@@ -453,10 +472,6 @@ async function getTeamsMap() {
   map.set(norm("New England Free Jacks"), 189);
   map.set(norm("California Legion"), 184);
   map.set(norm("Anthem RC"), 185);
-
-  // =========================
-  // SELECCIONES
-  // =========================
 
   map.set(norm("USA"), 194);
   map.set(norm("US"), 194);
@@ -471,9 +486,7 @@ async function getTeamsMap() {
   map.set(norm("Fiyi"), 165);
 
   const nzId = map.get(norm("New Zealand"));
-  if (nzId) {
-    map.set(norm("Nueva Zelanda"), nzId);
-  }
+  if (nzId) map.set(norm("Nueva Zelanda"), nzId);
 
   const saId = map.get(norm("South Africa"));
   if (saId) {
@@ -482,19 +495,13 @@ async function getTeamsMap() {
   }
 
   const scotlandId = map.get(norm("Scotland"));
-  if (scotlandId) {
-    map.set(norm("Escocia"), scotlandId);
-  }
+  if (scotlandId) map.set(norm("Escocia"), scotlandId);
 
   const englandId = map.get(norm("England"));
-  if (englandId) {
-    map.set(norm("Inglaterra"), englandId);
-  }
+  if (englandId) map.set(norm("Inglaterra"), englandId);
 
   const walesId = map.get(norm("Wales"));
-  if (walesId) {
-    map.set(norm("Gales"), walesId);
-  }
+  if (walesId) map.set(norm("Gales"), walesId);
 
   const japanId = map.get(norm("Japan"));
   if (japanId) {
@@ -509,39 +516,19 @@ async function getTeamsMap() {
   }
 
   const zimbabweId = map.get(norm("Zimbabwe"));
-  if (zimbabweId) {
-    map.set(norm("Zimbabue"), zimbabweId);
-  }
+  if (zimbabweId) map.set(norm("Zimbabue"), zimbabweId);
 
   const franceId = map.get(norm("France"));
-  if (franceId) {
-    map.set(norm("Francia"), franceId);
-  }
+  if (franceId) map.set(norm("Francia"), franceId);
 
   const irelandId = map.get(norm("Ireland"));
-  if (irelandId) {
-    map.set(norm("Irlanda"), irelandId);
-  }
+  if (irelandId) map.set(norm("Irlanda"), irelandId);
 
   const italyId = map.get(norm("Italy"));
-  if (italyId) {
-    map.set(norm("Italia"), italyId);
-  }
+  if (italyId) map.set(norm("Italia"), italyId);
 
   const argentinaId = map.get(norm("Argentina"));
-  if (argentinaId) {
-    map.set(norm("Arg"), argentinaId);
-  }
-
-  const georgiaId = map.get(norm("Georgia"));
-  if (georgiaId) {
-    map.set(norm("Georgia"), georgiaId);
-  }
-
-  const portugalId = map.get(norm("Portugal"));
-  if (portugalId) {
-    map.set(norm("Portugal"), portugalId);
-  }
+  if (argentinaId) map.set(norm("Arg"), argentinaId);
 
   const spainId = map.get(norm("Spain"));
   if (spainId) {
@@ -556,9 +543,7 @@ async function getTeamsMap() {
   }
 
   const brazilId = map.get(norm("Brazil"));
-  if (brazilId) {
-    map.set(norm("Brasil"), brazilId);
-  }
+  if (brazilId) map.set(norm("Brasil"), brazilId);
 
   return { teamsMap: map, teamNamesNorm: names };
 }
@@ -578,6 +563,7 @@ function resolveTeamId(rawName: string, teamsMap: Map<string, number>, teamNames
   for (const candidate of teamNamesNorm) {
     let score = 0;
 
+    if (candidate === n) score += 100;
     if (candidate.includes(n) || n.includes(candidate)) score += 2;
 
     for (const tok of tokens) {
@@ -625,6 +611,7 @@ async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>,
 
   const row = data as TeamRow;
   const n = norm(row.name);
+
   if (!teamsMap.has(n)) {
     teamsMap.set(n, row.id);
     teamNamesNorm.push(n);
@@ -633,24 +620,13 @@ async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>,
   return row.id;
 }
 
-async function getRecentMatchesBySeason(seasonId: number) {
-  const today = new Date();
-  const from = new Date(today);
-  from.setDate(from.getDate() - 30);
-  const to = new Date(today);
-  to.setDate(to.getDate() + 30);
-
-  const isoFrom = from.toISOString().slice(0, 10);
-  const isoTo = to.toISOString().slice(0, 10);
-
+async function getMatchesBySeason(seasonId: number) {
   const { data, error } = await supabase
     .from("matches")
     .select(
       "id,season_id,match_date,kickoff_time,status,minute,home_team_id,away_team_id,home_score,away_score,round,source_event_key"
     )
     .eq("season_id", seasonId)
-    .gte("match_date", isoFrom)
-    .lte("match_date", isoTo)
     .order("match_date", { ascending: true });
 
   if (error) throw error;
@@ -677,7 +653,16 @@ function dateDistanceDays(isoDate: string) {
 }
 
 function pickBestCandidate(possible: DbMatchRow[]) {
-  return possible.slice().sort((a, b) => dateDistanceDays(a.match_date) - dateDistanceDays(b.match_date))[0];
+  return possible
+    .slice()
+    .sort((a, b) => {
+      const da = dateDistanceDays(a.match_date);
+      const db = dateDistanceDays(b.match_date);
+      if (da !== db) return da - db;
+      if (a.status === "FT" && b.status !== "FT") return -1;
+      if (b.status === "FT" && a.status !== "FT") return 1;
+      return a.id - b.id;
+    })[0];
 }
 
 function parseKickoffTime(raw: string): string | null {
@@ -694,8 +679,18 @@ function inferMatchDateFromRawText(rawText: string, seasonName: string): string 
   const { startYear, endYear } = seasonYearBounds(seasonName);
 
   const months: Record<string, number> = {
-    jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-    jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+    jan: 1,
+    feb: 2,
+    mar: 3,
+    apr: 4,
+    may: 5,
+    jun: 6,
+    jul: 7,
+    aug: 8,
+    sep: 9,
+    oct: 10,
+    nov: 11,
+    dec: 12,
   };
 
   const m1 = txt.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\b/i);
@@ -774,34 +769,39 @@ async function clickShowMore(page: Page) {
     'button:has-text("Mostrar más")',
   ];
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 30; i++) {
     let clicked = false;
 
     for (const sel of selectors) {
       try {
         const btn = page.locator(sel).first();
-        if (await btn.isVisible({ timeout: 1000 })) {
-          await btn.click({ timeout: 1500 });
-          await page.waitForTimeout(900);
+        if (await btn.isVisible({ timeout: 1200 })) {
+          await btn.click({ timeout: 2000 });
+          await page.waitForTimeout(1000);
           clicked = true;
           break;
         }
       } catch {}
     }
 
-    if (!clicked) {
-      try {
-        await page.mouse.wheel(0, 2500);
-        await page.waitForTimeout(500);
-      } catch {}
+    try {
+      await page.mouse.wheel(0, 4000);
+      await page.waitForTimeout(700);
+    } catch {}
+
+    if (!clicked && i > 8) {
+      continue;
     }
   }
 }
 
-async function scrapePage(page: Page) {
+async function scrapePage(page: Page, sourcePage: "results" | "fixtures") {
   const js = `
 (() => {
-  const pickText = (el) => (el ? el.innerText.trim() : "");
+  const pickText = (el) => {
+    if (!el) return "";
+    return String(el.innerText ?? el.textContent ?? "").trim();
+  };
 
   const looksLikeDate = (txt) => {
     const s = (txt || "").trim();
@@ -879,21 +879,151 @@ async function scrapePage(page: Page) {
   return out;
 })()
 `;
-  return (await page.evaluate(js)) as ScrapedRow[];
+
+  const rows = (await page.evaluate(js)) as Omit<ScrapedRow, "sourcePage">[];
+  return rows.map((r) => ({ ...r, sourcePage }));
 }
+
+async function scrapeStandingsPage(page: Page) {
+  const js = `
+(() => {
+  const txt = (el) => {
+    if (!el) return "";
+    return String(el.innerText ?? el.textContent ?? "").trim();
+  };
+
+  const rows = Array.from(document.querySelectorAll(
+    '.table__row, .ui-table__row, [class*="tableRow"], [class*="standing"] [class*="row"]'
+  ));
+
+  const out = [];
+
+  for (const r of rows) {
+    const rowText = txt(r);
+    if (!rowText) continue;
+
+    const team =
+      txt(r.querySelector('[class*="participant"]')) ||
+      txt(r.querySelector('[class*="team"]')) ||
+      txt(r.querySelector('a'));
+
+    if (!team) continue;
+
+    const cells = Array.from(r.querySelectorAll('div, span'))
+      .map((x) => txt(x))
+      .filter(Boolean);
+
+    const nums = cells
+      .map((v) => {
+        const m = v.match(/^\\d+$/);
+        return m ? parseInt(v, 10) : null;
+      })
+      .filter((v) => v != null);
+
+    let pos = null;
+    const posEl =
+      r.querySelector('[class*="rank"]') ||
+      r.querySelector('[class*="position"]');
+
+    if (posEl) {
+      const p = txt(posEl).match(/\\d+/);
+      pos = p ? parseInt(p[0], 10) : null;
+    } else {
+      const m = rowText.match(/^\\s*(\\d+)\\s/);
+      pos = m ? parseInt(m[1], 10) : null;
+    }
+
+    out.push({
+      pos,
+      team,
+      nums,
+      raw: rowText,
+    });
+  }
+
+  return out;
+})()
+`;
+
+  const raw = (await page.evaluate(js)) as Array<{
+    pos: number | null;
+    team: string;
+    nums: number[];
+    raw: string;
+  }>;
+
+  const cleaned: ScrapedStandingRow[] = [];
+
+  for (const r of raw) {
+    if (!r.team) continue;
+
+    let played: number | null = null;
+    let won: number | null = null;
+    let drawn: number | null = null;
+    let lost: number | null = null;
+    let pointsFor: number | null = null;
+    let pointsAgainst: number | null = null;
+    let points: number | null = null;
+
+    if (r.nums.length >= 7) {
+      played = r.nums[0] ?? null;
+      won = r.nums[1] ?? null;
+      drawn = r.nums[2] ?? null;
+      lost = r.nums[3] ?? null;
+      pointsFor = r.nums[4] ?? null;
+      pointsAgainst = r.nums[5] ?? null;
+      points = r.nums[r.nums.length - 1] ?? null;
+    }
+
+    cleaned.push({
+      pos: r.pos,
+      team: r.team,
+      played,
+      won,
+      drawn,
+      lost,
+      pointsFor,
+      pointsAgainst,
+      points,
+    });
+  }
+
+  const seen = new Set<string>();
+  return cleaned.filter((r) => {
+    const k = norm(r.team);
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function inferDateFingerprint(rawText: string) {
+  const s = rawText || "";
+  const m1 = s.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\b/i);
+  if (m1) return m1[0];
+  const m2 = s.match(/\b\d{1,2}\.\d{1,2}\.?\b/);
+  if (m2) return m2[0];
+  const m3 = s.match(/\b\d{1,2}\/\d{1,2}\b/);
+  if (m3) return m3[0];
+  return "";
+}
+
 function dedupeScrapedRows(rows: ScrapedRow[]) {
   const seen = new Set<string>();
   const out: ScrapedRow[] = [];
 
   for (const r of rows) {
+    const inferredDate = norm(r.dateLabel) || inferDateFingerprint(r.rawText);
+
     const key = [
+      r.sourcePage,
+      inferredDate,
       norm(r.home),
       norm(r.away),
       r.hs || "",
       r.as || "",
       r.statusOrTime || "",
       r.roundText || "",
-      r.rawText || "",
     ].join("||");
 
     if (seen.has(key)) continue;
@@ -909,10 +1039,16 @@ function buildExistingIndexes(matches: DbMatchRow[]) {
   const bySourceKey = new Map<string, DbMatchRow>();
 
   for (const m of matches) {
-    const key = `${m.home_team_id}__${m.away_team_id}`;
-    const arr = byTeams.get(key) || [];
-    arr.push(m);
-    byTeams.set(key, arr);
+    const directKey = `${m.home_team_id}__${m.away_team_id}`;
+    const reverseKey = `${m.away_team_id}__${m.home_team_id}`;
+
+    const arr1 = byTeams.get(directKey) || [];
+    arr1.push(m);
+    byTeams.set(directKey, arr1);
+
+    const arr2 = byTeams.get(reverseKey) || [];
+    arr2.push(m);
+    byTeams.set(reverseKey, arr2);
 
     if (m.source_event_key) {
       bySourceKey.set(m.source_event_key, m);
@@ -933,7 +1069,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   if (sourceEventKey) {
     const { data: existingBySource, error: findSourceErr } = await supabase
       .from("matches")
-      .select("id")
+      .select("id,status")
       .eq("source_event_key", sourceEventKey)
       .limit(1)
       .maybeSingle();
@@ -941,6 +1077,10 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
     if (findSourceErr) throw findSourceErr;
 
     if (existingBySource?.id) {
+      if (existingBySource.status === "FT" && payload.status === "NS") {
+        return "skipped";
+      }
+
       const { error: updateErr } = await supabase
         .from("matches")
         .update(payload)
@@ -953,7 +1093,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
 
   let logicalQuery = supabase
     .from("matches")
-    .select("id")
+    .select("id,status")
     .eq("season_id", seasonId)
     .eq("match_date", matchDate)
     .eq("home_team_id", homeTeamId)
@@ -971,6 +1111,10 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   if (findLogicalErr) throw findLogicalErr;
 
   if (existingLogical?.id) {
+    if (existingLogical.status === "FT" && payload.status === "NS") {
+      return "skipped";
+    }
+
     const { error: updateErr } = await supabase
       .from("matches")
       .update(payload)
@@ -984,6 +1128,49 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   if (insertErr) throw insertErr;
 
   return "inserted";
+}
+
+async function upsertStandingsCache(
+  seasonId: number,
+  teamsMap: Map<string, number>,
+  teamNamesNorm: string[],
+  rows: ScrapedStandingRow[]
+) {
+  if (!rows.length) return;
+
+  const payload: Array<Record<string, unknown>> = [];
+
+  for (const row of rows) {
+    const teamId = await getOrCreateTeamId(row.team, teamsMap, teamNamesNorm);
+    if (!teamId) continue;
+
+    payload.push({
+      season_id: seasonId,
+      team_id: teamId,
+      position: row.pos,
+      played: row.played,
+      won: row.won,
+      drawn: row.drawn,
+      lost: row.lost,
+      points_for: row.pointsFor,
+      points_against: row.pointsAgainst,
+      points: row.points,
+      source: "flashscore",
+      updated_at: new Date().toISOString(),
+    });
+  }
+
+  if (!payload.length) return;
+
+  const { error } = await supabase
+    .from("standings_cache")
+    .upsert(payload, { onConflict: "season_id,team_id" });
+
+  if (error) {
+    console.log("WARN: standings_cache upsert failed:", error.message);
+  } else {
+    console.log(`Standings upserted: ${payload.length}`);
+  }
 }
 
 async function main() {
@@ -1037,17 +1224,19 @@ async function main() {
       }
 
       const { seasonId, seasonName } = await getLatestSeasonIdByCompSlug(compSlug);
-      const existingMatches = await getRecentMatchesBySeason(seasonId);
+      const existingMatches = await getMatchesBySeason(seasonId);
       const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
 
       console.log(`\n== ${compSlug} (${seasonName}) ==`);
-      console.log(`Existing matches in window: ${existingMatches.length}`);
+      console.log(`Existing matches in season: ${existingMatches.length}`);
 
       const variants = buildFlashVariants(item.url);
       let scrapedAll: ScrapedRow[] = [];
 
-      for (const url of variants) {
+      for (const url of variants.resultsAndFixtures) {
         try {
+          const sourcePage: "results" | "fixtures" = /\/results$/i.test(url) ? "results" : "fixtures";
+
           console.log("Open:", url);
           await gotoWithRetry(page, url, 3);
           await maybeAcceptConsent(page);
@@ -1064,7 +1253,7 @@ async function main() {
           await clickShowMore(page);
           await page.waitForTimeout(1200);
 
-          const rows = dedupeScrapedRows(await scrapePage(page));
+          const rows = dedupeScrapedRows(await scrapePage(page, sourcePage));
           console.log(`Scraped from ${url}:`, rows.length);
           scrapedAll.push(...rows);
         } catch (e) {
@@ -1093,41 +1282,9 @@ async function main() {
           continue;
         }
 
-        const { data: homeCheck, error: homeCheckErr } = await supabase
-          .from("teams")
-          .select("id")
-          .eq("id", homeId)
-          .maybeSingle();
-
-        if (homeCheckErr) {
-          console.log("WARN: homeCheck failed:", homeCheckErr.message);
-          continue;
-        }
-
-        const { data: awayCheck, error: awayCheckErr } = await supabase
-          .from("teams")
-          .select("id")
-          .eq("id", awayId)
-          .maybeSingle();
-
-        if (awayCheckErr) {
-          console.log("WARN: awayCheck failed:", awayCheckErr.message);
-          continue;
-        }
-
-        if (!homeCheck || !awayCheck) {
-          console.log("INVALID TEAM ID:", {
-            home: row.home,
-            homeId,
-            away: row.away,
-            awayId,
-          });
-          continue;
-        }
-
-        const parsed = detectStatusAndMinute(row.statusOrTime);
         const hs = parseScore(row.hs);
         const as = parseScore(row.as);
+        const parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
         const round = parseRound(row.roundText);
 
         let sourceKey: string | null = null;
@@ -1175,6 +1332,10 @@ async function main() {
           target = bySourceKey.get(sourceKey)!;
         }
 
+        if (target?.status === "FT" && parsed.status === "NS") {
+          continue;
+        }
+
         const payload: Record<string, unknown> = {
           season_id: seasonId,
           match_date: matchDate,
@@ -1206,6 +1367,10 @@ async function main() {
           delete patch.home_team_id;
           delete patch.away_team_id;
 
+          if (target.status === "FT" && patch.status === "NS") {
+            continue;
+          }
+
           const { error } = await supabase
             .from("matches")
             .update(patch)
@@ -1225,7 +1390,7 @@ async function main() {
             if (action === "updated") {
               updatedHere++;
               totalUpdates++;
-            } else {
+            } else if (action === "inserted") {
               insertedHere++;
               totalInsertedOrUpserted++;
             }
@@ -1233,6 +1398,22 @@ async function main() {
             console.log("WARN: save by source_event_key failed:", e?.message || e);
           }
         }
+      }
+
+      try {
+        console.log("Open standings:", variants.standings);
+        await gotoWithRetry(page, variants.standings, 3);
+        await maybeAcceptConsent(page);
+        await page.waitForTimeout(1500);
+
+        const standings = await scrapeStandingsPage(page);
+        console.log(`Standings scraped: ${standings.length}`);
+
+        if (standings.length > 0) {
+          await upsertStandingsCache(seasonId, teamsMap, teamNamesNorm, standings);
+        }
+      } catch (e: any) {
+        console.log("WARN: standings scrape failed:", e?.message || e);
       }
 
       if (unresolvedTeams.size > 0) {

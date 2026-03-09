@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sync:flashscore": "tsx scripts/sync-flashscore.ts",
+    "sync:live": "LIVE_ONLY=1 tsx scripts/sync-flashscore.ts",
+    "sync:standings": "tsx scripts/sync-standings.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

@@ -179,10 +179,14 @@ function competitionSlugFromUrl(url: string) {
   if (compSlug === "six-nations") return "int-six-nations";
   if (compSlug === "super-rugby-americas") return "sra";
 
-  if (regionOrCountry === "england" && (compSlug.includes("premier") || compSlug.includes("premiership"))) {
-    return "en-premiership";
-  }
-  if (regionOrCountry === "argentina" && (compSlug.includes("urba") || compSlug.includes("top"))) {
+  if (compSlug === "premiership-rugby") return "en-premiership-rugby";
+  if (compSlug === "european-rugby-champions-cup") return "eu-champions-cup";
+  if (compSlug === "world-cup") return "int-world-cup";
+  if (compSlug === "nations-championship") return "int-nations-championship";
+  if (compSlug === "super-rugby") return "int-super-rugby-pacific";
+  if (compSlug === "major-league-rugby") return "us-mlr";
+
+  if (regionOrCountry === "argentina" && compSlug === "top-14") {
     return "ar-urba-top14";
   }
 
@@ -271,29 +275,53 @@ async function getTeamsMap() {
     names.push(n);
   }
 
+  // Italia
   map.set(norm("Emilia"), 33);
   map.set(norm("Valorugby"), 33);
   map.set(norm("Valorugby Emilia"), 33);
+
   map.set(norm("Petrarca Padova"), 31);
+  map.set(norm("Petrarca"), 31);
+
   map.set(norm("Rugby Lyons"), 38);
   map.set(norm("Lyons"), 38);
+  map.set(norm("Lyons Piacenza"), 38);
 
-  map.set(norm("Aviron Bayonnais"), 51);
-  map.set(norm("Bayonne"), 51);
-  map.set(norm("RC Toulonnais"), 46);
-  map.set(norm("Toulon"), 46);
+  // Francia
+  map.set(norm("Aviron Bayonnais"), 141);
+  map.set(norm("Bayonne"), 141);
+
+  map.set(norm("RC Toulonnais"), 140);
+  map.set(norm("Toulon"), 140);
+
   map.set(norm("Stade Francais Paris"), 45);
-  map.set(norm("Stade Français Paris"), 45);
+  map.set(norm("Stade Français"), 45);
   map.set(norm("Stade Francais"), 45);
+
   map.set(norm("Stade Rochelais"), 50);
   map.set(norm("Stade Toulousain"), 41);
 
+  map.set(norm("ASM Clermont Auvergne"), 48);
+  map.set(norm("Clermont"), 48);
+
+  map.set(norm("Montpellier Hérault Rugby"), 44);
+  map.set(norm("Montpellier"), 44);
+
+  // SRA
   map.set(norm("Cobras"), 9);
   map.set(norm("Cobras Brasil"), 9);
+  map.set(norm("Cobras Brasil Rugby"), 9);
+
   map.set(norm("Capibaras"), 14);
   map.set(norm("Capibaras XV"), 14);
-  map.set(norm("Pampas XV"), 12);
-  map.set(norm("Pampas"), 12);
+
+  map.set(norm("Pampas"), 193);
+  map.set(norm("Pampas XV"), 193);
+
+  map.set(norm("Penarol"), 7);
+  map.set(norm("Peñarol"), 7);
+  map.set(norm("Penarol Rugby"), 7);
+  map.set(norm("Peñarol Rugby"), 7);
 
   return { teamsMap: map, teamNamesNorm: names };
 }
@@ -729,12 +757,19 @@ async function main() {
   if (pingErr) throw pingErr;
 
   if (LIVE_ONLY) {
-    const { data, error } = await supabase.from("matches").select("id").eq("status", "LIVE").limit(1);
+    const { data, error } = await supabase
+      .from("matches")
+      .select("id")
+      .eq("status", "LIVE")
+      .limit(1);
+
     if (error) throw error;
+
     if (!data || data.length === 0) {
       console.log("LIVE_ONLY=1 but no LIVE matches in DB. Exiting fast ✅");
       return;
     }
+
     console.log("LIVE match found in DB. Turbo sync running ⚡");
   }
 
@@ -742,7 +777,8 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
-    userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+    userAgent:
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
   });
 
   await page.route("**/*", (route) => {
@@ -757,6 +793,7 @@ async function main() {
   try {
     for (const item of inputs) {
       const compSlug = item.compSlug?.trim() || competitionSlugFromUrl(item.url);
+
       if (!compSlug) {
         console.log("Skip (unknown comp url):", item.url);
         continue;
@@ -779,9 +816,10 @@ async function main() {
           await maybeAcceptConsent(page);
 
           try {
-            await page.waitForSelector('[id^="g_"], .event__match, .event__row, [data-event-id], .event', {
-              timeout: 20000,
-            });
+            await page.waitForSelector(
+              '[id^="g_"], .event__match, .event__row, [data-event-id], .event',
+              { timeout: 20000 }
+            );
           } catch {
             console.log("WARN: selector not found quickly:", url);
           }
@@ -803,16 +841,50 @@ async function main() {
 
       let updatedHere = 0;
       let insertedHere = 0;
+      let skippedWithoutDate = 0;
+
       const touchedIds = new Set<number>();
       const unresolvedTeams = new Set<string>();
-      let skippedWithoutDate = 0;
 
       for (const row of scraped) {
         const homeId = await getOrCreateTeamId(row.home, teamsMap, teamNamesNorm);
         const awayId = await getOrCreateTeamId(row.away, teamsMap, teamNamesNorm);
 
         if (!homeId || !awayId) {
+          console.log("UNRESOLVED TEAM:", row.home, "vs", row.away);
           unresolvedTeams.add(`${row.home} vs ${row.away}`);
+          continue;
+        }
+
+        const { data: homeCheck, error: homeCheckErr } = await supabase
+          .from("teams")
+          .select("id")
+          .eq("id", homeId)
+          .maybeSingle();
+
+        if (homeCheckErr) {
+          console.log("WARN: homeCheck failed:", homeCheckErr.message);
+          continue;
+        }
+
+        const { data: awayCheck, error: awayCheckErr } = await supabase
+          .from("teams")
+          .select("id")
+          .eq("id", awayId)
+          .maybeSingle();
+
+        if (awayCheckErr) {
+          console.log("WARN: awayCheck failed:", awayCheckErr.message);
+          continue;
+        }
+
+        if (!homeCheck || !awayCheck) {
+          console.log("INVALID TEAM ID:", {
+            home: row.home,
+            homeId,
+            away: row.away,
+            awayId,
+          });
           continue;
         }
 
@@ -833,23 +905,23 @@ async function main() {
         }
 
         const inferredDate =
-        inferMatchDateFromRawText(row.dateLabel, seasonName) ||
-       inferMatchDateFromRawText(row.rawText, seasonName);
+          inferMatchDateFromRawText(row.dateLabel, seasonName) ||
+          inferMatchDateFromRawText(row.rawText, seasonName);
 
         const matchDate = target?.match_date || inferredDate;
 
         if (!matchDate) {
-  if (skippedWithoutDate < 10) {
-    console.log("NO DATE:", {
-      home: row.home,
-      away: row.away,
-      dateLabel: row.dateLabel,
-      rawText: row.rawText,
-    });
-  }
-  skippedWithoutDate++;
-  continue;
-}
+          if (skippedWithoutDate < 10) {
+            console.log("NO DATE:", {
+              home: row.home,
+              away: row.away,
+              dateLabel: row.dateLabel,
+              rawText: row.rawText,
+            });
+          }
+          skippedWithoutDate++;
+          continue;
+        }
 
         const kickoffTime = target?.kickoff_time || parseKickoffTime(row.rawText);
 
@@ -897,7 +969,10 @@ async function main() {
           delete patch.home_team_id;
           delete patch.away_team_id;
 
-          const { error } = await supabase.from("matches").update(patch).eq("id", target.id);
+          const { error } = await supabase
+            .from("matches")
+            .update(patch)
+            .eq("id", target.id);
 
           if (error) {
             console.log(`WARN: update failed for id=${target.id}:`, error.message);
@@ -909,6 +984,7 @@ async function main() {
         } else {
           try {
             const action = await saveMatchBySourceKey(payload);
+
             if (action === "updated") {
               updatedHere++;
               totalUpdates++;

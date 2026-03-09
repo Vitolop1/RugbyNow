@@ -147,6 +147,23 @@ function dedupeBlock(block: LeagueBlock) {
   return { ...block, matches: out };
 }
 
+function findNearestPlayableDate(matchDates: string[], preferred: Date) {
+  if (!matchDates.length) return preferred;
+
+  const preferredISO = toISODateLocal(preferred);
+
+  if (matchDates.includes(preferredISO)) {
+    return fromISODateLocal(preferredISO);
+  }
+
+  const sorted = [...matchDates].sort();
+  const next = sorted.find((d) => d >= preferredISO);
+
+  if (next) return fromISODateLocal(next);
+
+  return fromISODateLocal(sorted[sorted.length - 1]);
+}
+
 export default function HomeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -248,7 +265,7 @@ export default function HomeClient() {
       if (!k) continue;
 
       if (!bySlug.has(k)) bySlug.set(k, c);
-      else bySlug.set(k, pickBetter(bySlug.get(k)!, c));
+      else bySlug.set(k, pickBetter(bySlug.get(k)! as Competition, c));
     }
 
     const list = Array.from(bySlug.values());
@@ -264,7 +281,7 @@ export default function HomeClient() {
     for (const c of list) {
       const k = keyOf(c);
       if (!map.has(k)) map.set(k, c);
-      else map.set(k, pickBetter(map.get(k)!, c));
+      else map.set(k, pickBetter(map.get(k)! as Competition, c));
     }
 
     return Array.from(map.values());
@@ -349,7 +366,28 @@ export default function HomeClient() {
         return;
       }
 
-      const rows = (data || []) as unknown as DbMatchRow[];
+      let rows = (data || []) as unknown as DbMatchRow[];
+
+      if (rows.length === 0) {
+        const { data: nextDates, error: nextDatesError } = await supabase
+          .from("matches")
+          .select("match_date")
+          .gte("match_date", dayISO)
+          .order("match_date", { ascending: true })
+          .limit(50);
+
+        if (!cancelled && !nextDatesError && nextDates && nextDates.length > 0) {
+          const availableDates = Array.from(new Set(nextDates.map((x: { match_date: string }) => x.match_date)));
+          const nextPlayableDate = findNearestPlayableDate(availableDates, selectedDate);
+          const nextISO = toISODateLocal(nextPlayableDate);
+
+          if (nextISO !== dayISO) {
+            setSelectedDate(nextPlayableDate);
+            return;
+          }
+        }
+      }
+
       const map = new Map<string, LeagueBlock>();
       let hasLive = false;
 

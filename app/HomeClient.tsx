@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
-import { getLeagueFlag, getTeamFlag } from "@/app/lib/flags";
+import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
@@ -13,6 +13,8 @@ type Match = {
   timeLabel: string;
   home: string;
   away: string;
+  homeSlug?: string | null;
+  awaySlug?: string | null;
   hs: number | null;
   as: number | null;
   status: MatchStatus;
@@ -65,6 +67,54 @@ type DbMatchRow = {
     | null;
 };
 
+function Logo({
+  src,
+  alt,
+  size = 22,
+  className = "",
+}: {
+  src: string;
+  alt: string;
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      className={`object-contain shrink-0 rounded-sm ${className}`}
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).src = "/team-logos/_placeholder.png";
+      }}
+    />
+  );
+}
+
+function LeagueLogo({
+  slug,
+  name,
+  size = 20,
+}: {
+  slug?: string | null;
+  name: string;
+  size?: number;
+}) {
+  return (
+    <img
+      src={getLeagueLogo(slug)}
+      alt={name}
+      width={size}
+      height={size}
+      className="object-contain shrink-0 rounded-sm"
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).src = "/league-logos/_placeholder.png";
+      }}
+    />
+  );
+}
+
 function StatusBadge({ status }: { status: MatchStatus }) {
   if (status === "LIVE") {
     return (
@@ -90,12 +140,16 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   );
 }
 
-function TeamName({ name }: { name: string }) {
-  const flag = getTeamFlag(name);
-
+function TeamName({
+  name,
+  slug,
+}: {
+  name: string;
+  slug?: string | null;
+}) {
   return (
     <span className="flex items-center gap-2 min-w-0">
-      {flag ? <span className="text-base shrink-0">{flag}</span> : null}
+      <Logo src={getTeamLogo(slug)} alt={name} size={22} />
       <span className="truncate">{name}</span>
     </span>
   );
@@ -165,7 +219,6 @@ export default function HomeClient() {
 
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -371,8 +424,8 @@ export default function HomeClient() {
           r.status === "LIVE"
             ? `LIVE ${r.minute ?? ""}${r.minute ? "'" : ""}`.trim()
             : r.status === "FT"
-              ? "FT"
-              : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
+            ? "FT"
+            : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
 
         const hs = r.status === "NS" ? null : r.home_score;
         const as = r.status === "NS" ? null : r.away_score;
@@ -381,6 +434,8 @@ export default function HomeClient() {
           timeLabel: kickoffLabel,
           home: r.home_team?.name ?? "TBD",
           away: r.away_team?.name ?? "TBD",
+          homeSlug: r.home_team?.slug ?? null,
+          awaySlug: r.away_team?.slug ?? null,
           hs,
           as,
           status: r.status,
@@ -532,9 +587,7 @@ export default function HomeClient() {
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <span className="shrink-0 text-base">
-                                      {getLeagueFlag(c.slug, c.region)}
-                                    </span>
+                                    <LeagueLogo slug={c.slug} name={c.name} />
                                     <div className="text-sm font-medium truncate text-white">{c.name}</div>
                                   </div>
 
@@ -545,7 +598,7 @@ export default function HomeClient() {
                                   ) : null}
                                 </div>
 
-                                {c.region ? <div className="text-xs text-white/70">{c.region}</div> : null}
+                                {c.region ? <div className="text-xs text-white/70 mt-1">{c.region}</div> : null}
                               </Link>
                             ))}
                           </div>
@@ -589,7 +642,7 @@ export default function HomeClient() {
                 >
                   <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-lg shrink-0">{getLeagueFlag(block.slug, block.region)}</span>
+                      <LeagueLogo slug={block.slug} name={block.league} />
                       <div className="font-semibold truncate text-white">{block.league}</div>
                     </div>
                     <div className="text-sm text-white/70">{block.region}</div>
@@ -612,14 +665,14 @@ export default function HomeClient() {
 
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                           <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <TeamName name={m.home} />
+                            <TeamName name={m.home} slug={m.homeSlug} />
                             <span className="font-extrabold tabular-nums text-white">
                               {m.status === "NS" ? "—" : m.hs ?? "-"}
                             </span>
                           </div>
 
                           <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <TeamName name={m.away} />
+                            <TeamName name={m.away} slug={m.awaySlug} />
                             <span className="font-extrabold tabular-nums text-white">
                               {m.status === "NS" ? "—" : m.as ?? "-"}
                             </span>

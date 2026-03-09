@@ -5,8 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
-import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
-
+import { getLeagueLogo, getTeamLogo } from "@/app/lib/assets";
 type MatchStatus = "NS" | "LIVE" | "FT";
 
 type Match = {
@@ -49,10 +48,8 @@ type DbMatchRow = {
   away_score: number | null;
   round: number | null;
   venue: string | null;
-
   home_team: { id: number; name: string; slug: string } | null;
   away_team: { id: number; name: string; slug: string } | null;
-
   season:
     | {
         id: number;
@@ -67,26 +64,26 @@ type DbMatchRow = {
     | null;
 };
 
-function Logo({
-  src,
+function TeamLogo({
+  slug,
   alt,
   size = 22,
-  className = "",
+  fallback = "/team-logos/_placeholder.png",
 }: {
-  src: string;
+  slug?: string | null;
   alt: string;
   size?: number;
-  className?: string;
+  fallback?: string;
 }) {
   return (
     <img
-      src={src}
+      src={getTeamLogo(slug)}
       alt={alt}
       width={size}
       height={size}
-      className={`object-contain shrink-0 rounded-sm ${className}`}
+      className="h-[22px] w-[22px] object-contain shrink-0 rounded-sm bg-white/5"
       onError={(e) => {
-        (e.currentTarget as HTMLImageElement).src = "/team-logos/_placeholder.png";
+        e.currentTarget.src = fallback;
       }}
     />
   );
@@ -94,22 +91,24 @@ function Logo({
 
 function LeagueLogo({
   slug,
-  name,
+  alt,
   size = 20,
+  fallback = "/league-logos/_placeholder.png",
 }: {
   slug?: string | null;
-  name: string;
+  alt: string;
   size?: number;
+  fallback?: string;
 }) {
   return (
     <img
       src={getLeagueLogo(slug)}
-      alt={name}
+      alt={alt}
       width={size}
       height={size}
-      className="object-contain shrink-0 rounded-sm"
+      className="h-[20px] w-[20px] object-contain shrink-0 rounded-sm bg-white/5"
       onError={(e) => {
-        (e.currentTarget as HTMLImageElement).src = "/league-logos/_placeholder.png";
+        e.currentTarget.src = fallback;
       }}
     />
   );
@@ -149,7 +148,7 @@ function TeamName({
 }) {
   return (
     <span className="flex items-center gap-2 min-w-0">
-      <Logo src={getTeamLogo(slug)} alt={name} size={22} />
+      <TeamLogo slug={slug} alt={name} />
       <span className="truncate">{name}</span>
     </span>
   );
@@ -424,8 +423,8 @@ export default function HomeClient() {
           r.status === "LIVE"
             ? `LIVE ${r.minute ?? ""}${r.minute ? "'" : ""}`.trim()
             : r.status === "FT"
-            ? "FT"
-            : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
+              ? "FT"
+              : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
 
         const hs = r.status === "NS" ? null : r.home_score;
         const as = r.status === "NS" ? null : r.away_score;
@@ -587,7 +586,7 @@ export default function HomeClient() {
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <LeagueLogo slug={c.slug} name={c.name} />
+                                    <LeagueLogo slug={c.slug} alt={c.name} />
                                     <div className="text-sm font-medium truncate text-white">{c.name}</div>
                                   </div>
 
@@ -642,7 +641,7 @@ export default function HomeClient() {
                 >
                   <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
                     <div className="flex items-center gap-2 min-w-0">
-                      <LeagueLogo slug={block.slug} name={block.league} />
+                      <LeagueLogo slug={block.slug} alt={block.league} />
                       <div className="font-semibold truncate text-white">{block.league}</div>
                     </div>
                     <div className="text-sm text-white/70">{block.region}</div>

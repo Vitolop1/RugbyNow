@@ -1,4 +1,3 @@
-// app/leagues/[slug]/LeagueClient.tsx
 "use client";
 
 import Link from "next/link";
@@ -7,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 import { usePrefs, type Lang } from "@/lib/usePrefs";
+import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
@@ -41,6 +41,7 @@ type Season = { id: number; name: string; competition_id: number };
 type StandingRow = {
   teamId: number;
   team: string;
+  teamSlug?: string | null;
   pj: number;
   w: number;
   d: number;
@@ -74,6 +75,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     openLeague: "Open league →",
     openLeaguesBtn: "Leagues",
     close: "Close",
+    matches: "Matches",
+    error: "Error",
   },
   es: {
     leagues: "Ligas",
@@ -93,6 +96,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     openLeague: "Abrir liga →",
     openLeaguesBtn: "Ligas",
     close: "Cerrar",
+    matches: "Partidos",
+    error: "Error",
   },
   fr: {
     leagues: "Ligues",
@@ -112,12 +117,68 @@ const I18N: Record<Lang, Record<string, string>> = {
     openLeague: "Ouvrir ligue →",
     openLeaguesBtn: "Ligues",
     close: "Fermer",
+    matches: "Matchs",
+    error: "Erreur",
   },
 };
 
-const STANDINGS_RULES: Record<string, { topChampions?: number; topEurope?: number; bottomRelegation?: number } | undefined> = {
+const STANDINGS_RULES: Record<
+  string,
+  { topChampions?: number; topEurope?: number; bottomRelegation?: number } | undefined
+> = {
   "en-premiership": { topChampions: 4, bottomRelegation: 1 },
+  "en-premiership-rugby": { topChampions: 4, bottomRelegation: 1 },
 };
+
+function LeagueLogo({
+  slug,
+  alt,
+  size = 22,
+  fallback = "/league-logos/_placeholder.png",
+}: {
+  slug?: string | null;
+  alt: string;
+  size?: number;
+  fallback?: string;
+}) {
+  return (
+    <img
+      src={getLeagueLogo(slug)}
+      alt={alt}
+      width={size}
+      height={size}
+      className="object-contain shrink-0 rounded-sm bg-white/5"
+      onError={(e) => {
+        e.currentTarget.src = fallback;
+      }}
+    />
+  );
+}
+
+function TeamLogo({
+  slug,
+  alt,
+  size = 24,
+  fallback = "/team-logos/_placeholder.png",
+}: {
+  slug?: string | null;
+  alt: string;
+  size?: number;
+  fallback?: string;
+}) {
+  return (
+    <img
+      src={getTeamLogo(slug)}
+      alt={alt}
+      width={size}
+      height={size}
+      className="object-contain shrink-0 rounded-sm bg-white/5"
+      onError={(e) => {
+        e.currentTarget.src = fallback;
+      }}
+    />
+  );
+}
 
 function StatusBadge({ status }: { status: MatchStatus }) {
   if (status === "LIVE") {
@@ -128,31 +189,18 @@ function StatusBadge({ status }: { status: MatchStatus }) {
       </span>
     );
   }
+
   if (status === "FT") {
     return (
-      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-white">
+      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white border border-white/15">
         FT
       </span>
     );
   }
+
   return (
-    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 dark:bg-neutral-900 dark:text-white/80 dark:border-white/10">
+    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white/90 border border-white/15">
       PRE
-    </span>
-  );
-}
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const a = parts[0]?.[0] ?? "";
-  const b = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
-  return (a + b).toUpperCase();
-}
-
-function TeamAvatar({ name }: { name: string }) {
-  return (
-    <span className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-black/10 dark:bg-white/10 text-[11px] font-extrabold shrink-0">
-      {initials(name)}
     </span>
   );
 }
@@ -161,6 +209,7 @@ function parseISODateParts(iso: string) {
   const [y, m, d] = iso.split("-").map((x) => parseInt(x, 10));
   return { y, m, d };
 }
+
 function parseTimeParts(t: string) {
   const parts = t.split(":").map((x) => parseInt(x, 10));
   const hh = parts[0] ?? 0;
@@ -168,6 +217,7 @@ function parseTimeParts(t: string) {
   const ss = parts[2] ?? 0;
   return { hh, mm, ss };
 }
+
 function formatDateShortTZ(iso: string, timeZone: string) {
   const { y, m, d } = parseISODateParts(iso);
   const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0));
@@ -178,13 +228,19 @@ function formatDateShortTZ(iso: string, timeZone: string) {
     timeZone,
   }).format(dt);
 }
+
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const { y, m, d } = parseISODateParts(match_date);
   const { hh, mm, ss } = parseTimeParts(kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time);
   const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, hh, mm, ss));
-  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(dt);
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone,
+  }).format(dt);
 }
+
 function parseRound(v: any): number | null {
   if (v == null) return null;
   if (typeof v === "number" && Number.isFinite(v)) return v;
@@ -194,17 +250,20 @@ function parseRound(v: any): number | null {
   }
   return null;
 }
+
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
+
 function formatScore(status: MatchStatus, hs: number | null, as: number | null) {
   if (status === "NS") return "—";
   if (hs == null || as == null) return "-";
   return `${hs} - ${as}`;
 }
+
 function pickAutoRound(meta: RoundMeta2[], refISO: string) {
   if (!meta.length) return null;
   const rounds = meta.slice().sort((a, b) => a.round - b.round);
@@ -228,16 +287,31 @@ function pickAutoRound(meta: RoundMeta2[], refISO: string) {
 async function fetchTeamsForSeason(seasonId: number) {
   const { data, error } = await supabase
     .from("matches")
-    .select(`home_team:home_team_id ( id, name ), away_team:away_team_id ( id, name )`)
+    .select(`
+      home_team:home_team_id ( id, name, slug ),
+      away_team:away_team_id ( id, name, slug )
+    `)
     .eq("season_id", seasonId);
 
   if (error) throw error;
 
-  const map = new Map<number, string>();
+  const map = new Map<number, { name: string; slug: string | null }>();
+
   for (const r of (data || []) as any[]) {
-    if (r.home_team?.id) map.set(r.home_team.id, r.home_team.name);
-    if (r.away_team?.id) map.set(r.away_team.id, r.away_team.name);
+    if (r.home_team?.id) {
+      map.set(r.home_team.id, {
+        name: r.home_team.name,
+        slug: r.home_team.slug ?? null,
+      });
+    }
+    if (r.away_team?.id) {
+      map.set(r.away_team.id, {
+        name: r.away_team.name,
+        slug: r.away_team.slug ?? null,
+      });
+    }
   }
+
   return map;
 }
 
@@ -250,13 +324,11 @@ function pointsForResult(home: number, away: number) {
 async function fetchStandingsComputed(seasonId: number, compSlug: string) {
   const { data, error } = await supabase
     .from("matches")
-    .select(
-      `
+    .select(`
       status, home_score, away_score,
-      home_team:home_team_id ( id, name ),
-      away_team:away_team_id ( id, name )
-    `
-    )
+      home_team:home_team_id ( id, name, slug ),
+      away_team:away_team_id ( id, name, slug )
+    `)
     .eq("season_id", seasonId)
     .eq("status", "FT");
 
@@ -264,8 +336,20 @@ async function fetchStandingsComputed(seasonId: number, compSlug: string) {
 
   const teamMap = await fetchTeamsForSeason(seasonId);
   const table = new Map<number, StandingRow>();
-  for (const [id, name] of teamMap.entries()) {
-    table.set(id, { teamId: id, team: name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 });
+
+  for (const [id, team] of teamMap.entries()) {
+    table.set(id, {
+      teamId: id,
+      team: team.name,
+      teamSlug: team.slug,
+      pj: 0,
+      w: 0,
+      d: 0,
+      l: 0,
+      pf: 0,
+      pa: 0,
+      pts: 0,
+    });
   }
 
   let ftCount = 0;
@@ -282,9 +366,32 @@ async function fetchStandingsComputed(seasonId: number, compSlug: string) {
     ftCount += 1;
 
     const home =
-      table.get(ht.id) ?? { teamId: ht.id, team: ht.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
+      table.get(ht.id) ?? {
+        teamId: ht.id,
+        team: ht.name,
+        teamSlug: ht.slug ?? null,
+        pj: 0,
+        w: 0,
+        d: 0,
+        l: 0,
+        pf: 0,
+        pa: 0,
+        pts: 0,
+      };
+
     const away =
-      table.get(at.id) ?? { teamId: at.id, team: at.name, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 };
+      table.get(at.id) ?? {
+        teamId: at.id,
+        team: at.name,
+        teamSlug: at.slug ?? null,
+        pj: 0,
+        w: 0,
+        d: 0,
+        l: 0,
+        pf: 0,
+        pa: 0,
+        pts: 0,
+      };
 
     home.pj += 1;
     away.pj += 1;
@@ -331,7 +438,10 @@ async function fetchStandingsComputed(seasonId: number, compSlug: string) {
 
     if (rules?.topChampions && position <= rules.topChampions) badge = "champions";
     else if (rules?.topEurope && position <= rules.topEurope) badge = "europe";
-    if (rules?.bottomRelegation && position > total - (rules.bottomRelegation ?? 0)) badge = "relegation";
+
+    if (rules?.bottomRelegation && position > total - (rules.bottomRelegation ?? 0)) {
+      badge = "relegation";
+    }
 
     return { ...r, position, badge };
   });
@@ -341,8 +451,20 @@ async function fetchStandingsComputed(seasonId: number, compSlug: string) {
 
 async function fetchStandingsZero(seasonId: number) {
   const teamMap = await fetchTeamsForSeason(seasonId);
+
   return Array.from(teamMap.entries())
-    .map(([teamId, team]) => ({ teamId, team, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 }))
+    .map(([teamId, team]) => ({
+      teamId,
+      team: team.name,
+      teamSlug: team.slug,
+      pj: 0,
+      w: 0,
+      d: 0,
+      l: 0,
+      pf: 0,
+      pa: 0,
+      pts: 0,
+    }))
     .sort((a, b) => a.team.localeCompare(b.team));
 }
 
@@ -389,19 +511,18 @@ export default function LeagueClient() {
 
       if (!error) setCompetitions((data || []) as Competition[]);
     };
+
     loadComps();
   }, []);
 
   async function fetchMatchesForRound(seasonId: number, round: number) {
     const { data, error } = await supabase
       .from("matches")
-      .select(
-        `
+      .select(`
         id, match_date, kickoff_time, status, minute, home_score, away_score, round, venue,
         home_team:home_team_id ( id, name, slug ),
         away_team:away_team_id ( id, name, slug )
-      `
-      )
+      `)
       .eq("season_id", seasonId)
       .eq("round", round)
       .order("match_date", { ascending: true })
@@ -422,6 +543,7 @@ export default function LeagueClient() {
     if (error) throw error;
 
     const map = new Map<number, { first: string; last: string; count: number; ft: number }>();
+
     for (const row of (data || []) as any[]) {
       const r = parseRound(row.round);
       if (r == null) continue;
@@ -430,8 +552,9 @@ export default function LeagueClient() {
       const st = (row.status as MatchStatus) ?? "NS";
 
       const cur = map.get(r);
-      if (!cur) map.set(r, { first: d, last: d, count: 1, ft: st === "FT" ? 1 : 0 });
-      else {
+      if (!cur) {
+        map.set(r, { first: d, last: d, count: 1, ft: st === "FT" ? 1 : 0 });
+      } else {
         if (d < cur.first) cur.first = d;
         if (d > cur.last) cur.last = d;
         cur.count += 1;
@@ -440,7 +563,13 @@ export default function LeagueClient() {
     }
 
     return Array.from(map.entries())
-      .map(([round, v]) => ({ round, first_date: v.first, last_date: v.last, matches: v.count, ft: v.ft }))
+      .map(([round, v]) => ({
+        round,
+        first_date: v.first,
+        last_date: v.last,
+        matches: v.count,
+        ft: v.ft,
+      }))
       .sort((a, b) => a.round - b.round);
   }
 
@@ -456,7 +585,7 @@ export default function LeagueClient() {
       setStandings([]);
 
       if (!slug) {
-        setErr("Slug is undefined (check app/leagues/[slug]/page.tsx params).");
+        setErr("Slug is undefined.");
         setLoadingLeague(false);
         return;
       }
@@ -472,6 +601,7 @@ export default function LeagueClient() {
         setLoadingLeague(false);
         return;
       }
+
       setComp(compData as Competition);
 
       const { data: seasonData, error: seasonErr } = await supabase
@@ -487,6 +617,7 @@ export default function LeagueClient() {
         setLoadingLeague(false);
         return;
       }
+
       setSeason(seasonData as Season);
 
       try {
@@ -501,8 +632,11 @@ export default function LeagueClient() {
 
       try {
         const computed = await fetchStandingsComputed(seasonData.id, compData.slug);
-        if (computed.ftCount > 0) setStandings(computed.rows);
-        else setStandings(await fetchStandingsZero(seasonData.id));
+        if (computed.ftCount > 0) {
+          setStandings(computed.rows);
+        } else {
+          setStandings(await fetchStandingsZero(seasonData.id));
+        }
       } catch {
         setStandings(await fetchStandingsZero(seasonData.id));
       }
@@ -517,7 +651,7 @@ export default function LeagueClient() {
     if (!season || selectedRound == null) return;
 
     let cancelled = false;
-    let timer: any = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
     const load = async () => {
       try {
@@ -633,8 +767,6 @@ export default function LeagueClient() {
     [roundsList, selectedRound]
   );
 
-  const hasStandingsRules = !!STANDINGS_RULES[comp?.slug ?? ""];
-
   const timeLabelFor = (m: DbMatchRow) => {
     if (m.status === "LIVE") return `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim();
     if (m.status === "FT") return "FT";
@@ -642,397 +774,420 @@ export default function LeagueClient() {
   };
 
   return (
-<div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
-  <div className="pointer-events-none absolute inset-0">
-    <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
-    <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-green-300/10 blur-3xl" />
-  </div>        {/* soft background glow */}
-        <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl dark:bg-emerald-400/10" />
-          <div className="absolute top-40 right-[-120px] h-[420px] w-[420px] rounded-full bg-sky-500/15 blur-3xl dark:bg-sky-400/10" />
-        </div>      <AppHeader
-        subtitle="League view"
-        lang={lang}
-        onLangChange={(l) => setLangEverywhere(l)}
-      />
-
-     <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-  {/* SIDEBAR */}
-  <aside className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-4 h-fit text-white space-y-4">
-    <div>
-      <div className="text-sm font-semibold text-white/80">{t("league")}</div>
-      <div className="text-lg font-extrabold truncate mt-1">{comp?.name ?? slug}</div>
-      <div className="text-xs text-white/70 mt-1">
-        {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
-      </div>
-    </div>
-
-    <div className="rounded-xl border border-white/10 bg-black/15 p-3">
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="text-sm font-semibold text-white/85">{t("round")}</div>
-        <div className="text-xs text-white/70">{selectedRound != null ? `#${selectedRound}` : "—"}</div>
+    <div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-green-300/10 blur-3xl" />
       </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
-          disabled={selectedIdx <= 0}
-          className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 disabled:opacity-40 text-white"
-        >
-          ←
-        </button>
+      <div className="relative">
+        <AppHeader
+          subtitle="League view"
+          lang={lang}
+          onLangChange={(l) => setLangEverywhere(l)}
+        />
 
-        <div className="flex-1 overflow-x-auto">
-          <div className="flex gap-1 pb-1 [-webkit-overflow-scrolling:touch]">
-            {roundsList.map((r) => {
-              const active = selectedRound === r;
-              return (
+        <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
+          <aside className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4 h-fit text-white space-y-4">
+            <div>
+              <div className="text-sm font-semibold text-white/80">{t("league")}</div>
+              <div className="mt-2 flex items-center gap-3 min-w-0">
+                <LeagueLogo slug={comp?.slug} alt={comp?.name ?? "League"} size={26} />
+                <div className="text-lg font-extrabold truncate">{comp?.name ?? slug}</div>
+              </div>
+              <div className="text-xs text-white/70 mt-2">
+                {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/15 bg-white/10 p-3">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="text-sm font-semibold text-white/85">{t("round")}</div>
+                <div className="text-xs text-white/70">
+                  {selectedRound != null ? `#${selectedRound}` : "—"}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <button
-                  key={r}
-                  onClick={() => setSelectedRound(r)}
-                  className={`h-8 w-8 shrink-0 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
-                    active
-                      ? "bg-emerald-400 text-black border-emerald-300"
-                      : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
-                  }`}
+                  onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
+                  disabled={selectedIdx <= 0}
+                  className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 disabled:opacity-40 text-white"
                 >
-                  {r}
+                  ←
                 </button>
-              );
-            })}
-          </div>
-        </div>
 
-        <button
-          onClick={() =>
-            selectedIdx >= 0 && selectedIdx < roundsList.length - 1 && setSelectedRound(roundsList[selectedIdx + 1])
-          }
-          disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-          className="px-2 py-1 rounded-lg text-xs font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40"
-        >
-          →
-        </button>
-      </div>
-    </div>
-
-    <div>
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="text-sm font-semibold text-white/85">{t("leagues")}</div>
-
-        <button
-          onClick={() => setLeaguesOpen(true)}
-          className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15 text-white"
-        >
-          {t("openLeaguesBtn")}
-        </button>
-      </div>
-
-      <div className="hidden lg:block space-y-3">
-        {groupedCompetitions.map(([groupName, comps]) => {
-          const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
-          const featuredCount = comps.filter((x) => x.is_featured).length;
-
-          return (
-            <div key={groupName} className="rounded-xl border border-white/10 bg-black/15 overflow-hidden">
-              <button
-                onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
-                className="w-full px-3 py-2 flex items-center justify-between text-left"
-                aria-label={`Toggle group ${groupName}`}
-              >
-                <div className="min-w-0">
-                  <div className="text-sm font-extrabold truncate text-white">{groupName}</div>
-                  <div className="text-[11px] text-white/70">
-                    {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                <div className="flex-1 overflow-x-auto">
+                  <div className="flex gap-1 pb-1">
+                    {roundsList.map((r) => {
+                      const active = selectedRound === r;
+                      return (
+                        <button
+                          key={r}
+                          onClick={() => setSelectedRound(r)}
+                          className={`h-8 w-8 shrink-0 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
+                            active
+                              ? "bg-emerald-400 text-black border-emerald-300"
+                              : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-                <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
-              </button>
 
-              {open ? (
-                <div className="px-2 pb-2 space-y-2">
-                  {comps.map((c) => (
-                    <Link
-                      key={`${c.slug}-${c.id}`}
-                      href={`/leagues/${c.slug}${dateQuery}`}
-                      className={`block w-full px-3 py-2 rounded-xl border transition ${
-                        c.slug === slug
-                          ? "bg-emerald-400 text-black border-emerald-300"
-                          : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-medium truncate">{c.name}</div>
-                        {c.is_featured ? (
-                          <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300 text-black">
-                            PIN
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs opacity-80">{c.region ?? ""}</div>
-                    </Link>
-                  ))}
+                <button
+                  onClick={() =>
+                    selectedIdx >= 0 &&
+                    selectedIdx < roundsList.length - 1 &&
+                    setSelectedRound(roundsList[selectedIdx + 1])
+                  }
+                  disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
+                  className="px-2 py-1 rounded-lg text-xs font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="text-sm font-semibold text-white/85">{t("leagues")}</div>
+
+                <button
+                  onClick={() => setLeaguesOpen(true)}
+                  className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15 text-white"
+                >
+                  {t("openLeaguesBtn")}
+                </button>
+              </div>
+
+              <div className="hidden lg:block space-y-3">
+                {groupedCompetitions.map(([groupName, comps]) => {
+                  const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
+                  const featuredCount = comps.filter((x) => x.is_featured).length;
+
+                  return (
+                    <div key={groupName} className="rounded-xl border border-white/15 bg-white/10 overflow-hidden">
+                      <button
+                        onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                        className="w-full px-3 py-2 flex items-center justify-between text-left"
+                        aria-label={`Toggle group ${groupName}`}
+                      >
+                        <div className="min-w-0">
+                          <div className="text-sm font-extrabold truncate text-white">{groupName}</div>
+                          <div className="text-[11px] text-white/70">
+                            {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                          </div>
+                        </div>
+                        <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+                      </button>
+
+                      {open ? (
+                        <div className="px-2 pb-2 space-y-2">
+                          {comps.map((c) => (
+                            <Link
+                              key={`${c.slug}-${c.id}`}
+                              href={`/leagues/${c.slug}${dateQuery}`}
+                              className={`block w-full px-3 py-2 rounded-xl border transition ${
+                                c.slug === slug
+                                  ? "bg-emerald-400/25 text-white border-emerald-200/30"
+                                  : "bg-black/20 border-white/15 hover:bg-black/30 text-white"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <LeagueLogo slug={c.slug} alt={c.name} size={20} />
+                                  <div className="text-sm font-medium truncate">{c.name}</div>
+                                </div>
+
+                                {c.is_featured ? (
+                                  <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
+                                    PIN
+                                  </span>
+                                ) : null}
+                              </div>
+                              <div className="text-xs opacity-80 mt-1">{c.region ?? ""}</div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {leaguesOpen ? (
+                <div className="lg:hidden fixed inset-0 z-50">
+                  <button
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setLeaguesOpen(false)}
+                    aria-label="Close leagues overlay"
+                  />
+
+                  <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-white/10 bg-[#071a12] shadow-2xl overflow-hidden text-white">
+                    <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                      <div className="font-extrabold">{t("leagues")}</div>
+                      <button
+                        onClick={() => setLeaguesOpen(false)}
+                        className="px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15"
+                      >
+                        {t("close")}
+                      </button>
+                    </div>
+
+                    <div className="p-3 overflow-y-auto max-h-[calc(85vh-56px)] space-y-3">
+                      {groupedCompetitions.map(([groupName, comps]) => {
+                        const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
+                        const featuredCount = comps.filter((x) => x.is_featured).length;
+
+                        return (
+                          <div key={groupName} className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+                            <button
+                              onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                              className="w-full px-3 py-2 flex items-center justify-between text-left"
+                            >
+                              <div className="min-w-0">
+                                <div className="text-sm font-extrabold truncate">{groupName}</div>
+                                <div className="text-[11px] text-white/70">
+                                  {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                                </div>
+                              </div>
+                              <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+                            </button>
+
+                            {open ? (
+                              <div className="px-2 pb-2 space-y-2">
+                                {comps.map((c) => (
+                                  <Link
+                                    key={`${c.slug}-${c.id}`}
+                                    href={`/leagues/${c.slug}${dateQuery}`}
+                                    onClick={() => setLeaguesOpen(false)}
+                                    className={`block w-full px-3 py-2 rounded-xl border transition ${
+                                      c.slug === slug
+                                        ? "bg-emerald-400/25 text-white border-emerald-200/30"
+                                        : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div className="flex items-center gap-2 min-w-0">
+                                        <LeagueLogo slug={c.slug} alt={c.name} size={20} />
+                                        <div className="text-sm font-medium truncate">{c.name}</div>
+                                      </div>
+
+                                      {c.is_featured ? (
+                                        <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
+                                          PIN
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                    <div className="text-xs opacity-80 mt-1">{c.region ?? ""}</div>
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </div>
-          );
-        })}
-      </div>
+          </aside>
 
-      {/* Mobile overlay */}
-      {leaguesOpen ? (
-        <div className="lg:hidden fixed inset-0 z-50">
-          <button
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setLeaguesOpen(false)}
-            aria-label="Close leagues overlay"
-          />
-
-          <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-white/10 bg-[#071a12] shadow-2xl overflow-hidden text-white">
-            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-              <div className="font-extrabold">{t("leagues")}</div>
-              <button
-                onClick={() => setLeaguesOpen(false)}
-                className="px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15"
-              >
-                {t("close")}
-              </button>
+          <section className="space-y-4 min-w-0 text-white">
+            <div>
+              <h2 className="text-xl font-bold">{t("matches")}</h2>
+              <p className="text-sm text-white/80">
+                {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> • {t("round")}:{" "}
+                <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
+                <span className="font-semibold">{timeZone}</span>
+              </p>
             </div>
 
-            <div className="p-3 overflow-y-auto max-h-[calc(85vh-56px)] space-y-3">
-              {groupedCompetitions.map(([groupName, comps]) => {
-                const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
-                const featuredCount = comps.filter((x) => x.is_featured).length;
+            {loadingLeague ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
+                {t("loadingLeague")}
+              </div>
+            ) : err ? (
+              <div className="rounded-2xl border border-red-400/40 bg-red-500/10 backdrop-blur p-6 text-white">
+                <div className="font-bold">{t("error")}</div>
+                <div className="mt-2 text-sm opacity-90">{err}</div>
+              </div>
+            ) : roundMeta.length === 0 ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
+                {t("noMatchesSeason")}
+              </div>
+            ) : loadingMatches ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
+                {t("loadingMatches")}
+              </div>
+            ) : matches.length === 0 ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
+                {t("noMatchesRound")}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur overflow-hidden">
+                <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <LeagueLogo slug={comp?.slug} alt={comp?.name ?? "League"} size={22} />
+                    <div className="font-semibold truncate">{comp?.name ?? "League"}</div>
+                  </div>
+                  <div className="text-sm text-white/70 truncate">{comp?.region ?? ""}</div>
+                </div>
 
-                return (
-                  <div key={groupName} className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
-                    <button
-                      onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
-                      className="w-full px-3 py-2 flex items-center justify-between text-left"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-extrabold truncate">{groupName}</div>
-                        <div className="text-[11px] text-white/70">
-                          {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
+                <div className="divide-y divide-white/10">
+                  {matches.map((m) => {
+                    const label = timeLabelFor(m);
+                    const liveRow = m.status === "LIVE" ? "ring-1 ring-red-400/40 bg-red-500/10" : "";
+
+                    return (
+                      <div
+                        key={m.id}
+                        className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/5 ${liveRow}`}
+                      >
+                        <div className="w-32 shrink-0">
+                          <div className="text-lg font-extrabold tracking-tight">{label}</div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <StatusBadge status={m.status} />
+                            <span className="text-xs text-white/70">
+                              {formatDateShortTZ(m.match_date, timeZone)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                          <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <TeamLogo slug={m.home_team?.slug} alt={m.home_team?.name ?? "Home"} size={22} />
+                              <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
+                            </div>
+                            <span className="font-extrabold tabular-nums">
+                              {m.status === "NS" ? "—" : m.home_score ?? "-"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <TeamLogo slug={m.away_team?.slug} alt={m.away_team?.name ?? "Away"} size={22} />
+                              <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
+                            </div>
+                            <span className="font-extrabold tabular-nums">
+                              {m.status === "NS" ? "—" : m.away_score ?? "-"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="hidden md:block w-48 text-right text-xs text-white/70 shrink-0">
+                          {m.venue ? <div className="truncate">{m.venue}</div> : null}
+                          <div className="mt-1 font-extrabold tabular-nums text-white">
+                            {formatScore(m.status, m.home_score, m.away_score)}
+                          </div>
                         </div>
                       </div>
-                      <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
-                    </button>
-
-                    {open ? (
-                      <div className="px-2 pb-2 space-y-2">
-                        {comps.map((c) => (
-                          <Link
-                            key={`${c.slug}-${c.id}`}
-                            href={`/leagues/${c.slug}${dateQuery}`}
-                            onClick={() => setLeaguesOpen(false)}
-                            className={`block w-full px-3 py-2 rounded-xl border transition ${
-                              c.slug === slug
-                                ? "bg-emerald-400 text-black border-emerald-300"
-                                : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="text-sm font-medium truncate">{c.name}</div>
-                              {c.is_featured ? (
-                                <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300 text-black">
-                                  PIN
-                                </span>
-                              ) : null}
-                            </div>
-                            <div className="text-xs opacity-80">{c.region ?? ""}</div>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  </aside>
-
-  {/* CONTENT */}
-  <section className="space-y-4 min-w-0 text-white">
-    <div>
-      <h2 className="text-xl font-bold">Matches</h2>
-      <p className="text-sm text-white/80">
-        {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> • {t("round")}:{" "}
-        <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
-        <span className="font-semibold">{timeZone}</span>
-      </p>
-    </div>
-
-    {loadingLeague ? (
-      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
-        {t("loadingLeague")}
-      </div>
-    ) : err ? (
-      <div className="rounded-2xl border border-red-400/40 bg-red-500/10 backdrop-blur p-6 text-white">
-        <div className="font-bold">Error</div>
-        <div className="mt-2 text-sm opacity-90">{err}</div>
-      </div>
-    ) : roundMeta.length === 0 ? (
-      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
-        {t("noMatchesSeason")}
-      </div>
-    ) : loadingMatches ? (
-      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
-        {t("loadingMatches")}
-      </div>
-    ) : matches.length === 0 ? (
-      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur p-8 text-center text-white/85">
-        {t("noMatchesRound")}
-      </div>
-    ) : (
-      <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur overflow-hidden">
-        <div className="px-4 py-3 flex items-center justify-between border-b border-white/10">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-            <div className="font-semibold truncate">{comp?.name ?? "League"}</div>
-          </div>
-          <div className="text-sm text-white/70 truncate">{comp?.region ?? ""}</div>
-        </div>
-
-        <div className="divide-y divide-white/10">
-          {matches.map((m) => {
-            const label = timeLabelFor(m);
-            const liveRow = m.status === "LIVE" ? "ring-1 ring-red-400/40 bg-red-500/10" : "";
-
-            return (
-              <div
-                key={m.id}
-                className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/5 ${liveRow}`}
-              >
-                <div className="w-32 shrink-0">
-                  <div className="text-lg font-extrabold tracking-tight">{label}</div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <StatusBadge status={m.status} />
-                    <span className="text-xs text-white/70">{formatDateShortTZ(m.match_date, timeZone)}</span>
-                  </div>
+                    );
+                  })}
                 </div>
 
-                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
-                  <div className="flex items-center justify-between rounded-xl bg-black/20 border border-white/10 px-3 py-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {m.home_team?.name ? <TeamAvatar name={m.home_team.name} /> : null}
-                      <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
-                    </div>
-                    <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.home_score ?? "-"}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-xl bg-black/20 border border-white/10 px-3 py-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {m.away_team?.name ? <TeamAvatar name={m.away_team.name} /> : null}
-                      <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
-                    </div>
-                    <span className="font-extrabold tabular-nums">{m.status === "NS" ? "—" : m.away_score ?? "-"}</span>
-                  </div>
-                </div>
-
-                <div className="hidden md:block w-48 text-right text-xs text-white/70 shrink-0">
-                  {m.venue ? <div className="truncate">{m.venue}</div> : null}
-                  <div className="mt-1 font-extrabold tabular-nums text-white">{formatScore(m.status, m.home_score, m.away_score)}</div>
+                <div className="px-4 py-3 border-t border-white/15 flex justify-end">
+                  <Link
+                    href={`/leagues/${slug}${dateQuery}`}
+                    className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30 hover:bg-emerald-300/35 transition"
+                  >
+                    {t("openLeague")}
+                  </Link>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            )}
 
-        <div className="px-4 py-3 border-t border-white/10 flex justify-end">
-          <Link
-            href={`/leagues/${slug}${dateQuery}`}
-            className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-400 text-black hover:bg-emerald-300"
-          >
-            {t("openLeague")}
-          </Link>
-        </div>
+            <div className="rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-6 backdrop-blur min-w-0">
+              <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
+                <div className="font-bold text-base">{t("standings")}</div>
+                <div className="text-xs text-white/70 truncate">
+                  {t("season")}: {season?.name ?? "—"}
+                </div>
+              </div>
+
+              {standings.length === 0 ? (
+                <div className="text-sm text-white/80 mt-4">{t("comingSoon")}</div>
+              ) : (
+                <>
+                  <div className="mb-3 text-[11px] text-white/70">{t("computedFromFT")}</div>
+
+                  <div className="mt-2 overflow-x-auto rounded-xl border border-white/15 bg-white/5">
+                    <table className="w-full text-xs table-auto">
+                      <thead className="text-xs text-white/70 border-b border-white/10">
+                        <tr>
+                          <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
+                          <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
+                          <th className="text-right py-2 w-[30px]">PJ</th>
+                          <th className="text-right py-2 w-[30px]">W</th>
+                          <th className="text-right py-2 w-[30px]">D</th>
+                          <th className="text-right py-2 w-[30px]">L</th>
+                          <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
+                          <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
+                          <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
+                        </tr>
+                      </thead>
+
+                      <tbody className="divide-y divide-white/10">
+                        {standings.map((r, idx) => {
+                          const pos = r.position ?? idx + 1;
+                          return (
+                            <tr key={r.teamId} className="hover:bg-white/5 transition">
+                              <td className="py-2 pl-2 pr-2 text-xs text-white/70 tabular-nums">{pos}</td>
+
+                              <td className="py-2 font-medium w-[220px] sm:w-[320px] max-w-[320px]">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <TeamLogo slug={r.teamSlug} alt={r.team} size={22} />
+                                  <span className="truncate">{r.team}</span>
+                                </div>
+                              </td>
+
+                              <td className="py-2 text-right tabular-nums">{r.pj}</td>
+                              <td className="py-2 text-right tabular-nums">{r.w}</td>
+                              <td className="py-2 text-right tabular-nums">{r.d}</td>
+                              <td className="py-2 text-right tabular-nums">{r.l}</td>
+                              <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
+                              <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
+                              <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </main>
+
+        <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-white/70">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="min-w-0">
+              RugbyNow • TZ: <span className="font-semibold break-all">{timeZone}</span>
+            </div>
+            <div className="opacity-90">
+              <a className="underline" href="mailto:lopresttivito@gmail.com">
+                lopresttivito@gmail.com
+              </a>
+              <span className="mx-2">•</span>
+              <a
+                className="underline"
+                href="https://www.linkedin.com/in/vitoloprestti/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                LinkedIn
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
-    )}
-
-    {/* STANDINGS CARD */}
-    <div className="rounded-2xl border border-white/10 bg-white/10 p-4 sm:p-6 backdrop-blur min-w-0">
-      <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
-        <div className="font-bold text-base">{t("standings")}</div>
-        <div className="text-xs text-white/70 truncate">
-          {t("season")}: {season?.name ?? "—"}
-        </div>
-      </div>
-
-      {standings.length === 0 ? (
-        <div className="text-sm text-white/80 mt-4">{t("comingSoon")}</div>
-      ) : (
-        <>
-          <div className="mb-3 text-[11px] text-white/70">{t("computedFromFT")}</div>
-
-          <div className="mt-2 overflow-x-auto rounded-xl border border-white/10 bg-black/20">
-            <table className="w-full text-xs table-auto">
-              <thead className="text-xs text-white/70 border-b border-white/10">
-                <tr>
-                  <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
-                  <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
-                  <th className="text-right py-2 w-[30px]">PJ</th>
-                  <th className="text-right py-2 w-[30px]">W</th>
-                  <th className="text-right py-2 w-[30px]">D</th>
-                  <th className="text-right py-2 w-[30px]">L</th>
-                  <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
-                  <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
-                  <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-white/10">
-                {standings.map((r, idx) => {
-                  const pos = r.position ?? idx + 1;
-                  return (
-                    <tr key={r.teamId} className="hover:bg-white/5 transition">
-                      <td className="py-2 pl-2 pr-2 text-xs text-white/70 tabular-nums">{pos}</td>
-
-                      <td className="py-2 font-medium w-[220px] sm:w-[320px] max-w-[320px]">
-                        <div className="flex items-center gap-1 min-w-0">
-                          <TeamAvatar name={r.team} />
-                          <span className="truncate">{r.team}</span>
-                        </div>
-                      </td>
-
-                      <td className="py-2 text-right tabular-nums">{r.pj}</td>
-                      <td className="py-2 text-right tabular-nums">{r.w}</td>
-                      <td className="py-2 text-right tabular-nums">{r.d}</td>
-                      <td className="py-2 text-right tabular-nums">{r.l}</td>
-
-                      <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
-                      <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
-
-                      <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </div>
-  </section>
-</main>
-      <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-neutral-800 dark:text-white/40">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="min-w-0">
-            RugbyNow • TZ: <span className="font-semibold break-all">{timeZone}</span>
-          </div>
-          <div className="opacity-90">
-            <a className="underline" href="mailto:lopresttivito@gmail.com">
-              lopresttivito@gmail.com
-            </a>
-            <span className="mx-2">•</span>
-            <a className="underline" href="https://www.linkedin.com/in/vitolopresttivito/" target="_blank" rel="noreferrer">
-              LinkedIn
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

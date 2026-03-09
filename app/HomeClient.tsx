@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
+import { getLeagueFlag, getTeamFlag } from "@/app/lib/flags";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
@@ -46,8 +47,10 @@ type DbMatchRow = {
   away_score: number | null;
   round: number | null;
   venue: string | null;
+
   home_team: { id: number; name: string; slug: string } | null;
   away_team: { id: number; name: string; slug: string } | null;
+
   season:
     | {
         id: number;
@@ -83,6 +86,17 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   return (
     <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white/90 border border-white/15">
       PRE
+    </span>
+  );
+}
+
+function TeamName({ name }: { name: string }) {
+  const flag = getTeamFlag(name);
+
+  return (
+    <span className="flex items-center gap-2 min-w-0">
+      {flag ? <span className="text-base shrink-0">{flag}</span> : null}
+      <span className="truncate">{name}</span>
     </span>
   );
 }
@@ -131,65 +145,18 @@ function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZo
   }).format(dt);
 }
 
-function normalizeName(s: string) {
-  return (s || "")
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function statusRank(status: MatchStatus) {
-  if (status === "LIVE") return 3;
-  if (status === "FT") return 2;
-  return 1;
-}
-
-// Dedupe fuerte:
-// - elimina repetidos exactos
-// - elimina espejados (A vs B y B vs A)
-// - si hay conflicto, prioriza LIVE/FT sobre NS
 function dedupeBlock(block: LeagueBlock) {
-  const byKey = new Map<string, Match>();
+  const seen = new Set<string>();
+  const out: Match[] = [];
 
   for (const m of block.matches) {
-    const a = normalizeName(m.home);
-    const b = normalizeName(m.away);
-    const teamsKey = [a, b].sort().join("::");
-
-    const scoreKey =
-      m.status === "NS"
-        ? "ns"
-        : `${m.hs ?? "null"}-${m.as ?? "null"}`;
-
-    const key = `${block.slug}|${m.timeLabel}|${teamsKey}|${scoreKey}`;
-
-    const existing = byKey.get(key);
-
-    if (!existing) {
-      byKey.set(key, m);
-      continue;
-    }
-
-    if (statusRank(m.status) > statusRank(existing.status)) {
-      byKey.set(key, m);
-      continue;
-    }
-
-    // si tienen mismo status, preferimos el que tenga score real
-    const existingHasScore = existing.hs !== null || existing.as !== null;
-    const currentHasScore = m.hs !== null || m.as !== null;
-
-    if (!existingHasScore && currentHasScore) {
-      byKey.set(key, m);
-    }
+    const key = `${block.slug}|${m.timeLabel}|${m.home}|${m.away}|${m.status}|${m.hs ?? ""}|${m.as ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(m);
   }
 
-  return {
-    ...block,
-    matches: Array.from(byKey.values()),
-  };
+  return { ...block, matches: out };
 }
 
 export default function HomeClient() {
@@ -199,11 +166,7 @@ export default function HomeClient() {
   const [timeZone, setTimeZone] = useState<string>("America/New_York");
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
 
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    const d = searchParams?.get("date");
-    if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) return fromISODateLocal(d);
-    return new Date();
-  });
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
@@ -230,23 +193,20 @@ export default function HomeClient() {
     localStorage.setItem("tz", timeZone);
   }, [timeZone]);
 
-  // Sync URL -> state
   useEffect(() => {
     const d = searchParams?.get("date");
-    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
-
-    const iso = d;
-    if (iso !== toISODateLocal(selectedDate)) {
-      setSelectedDate(fromISODateLocal(iso));
+    if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+      setSelectedDate(fromISODateLocal(d));
+    } else {
+      setSelectedDate(new Date());
     }
   }, [searchParams]);
 
-  // Sync state -> URL
   useEffect(() => {
     if (lastPushedISO.current === selectedISO) return;
     lastPushedISO.current = selectedISO;
-    router.replace(`/${dateQuery}`, { scroll: false });
-  }, [router, selectedISO, dateQuery]);
+    router.replace(`/?date=${selectedISO}`, { scroll: false });
+  }, [router, selectedISO]);
 
   useEffect(() => {
     const loadComps = async () => {
@@ -392,7 +352,7 @@ export default function HomeClient() {
         setBlocks([]);
         setLoadError(error.message ?? "Unknown matches error");
         setLoading(false);
-        timer = setTimeout(loadMatches, 60_000);
+        timer = setTimeout(loadMatches, 60000);
         return;
       }
 
@@ -444,7 +404,7 @@ export default function HomeClient() {
       setBlocks(blocksDeduped);
       setLoading(false);
 
-      const nextMs = hasLive ? 10_000 : 60_000;
+      const nextMs = hasLive ? 10000 : 60000;
       timer = setTimeout(loadMatches, nextMs);
     };
 
@@ -571,13 +531,20 @@ export default function HomeClient() {
                                 className="block w-full text-left px-3 py-2 rounded-xl border border-white/15 transition bg-black/20 hover:bg-black/30"
                               >
                                 <div className="flex items-center justify-between gap-2">
-                                  <div className="text-sm font-medium truncate text-white">{c.name}</div>
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <span className="shrink-0 text-base">
+                                      {getLeagueFlag(c.slug, c.region)}
+                                    </span>
+                                    <div className="text-sm font-medium truncate text-white">{c.name}</div>
+                                  </div>
+
                                   {c.is_featured ? (
                                     <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
                                       PIN
                                     </span>
                                   ) : null}
                                 </div>
+
                                 {c.region ? <div className="text-xs text-white/70">{c.region}</div> : null}
                               </Link>
                             ))}
@@ -622,7 +589,7 @@ export default function HomeClient() {
                 >
                   <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
+                      <span className="text-lg shrink-0">{getLeagueFlag(block.slug, block.region)}</span>
                       <div className="font-semibold truncate text-white">{block.league}</div>
                     </div>
                     <div className="text-sm text-white/70">{block.region}</div>
@@ -645,14 +612,14 @@ export default function HomeClient() {
 
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                           <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <span className="font-medium truncate text-white">{m.home}</span>
+                            <TeamName name={m.home} />
                             <span className="font-extrabold tabular-nums text-white">
                               {m.status === "NS" ? "—" : m.hs ?? "-"}
                             </span>
                           </div>
 
                           <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <span className="font-medium truncate text-white">{m.away}</span>
+                            <TeamName name={m.away} />
                             <span className="font-extrabold tabular-nums text-white">
                               {m.status === "NS" ? "—" : m.as ?? "-"}
                             </span>

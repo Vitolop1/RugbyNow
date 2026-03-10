@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 import { usePrefs, type Lang } from "@/lib/usePrefs";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
@@ -23,30 +22,6 @@ type DbMatchRow = {
   home_team: { id: number; name: string; slug: string } | null;
   away_team: { id: number; name: string; slug: string } | null;
 };
-
-type TeamRefRow = {
-  home_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
-  away_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
-};
-
-type StandingMatchRow = {
-  home_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
-  away_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
-  home_score: number | null;
-  away_score: number | null;
-};
-
-type RoundQueryRow = {
-  round: number | string | null;
-  match_date: string;
-  status: MatchStatus | null;
-};
-
-function asTeamRef(
-  team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null
-) {
-  return Array.isArray(team) ? (team[0] ?? null) : team;
-}
 
 type Competition = {
   id: number;
@@ -96,7 +71,7 @@ const I18N: Record<Lang, Record<string, string>> = {
     playoffs: "Playoffs",
     relegation: "Relegation",
     computedFromFT: "Computed from FT matches",
-    openLeague: "Open league →",
+    openLeague: "Open league ->",
     openLeaguesBtn: "Leagues",
     close: "Close",
     matches: "Matches",
@@ -110,14 +85,14 @@ const I18N: Record<Lang, Record<string, string>> = {
     standings: "Tabla",
     loadingLeague: "Cargando liga...",
     loadingMatches: "Cargando partidos...",
-    noMatchesSeason: "Todavía no hay partidos cargados para esta temporada.",
+    noMatchesSeason: "Todavia no hay partidos cargados para esta temporada.",
     noMatchesRound: "No hay partidos en esta fecha.",
-    comingSoon: "Próximamente.",
+    comingSoon: "Proximamente.",
     tz: "TZ",
     playoffs: "Playoffs",
     relegation: "Descenso",
     computedFromFT: "Calculado desde partidos FT",
-    openLeague: "Abrir liga →",
+    openLeague: "Abrir liga ->",
     openLeaguesBtn: "Ligas",
     close: "Cerrar",
     matches: "Partidos",
@@ -127,31 +102,23 @@ const I18N: Record<Lang, Record<string, string>> = {
     leagues: "Ligues",
     league: "Ligue",
     season: "Saison",
-    round: "Journée",
+    round: "Journee",
     standings: "Classement",
     loadingLeague: "Chargement de la ligue...",
     loadingMatches: "Chargement des matchs...",
-    noMatchesSeason: "Aucun match n’est encore chargé pour cette saison.",
-    noMatchesRound: "Aucun match dans cette journée.",
-    comingSoon: "Bientôt disponible.",
+    noMatchesSeason: "Aucun match n'est encore charge pour cette saison.",
+    noMatchesRound: "Aucun match dans cette journee.",
+    comingSoon: "Bientot disponible.",
     tz: "TZ",
     playoffs: "Playoffs",
-    relegation: "Relégation",
-    computedFromFT: "Calculé depuis les matchs FT",
-    openLeague: "Ouvrir ligue →",
+    relegation: "Relegation",
+    computedFromFT: "Calcule depuis les matchs FT",
+    openLeague: "Ouvrir ligue ->",
     openLeaguesBtn: "Ligues",
     close: "Fermer",
     matches: "Matchs",
     error: "Erreur",
   },
-};
-
-const STANDINGS_RULES: Record<
-  string,
-  { topChampions?: number; topEurope?: number; bottomRelegation?: number } | undefined
-> = {
-  "en-premiership": { topChampions: 4, bottomRelegation: 1 },
-  "en-premiership-rugby": { topChampions: 4, bottomRelegation: 1 },
 };
 
 function LeagueLogo({
@@ -267,16 +234,6 @@ function formatKickoffInTZ(match_date: string, kickoff_time: string | null, time
   }).format(dt);
 }
 
-function parseRound(v: number | string | null | undefined): number | null {
-  if (v == null) return null;
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string" && v.trim() !== "") {
-    const n = parseInt(v, 10);
-    return Number.isFinite(n) ? n : null;
-  }
-  return null;
-}
-
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -288,213 +245,6 @@ function formatScore(status: MatchStatus, hs: number | null, as: number | null) 
   if (status === "NS") return "—";
   if (hs == null || as == null) return "-";
   return `${hs} - ${as}`;
-}
-
-function pickAutoRound(meta: RoundMeta2[], refISO: string) {
-  if (!meta.length) return null;
-  const rounds = meta.slice().sort((a, b) => a.round - b.round);
-
-  const i = rounds.findIndex((r) => r.first_date <= refISO && refISO <= r.last_date);
-  if (i !== -1) {
-    const cur = rounds[i];
-    const isComplete = cur.ft >= cur.matches;
-    const isPast = refISO > cur.last_date;
-    if (isComplete && isPast && rounds[i + 1]) return rounds[i + 1].round;
-    return cur.round;
-  }
-
-  const next = rounds.find((r) => r.first_date >= refISO);
-  if (next) return next.round;
-
-  const lastIncomplete = rounds.slice().reverse().find((r) => r.ft < r.matches);
-  return (lastIncomplete ?? rounds[rounds.length - 1]).round;
-}
-
-async function fetchTeamsForSeason(seasonId: number) {
-  const { data, error } = await supabase
-    .from("matches")
-    .select(`
-      home_team:home_team_id ( id, name, slug ),
-      away_team:away_team_id ( id, name, slug )
-    `)
-    .eq("season_id", seasonId);
-
-  if (error) throw error;
-
-  const map = new Map<number, { name: string; slug: string | null }>();
-
-  for (const r of (data || []) as TeamRefRow[]) {
-    const homeTeam = asTeamRef(r.home_team);
-    const awayTeam = asTeamRef(r.away_team);
-
-    if (homeTeam?.id) {
-      map.set(homeTeam.id, {
-        name: homeTeam.name,
-        slug: homeTeam.slug ?? null,
-      });
-    }
-    if (awayTeam?.id) {
-      map.set(awayTeam.id, {
-        name: awayTeam.name,
-        slug: awayTeam.slug ?? null,
-      });
-    }
-  }
-
-  return map;
-}
-
-function pointsForResult(home: number, away: number) {
-  if (home > away) return { homePts: 4, awayPts: 0, homeW: 1, awayW: 0, d: 0 };
-  if (away > home) return { homePts: 0, awayPts: 4, homeW: 0, awayW: 1, d: 0 };
-  return { homePts: 2, awayPts: 2, homeW: 0, awayW: 0, d: 1 };
-}
-
-async function fetchStandingsComputed(seasonId: number, compSlug: string) {
-  const { data, error } = await supabase
-    .from("matches")
-    .select(`
-      status, home_score, away_score,
-      home_team:home_team_id ( id, name, slug ),
-      away_team:away_team_id ( id, name, slug )
-    `)
-    .eq("season_id", seasonId)
-    .eq("status", "FT");
-
-  if (error) throw error;
-
-  const teamMap = await fetchTeamsForSeason(seasonId);
-  const table = new Map<number, StandingRow>();
-
-  for (const [id, team] of teamMap.entries()) {
-    table.set(id, {
-      teamId: id,
-      team: team.name,
-      teamSlug: team.slug,
-      pj: 0,
-      w: 0,
-      d: 0,
-      l: 0,
-      pf: 0,
-      pa: 0,
-      pts: 0,
-    });
-  }
-
-  let ftCount = 0;
-
-  for (const r of (data || []) as StandingMatchRow[]) {
-    const ht = asTeamRef(r.home_team);
-    const at = asTeamRef(r.away_team);
-    const hs = r.home_score;
-    const as = r.away_score;
-
-    if (!ht?.id || !at?.id) continue;
-    if (typeof hs !== "number" || typeof as !== "number") continue;
-
-    ftCount += 1;
-
-    const home =
-      table.get(ht.id) ?? {
-        teamId: ht.id,
-        team: ht.name,
-        teamSlug: ht.slug ?? null,
-        pj: 0,
-        w: 0,
-        d: 0,
-        l: 0,
-        pf: 0,
-        pa: 0,
-        pts: 0,
-      };
-
-    const away =
-      table.get(at.id) ?? {
-        teamId: at.id,
-        team: at.name,
-        teamSlug: at.slug ?? null,
-        pj: 0,
-        w: 0,
-        d: 0,
-        l: 0,
-        pf: 0,
-        pa: 0,
-        pts: 0,
-      };
-
-    home.pj += 1;
-    away.pj += 1;
-
-    home.pf += hs;
-    home.pa += as;
-
-    away.pf += as;
-    away.pa += hs;
-
-    const res = pointsForResult(hs, as);
-    home.pts += res.homePts;
-    away.pts += res.awayPts;
-
-    if (res.d === 1) {
-      home.d += 1;
-      away.d += 1;
-    } else {
-      home.w += res.homeW;
-      away.w += res.awayW;
-      home.l += res.awayW;
-      away.l += res.homeW;
-    }
-
-    table.set(ht.id, home);
-    table.set(at.id, away);
-  }
-
-  const rows = Array.from(table.values()).sort((a, b) => {
-    if (b.pts !== a.pts) return b.pts - a.pts;
-    const ad = a.pf - a.pa;
-    const bd = b.pf - b.pa;
-    if (bd !== ad) return bd - ad;
-    if (b.pf !== a.pf) return b.pf - a.pf;
-    return a.team.localeCompare(b.team);
-  });
-
-  const rules = STANDINGS_RULES[compSlug];
-  const total = rows.length;
-
-  const withMeta = rows.map((r, idx) => {
-    const position = idx + 1;
-    let badge: StandingRow["badge"] = null;
-
-    if (rules?.topChampions && position <= rules.topChampions) badge = "champions";
-    else if (rules?.topEurope && position <= rules.topEurope) badge = "europe";
-
-    if (rules?.bottomRelegation && position > total - (rules.bottomRelegation ?? 0)) {
-      badge = "relegation";
-    }
-
-    return { ...r, position, badge };
-  });
-
-  return { rows: withMeta, ftCount };
-}
-
-async function fetchStandingsZero(seasonId: number) {
-  const teamMap = await fetchTeamsForSeason(seasonId);
-
-  return Array.from(teamMap.entries())
-    .map(([teamId, team]) => ({
-      teamId,
-      team: team.name,
-      teamSlug: team.slug,
-      pj: 0,
-      w: 0,
-      d: 0,
-      l: 0,
-      pf: 0,
-      pa: 0,
-      pts: 0,
-    }))
-    .sort((a, b) => a.team.localeCompare(b.team));
 }
 
 export default function LeagueClient() {
@@ -530,77 +280,15 @@ export default function LeagueClient() {
 
   useEffect(() => {
     const loadComps = async () => {
-      const { data, error } = await supabase
-        .from("competitions")
-        .select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured")
-        .order("is_featured", { ascending: false })
-        .order("group_name", { ascending: true })
-        .order("sort_order", { ascending: true })
-        .order("name", { ascending: true });
-
-      if (!error) setCompetitions((data || []) as Competition[]);
+      const response = await fetch("/api/competitions", { cache: "no-store" });
+      const payload = await response.json();
+      if (response.ok || payload.competitions) {
+        setCompetitions((payload.competitions || []) as Competition[]);
+      }
     };
 
     loadComps();
   }, []);
-
-  async function fetchMatchesForRound(seasonId: number, round: number) {
-    const { data, error } = await supabase
-      .from("matches")
-      .select(`
-        id, match_date, kickoff_time, status, minute, home_score, away_score, round, venue,
-        home_team:home_team_id ( id, name, slug ),
-        away_team:away_team_id ( id, name, slug )
-      `)
-      .eq("season_id", seasonId)
-      .eq("round", round)
-      .order("match_date", { ascending: true })
-      .order("kickoff_time", { ascending: true });
-
-    if (error) throw error;
-    return (data || []) as unknown as DbMatchRow[];
-  }
-
-  async function fetchRoundMeta(seasonId: number): Promise<RoundMeta2[]> {
-    const { data, error } = await supabase
-      .from("matches")
-      .select("round, match_date, status")
-      .eq("season_id", seasonId)
-      .not("round", "is", null)
-      .order("match_date", { ascending: true });
-
-    if (error) throw error;
-
-    const map = new Map<number, { first: string; last: string; count: number; ft: number }>();
-
-    for (const row of (data || []) as RoundQueryRow[]) {
-      const r = parseRound(row.round);
-      if (r == null) continue;
-
-      const d = row.match_date as string;
-      const st = (row.status as MatchStatus) ?? "NS";
-
-      const cur = map.get(r);
-      if (!cur) {
-        map.set(r, { first: d, last: d, count: 1, ft: st === "FT" ? 1 : 0 });
-      } else {
-        if (d < cur.first) cur.first = d;
-        if (d > cur.last) cur.last = d;
-        cur.count += 1;
-        if (st === "FT") cur.ft += 1;
-      }
-    }
-
-    return Array.from(map.entries())
-      .map(([round, v]) => ({
-        round,
-        first_date: v.first,
-        last_date: v.last,
-        matches: v.count,
-        ft: v.ft,
-      }))
-      .sort((a, b) => a.round - b.round);
-  }
 
   useEffect(() => {
     const loadLeagueEverything = async () => {
@@ -619,55 +307,25 @@ export default function LeagueClient() {
         return;
       }
 
-      const { data: compData, error: compErr } = await supabase
-        .from("competitions")
-        .select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (compErr || !compData) {
-        setErr(`No competition found for slug: ${slug}`);
-        setLoadingLeague(false);
-        return;
-      }
-
-      setComp(compData as Competition);
-
-      const { data: seasonData, error: seasonErr } = await supabase
-        .from("seasons")
-        .select("id,name,competition_id")
-        .eq("competition_id", compData.id)
-        .order("name", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (seasonErr || !seasonData) {
-        setErr(`No season found for: ${slug}`);
-        setLoadingLeague(false);
-        return;
-      }
-
-      setSeason(seasonData as Season);
-
       try {
-        const meta = await fetchRoundMeta(seasonData.id);
-        setRoundMeta(meta);
-        setSelectedRound(meta.length > 0 ? pickAutoRound(meta, refISO) : null);
-      } catch (e: unknown) {
-        setErr(e instanceof Error ? e.message : "Error loading rounds");
-        setLoadingLeague(false);
-        return;
-      }
+        const response = await fetch(`/api/leagues/${slug}?date=${refISO}`, { cache: "no-store" });
+        const payload = await response.json();
 
-      try {
-        const computed = await fetchStandingsComputed(seasonData.id, compData.slug);
-        if (computed.ftCount > 0) {
-          setStandings(computed.rows);
-        } else {
-          setStandings(await fetchStandingsZero(seasonData.id));
+        if (!response.ok && !payload.competition) {
+          setErr(payload.error ?? `No competition found for slug: ${slug}`);
+          setLoadingLeague(false);
+          return;
         }
-      } catch {
-        setStandings(await fetchStandingsZero(seasonData.id));
+
+        setComp(payload.competition as Competition);
+        setSeason((payload.season ?? null) as Season | null);
+        setRoundMeta((payload.roundMeta || []) as RoundMeta2[]);
+        setSelectedRound((payload.selectedRound ?? null) as number | null);
+        setMatches((payload.matches || []) as DbMatchRow[]);
+        setStandings((payload.standings || []) as StandingRow[]);
+        setErr("");
+      } catch (e: unknown) {
+        setErr(e instanceof Error ? e.message : "Error loading league");
       }
 
       setLoadingLeague(false);
@@ -684,10 +342,21 @@ export default function LeagueClient() {
 
     const load = async () => {
       try {
-        const m = await fetchMatchesForRound(season.id, selectedRound);
+        const response = await fetch(`/api/leagues/${slug}?date=${refISO}&round=${selectedRound}`, {
+          cache: "no-store",
+        });
+        const payload = await response.json();
         if (cancelled) return;
 
+        if (!response.ok && !payload.matches) {
+          setErr(payload.error ?? "Error loading matches");
+          timer = setTimeout(load, 60_000);
+          return;
+        }
+
+        const m = (payload.matches || []) as DbMatchRow[];
         setMatches(m);
+        if (payload.standings) setStandings(payload.standings as StandingRow[]);
         setErr("");
 
         const hasLive = m.some((x) => x.status === "LIVE");
@@ -708,7 +377,7 @@ export default function LeagueClient() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [season, selectedRound]);
+  }, [season, selectedRound, slug, refISO]);
 
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {

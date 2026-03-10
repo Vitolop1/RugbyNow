@@ -5,6 +5,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 export type Lang = "en" | "es" | "fr" | "it";
 
 const DEFAULT_TZ = "America/New_York";
+const DEFAULT_LANG: Lang = "en";
+const DEFAULT_DARK = false;
 
 function readLang(): Lang {
   const v = localStorage.getItem("lang");
@@ -20,22 +22,10 @@ function readTheme(): boolean {
   return localStorage.getItem("theme") === "dark";
 }
 
-function getInitialTimeZone() {
-  return typeof window === "undefined" ? DEFAULT_TZ : readTZ();
-}
-
-function getInitialLang(): Lang {
-  return typeof window === "undefined" ? "en" : readLang();
-}
-
-function getInitialTheme() {
-  return typeof window !== "undefined" && readTheme();
-}
-
 export function usePrefs() {
-  const [timeZone, setTimeZone] = useState<string>(getInitialTimeZone);
-  const [lang, setLang] = useState<Lang>(getInitialLang);
-  const [dark, setDark] = useState<boolean>(getInitialTheme);
+  const [timeZone, setTimeZone] = useState<string>(DEFAULT_TZ);
+  const [lang, setLang] = useState<Lang>(DEFAULT_LANG);
+  const [dark, setDark] = useState<boolean>(DEFAULT_DARK);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -43,7 +33,18 @@ export function usePrefs() {
   );
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", readTheme());
+    const syncPrefs = () => {
+      const nextTZ = readTZ();
+      const nextLang = readLang();
+      const nextDark = readTheme();
+
+      setTimeZone(nextTZ);
+      setLang(nextLang);
+      setDark(nextDark);
+      document.documentElement.classList.toggle("dark", nextDark);
+    };
+
+    const syncId = window.setTimeout(syncPrefs, 0);
 
     const onStorage = (e: StorageEvent) => {
       if (e.key === "tz") setTimeZone(readTZ());
@@ -69,6 +70,7 @@ export function usePrefs() {
     window.addEventListener("theme-change", onTheme);
 
     return () => {
+      window.clearTimeout(syncId);
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("tz-change", onTZ);
       window.removeEventListener("lang-change", onLang);

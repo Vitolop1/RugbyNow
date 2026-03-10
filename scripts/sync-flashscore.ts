@@ -3,6 +3,8 @@ loadEnvConfig(process.cwd());
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
+import fs from "node:fs";
+import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chromium, Page } from "playwright";
 
@@ -71,14 +73,40 @@ type ScrapedStandingRow = {
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const LIVE_ONLY = process.env.LIVE_ONLY === "1";
+const DRY_RUN = process.env.DRY_RUN === "1";
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+if (!DRY_RUN && (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)) {
   throw new Error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY");
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { persistSession: false },
-});
+const supabase =
+  !DRY_RUN && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+    ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+        auth: { persistSession: false },
+      })
+    : null;
+
+function ensureSupabase() {
+  if (!supabase) {
+    throw new Error("Supabase client is not available. Run without DRY_RUN=1 to enable DB sync.");
+  }
+
+  return supabase;
+}
+
+function ensureLogsDir() {
+  const dir = path.join(process.cwd(), "logs");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+function writeDryRunDump(compSlug: string, payload: Record<string, unknown>) {
+  const dir = ensureLogsDir();
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const file = path.join(dir, `flashscore-dry-run-${compSlug}-${ts}.json`);
+  fs.writeFileSync(file, JSON.stringify(payload, null, 2), "utf8");
+  console.log(`DRY_RUN dump written: ${file}`);
+}
 
 function norm(s: string) {
   return (s || "")
@@ -289,7 +317,7 @@ function seasonYearBounds(seasonName: string) {
 }
 
 async function getLatestSeasonIdByCompSlug(compSlug: string) {
-  const { data: comp, error: compErr } = await supabase
+  const { data: comp, error: compErr } = await ensureSupabase()
     .from("competitions")
     .select("id,slug,name")
     .eq("slug", compSlug)
@@ -298,7 +326,7 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
   if (compErr) throw compErr;
   if (!comp?.id) throw new Error(`No competition found for slug=${compSlug}`);
 
-  const { data: seasons, error: seasonErr } = await supabase
+  const { data: seasons, error: seasonErr } = await ensureSupabase()
     .from("seasons")
     .select("id,name")
     .eq("competition_id", comp.id);
@@ -314,16 +342,18 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
 }
 
 async function getTeamsMap() {
-  const { data, error } = await supabase.from("teams").select("id,name");
-  if (error) throw error;
-
   const map = new Map<string, number>();
   const names: string[] = [];
 
-  for (const t of (data || []) as TeamRow[]) {
-    const n = norm(t.name);
-    map.set(n, t.id);
-    names.push(n);
+  if (!DRY_RUN) {
+    const { data, error } = await ensureSupabase().from("teams").select("id,name");
+    if (error) throw error;
+
+    for (const t of (data || []) as TeamRow[]) {
+      const n = norm(t.name);
+      map.set(n, t.id);
+      names.push(n);
+    }
   }
 
   map.set(norm("Emilia"), 33);
@@ -599,7 +629,15 @@ async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>,
   const slug = slugify(cleanName);
   if (!slug) return null;
 
-  const { data, error } = await supabase
+  if (DRY_RUN) {
+    const fakeId = -1 * (teamNamesNorm.length + 1);
+    const n = norm(cleanName);
+    teamsMap.set(n, fakeId);
+    teamNamesNorm.push(n);
+    return fakeId;
+  }
+
+  const { data, error } = await ensureSupabase()
     .from("teams")
     .upsert(
       {
@@ -629,7 +667,7 @@ async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>,
 }
 
 async function getMatchesBySeason(seasonId: number) {
-  const { data, error } = await supabase
+  const { data, error } = await ensureSupabase()
     .from("matches")
     .select(
       "id,season_id,match_date,kickoff_time,status,minute,home_team_id,away_team_id,home_score,away_score,round,source_event_key"
@@ -1067,6 +1105,10 @@ function buildExistingIndexes(matches: DbMatchRow[]) {
 }
 
 async function saveMatchBySourceKey(payload: Record<string, unknown>) {
+  if (DRY_RUN) {
+    return "inserted";
+  }
+
   const sourceEventKey = (payload.source_event_key as string | null) ?? null;
   const seasonId = payload.season_id as number;
   const matchDate = payload.match_date as string;
@@ -1075,7 +1117,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   const awayTeamId = payload.away_team_id as number;
 
   if (sourceEventKey) {
-    const { data: existingBySource, error: findSourceErr } = await supabase
+    const { data: existingBySource, error: findSourceErr } = await ensureSupabase()
       .from("matches")
       .select("id,status")
       .eq("source_event_key", sourceEventKey)
@@ -1089,7 +1131,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
         return "skipped";
       }
 
-      const { error: updateErr } = await supabase
+      const { error: updateErr } = await ensureSupabase()
         .from("matches")
         .update(payload)
         .eq("id", existingBySource.id);
@@ -1099,7 +1141,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
     }
   }
 
-  let logicalQuery = supabase
+  let logicalQuery = ensureSupabase()
     .from("matches")
     .select("id,status")
     .eq("season_id", seasonId)
@@ -1123,7 +1165,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
       return "skipped";
     }
 
-    const { error: updateErr } = await supabase
+    const { error: updateErr } = await ensureSupabase()
       .from("matches")
       .update(payload)
       .eq("id", existingLogical.id);
@@ -1132,7 +1174,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
     return "updated";
   }
 
-  const { error: insertErr } = await supabase.from("matches").insert(payload);
+  const { error: insertErr } = await ensureSupabase().from("matches").insert(payload);
   if (insertErr) throw insertErr;
 
   return "inserted";
@@ -1145,6 +1187,7 @@ async function upsertStandingsCache(
   rows: ScrapedStandingRow[]
 ) {
   if (!rows.length) return;
+  if (DRY_RUN) return;
 
   const payload: Array<Record<string, unknown>> = [];
 
@@ -1170,7 +1213,7 @@ async function upsertStandingsCache(
 
   if (!payload.length) return;
 
-  const { error } = await supabase
+  const { error } = await ensureSupabase()
     .from("standings_cache")
     .upsert(payload, { onConflict: "season_id,team_id" });
 
@@ -1184,16 +1227,15 @@ async function upsertStandingsCache(
 async function main() {
   const inputs = urlsFromEnv();
   console.log("Inputs:", inputs);
+  console.log("Mode:", DRY_RUN ? "DRY_RUN" : "LIVE_DB");
 
-  const { error: pingErr } = await supabase.from("competitions").select("id").limit(1);
-  if (pingErr) throw pingErr;
+  if (!DRY_RUN) {
+    const { error: pingErr } = await ensureSupabase().from("competitions").select("id").limit(1);
+    if (pingErr) throw pingErr;
+  }
 
-  if (LIVE_ONLY) {
-    const { data, error } = await supabase
-      .from("matches")
-      .select("id")
-      .eq("status", "LIVE")
-      .limit(1);
+  if (LIVE_ONLY && !DRY_RUN) {
+    const { data, error } = await ensureSupabase().from("matches").select("id").eq("status", "LIVE").limit(1);
 
     if (error) throw error;
 
@@ -1231,11 +1273,13 @@ async function main() {
         continue;
       }
 
-      const { seasonId, seasonName } = await getLatestSeasonIdByCompSlug(compSlug);
-      const existingMatches = await getMatchesBySeason(seasonId);
+      const seasonMeta = DRY_RUN
+        ? { seasonId: 0, seasonName: `dry-run-${new Date().getUTCFullYear()}` }
+        : await getLatestSeasonIdByCompSlug(compSlug);
+      const existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
       const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
 
-      console.log(`\n== ${compSlug} (${seasonName}) ==`);
+      console.log(`\n== ${compSlug} (${seasonMeta.seasonName}) ==`);
       console.log(`Existing matches in season: ${existingMatches.length}`);
 
       const variants = buildFlashVariants(item.url);
@@ -1307,8 +1351,8 @@ async function main() {
         }
 
         const inferredDate =
-          inferMatchDateFromRawText(row.dateLabel, seasonName) ||
-          inferMatchDateFromRawText(row.rawText, seasonName);
+          inferMatchDateFromRawText(row.dateLabel, seasonMeta.seasonName) ||
+          inferMatchDateFromRawText(row.rawText, seasonMeta.seasonName);
 
         const matchDate = target?.match_date || inferredDate;
 
@@ -1329,7 +1373,7 @@ async function main() {
 
         sourceKey = buildSourceEventKey({
           compSlug,
-          seasonName,
+          seasonName: seasonMeta.seasonName,
           matchDate,
           kickoffTime,
           homeName: row.home,
@@ -1345,7 +1389,7 @@ async function main() {
         }
 
         const payload: Record<string, unknown> = {
-          season_id: seasonId,
+          season_id: seasonMeta.seasonId,
           match_date: matchDate,
           kickoff_time: kickoffTime,
           status: parsed.status,
@@ -1379,7 +1423,7 @@ async function main() {
             continue;
           }
 
-          const { error } = await supabase
+          const { error } = await ensureSupabase()
             .from("matches")
             .update(patch)
             .eq("id", target.id);
@@ -1418,7 +1462,17 @@ async function main() {
         console.log(`Standings scraped: ${standings.length}`);
 
         if (standings.length > 0) {
-          await upsertStandingsCache(seasonId, teamsMap, teamNamesNorm, standings);
+          await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
+        }
+
+        if (DRY_RUN) {
+          writeDryRunDump(compSlug, {
+            competition: compSlug,
+            seasonName: seasonMeta.seasonName,
+            sourceUrl: normalizeFlashUrl(item.url),
+            scrapedMatches: scraped,
+            standings,
+          });
         }
       } catch (e: any) {
         console.log("WARN: standings scrape failed:", e?.message || e);

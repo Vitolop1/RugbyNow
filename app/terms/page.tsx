@@ -1,27 +1,24 @@
-export const metadata = {
-  title: "Terms • RugbyNow",
-  description: "Terms of use for RugbyNow.",
-};
+"use client";
+
+import AppHeader from "@/app/components/AppHeader";
+import { t } from "@/lib/i18n";
+import { usePrefs } from "@/lib/usePrefs";
 
 export default function TermsPage() {
+  const { lang } = usePrefs();
+  const tr = (key: string) => t(lang, key);
+
   return (
     <div className="min-h-screen bg-[#0E4F33] text-white">
+      <AppHeader />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-extrabold">Terms of Use</h1>
+        <h1 className="text-3xl font-extrabold">{tr("termsTitle")}</h1>
 
         <div className="mt-6 space-y-4 rounded-2xl border border-white/10 bg-black/20 p-6 text-white/80">
+          <p>{tr("termsBody1")}</p>
+          <p>{tr("termsBody2")}</p>
           <p>
-            RugbyNow is provided &quot;as is&quot; without warranties. We try to keep results and standings accurate, but data may
-            occasionally be delayed or incorrect.
-          </p>
-
-          <p>
-            You may use RugbyNow for personal, non-commercial use. You may not copy or redistribute large portions of the
-            content automatically.
-          </p>
-
-          <p>
-            Contact:{" "}
+            {tr("contact")}:{" "}
             <a className="underline" href="mailto:lopresttivito@gmail.com">
               lopresttivito@gmail.com
             </a>

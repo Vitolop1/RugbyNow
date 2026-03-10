@@ -96,12 +96,13 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
   );
 }
 
-function StatusBadge({ status }: { status: MatchStatus }) {
+function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
+  const tr = (key: string) => t(lang, key);
   if (status === "LIVE") {
     return (
       <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
         <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-        LIVE
+        {tr("statusLive")}
       </span>
     );
   }
@@ -109,14 +110,14 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   if (status === "FT") {
     return (
       <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white">
-        FT
+        {tr("statusFt")}
       </span>
     );
   }
 
   return (
     <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white/90">
-      PRE
+      {tr("statusPre")}
     </span>
   );
 }
@@ -158,10 +159,10 @@ function niceDate(d: Date) {
 }
 
 function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
-  if (!kickoffTime) return "TBD";
+  if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
-    new Date(`${matchDate}T${normalized}Z`)
+    new Date(`${matchDate}T${normalized}`)
   );
 }
 
@@ -208,7 +209,7 @@ function competitionFlag(competition: Competition) {
   return (
     getCompetitionEmoji(competition.slug, competition.group_name, competition.country_code) ||
     countryCodeToFlag(competition.country_code) ||
-    "🏉"
+    "R"
   );
 }
 
@@ -265,7 +266,7 @@ export default function HomeClient() {
 
       if (!response.ok) {
         setCompetitions([]);
-        setCompError(payload.error ?? "Unknown competitions error");
+        setCompError(payload.error ?? tr("unknownCompetitionsError"));
       } else {
         setCompetitions((payload.competitions || []) as Competition[]);
       }
@@ -291,7 +292,7 @@ export default function HomeClient() {
 
       if (!response.ok) {
         setBlocks([]);
-        setLoadError(payload.error ?? "Unknown matches error");
+        setLoadError(payload.error ?? tr("unknownMatchesError"));
         setLoading(false);
         timer = setTimeout(loadMatches, 60000);
         return;
@@ -304,20 +305,20 @@ export default function HomeClient() {
       for (const row of rows) {
         if (row.status === "LIVE") hasLive = true;
 
-        const leagueName = row.season?.competition?.name ?? "Unknown Competition";
+        const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
         const leagueSlug = row.season?.competition?.slug ?? "unknown";
         const region = row.season?.competition?.region ?? "";
         const timeLabel =
           row.status === "LIVE"
-            ? `LIVE ${row.minute ?? ""}${row.minute ? "'" : ""}`.trim()
+            ? `${tr("statusLive")} ${row.minute ?? ""}${row.minute ? "'" : ""}`.trim()
             : row.status === "FT"
-              ? "FT"
-              : formatKickoffTZ(row.match_date, row.kickoff_time, timeZone);
+              ? tr("statusFt")
+              : formatKickoffTZ(row.match_date, row.kickoff_time, timeZone) ?? tr("tbd");
 
         const match: Match = {
           timeLabel,
-          home: row.home_team?.name ?? "TBD",
-          away: row.away_team?.name ?? "TBD",
+          home: row.home_team?.name ?? tr("tbd"),
+          away: row.away_team?.name ?? tr("tbd"),
           homeSlug: row.home_team?.slug ?? null,
           awaySlug: row.away_team?.slug ?? null,
           hs: row.status === "NS" ? null : row.home_score,
@@ -477,7 +478,7 @@ export default function HomeClient() {
                                   </div>
                                   {competition.is_featured ? (
                                     <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
-                                      PIN
+                                      {tr("pinned")}
                                     </span>
                                   ) : null}
                                 </div>
@@ -622,7 +623,7 @@ export default function HomeClient() {
                             <div className="w-32 shrink-0">
                               <div className="text-lg font-extrabold tracking-tight text-white">{match.timeLabel}</div>
                               <div className="mt-1">
-                                <StatusBadge status={match.status} />
+                                <StatusBadge status={match.status} lang={lang} />
                               </div>
                             </div>
 

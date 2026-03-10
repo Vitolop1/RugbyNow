@@ -173,7 +173,7 @@ export default function AppHeader({
               value={timeZone}
               onChange={(e) => setTZEverywhere(e.target.value)}
               className="h-9 w-[140px] shrink-0 rounded-full border border-white/10 bg-black/20 px-2 text-xs text-white sm:w-auto sm:text-sm"
-              title="Timezone"
+              title={tr("timezoneTitle")}
             >
               <option className="text-black" value="America/New_York">
                 New York (ET)
@@ -219,7 +219,7 @@ export default function AppHeader({
             <button
               onClick={() => setThemeEverywhere(!dark)}
               className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/20 text-sm text-white hover:bg-white/10"
-              title="Toggle theme"
+              title={tr("toggleTheme")}
             >
               {dark ? "☀️" : "🌙"}
             </button>

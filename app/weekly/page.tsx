@@ -8,9 +8,7 @@ import { usePrefs } from "@/lib/usePrefs";
 const POSTS = [
   {
     slug: "week-1",
-    title: "Week 1: What to watch",
     date: "2026-02-26",
-    excerpt: "Key fixtures and quick notes for the week.",
   },
 ];
 
@@ -33,8 +31,8 @@ export default function WeeklyPage() {
               className="block rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:bg-black/30"
             >
               <div className="text-sm text-white/60">{post.date}</div>
-              <div className="mt-1 text-xl font-extrabold">{post.title}</div>
-              <div className="mt-2 text-white/80">{post.excerpt}</div>
+              <div className="mt-1 text-xl font-extrabold">{tr("week1Title")}</div>
+              <div className="mt-2 text-white/80">{tr("week1Excerpt")}</div>
             </Link>
           ))}
         </div>

@@ -75,19 +75,22 @@ type LeaguePayload = {
   warning?: string;
 };
 
-function FormPill({ value }: { value: "W" | "D" | "L" }) {
+function FormPill({ value, lang }: { value: "W" | "D" | "L"; lang: "en" | "es" | "fr" | "it" }) {
+  const tr = (key: string) => t(lang, key);
   const cls =
     value === "W"
       ? "bg-green-500/90 text-white"
       : value === "D"
         ? "bg-amber-400/90 text-black"
         : "bg-red-500/90 text-white";
+  const label = value === "W" ? tr("formWin") : value === "D" ? tr("formDraw") : tr("formLoss");
+  const title = value === "W" ? tr("formWinLabel") : value === "D" ? tr("formDrawLabel") : tr("formLossLabel");
   return (
     <span
       className={`inline-flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-black ${cls}`}
-      title={value}
+      title={title}
     >
-      {value}
+      {label}
     </span>
   );
 }
@@ -102,11 +105,11 @@ function countryCodeToFlag(code?: string | null) {
 }
 
 function competitionFlag(competition?: Competition | null) {
-  if (!competition) return "🏉";
+  if (!competition) return "R";
   return (
     getCompetitionEmoji(competition.slug, competition.group_name, competition.country_code) ||
     countryCodeToFlag(competition.country_code) ||
-    "🏉"
+    "R"
   );
 }
 
@@ -170,10 +173,10 @@ function niceDate(iso: string) {
 }
 
 function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
-  if (!kickoffTime) return "TBD";
+  if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
   return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
-    new Date(`${matchDate}T${normalized}Z`)
+    new Date(`${matchDate}T${normalized}`)
   );
 }
 
@@ -245,7 +248,7 @@ export default function LeagueClient() {
 
       if (!response.ok) {
         setData(null);
-        setError(payload.error ?? "League load error");
+        setError(payload.error ?? tr("unknownLeagueError"));
       } else {
         setData(payload as LeaguePayload);
         if (payload.warning) setError(payload.warning);
@@ -393,7 +396,7 @@ export default function LeagueClient() {
                                   </div>
                                   {competition.is_featured ? (
                                     <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
-                                      PIN
+                                      {tr("pinned")}
                                     </span>
                                   ) : null}
                                 </div>
@@ -418,7 +421,7 @@ export default function LeagueClient() {
             ) : !data ? (
               <div className="rounded-2xl border border-red-200/30 bg-black/20 p-6 text-white backdrop-blur">
                 <div className="font-bold">{tr("loadError")}</div>
-                <div className="mt-2 text-sm text-white/80">{error || "League load error"}</div>
+                <div className="mt-2 text-sm text-white/80">{error || tr("unknownLeagueError")}</div>
               </div>
             ) : (
               <>
@@ -521,10 +524,10 @@ export default function LeagueClient() {
                           {data.matches.map((match) => {
                             const timeLabel =
                               match.status === "LIVE"
-                                ? `LIVE ${match.minute ?? ""}${match.minute ? "'" : ""}`.trim()
+                                ? `${tr("statusLive")} ${match.minute ?? ""}${match.minute ? "'" : ""}`.trim()
                                 : match.status === "FT"
-                                  ? "FT"
-                                  : formatKickoffTZ(match.match_date, match.kickoff_time, timeZone);
+                                  ? tr("statusFt")
+                                  : formatKickoffTZ(match.match_date, match.kickoff_time, timeZone) ?? tr("tbd");
 
                             return (
                               <div
@@ -537,7 +540,11 @@ export default function LeagueClient() {
                                   <div className="text-lg font-extrabold tracking-tight text-white">{timeLabel}</div>
                                   <div className="mt-1 flex items-center gap-2">
                                     <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white/90">
-                                      {match.status === "FT" ? "FT" : match.status === "LIVE" ? "LIVE" : "PRE"}
+                                      {match.status === "FT"
+                                        ? tr("statusFt")
+                                        : match.status === "LIVE"
+                                          ? tr("statusLive")
+                                          : tr("statusPre")}
                                     </span>
                                     <span className="text-xs text-white/70">{niceDate(match.match_date)}</span>
                                   </div>
@@ -546,8 +553,8 @@ export default function LeagueClient() {
                                 <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                     <span className="flex min-w-0 items-center gap-2">
-                                      <TeamLogo slug={match.home_team?.slug} alt={match.home_team?.name || "Home"} />
-                                      <span className="truncate">{match.home_team?.name || "TBD"}</span>
+                                      <TeamLogo slug={match.home_team?.slug} alt={match.home_team?.name || tr("teamHomeFallback")} />
+                                      <span className="truncate">{match.home_team?.name || tr("tbd")}</span>
                                     </span>
                                     <span className="font-extrabold tabular-nums text-white">
                                       {match.status === "NS" ? "—" : match.home_score ?? "-"}
@@ -555,8 +562,8 @@ export default function LeagueClient() {
                                   </div>
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                     <span className="flex min-w-0 items-center gap-2">
-                                      <TeamLogo slug={match.away_team?.slug} alt={match.away_team?.name || "Away"} />
-                                      <span className="truncate">{match.away_team?.name || "TBD"}</span>
+                                      <TeamLogo slug={match.away_team?.slug} alt={match.away_team?.name || tr("teamAwayFallback")} />
+                                      <span className="truncate">{match.away_team?.name || tr("tbd")}</span>
                                     </span>
                                     <span className="font-extrabold tabular-nums text-white">
                                       {match.status === "NS" ? "—" : match.away_score ?? "-"}
@@ -618,7 +625,7 @@ export default function LeagueClient() {
                                 <td className="px-3 py-3">
                                   <div className="flex items-center justify-center gap-1">
                                     {(row.form || []).map((value, index) => (
-                                      <FormPill key={`${row.teamId}-${index}-${value}`} value={value} />
+                                      <FormPill key={`${row.teamId}-${index}-${value}`} value={value} lang={lang} />
                                     ))}
                                   </div>
                                 </td>

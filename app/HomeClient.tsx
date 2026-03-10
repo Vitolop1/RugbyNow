@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -699,9 +700,18 @@ export default function HomeClient() {
 
         <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              RugbyNow • {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
-              <span className="font-semibold text-white">{timeZone}</span>
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logohorizontal.png"
+                alt="RugbyNow"
+                width={150}
+                height={28}
+                className="h-auto w-[120px] object-contain sm:w-[150px]"
+              />
+              <div>
+                {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
+                <span className="font-semibold text-white">{timeZone}</span>
+              </div>
             </div>
             <div className="opacity-90">
               {tr("contact")}:{" "}

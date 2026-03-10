@@ -1,15 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
-import { usePrefs, type Lang } from "@/lib/usePrefs";
+import { getCompetitionEmoji } from "@/lib/competitionMeta";
+import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
+import { usePrefs } from "@/lib/usePrefs";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
-type DbMatchRow = {
+type Competition = {
+  id: number;
+  name: string;
+  slug: string;
+  region: string | null;
+  country_code?: string | null;
+  category?: string | null;
+  group_name?: string | null;
+  sort_order?: number | null;
+  is_featured?: boolean | null;
+};
+
+type LeagueMatch = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
@@ -17,30 +31,16 @@ type DbMatchRow = {
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
-  round: number | null;
-  venue: string | null;
-  home_team: { id: number; name: string; slug: string } | null;
-  away_team: { id: number; name: string; slug: string } | null;
+  round?: number | null;
+  home_team: { id: number; name: string; slug: string | null } | null;
+  away_team: { id: number; name: string; slug: string | null } | null;
 };
-
-type Competition = {
-  id: number;
-  name: string;
-  slug: string;
-  region: string | null;
-  country_code: string | null;
-  category: string | null;
-  group_name: string | null;
-  sort_order: number | null;
-  is_featured: boolean | null;
-};
-
-type Season = { id: number; name: string; competition_id: number };
 
 type StandingRow = {
+  position: number;
   teamId: number;
   team: string;
-  teamSlug?: string | null;
+  teamSlug: string | null;
   pj: number;
   w: number;
   d: number;
@@ -48,999 +48,76 @@ type StandingRow = {
   pf: number;
   pa: number;
   pts: number;
-  position?: number;
-  badge?: "champions" | "europe" | "relegation" | null;
+  badge?: string | null;
 };
 
-type RoundMeta = { round: number; first_date: string; last_date: string; matches: number };
-type RoundMeta2 = RoundMeta & { ft: number };
-
-const I18N: Record<Lang, Record<string, string>> = {
-  en: {
-    leagues: "Leagues",
-    league: "League",
-    season: "Season",
-    round: "Round",
-    standings: "Standings",
-    loadingLeague: "Loading league...",
-    loadingMatches: "Loading matches...",
-    noMatchesSeason: "No matches loaded for this season yet.",
-    noMatchesRound: "No matches in this round.",
-    comingSoon: "Coming soon.",
-    tz: "TZ",
-    playoffs: "Playoffs",
-    relegation: "Relegation",
-    computedFromFT: "Computed from FT matches",
-    openLeague: "Open league ->",
-    openLeaguesBtn: "Leagues",
-    close: "Close",
-    matches: "Matches",
-    error: "Error",
-  },
-  es: {
-    leagues: "Ligas",
-    league: "Liga",
-    season: "Temporada",
-    round: "Fecha",
-    standings: "Tabla",
-    loadingLeague: "Cargando liga...",
-    loadingMatches: "Cargando partidos...",
-    noMatchesSeason: "Todavia no hay partidos cargados para esta temporada.",
-    noMatchesRound: "No hay partidos en esta fecha.",
-    comingSoon: "Proximamente.",
-    tz: "TZ",
-    playoffs: "Playoffs",
-    relegation: "Descenso",
-    computedFromFT: "Calculado desde partidos FT",
-    openLeague: "Abrir liga ->",
-    openLeaguesBtn: "Ligas",
-    close: "Cerrar",
-    matches: "Partidos",
-    error: "Error",
-  },
-  fr: {
-    leagues: "Ligues",
-    league: "Ligue",
-    season: "Saison",
-    round: "Journee",
-    standings: "Classement",
-    loadingLeague: "Chargement de la ligue...",
-    loadingMatches: "Chargement des matchs...",
-    noMatchesSeason: "Aucun match n'est encore charge pour cette saison.",
-    noMatchesRound: "Aucun match dans cette journee.",
-    comingSoon: "Bientot disponible.",
-    tz: "TZ",
-    playoffs: "Playoffs",
-    relegation: "Relegation",
-    computedFromFT: "Calcule depuis les matchs FT",
-    openLeague: "Ouvrir ligue ->",
-    openLeaguesBtn: "Ligues",
-    close: "Fermer",
-    matches: "Matchs",
-    error: "Erreur",
-  },
-  it: {
-    leagues: "Leghe",
-    league: "Lega",
-    season: "Stagione",
-    round: "Giornata",
-    standings: "Classifica",
-    loadingLeague: "Caricamento lega...",
-    loadingMatches: "Caricamento partite...",
-    noMatchesSeason: "Non ci sono ancora partite caricate per questa stagione.",
-    noMatchesRound: "Nessuna partita in questa giornata.",
-    comingSoon: "Prossimamente.",
-    tz: "TZ",
-    playoffs: "Playoff",
-    relegation: "Retrocessione",
-    computedFromFT: "Calcolato dalle partite FT",
-    openLeague: "Apri lega ->",
-    openLeaguesBtn: "Leghe",
-    close: "Chiudi",
-    matches: "Partite",
-    error: "Errore",
-  },
+type RoundMeta = {
+  round: number;
+  first_date: string;
+  last_date: string;
+  matches?: number;
+  ft?: number;
 };
 
-function LeagueLogo({
-  slug,
-  alt,
-  size = 20,
-  fallback = "/league-logos/_placeholder.png",
-}: {
-  slug?: string | null;
-  alt: string;
-  size?: number;
-  fallback?: string;
-}) {
+type LeaguePayload = {
+  competition: Competition;
+  season: { id: number; name: string } | null;
+  competitions: Competition[];
+  roundMeta: RoundMeta[];
+  selectedRound: number | null;
+  matches: LeagueMatch[];
+  standings: StandingRow[];
+  source?: string;
+  warning?: string;
+};
+
+function countryCodeToFlag(code?: string | null) {
+  if (!code || code.length !== 2) return null;
+  return code
+    .toUpperCase()
+    .split("")
+    .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+    .join("");
+}
+
+function competitionFlag(competition?: Competition | null) {
+  if (!competition) return "🏉";
   return (
-    <img
-      src={getLeagueLogo(slug)}
-      alt={alt}
-      width={size}
-      height={size}
-      className="object-contain shrink-0 rounded-sm bg-white/5"
-      onError={(e) => {
-        e.currentTarget.onerror = null;
-        e.currentTarget.src = fallback;
-      }}
-    />
+    getCompetitionEmoji(competition.slug, competition.group_name, competition.country_code) ||
+    countryCodeToFlag(competition.country_code) ||
+    "🏉"
   );
 }
 
-function TeamLogo({
-  slug,
-  alt,
-  size = 24,
-  fallback = "/team-logos/_placeholder.png",
-}: {
-  slug?: string | null;
-  alt: string;
-  size?: number;
-  fallback?: string;
-}) {
+function TeamLogo({ slug, alt, size = 22 }: { slug?: string | null; alt: string; size?: number }) {
   return (
     <img
       src={getTeamLogo(slug)}
       alt={alt}
       width={size}
       height={size}
-      className="object-contain shrink-0 rounded-sm bg-white/5"
+      className="shrink-0 rounded-sm bg-white/5 object-contain"
       onError={(e) => {
-        e.currentTarget.onerror = null; // evita loop infinito
-        e.currentTarget.src = fallback;
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "/team-logos/_placeholder.png";
       }}
     />
   );
 }
 
-function StatusBadge({ status }: { status: MatchStatus }) {
-  if (status === "LIVE") {
-    return (
-      <span className="inline-flex items-center gap-2 text-xs font-semibold px-2 py-1 rounded-full bg-red-600 text-white">
-        <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-        LIVE
-      </span>
-    );
-  }
-
-  if (status === "FT") {
-    return (
-      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white border border-white/15">
-        FT
-      </span>
-    );
-  }
-
+function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: string; size?: number }) {
   return (
-    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white/90 border border-white/15">
-      PRE
-    </span>
-  );
-}
-
-function parseISODateParts(iso: string) {
-  const [y, m, d] = iso.split("-").map((x) => parseInt(x, 10));
-  return { y, m, d };
-}
-
-function parseTimeParts(t: string) {
-  const parts = t.split(":").map((x) => parseInt(x, 10));
-  const hh = parts[0] ?? 0;
-  const mm = parts[1] ?? 0;
-  const ss = parts[2] ?? 0;
-  return { hh, mm, ss };
-}
-
-function formatDateShortTZ(iso: string, timeZone: string) {
-  const { y, m, d } = parseISODateParts(iso);
-  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0));
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    timeZone,
-  }).format(dt);
-}
-
-function formatRoundMiniDate(iso: string, timeZone: string) {
-  const { m, d } = parseISODateParts(iso);
-  void timeZone;
-  return `${d}/${m}`;
-}
-
-function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
-  if (!kickoff_time) return "TBD";
-  const { y, m, d } = parseISODateParts(match_date);
-  const { hh, mm, ss } = parseTimeParts(kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time);
-  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, hh, mm, ss));
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone,
-  }).format(dt);
-}
-
-function toISODateLocal(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function formatScore(status: MatchStatus, hs: number | null, as: number | null) {
-  if (status === "NS") return "—";
-  if (hs == null || as == null) return "-";
-  return `${hs} - ${as}`;
-}
-
-export default function LeagueClient() {
-  const { timeZone, lang, setLangEverywhere, mounted } = usePrefs();
-
-  const params = useParams<{ slug: string }>();
-  const slug = params?.slug;
-
-  const searchParams = useSearchParams();
-  const dateParam = searchParams.get("date");
-  const refISO = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : toISODateLocal(new Date());
-  const dateQuery = `?date=${refISO}`;
-
-  const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-
-  const [comp, setComp] = useState<Competition | null>(null);
-  const [season, setSeason] = useState<Season | null>(null);
-
-  const [roundMeta, setRoundMeta] = useState<RoundMeta2[]>([]);
-  const [selectedRound, setSelectedRound] = useState<number | null>(null);
-
-  const [matches, setMatches] = useState<DbMatchRow[]>([]);
-  const [standings, setStandings] = useState<StandingRow[]>([]);
-
-  const [loadingLeague, setLoadingLeague] = useState(true);
-  const [loadingMatches, setLoadingMatches] = useState(false);
-  const [err, setErr] = useState("");
-
-  const [leaguesOpen, setLeaguesOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const roundsScrollerRef = useRef<HTMLDivElement | null>(null);
-  const activeRoundRef = useRef<HTMLButtonElement | null>(null);
-
-  const t = (key: string) => I18N[lang][key] ?? key;
-
-  useEffect(() => {
-    if (!mounted || typeof window === "undefined") return;
-    const id = window.requestAnimationFrame(() => {
-      setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [mounted]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("rn:league-sidebar-open", sidebarOpen ? "1" : "0");
-  }, [mounted, sidebarOpen]);
-
-  useEffect(() => {
-    const loadComps = async () => {
-      const response = await fetch("/api/competitions", { cache: "no-store" });
-      const payload = await response.json();
-      if (response.ok || payload.competitions) {
-        setCompetitions((payload.competitions || []) as Competition[]);
-      }
-    };
-
-    loadComps();
-  }, []);
-
-  useEffect(() => {
-    const loadLeagueEverything = async () => {
-      setLoadingLeague(true);
-      setErr("");
-      setComp(null);
-      setSeason(null);
-      setRoundMeta([]);
-      setSelectedRound(null);
-      setMatches([]);
-      setStandings([]);
-
-      if (!slug) {
-        setErr("Slug is undefined.");
-        setLoadingLeague(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`/api/leagues/${slug}?date=${refISO}`, { cache: "no-store" });
-        const payload = await response.json();
-
-        if (!response.ok && !payload.competition) {
-          setErr(payload.error ?? `No competition found for slug: ${slug}`);
-          setLoadingLeague(false);
-          return;
-        }
-
-        setComp(payload.competition as Competition);
-        setSeason((payload.season ?? null) as Season | null);
-        setRoundMeta((payload.roundMeta || []) as RoundMeta2[]);
-        setSelectedRound((payload.selectedRound ?? null) as number | null);
-        setMatches((payload.matches || []) as DbMatchRow[]);
-        setStandings((payload.standings || []) as StandingRow[]);
-        setErr("");
-      } catch (e: unknown) {
-        setErr(e instanceof Error ? e.message : "Error loading league");
-      }
-
-      setLoadingLeague(false);
-    };
-
-    loadLeagueEverything();
-  }, [slug, refISO]);
-
-  useEffect(() => {
-    if (!season || selectedRound == null) return;
-
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-
-    const load = async () => {
-      try {
-        const response = await fetch(`/api/leagues/${slug}?date=${refISO}&round=${selectedRound}`, {
-          cache: "no-store",
-        });
-        const payload = await response.json();
-        if (cancelled) return;
-
-        if (!response.ok && !payload.matches) {
-          setErr(payload.error ?? "Error loading matches");
-          timer = setTimeout(load, 60_000);
-          return;
-        }
-
-        const m = (payload.matches || []) as DbMatchRow[];
-        setMatches(m);
-        if (payload.standings) setStandings(payload.standings as StandingRow[]);
-        setErr("");
-
-        const hasLive = m.some((x) => x.status === "LIVE");
-        timer = setTimeout(load, hasLive ? 10_000 : 60_000);
-      } catch (e: unknown) {
-        if (cancelled) return;
-        setErr(e instanceof Error ? e.message : "Error loading matches");
-        timer = setTimeout(load, 60_000);
-      } finally {
-        if (!cancelled) setLoadingMatches(false);
-      }
-    };
-
-    setLoadingMatches(true);
-    load();
-
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-    };
-  }, [season, selectedRound, slug, refISO]);
-
-  const dedupedCompetitions = useMemo(() => {
-    const pickBetter = (a: Competition, b: Competition) => {
-      const af = !!a.is_featured;
-      const bf = !!b.is_featured;
-      if (af !== bf) return af ? a : b;
-
-      const aso = a.sort_order ?? 9999;
-      const bso = b.sort_order ?? 9999;
-      if (aso !== bso) return aso < bso ? a : b;
-
-      return a.id < b.id ? a : b;
-    };
-
-    const bySlug = new Map<string, Competition>();
-    for (const c of competitions) {
-      const k = (c.slug ?? "").trim().toLowerCase();
-      if (!k) continue;
-      if (!bySlug.has(k)) bySlug.set(k, c);
-      else bySlug.set(k, pickBetter(bySlug.get(k)!, c));
-    }
-
-    const list = Array.from(bySlug.values());
-
-    const keyOf = (c: Competition) => {
-      const g = (c.group_name ?? "").trim().toLowerCase();
-      const n = (c.name ?? "").trim().toLowerCase();
-      const cat = (c.category ?? "").trim().toLowerCase();
-      return `${g}::${cat}::${n}`;
-    };
-
-    const map = new Map<string, Competition>();
-    for (const c of list) {
-      const k = keyOf(c);
-      if (!map.has(k)) map.set(k, c);
-      else map.set(k, pickBetter(map.get(k)!, c));
-    }
-
-    return Array.from(map.values());
-  }, [competitions]);
-
-  const groupedCompetitions = useMemo(() => {
-    const map = new Map<string, Competition[]>();
-
-    for (const c of dedupedCompetitions) {
-      const group = c.group_name?.trim() || "Other";
-      if (!map.has(group)) map.set(group, []);
-      map.get(group)!.push(c);
-    }
-
-    const entries = Array.from(map.entries());
-    entries.sort((a, b) => {
-      const aFeat = a[1].some((x) => x.is_featured);
-      const bFeat = b[1].some((x) => x.is_featured);
-      if (aFeat !== bFeat) return aFeat ? -1 : 1;
-      return a[0].localeCompare(b[0]);
-    });
-
-    for (const [, comps] of entries) {
-      comps.sort((x, y) => {
-        const xf = !!x.is_featured;
-        const yf = !!y.is_featured;
-        if (xf !== yf) return xf ? -1 : 1;
-
-        const xs = x.sort_order ?? 9999;
-        const ys = y.sort_order ?? 9999;
-        if (xs !== ys) return xs - ys;
-
-        return x.name.localeCompare(y.name);
-      });
-    }
-
-    return entries;
-  }, [dedupedCompetitions]);
-
-  useEffect(() => {
-    const g = comp?.group_name?.trim();
-    if (!g) return;
-    setOpenGroups((prev) => ({ ...prev, [g]: true }));
-  }, [comp?.group_name]);
-
-  const roundsList = useMemo(() => roundMeta.map((m) => m.round), [roundMeta]);
-  const selectedIdx = useMemo(
-    () => (selectedRound == null ? -1 : roundsList.indexOf(selectedRound)),
-    [roundsList, selectedRound]
-  );
-  const selectedRoundMeta = useMemo(
-    () => roundMeta.find((item) => item.round === selectedRound) ?? null,
-    [roundMeta, selectedRound]
-  );
-
-  const timeLabelFor = (m: DbMatchRow) => {
-    if (m.status === "LIVE") return `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim();
-    if (m.status === "FT") return "FT";
-    return formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
-  };
-
-  useEffect(() => {
-    if (!activeRoundRef.current || !roundsScrollerRef.current) return;
-    activeRoundRef.current.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [selectedRound]);
-
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
-      <div className="pointer-events-none absolute inset-0">
-  <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
-  <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-green-300/10 blur-3xl" />
-</div>
-
-      <div className="relative">
-        <AppHeader
-          subtitle="League view"
-          lang={lang}
-          onLangChange={(l) => setLangEverywhere(l)}
-        />
-
-        <button
-          onClick={() => setSidebarOpen((prev) => !prev)}
-          className="fixed left-4 top-[148px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
-          aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
-        >
-          <span className="flex flex-col gap-1.5">
-            <span className="block h-0.5 w-6 rounded-full bg-white" />
-            <span className="block h-0.5 w-6 rounded-full bg-white" />
-            <span className="block h-0.5 w-6 rounded-full bg-white" />
-          </span>
-        </button>
-
-        <main
-          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[344px] ${
-            sidebarOpen ? "xl:pl-[388px]" : "xl:pl-[88px]"
-          }`}
-        >
-          {sidebarOpen ? (
-          <aside className="fixed left-4 top-[212px] z-30 w-[340px] h-[calc(100vh-244px)] overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 text-white space-y-4">
-            <div>
-              <div className="text-sm font-semibold text-white/80">{t("league")}</div>
-              <div className="mt-2 flex items-center gap-3 min-w-0">
-                <LeagueLogo slug={comp?.slug} alt={comp?.name ?? "League"} size={26} />
-                <div className="text-lg font-extrabold truncate">{comp?.name ?? slug}</div>
-              </div>
-              <div className="text-xs text-white/70 mt-2">
-                {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span>
-              </div>
-            </div>
-
-            <div className="hidden rounded-xl border border-white/15 bg-white/10 p-3">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="text-sm font-semibold text-white/85">{t("round")}</div>
-                <div className="text-xs text-white/70">
-                  {selectedRound != null ? `#${selectedRound}` : "—"}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
-                  disabled={selectedIdx <= 0}
-                  className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 disabled:opacity-40 text-white"
-                >
-                  ←
-                </button>
-
-                <div className="flex-1 overflow-x-auto">
-                  <div className="flex gap-1 pb-1">
-                    {roundsList.map((r) => {
-                      const active = selectedRound === r;
-                      return (
-                        <button
-                          key={r}
-                          onClick={() => setSelectedRound(r)}
-                          className={`h-8 w-8 shrink-0 rounded-full text-xs font-semibold border transition flex items-center justify-center tabular-nums ${
-                            active
-                              ? "bg-emerald-400 text-black border-emerald-300"
-                              : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
-                          }`}
-                        >
-                          {r}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() =>
-                    selectedIdx >= 0 &&
-                    selectedIdx < roundsList.length - 1 &&
-                    setSelectedRound(roundsList[selectedIdx + 1])
-                  }
-                  disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-                  className="px-2 py-1 rounded-lg text-xs font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="text-sm font-semibold text-white/85">{t("leagues")}</div>
-
-                <button
-                  onClick={() => setLeaguesOpen(true)}
-                  className="lg:hidden px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15 text-white"
-                >
-                  {t("openLeaguesBtn")}
-                </button>
-              </div>
-
-              <div className="hidden lg:block space-y-3">
-                {groupedCompetitions.map(([groupName, comps]) => {
-                  const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
-                  const featuredCount = comps.filter((x) => x.is_featured).length;
-
-                  return (
-                    <div key={groupName} className="rounded-xl border border-white/15 bg-white/10 overflow-hidden">
-                      <button
-                        onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
-                        className="w-full px-3 py-2 flex items-center justify-between text-left"
-                        aria-label={`Toggle group ${groupName}`}
-                      >
-                        <div className="min-w-0">
-                          <div className="text-sm font-extrabold truncate text-white">{groupName}</div>
-                          <div className="text-[11px] text-white/70">
-                            {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
-                          </div>
-                        </div>
-                        <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
-                      </button>
-
-                      {open ? (
-                        <div className="px-2 pb-2 space-y-2">
-                          {comps.map((c) => (
-                            <Link
-                              key={`${c.slug}-${c.id}`}
-                              href={`/leagues/${c.slug}${dateQuery}`}
-                              className={`block w-full px-3 py-2 rounded-xl border transition ${
-                                c.slug === slug
-                                  ? "bg-emerald-400/25 text-white border-emerald-200/30"
-                                  : "bg-black/20 border-white/15 hover:bg-black/30 text-white"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <LeagueLogo slug={c.slug} alt={c.name} size={20} />
-                                  <div className="text-sm font-medium truncate">{c.name}</div>
-                                </div>
-
-                                {c.is_featured ? (
-                                  <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
-                                    PIN
-                                  </span>
-                                ) : null}
-                              </div>
-                              <div className="text-xs opacity-80 mt-1">{c.region ?? ""}</div>
-                            </Link>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {leaguesOpen ? (
-                <div className="lg:hidden fixed inset-0 z-50">
-                  <button
-                    className="absolute inset-0 bg-black/50"
-                    onClick={() => setLeaguesOpen(false)}
-                    aria-label="Close leagues overlay"
-                  />
-
-                  <div className="absolute left-0 right-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-white/10 bg-[#071a12] shadow-2xl overflow-hidden text-white">
-                    <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                      <div className="font-extrabold">{t("leagues")}</div>
-                      <button
-                        onClick={() => setLeaguesOpen(false)}
-                        className="px-3 py-1.5 rounded-xl text-xs font-extrabold border border-white/15 bg-white/10 hover:bg-white/15"
-                      >
-                        {t("close")}
-                      </button>
-                    </div>
-
-                    <div className="p-3 overflow-y-auto max-h-[calc(85vh-56px)] space-y-3">
-                      {groupedCompetitions.map(([groupName, comps]) => {
-                        const open = openGroups[groupName] ?? (groupName === (comp?.group_name?.trim() || ""));
-                        const featuredCount = comps.filter((x) => x.is_featured).length;
-
-                        return (
-                          <div key={groupName} className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
-                            <button
-                              onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
-                              className="w-full px-3 py-2 flex items-center justify-between text-left"
-                            >
-                              <div className="min-w-0">
-                                <div className="text-sm font-extrabold truncate">{groupName}</div>
-                                <div className="text-[11px] text-white/70">
-                                  {comps.length} leagues{featuredCount ? ` • ${featuredCount} featured` : ""}
-                                </div>
-                              </div>
-                              <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
-                            </button>
-
-                            {open ? (
-                              <div className="px-2 pb-2 space-y-2">
-                                {comps.map((c) => (
-                                  <Link
-                                    key={`${c.slug}-${c.id}`}
-                                    href={`/leagues/${c.slug}${dateQuery}`}
-                                    onClick={() => setLeaguesOpen(false)}
-                                    className={`block w-full px-3 py-2 rounded-xl border transition ${
-                                      c.slug === slug
-                                        ? "bg-emerald-400/25 text-white border-emerald-200/30"
-                                        : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between gap-2">
-                                      <div className="flex items-center gap-2 min-w-0">
-                                        <LeagueLogo slug={c.slug} alt={c.name} size={20} />
-                                        <div className="text-sm font-medium truncate">{c.name}</div>
-                                      </div>
-
-                                      {c.is_featured ? (
-                                        <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
-                                          PIN
-                                        </span>
-                                      ) : null}
-                                    </div>
-                                    <div className="text-xs opacity-80 mt-1">{c.region ?? ""}</div>
-                                  </Link>
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </aside>
-          ) : null}
-
-          <section className="space-y-4 min-w-0 text-white">
-            <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div>
-                  <div className="text-sm font-semibold text-white/85">{t("round")}</div>
-                  <div className="text-xs text-white/70 mt-1">
-                    {t("season")}: <span className="font-semibold">{season?.name ?? "â€”"}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-extrabold text-white/85">
-                    {selectedRound != null ? `#${selectedRound}` : "â€”"}
-                  </div>
-                  <div className="text-[11px] text-white/60">
-                    {selectedRoundMeta ? formatRoundMiniDate(selectedRoundMeta.first_date, timeZone) : ""}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
-                  disabled={selectedIdx <= 0}
-                  className={`h-10 w-10 shrink-0 rounded-xl text-sm font-extrabold flex items-center justify-center border ${
-                    selectedIdx > 0
-                      ? "border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300"
-                      : "border-white/15 bg-white/10 text-white/50 opacity-40"
-                  }`}
-                >
-                  ←
-                </button>
-
-                <div ref={roundsScrollerRef} className="flex-1 overflow-x-auto">
-                  <div className="flex min-w-max justify-center gap-1.5 pb-1">
-                    {roundMeta.map((meta) => {
-                      const active = selectedRound === meta.round;
-                      return (
-                        <button
-                          ref={active ? activeRoundRef : null}
-                          key={`main-round-${meta.round}`}
-                          onClick={() => setSelectedRound(meta.round)}
-                          className={`min-w-[44px] shrink-0 rounded-2xl px-2 py-1.5 text-xs font-semibold border transition flex flex-col items-center justify-center tabular-nums ${
-                            active
-                              ? "bg-emerald-400 text-black border-emerald-300"
-                              : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
-                          }`}
-                        >
-                          <span className="text-sm leading-none font-extrabold">{meta.round}</span>
-                          <span className={`mt-1 text-[10px] leading-none ${active ? "text-black/70" : "text-white/65"}`}>
-                            {formatRoundMiniDate(meta.first_date, timeZone)}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() =>
-                    selectedIdx >= 0 &&
-                    selectedIdx < roundsList.length - 1 &&
-                    setSelectedRound(roundsList[selectedIdx + 1])
-                  }
-                  disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-                  className="h-10 w-10 shrink-0 rounded-xl text-sm font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40 flex items-center justify-center"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-bold">{t("matches")}</h2>
-              <p className="text-sm text-white/80">
-                {t("season")}: <span className="font-semibold">{season?.name ?? "—"}</span> • {t("round")}:{" "}
-                <span className="font-semibold">{selectedRound ?? "—"}</span> • {t("tz")}:{" "}
-                <span className="font-semibold">{timeZone}</span>
-              </p>
-            </div>
-
-            {loadingLeague ? (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
-                {t("loadingLeague")}
-              </div>
-            ) : err ? (
-              <div className="rounded-2xl border border-red-400/40 bg-red-500/10 backdrop-blur p-6 text-white">
-                <div className="font-bold">{t("error")}</div>
-                <div className="mt-2 text-sm opacity-90">{err}</div>
-              </div>
-            ) : roundMeta.length === 0 ? (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
-                {t("noMatchesSeason")}
-              </div>
-            ) : loadingMatches ? (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
-                {t("loadingMatches")}
-              </div>
-            ) : matches.length === 0 ? (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/85">
-                {t("noMatchesRound")}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur overflow-hidden">
-                <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <LeagueLogo slug={comp?.slug} alt={comp?.name ?? "League"} size={22} />
-                    <div className="font-semibold truncate">{comp?.name ?? "League"}</div>
-                  </div>
-                  <div className="text-sm text-white/70 truncate">{comp?.region ?? ""}</div>
-                </div>
-
-                <div className="divide-y divide-white/10">
-                  {matches.map((m) => {
-                    const label = timeLabelFor(m);
-                    const liveRow = m.status === "LIVE" ? "ring-1 ring-red-400/40 bg-red-500/10" : "";
-
-                    return (
-                      <div
-                        key={m.id}
-                        className={`px-4 py-3 flex items-center gap-4 transition hover:bg-white/5 ${liveRow}`}
-                      >
-                        <div className="w-32 shrink-0">
-                          <div className="text-lg font-extrabold tracking-tight">{label}</div>
-                          <div className="mt-1 flex items-center gap-2">
-                            <StatusBadge status={m.status} />
-                            <span className="text-xs text-white/70">
-                              {formatDateShortTZ(m.match_date, timeZone)}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
-                          <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <TeamLogo slug={m.home_team?.slug} alt={m.home_team?.name ?? "Home"} size={22} />
-                              <span className="font-medium truncate">{m.home_team?.name ?? "TBD"}</span>
-                            </div>
-                            <span className="font-extrabold tabular-nums">
-                              {m.status === "NS" ? "—" : m.home_score ?? "-"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <TeamLogo slug={m.away_team?.slug} alt={m.away_team?.name ?? "Away"} size={22} />
-                              <span className="font-medium truncate">{m.away_team?.name ?? "TBD"}</span>
-                            </div>
-                            <span className="font-extrabold tabular-nums">
-                              {m.status === "NS" ? "—" : m.away_score ?? "-"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="hidden md:block w-48 text-right text-xs text-white/70 shrink-0">
-                          {m.venue ? <div className="truncate">{m.venue}</div> : null}
-                          <div className="mt-1 font-extrabold tabular-nums text-white">
-                            {formatScore(m.status, m.home_score, m.away_score)}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-6 backdrop-blur min-w-0">
-              <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
-                <div className="font-bold text-base">{t("standings")}</div>
-                <div className="text-xs text-white/70 truncate">
-                  {t("season")}: {season?.name ?? "—"}
-                </div>
-              </div>
-
-              {standings.length === 0 ? (
-                <div className="text-sm text-white/80 mt-4">{t("comingSoon")}</div>
-              ) : (
-                <>
-                  <div className="mb-3 text-[11px] text-white/70">{t("computedFromFT")}</div>
-
-                  <div className="mt-2 overflow-x-auto rounded-xl border border-white/15 bg-white/5">
-                    <table className="w-full text-xs table-auto">
-                      <thead className="text-xs text-white/70 border-b border-white/10">
-                        <tr>
-                          <th className="text-left py-2 pl-2 pr-2 w-[1px]">#</th>
-                          <th className="text-left py-2 w-[220px] sm:w-[320px]">Team</th>
-                          <th className="text-right py-2 w-[30px]">PJ</th>
-                          <th className="text-right py-2 w-[30px]">W</th>
-                          <th className="text-right py-2 w-[30px]">D</th>
-                          <th className="text-right py-2 w-[30px]">L</th>
-                          <th className="hidden sm:table-cell text-right py-2 w-[30px]">PF</th>
-                          <th className="hidden sm:table-cell text-right py-2 w-[30px]">PA</th>
-                          <th className="text-right py-2 pr-2 w-[56px]">PTS</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-white/10">
-                        {standings.map((r, idx) => {
-                          const pos = r.position ?? idx + 1;
-                          return (
-                            <tr key={r.teamId} className="hover:bg-white/5 transition">
-                              <td className="py-2 pl-2 pr-2 text-xs text-white/70 tabular-nums">{pos}</td>
-
-                              <td className="py-2 font-medium w-[220px] sm:w-[320px] max-w-[320px]">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <TeamLogo slug={r.teamSlug} alt={r.team} size={22} />
-                                  <span className="truncate">{r.team}</span>
-                                </div>
-                              </td>
-
-                              <td className="py-2 text-right tabular-nums">{r.pj}</td>
-                              <td className="py-2 text-right tabular-nums">{r.w}</td>
-                              <td className="py-2 text-right tabular-nums">{r.d}</td>
-                              <td className="py-2 text-right tabular-nums">{r.l}</td>
-                              <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pf}</td>
-                              <td className="hidden sm:table-cell py-2 text-right tabular-nums">{r.pa}</td>
-                              <td className="py-2 pr-2 text-right font-extrabold tabular-nums">{r.pts}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <AdPlaceholder
-              title="Banner premium RugbyNow"
-              subtitle="Placeholder horizontal para anuncios, campañas o house ads debajo de la tabla."
-              className="hidden min-h-[140px] w-full lg:block"
-            />
-          </section>
-        </main>
-
-        <div className="pointer-events-none fixed right-4 top-[145px] bottom-0 z-20 hidden xl:block w-[320px] py-4">
-          <AdPlaceholder
-            title="Tu marca puede vivir aca"
-            subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
-            className="h-full"
-          />
-        </div>
-
-        <footer
-          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[344px] ${
-            sidebarOpen ? "xl:pl-[388px]" : "xl:pl-[88px]"
-          }`}
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="min-w-0">
-              RugbyNow • TZ: <span className="font-semibold break-all">{timeZone}</span>
-            </div>
-            <div className="opacity-90">
-              <a className="underline" href="mailto:lopresttivito@gmail.com">
-                lopresttivito@gmail.com
-              </a>
-              <span className="mx-2">•</span>
-              <a
-                className="underline"
-                href="https://www.linkedin.com/in/vitoloprestti/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                LinkedIn
-              </a>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
+    <img
+      src={getLeagueLogo(slug)}
+      alt={alt}
+      width={size}
+      height={size}
+      className="shrink-0 rounded-sm bg-white/5 object-contain"
+      onError={(e) => {
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "/league-logos/_placeholder.png";
+      }}
+    />
   );
 }
 
@@ -1054,9 +131,7 @@ function AdPlaceholder({
   className?: string;
 }) {
   return (
-    <div
-      className={`rounded-2xl border border-dashed border-emerald-200/25 bg-black/20 backdrop-blur overflow-hidden ${className ?? ""}`}
-    >
+    <div className={`overflow-hidden rounded-2xl border border-dashed border-emerald-200/25 bg-black/20 backdrop-blur ${className ?? ""}`}>
       <div className="flex h-full flex-col justify-between bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.14),_transparent_50%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))] p-5">
         <div>
           <div className="inline-flex rounded-full border border-emerald-200/20 bg-emerald-300/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-emerald-100/85">
@@ -1070,6 +145,521 @@ function AdPlaceholder({
           <span>Temporal placeholder</span>
           <span className="font-semibold text-white/80">320x600 / 970x140</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function toISODateLocal(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function getInitialLeagueSidebarOpen() {
+  if (typeof window === "undefined") return true;
+  return window.localStorage.getItem("rn:league-sidebar-open") !== "0";
+}
+
+function formatRoundDate(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(`${iso}T00:00:00`);
+  return `${d.getDate()}/${d.getMonth() + 1}`;
+}
+
+function niceDate(iso: string) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
+  if (!kickoffTime) return "TBD";
+  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
+  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
+    new Date(`${matchDate}T${normalized}Z`)
+  );
+}
+
+function groupCompetitions(competitions: Competition[], otherLabel: string) {
+  const groups = new Map<string, Competition[]>();
+  for (const competition of competitions) {
+    const group = (competition.group_name ?? "").trim() || otherLabel;
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group)!.push(competition);
+  }
+  return Array.from(groups.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([groupName, comps]) => [
+      groupName,
+      comps.sort((a, b) => {
+        if (!!a.is_featured !== !!b.is_featured) return a.is_featured ? -1 : 1;
+        const aSort = a.sort_order ?? 9999;
+        const bSort = b.sort_order ?? 9999;
+        if (aSort !== bSort) return aSort - bSort;
+        return a.name.localeCompare(b.name);
+      }),
+    ] as const);
+}
+
+export default function LeagueClient() {
+  const params = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { lang, mounted, timeZone } = usePrefs();
+  const tr = (key: string) => t(lang, key);
+  const otherGroupLabel = tr("groupsOther");
+
+  const slug = params.slug;
+  const refISO = searchParams.get("date") || toISODateLocal(new Date());
+  const roundFromUrl = searchParams.get("round");
+
+  const [sidebarOpen, setSidebarOpen] = useState(getInitialLeagueSidebarOpen);
+  const [sidebarGroups, setSidebarGroups] = useState<Record<string, boolean>>({});
+  const [data, setData] = useState<LeaguePayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const roundsScrollRef = useRef<HTMLDivElement | null>(null);
+  const activeRoundRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+    window.localStorage.setItem("rn:league-sidebar-open", sidebarOpen ? "1" : "0");
+  }, [mounted, sidebarOpen]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const load = async () => {
+      setLoading(true);
+      setError("");
+
+      const qs = new URLSearchParams();
+      if (refISO) qs.set("date", refISO);
+      if (roundFromUrl) qs.set("round", roundFromUrl);
+
+      const response = await fetch(`/api/leagues/${slug}?${qs.toString()}`, { cache: "no-store" });
+      const payload = await response.json();
+
+      if (cancelled) return;
+
+      if (!response.ok) {
+        setData(null);
+        setError(payload.error ?? "League load error");
+      } else {
+        setData(payload as LeaguePayload);
+        if (payload.warning) setError(payload.warning);
+      }
+
+      setLoading(false);
+
+      const hasLive = (payload.matches || []).some((match: LeagueMatch) => match.status === "LIVE");
+      timer = setTimeout(load, hasLive ? 10000 : 60000);
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [slug, refISO, roundFromUrl]);
+
+  useEffect(() => {
+    activeRoundRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [data?.selectedRound]);
+
+  const groupedCompetitions = useMemo(
+    () => groupCompetitions(data?.competitions || [], otherGroupLabel),
+    [data?.competitions, otherGroupLabel]
+  );
+
+  const selectedRound = data?.selectedRound ?? null;
+  const roundMeta = data?.roundMeta || [];
+  const selectedRoundMeta = roundMeta.find((item) => item.round === selectedRound) ?? null;
+  const canGoPrevRound = selectedRound != null && roundMeta.some((item) => item.round < selectedRound);
+  const canGoNextRound = selectedRound != null && roundMeta.some((item) => item.round > selectedRound);
+
+  const setRound = (nextRound: number) => {
+    const qs = new URLSearchParams(searchParams.toString());
+    qs.set("round", String(nextRound));
+    router.replace(`/leagues/${slug}?${qs.toString()}`, { scroll: false });
+  };
+
+  const moveRound = (dir: -1 | 1) => {
+    if (selectedRound == null) return;
+    const rounds = roundMeta.map((item) => item.round).sort((a, b) => a - b);
+    const index = rounds.indexOf(selectedRound);
+    const next = rounds[index + dir];
+    if (next != null) setRound(next);
+  };
+
+  const title = data?.competition?.name || tr("leagueView");
+  const seasonName = data?.season?.name || "—";
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#0E4F33] text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-44 left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-emerald-300/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-lime-200/10 blur-3xl" />
+      </div>
+
+      <div className="relative">
+        <AppHeader title={title} subtitle={data?.competition?.region ?? undefined} />
+
+        <button
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          className="fixed left-4 top-[148px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
+          aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
+        >
+          <span className="flex flex-col gap-1.5">
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+          </span>
+        </button>
+
+        <main className={`w-full px-4 py-6 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
+          <aside
+            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[380px] space-y-4 overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+              sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
+            } transition-all duration-300`}
+          >
+            {data?.competition ? (
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4">
+                <div className="text-sm font-semibold text-white/85">{tr("league")}</div>
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-xl">{competitionFlag(data.competition)}</span>
+                  <LeagueLogo slug={data.competition.slug} alt={data.competition.name} size={28} />
+                  <div className="min-w-0">
+                    <div className="truncate text-lg font-extrabold text-white">{data.competition.name}</div>
+                    <div className="text-sm text-white/70">
+                      {tr("seasonLabel")}: {seasonName}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            <div>
+              <div className="mb-2 text-sm font-semibold text-white/90">{tr("leagues")}</div>
+              <div className="space-y-3">
+                {groupedCompetitions.map(([groupName, comps]) => {
+                  const open = sidebarGroups[groupName] ?? true;
+                  const featuredCount = comps.filter((competition) => competition.is_featured).length;
+
+                  return (
+                    <div key={groupName} className="overflow-hidden rounded-xl border border-white/15 bg-white/10">
+                      <button
+                        onClick={() => setSidebarGroups((prev) => ({ ...prev, [groupName]: !open }))}
+                        className="flex w-full items-center justify-between px-3 py-2 text-left"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 truncate text-sm font-extrabold text-white">
+                            <span>{getCompetitionEmoji(undefined, groupName, comps[0]?.country_code ?? null)}</span>
+                            <span>{groupName}</span>
+                          </div>
+                          <div className="text-[11px] text-white/70">
+                            {comps.length} {tr("leagues").toLowerCase()}
+                            {featuredCount ? ` • ${featuredCount} ${tr("featured")}` : ""}
+                          </div>
+                        </div>
+                        <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+                      </button>
+
+                      {open ? (
+                        <div className="space-y-2 px-2 pb-2">
+                          {comps.map((competition) => {
+                            const active = competition.slug === slug;
+                            return (
+                              <Link
+                                key={`${competition.slug}-${competition.id}`}
+                                href={`/leagues/${competition.slug}?date=${refISO}`}
+                                className={`block rounded-xl border px-3 py-2 transition ${
+                                  active
+                                    ? "border-emerald-300/35 bg-emerald-300/15"
+                                    : "border-white/15 bg-black/20 hover:bg-black/30"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex min-w-0 items-center gap-2">
+                                    <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                                    <LeagueLogo slug={competition.slug} alt={competition.name} />
+                                    <div className="truncate text-sm font-medium text-white">{competition.name}</div>
+                                  </div>
+                                  {competition.is_featured ? (
+                                    <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
+                                      PIN
+                                    </span>
+                                  ) : null}
+                                </div>
+                                {competition.region ? <div className="mt-1 text-xs text-white/70">{competition.region}</div> : null}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </aside>
+
+          <div className="space-y-6">
+            {loading ? (
+              <div className="rounded-2xl border border-white/15 bg-black/20 p-8 text-center text-white/80 backdrop-blur">
+                {tr("loadingLeague")}
+              </div>
+            ) : !data ? (
+              <div className="rounded-2xl border border-red-200/30 bg-black/20 p-6 text-white backdrop-blur">
+                <div className="font-bold">{tr("loadError")}</div>
+                <div className="mt-2 text-sm text-white/80">{error || "League load error"}</div>
+              </div>
+            ) : (
+              <>
+                <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
+                  <section className="min-w-0 flex-1 space-y-4">
+                    <div className="rounded-2xl border border-white/15 bg-black/20 p-4 backdrop-blur">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="text-sm font-semibold text-white/90">{tr("round")}</div>
+                          <div className="mt-1 text-sm text-white/70">
+                            {tr("seasonLabel")}: {seasonName}
+                          </div>
+                        </div>
+                        {selectedRoundMeta ? (
+                          <div className="text-right text-sm text-white/75">
+                            <div className="font-bold text-white">#{selectedRoundMeta.round}</div>
+                            <div>{formatRoundDate(selectedRoundMeta.first_date)}</div>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {roundMeta.length > 0 ? (
+                        <div className="mt-4 flex items-center gap-3">
+                          <button
+                            onClick={() => moveRound(-1)}
+                            disabled={!canGoPrevRound}
+                            className={`flex h-10 w-10 items-center justify-center rounded-2xl border text-xl font-black transition ${
+                              canGoPrevRound
+                                ? "border-emerald-300/30 bg-emerald-400/25 text-white hover:bg-emerald-400/35"
+                                : "border-white/10 bg-white/5 text-white/30"
+                            }`}
+                          >
+                            ←
+                          </button>
+
+                          <div
+                            ref={roundsScrollRef}
+                            className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]"
+                          >
+                            {roundMeta.map((item) => {
+                              const active = item.round === selectedRound;
+                              return (
+                                <button
+                                  key={item.round}
+                                  ref={active ? activeRoundRef : null}
+                                  onClick={() => setRound(item.round)}
+                                  className={`shrink-0 rounded-2xl border px-4 py-2 text-center transition ${
+                                    active
+                                      ? "border-emerald-300/35 bg-emerald-400/25 text-white"
+                                      : "border-white/15 bg-white/10 text-white/85 hover:bg-white/15"
+                                  }`}
+                                >
+                                  <div className="text-xl font-black leading-none">{item.round}</div>
+                                  <div className="mt-1 text-[11px] font-semibold text-white/70">{formatRoundDate(item.first_date)}</div>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <button
+                            onClick={() => moveRound(1)}
+                            disabled={!canGoNextRound}
+                            className={`flex h-10 w-10 items-center justify-center rounded-2xl border text-xl font-black transition ${
+                              canGoNextRound
+                                ? "border-emerald-300/30 bg-emerald-400/25 text-white hover:bg-emerald-400/35"
+                                : "border-white/10 bg-white/5 text-white/30"
+                            }`}
+                          >
+                            →
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
+                      <p className="text-sm text-white/80">
+                        {tr("seasonLabel")}: <span className="font-semibold text-white">{seasonName}</span> • {tr("round")}:{" "}
+                        <span className="font-semibold text-white">{selectedRound ?? "—"}</span> • {tr("tz")}:{" "}
+                        <span className="font-semibold text-white">{timeZone}</span>
+                      </p>
+                    </div>
+
+                    {data.matches.length === 0 ? (
+                      <div className="rounded-2xl border border-white/15 bg-black/20 p-8 text-center text-white/80 backdrop-blur">
+                        {selectedRound == null ? tr("noMatchesSeason") : tr("noMatchesRound")}
+                      </div>
+                    ) : (
+                      <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
+                        <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="shrink-0 text-base">{competitionFlag(data.competition)}</span>
+                            <LeagueLogo slug={data.competition.slug} alt={data.competition.name} />
+                            <div className="truncate font-semibold text-white">{data.competition.name}</div>
+                          </div>
+                          <div className="text-sm text-white/70">{data.competition.region}</div>
+                        </div>
+
+                        <div className="divide-y divide-white/10">
+                          {data.matches.map((match) => {
+                            const timeLabel =
+                              match.status === "LIVE"
+                                ? `LIVE ${match.minute ?? ""}${match.minute ? "'" : ""}`.trim()
+                                : match.status === "FT"
+                                  ? "FT"
+                                  : formatKickoffTZ(match.match_date, match.kickoff_time, timeZone);
+
+                            return (
+                              <div
+                                key={match.id}
+                                className={`flex items-center gap-4 px-4 py-3 ${
+                                  match.status === "LIVE" ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
+                                }`}
+                              >
+                                <div className="w-32 shrink-0">
+                                  <div className="text-lg font-extrabold tracking-tight text-white">{timeLabel}</div>
+                                  <div className="mt-1 flex items-center gap-2">
+                                    <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white/90">
+                                      {match.status === "FT" ? "FT" : match.status === "LIVE" ? "LIVE" : "PRE"}
+                                    </span>
+                                    <span className="text-xs text-white/70">{niceDate(match.match_date)}</span>
+                                  </div>
+                                </div>
+
+                                <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
+                                  <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
+                                    <span className="flex min-w-0 items-center gap-2">
+                                      <TeamLogo slug={match.home_team?.slug} alt={match.home_team?.name || "Home"} />
+                                      <span className="truncate">{match.home_team?.name || "TBD"}</span>
+                                    </span>
+                                    <span className="font-extrabold tabular-nums text-white">
+                                      {match.status === "NS" ? "—" : match.home_score ?? "-"}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
+                                    <span className="flex min-w-0 items-center gap-2">
+                                      <TeamLogo slug={match.away_team?.slug} alt={match.away_team?.name || "Away"} />
+                                      <span className="truncate">{match.away_team?.name || "TBD"}</span>
+                                    </span>
+                                    <span className="font-extrabold tabular-nums text-white">
+                                      {match.status === "NS" ? "—" : match.away_score ?? "-"}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
+                      <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
+                        <div>
+                          <div className="text-xl font-bold text-white">{tr("standings")}</div>
+                          <div className="mt-1 text-sm text-white/70">{tr("computedFromFT")}</div>
+                        </div>
+                        <div className="text-sm text-white/70">
+                          {tr("seasonLabel")}: {seasonName}
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead className="bg-white/5 text-white/70">
+                            <tr>
+                              <th className="px-4 py-3 text-left">#</th>
+                              <th className="px-4 py-3 text-left">{tr("teamLabel")}</th>
+                              <th className="px-3 py-3 text-right">PJ</th>
+                              <th className="px-3 py-3 text-right">W</th>
+                              <th className="px-3 py-3 text-right">D</th>
+                              <th className="px-3 py-3 text-right">L</th>
+                              <th className="px-3 py-3 text-right">PF</th>
+                              <th className="px-3 py-3 text-right">PA</th>
+                              <th className="px-4 py-3 text-right">PTS</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data.standings.map((row) => (
+                              <tr key={row.teamId} className="border-t border-white/10">
+                                <td className="px-4 py-3 text-white/80">{row.position}</td>
+                                <td className="px-4 py-3">
+                                  <span className="flex min-w-0 items-center gap-2">
+                                    <TeamLogo slug={row.teamSlug} alt={row.team} />
+                                    <span className="truncate font-semibold text-white">{row.team}</span>
+                                  </span>
+                                </td>
+                                <td className="px-3 py-3 text-right">{row.pj}</td>
+                                <td className="px-3 py-3 text-right">{row.w}</td>
+                                <td className="px-3 py-3 text-right">{row.d}</td>
+                                <td className="px-3 py-3 text-right">{row.l}</td>
+                                <td className="px-3 py-3 text-right">{row.pf}</td>
+                                <td className="px-3 py-3 text-right">{row.pa}</td>
+                                <td className="px-4 py-3 text-right font-extrabold text-white">{row.pts}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <AdPlaceholder
+                      title="Banner premium RugbyNow"
+                      subtitle="Placeholder horizontal para anuncios, campañas o house ads debajo de la tabla."
+                      className="hidden min-h-[140px] w-full lg:block"
+                    />
+                  </section>
+                </div>
+              </>
+            )}
+          </div>
+        </main>
+
+        <div className="pointer-events-none fixed bottom-0 right-4 top-[145px] z-20 hidden w-[320px] py-4 xl:block">
+          <AdPlaceholder
+            title="Tu marca puede vivir acá"
+            subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
+            className="h-full"
+          />
+        </div>
+
+        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              RugbyNow • {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
+              <span className="font-semibold text-white">{timeZone}</span>
+            </div>
+            <div className="opacity-90">
+              {tr("contact")}:{" "}
+              <a className="underline" href="mailto:lopresttivito@gmail.com">
+                lopresttivito@gmail.com
+              </a>
+              <span className="mx-2">•</span>
+              <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
+                LinkedIn
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

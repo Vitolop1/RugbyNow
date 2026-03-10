@@ -68,14 +68,14 @@ export default function AppHeader({
   };
 
   const centerTitle = title ? (
-    <div className="text-center select-none text-white">
+    <div className="select-none text-center text-white">
       <div className="min-w-0">
         <div className="truncate text-[18px] font-extrabold sm:text-[22px]">{title}</div>
         {subtitle ? <div className="truncate text-[11px] text-white/75">{subtitle}</div> : null}
       </div>
     </div>
   ) : (
-    <Link href="/" className="block text-center select-none text-white">
+    <Link href="/" className="block select-none text-center text-white">
       <h1 className="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight sm:text-[26px]">
         Rugby<span className="text-emerald-300">Now</span>
       </h1>

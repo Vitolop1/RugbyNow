@@ -6,12 +6,12 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-[#0E4F33] text-white">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="text-3xl font-extrabold">Terms of Use</h1>
 
         <div className="mt-6 space-y-4 rounded-2xl border border-white/10 bg-black/20 p-6 text-white/80">
           <p>
-            RugbyNow is provided “as is” without warranties. We try to keep results and standings accurate, but data may
+            RugbyNow is provided &quot;as is&quot; without warranties. We try to keep results and standings accurate, but data may
             occasionally be delayed or incorrect.
           </p>
 

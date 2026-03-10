@@ -332,7 +332,6 @@ export default function HomeClient() {
         const leagueName = row.season?.competition?.name ?? "Unknown Competition";
         const leagueSlug = row.season?.competition?.slug ?? "unknown";
         const region = row.season?.competition?.region ?? "";
-
         const timeLabel =
           row.status === "LIVE"
             ? `LIVE ${row.minute ?? ""}${row.minute ? "'" : ""}`.trim()
@@ -444,9 +443,7 @@ export default function HomeClient() {
           </span>
         </button>
 
-        <main
-          className={`w-full px-4 py-6 sm:px-6 xl:pr-[344px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[88px]"}`}
-        >
+        <main className={`w-full px-4 py-6 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <aside
             className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[380px] space-y-4 overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
@@ -594,7 +591,7 @@ export default function HomeClient() {
                   <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                   <p className="text-sm text-white/80">
                     {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate)}</span> •{" "}
-                    {tab === "LIVE" ? tr("liveOnly") : tr("allMatches")} • {tr("tz") ?? "TZ"}:{" "}
+                    {tab === "LIVE" ? tr("liveOnly") : tr("allMatches")} • {tr("tz")}:{" "}
                     <span className="font-semibold text-white">{timeZone}</span>
                   </p>
                 </div>
@@ -700,9 +697,7 @@ export default function HomeClient() {
           />
         </div>
 
-        <footer
-          className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[344px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[88px]"}`}
-        >
+        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               RugbyNow • {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}

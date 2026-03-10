@@ -6,7 +6,7 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-[#0E4F33] text-white">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="text-3xl font-extrabold">Privacy Policy</h1>
 
         <div className="mt-6 space-y-4 rounded-2xl border border-white/10 bg-black/20 p-6 text-white/80">
@@ -16,8 +16,8 @@ export default function PrivacyPage() {
           </p>
 
           <p>
-            We may use standard analytics and advertising tools (e.g., cookies) to measure traffic and show ads. These
-            services may collect basic usage data such as pages visited and device/browser information.
+            We may use standard analytics and advertising tools, such as cookies, to measure traffic and show ads. These
+            services may collect basic usage data such as pages visited and device or browser information.
           </p>
 
           <p>

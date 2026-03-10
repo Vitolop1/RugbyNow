@@ -1,0 +1,262 @@
+{
+  "competition": "int-six-nations",
+  "seasonName": "dry-run-2026",
+  "sourceUrl": "https://www.flashscore.com/rugby-union/europe/six-nations/results",
+  "scrapedMatches": [
+    {
+      "home": "Italy",
+      "away": "England",
+      "hs": "23",
+      "as": "18",
+      "statusOrTime": "07.03. 11:40",
+      "roundText": "ROUND 4",
+      "rawText": "Six Nations\nEUROPE: \nStandings\nROUND 4\n07.03. 11:40\nItaly\nEngland\n23\n18\n10\n12\n13\n6\n07.03. 09:10\nScotland\nFrance\n50\n40\n19\n14\n31\n26\n06.03. 15:10\nIreland\nWales\n27\n17\n12\n10\n15\n7\nROUND 3\n22.02. 10:10\nFrance\nItaly\n33\n8\n19\n8\n14\n0\n21.02. 11:40\nWales\nScotland\n23\n26\n17\n5\n6\n21\n21.02. 09:10\nEngland\nIreland\n21\n42\n7\n22\n14\n20\nROUND 2\n15.02. 10:10\nWales\nFrance\n12\n54\n7\n26\n5\n28\n14.02. 11:40\nScotland\nEngland\n31\n20\n24\n10\n7\n10\n14.02. 09:10\nIreland\nItaly\n20\n13\n5\n10\n15\n3\nROUND 1\n07.02. 11:40\nEngland\nWales\n48\n7\n29\n0\n19\n7\n07.02. 09:10\nItaly\nScotland\n18\n15\n15\n7\n3\n8\n05.02. 15:10\nFrance\nIreland\n36\n14\n22\n0\n14\n14",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Italy",
+      "away": "England",
+      "hs": "23",
+      "as": "18",
+      "statusOrTime": "07.03. 11:40",
+      "roundText": "",
+      "rawText": "07.03. 11:40\nItaly\nEngland\n23\n18\n10\n12\n13\n6",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Scotland",
+      "away": "France",
+      "hs": "50",
+      "as": "40",
+      "statusOrTime": "07.03. 09:10",
+      "roundText": "",
+      "rawText": "07.03. 09:10\nScotland\nFrance\n50\n40\n19\n14\n31\n26",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Ireland",
+      "away": "Wales",
+      "hs": "27",
+      "as": "17",
+      "statusOrTime": "06.03. 15:10",
+      "roundText": "",
+      "rawText": "06.03. 15:10\nIreland\nWales\n27\n17\n12\n10\n15\n7",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "France",
+      "away": "Italy",
+      "hs": "33",
+      "as": "8",
+      "statusOrTime": "22.02. 10:10",
+      "roundText": "",
+      "rawText": "22.02. 10:10\nFrance\nItaly\n33\n8\n19\n8\n14\n0",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Wales",
+      "away": "Scotland",
+      "hs": "23",
+      "as": "26",
+      "statusOrTime": "21.02. 11:40",
+      "roundText": "",
+      "rawText": "21.02. 11:40\nWales\nScotland\n23\n26\n17\n5\n6\n21",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "England",
+      "away": "Ireland",
+      "hs": "21",
+      "as": "42",
+      "statusOrTime": "21.02. 09:10",
+      "roundText": "",
+      "rawText": "21.02. 09:10\nEngland\nIreland\n21\n42\n7\n22\n14\n20",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Wales",
+      "away": "France",
+      "hs": "12",
+      "as": "54",
+      "statusOrTime": "15.02. 10:10",
+      "roundText": "",
+      "rawText": "15.02. 10:10\nWales\nFrance\n12\n54\n7\n26\n5\n28",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Scotland",
+      "away": "England",
+      "hs": "31",
+      "as": "20",
+      "statusOrTime": "14.02. 11:40",
+      "roundText": "",
+      "rawText": "14.02. 11:40\nScotland\nEngland\n31\n20\n24\n10\n7\n10",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Ireland",
+      "away": "Italy",
+      "hs": "20",
+      "as": "13",
+      "statusOrTime": "14.02. 09:10",
+      "roundText": "",
+      "rawText": "14.02. 09:10\nIreland\nItaly\n20\n13\n5\n10\n15\n3",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "England",
+      "away": "Wales",
+      "hs": "48",
+      "as": "7",
+      "statusOrTime": "07.02. 11:40",
+      "roundText": "",
+      "rawText": "07.02. 11:40\nEngland\nWales\n48\n7\n29\n0\n19\n7",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Italy",
+      "away": "Scotland",
+      "hs": "18",
+      "as": "15",
+      "statusOrTime": "07.02. 09:10",
+      "roundText": "",
+      "rawText": "07.02. 09:10\nItaly\nScotland\n18\n15\n15\n7\n3\n8",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "France",
+      "away": "Ireland",
+      "hs": "36",
+      "as": "14",
+      "statusOrTime": "05.02. 15:10",
+      "roundText": "",
+      "rawText": "05.02. 15:10\nFrance\nIreland\n36\n14\n22\n0\n14\n14",
+      "dateLabel": "",
+      "sourcePage": "results"
+    },
+    {
+      "home": "Ireland",
+      "away": "Scotland",
+      "hs": "-",
+      "as": "-",
+      "statusOrTime": "14.03. 10:10",
+      "roundText": "ROUND 5",
+      "rawText": "Six Nations\nEUROPE: \nStandings\nROUND 5\n14.03. 10:10\nIreland\nScotland\n-\n-\n14.03. 12:40\nWales\nItaly\n-\n-\n14.03. 16:10\nFrance\nEngland\n-\n-",
+      "dateLabel": "",
+      "sourcePage": "fixtures"
+    },
+    {
+      "home": "Ireland",
+      "away": "Scotland",
+      "hs": "-",
+      "as": "-",
+      "statusOrTime": "14.03. 10:10",
+      "roundText": "",
+      "rawText": "14.03. 10:10\nIreland\nScotland\n-\n-",
+      "dateLabel": "",
+      "sourcePage": "fixtures"
+    },
+    {
+      "home": "Wales",
+      "away": "Italy",
+      "hs": "-",
+      "as": "-",
+      "statusOrTime": "14.03. 12:40",
+      "roundText": "",
+      "rawText": "14.03. 12:40\nWales\nItaly\n-\n-",
+      "dateLabel": "",
+      "sourcePage": "fixtures"
+    },
+    {
+      "home": "France",
+      "away": "England",
+      "hs": "-",
+      "as": "-",
+      "statusOrTime": "14.03. 16:10",
+      "roundText": "",
+      "rawText": "14.03. 16:10\nFrance\nEngland\n-\n-",
+      "dateLabel": "",
+      "sourcePage": "fixtures"
+    }
+  ],
+  "standings": [
+    {
+      "pos": 1,
+      "team": "France",
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "pointsFor": null,
+      "pointsAgainst": null,
+      "points": null
+    },
+    {
+      "pos": 2,
+      "team": "Scotland",
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "pointsFor": null,
+      "pointsAgainst": null,
+      "points": null
+    },
+    {
+      "pos": 3,
+      "team": "Ireland",
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "pointsFor": null,
+      "pointsAgainst": null,
+      "points": null
+    },
+    {
+      "pos": 4,
+      "team": "Italy",
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "pointsFor": null,
+      "pointsAgainst": null,
+      "points": null
+    },
+    {
+      "pos": 5,
+      "team": "England",
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "pointsFor": null,
+      "pointsAgainst": null,
+      "points": null
+    },
+    {
+      "pos": 6,
+      "team": "Wales",
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "pointsFor": null,
+      "pointsAgainst": null,
+      "points": null
+    }
+  ]
+}

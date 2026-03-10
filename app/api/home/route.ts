@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
+import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
 
 export async function GET(request: NextRequest) {
   const date = request.nextUrl.searchParams.get("date");
@@ -35,6 +36,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ matches: data || [], source: "supabase" });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const snapshotMatches = getSnapshotMatchesByDate(date);
+    if (snapshotMatches) {
+      return NextResponse.json({
+        matches: snapshotMatches,
+        source: "snapshot",
+        warning: message,
+      });
+    }
+
     return NextResponse.json({
       matches: getFallbackMatchesByDate(date),
       source: "fallback",

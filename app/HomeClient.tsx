@@ -176,6 +176,13 @@ function niceDate(d: Date) {
   });
 }
 
+function compactDateLabel(d: Date) {
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
   if (!kickoffTime) return "TBD";
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;

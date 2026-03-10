@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
 import { usePrefs, type Lang } from "@/lib/usePrefs";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
@@ -223,13 +223,9 @@ function formatDateShortTZ(iso: string, timeZone: string) {
 }
 
 function formatRoundMiniDate(iso: string, timeZone: string) {
-  const { y, m, d } = parseISODateParts(iso);
-  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0));
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: "short",
-    day: "numeric",
-    timeZone,
-  }).format(dt);
+  const { m, d } = parseISODateParts(iso);
+  void timeZone;
+  return `${d}/${m}`;
 }
 
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
@@ -286,6 +282,8 @@ export default function LeagueClient() {
 
   const [leaguesOpen, setLeaguesOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const roundsScrollerRef = useRef<HTMLDivElement | null>(null);
+  const activeRoundRef = useRef<HTMLButtonElement | null>(null);
 
   const t = (key: string) => I18N[lang][key] ?? key;
 
@@ -489,12 +487,25 @@ export default function LeagueClient() {
     () => (selectedRound == null ? -1 : roundsList.indexOf(selectedRound)),
     [roundsList, selectedRound]
   );
+  const selectedRoundMeta = useMemo(
+    () => roundMeta.find((item) => item.round === selectedRound) ?? null,
+    [roundMeta, selectedRound]
+  );
 
   const timeLabelFor = (m: DbMatchRow) => {
     if (m.status === "LIVE") return `LIVE ${m.minute ?? ""}${m.minute ? "'" : ""}`.trim();
     if (m.status === "FT") return "FT";
     return formatKickoffInTZ(m.match_date, m.kickoff_time, timeZone);
   };
+
+  useEffect(() => {
+    if (!activeRoundRef.current || !roundsScrollerRef.current) return;
+    activeRoundRef.current.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [selectedRound]);
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0E4F33] text-white">
@@ -524,7 +535,7 @@ export default function LeagueClient() {
 
         <main
           className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[324px] ${
-            sidebarOpen ? "xl:pl-[364px]" : "xl:pl-[88px]"
+            sidebarOpen ? "xl:pl-[388px]" : "xl:pl-[88px]"
           }`}
         >
           {sidebarOpen ? (
@@ -748,24 +759,36 @@ export default function LeagueClient() {
                     {t("season")}: <span className="font-semibold">{season?.name ?? "â€”"}</span>
                   </div>
                 </div>
-                <div className="text-xs text-white/70">{selectedRound != null ? `#${selectedRound}` : "â€”"}</div>
+                <div className="text-right">
+                  <div className="text-xs font-extrabold text-white/85">
+                    {selectedRound != null ? `#${selectedRound}` : "â€”"}
+                  </div>
+                  <div className="text-[11px] text-white/60">
+                    {selectedRoundMeta ? formatRoundMiniDate(selectedRoundMeta.first_date, timeZone) : ""}
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
                   disabled={selectedIdx <= 0}
-                  className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 disabled:opacity-40 text-white"
+                  className={`h-10 w-10 shrink-0 rounded-xl text-sm font-extrabold flex items-center justify-center border ${
+                    selectedIdx > 0
+                      ? "border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300"
+                      : "border-white/15 bg-white/10 text-white/50 opacity-40"
+                  }`}
                 >
-                  â†
+                  ←
                 </button>
 
-                <div className="flex-1 overflow-x-auto">
-                  <div className="flex gap-1.5 pb-1">
+                <div ref={roundsScrollerRef} className="flex-1 overflow-x-auto">
+                  <div className="flex min-w-max justify-center gap-1.5 pb-1">
                     {roundMeta.map((meta) => {
                       const active = selectedRound === meta.round;
                       return (
                         <button
+                          ref={active ? activeRoundRef : null}
                           key={`main-round-${meta.round}`}
                           onClick={() => setSelectedRound(meta.round)}
                           className={`min-w-[44px] shrink-0 rounded-2xl px-2 py-1.5 text-xs font-semibold border transition flex flex-col items-center justify-center tabular-nums ${
@@ -791,9 +814,9 @@ export default function LeagueClient() {
                     setSelectedRound(roundsList[selectedIdx + 1])
                   }
                   disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
-                  className="px-2 py-1 rounded-lg text-xs font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40"
+                  className="h-10 w-10 shrink-0 rounded-xl text-sm font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40 flex items-center justify-center"
                 >
-                  â†’
+                  →
                 </button>
               </div>
             </div>
@@ -962,7 +985,7 @@ export default function LeagueClient() {
           </section>
         </main>
 
-        <div className="pointer-events-none fixed right-0 top-[212px] bottom-0 z-20 hidden xl:block w-[320px] p-4 pl-0">
+        <div className="pointer-events-none fixed right-0 top-[145px] bottom-0 z-20 hidden xl:block w-[320px] p-4 pl-0">
           <AdPlaceholder
             title="Tu marca puede vivir aca"
             subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
@@ -972,7 +995,7 @@ export default function LeagueClient() {
 
         <footer
           className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[324px] ${
-            sidebarOpen ? "xl:pl-[364px]" : "xl:pl-[88px]"
+            sidebarOpen ? "xl:pl-[388px]" : "xl:pl-[88px]"
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

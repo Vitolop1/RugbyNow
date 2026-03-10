@@ -344,6 +344,18 @@ async function getSeasonCandidatesByCompSlug(compSlug: string) {
     .sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name)) as SeasonRow[];
 }
 
+function describeError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (error && typeof error === "object" && "message" in error) {
+    return String((error as { message?: unknown }).message ?? "Unknown error");
+  }
+
+  return String(error);
+}
+
 function pickSeasonForScrapedRows(seasons: SeasonRow[], rows: ScrapedRow[]) {
   const todayIso = new Date().toISOString().slice(0, 10);
   const nowMs = Date.now();
@@ -1333,7 +1345,16 @@ async function main() {
         continue;
       }
 
-      const seasonCandidates = DRY_RUN ? [] : await getSeasonCandidatesByCompSlug(compSlug);
+      let seasonCandidates: SeasonRow[] = [];
+
+      if (!DRY_RUN) {
+        try {
+          seasonCandidates = await getSeasonCandidatesByCompSlug(compSlug);
+        } catch (error) {
+          console.log(`Skip ${compSlug}: ${describeError(error)}`);
+          continue;
+        }
+      }
 
       const variants = buildFlashVariants(item.url);
       const scrapedAll: ScrapedRow[] = [];

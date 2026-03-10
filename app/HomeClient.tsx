@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 import { getLeagueLogo, getTeamLogo } from "@/app/lib/assets";
 import { usePrefs } from "@/lib/usePrefs";
@@ -208,19 +207,14 @@ export default function HomeClient() {
       setCompLoading(true);
       setCompError("");
 
-      const { data, error } = await supabase
-        .from("competitions")
-        .select("id, name, slug, region, country_code, category, group_name, sort_order, is_featured")
-        .order("is_featured", { ascending: false })
-        .order("group_name", { ascending: true })
-        .order("sort_order", { ascending: true })
-        .order("name", { ascending: true });
+      const response = await fetch("/api/competitions", { cache: "no-store" });
+      const payload = await response.json();
 
-      if (error) {
+      if (!response.ok) {
         setCompetitions([]);
-        setCompError(error.message ?? "Unknown competitions error");
+        setCompError(payload.error ?? "Unknown competitions error");
       } else {
-        setCompetitions((data || []) as Competition[]);
+        setCompetitions((payload.competitions || []) as Competition[]);
       }
 
       setCompLoading(false);
@@ -237,37 +231,20 @@ export default function HomeClient() {
       setLoading(true);
       setLoadError("");
 
-      const { data, error } = await supabase
-        .from("matches")
-        .select(`
-          id,
-          match_date,
-          kickoff_time,
-          status,
-          minute,
-          home_score,
-          away_score,
-          home_team:home_team_id ( id, name, slug ),
-          away_team:away_team_id ( id, name, slug ),
-          season:season_id (
-            competition:competition_id ( name, slug, region )
-          )
-        `)
-        .eq("match_date", selectedISO)
-        .order("kickoff_time", { ascending: true })
-        .limit(2000);
+      const response = await fetch(`/api/home?date=${selectedISO}`, { cache: "no-store" });
+      const payload = await response.json();
 
       if (cancelled) return;
 
-      if (error) {
+      if (!response.ok) {
         setBlocks([]);
-        setLoadError(error.message ?? "Unknown matches error");
+        setLoadError(payload.error ?? "Unknown matches error");
         setLoading(false);
         timer = setTimeout(loadMatches, 60000);
         return;
       }
 
-      const rows = (data || []) as unknown as DbMatchRow[];
+      const rows = (payload.matches || []) as DbMatchRow[];
       const byLeague = new Map<string, LeagueBlock>();
       let hasLive = false;
 

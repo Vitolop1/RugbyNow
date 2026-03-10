@@ -237,6 +237,7 @@ export default function HomeClient() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const lastPushedISO = useRef<string>("");
+  const datePickerRef = useRef<HTMLInputElement | null>(null);
   const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
   const todayLocal = new Date();
   const dateQuery = `?date=${selectedISO}`;
@@ -424,7 +425,7 @@ export default function HomeClient() {
         </button>
 
         <main
-          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[324px] ${
+          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[344px] ${
             sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[88px]"
           }`}
         >
@@ -561,7 +562,14 @@ export default function HomeClient() {
                 </button>
 
                 <button
-                  onClick={() => setSelectedISO(toISODateLocal(new Date()))}
+                  onClick={() => {
+                    if (typeof datePickerRef.current?.showPicker === "function") {
+                      datePickerRef.current.showPicker();
+                      return;
+                    }
+                    datePickerRef.current?.focus();
+                    datePickerRef.current?.click();
+                  }}
                   className={`flex min-h-[72px] flex-col items-center justify-center rounded-2xl border px-4 py-3 transition ${
                     isSameDay(selectedDate, todayLocal)
                       ? "border-emerald-300/35 bg-emerald-400/20 text-white"
@@ -587,6 +595,26 @@ export default function HomeClient() {
                   <span className="text-3xl font-black text-white">&rarr;</span>
                 </button>
               </div>
+
+              <input
+                ref={datePickerRef}
+                type="date"
+                value={selectedISO}
+                onChange={(e) => setSelectedISO(e.target.value)}
+                className="fixed left-0 top-0 h-px w-px opacity-0 pointer-events-none"
+                tabIndex={-1}
+              />
+
+              {!isSameDay(selectedDate, todayLocal) && (
+                <div className="mt-3 flex justify-center">
+                  <button
+                    onClick={() => setSelectedISO(toISODateLocal(new Date()))}
+                    className="rounded-full border border-emerald-300/30 bg-emerald-400/20 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-400/30"
+                  >
+                    Volver a hoy
+                  </button>
+                </div>
+              )}
             </div>
 
             <div>
@@ -676,7 +704,7 @@ export default function HomeClient() {
           </div>
         </main>
 
-        <div className="pointer-events-none fixed right-0 top-[212px] bottom-0 z-20 hidden xl:block w-[320px] p-4 pl-0">
+        <div className="pointer-events-none fixed right-4 top-[212px] bottom-0 z-20 hidden xl:block w-[320px] py-4">
           <AdPlaceholder
             title="Tu marca puede vivir aca"
             subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
@@ -685,7 +713,7 @@ export default function HomeClient() {
         </div>
 
         <footer
-          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[324px] ${
+          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[344px] ${
             sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[88px]"
           }`}
         >

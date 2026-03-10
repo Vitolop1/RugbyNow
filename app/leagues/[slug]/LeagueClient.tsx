@@ -534,7 +534,7 @@ export default function LeagueClient() {
         </button>
 
         <main
-          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[324px] ${
+          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[344px] ${
             sidebarOpen ? "xl:pl-[388px]" : "xl:pl-[88px]"
           }`}
         >
@@ -985,7 +985,7 @@ export default function LeagueClient() {
           </section>
         </main>
 
-        <div className="pointer-events-none fixed right-0 top-[145px] bottom-0 z-20 hidden xl:block w-[320px] p-4 pl-0">
+        <div className="pointer-events-none fixed right-4 top-[145px] bottom-0 z-20 hidden xl:block w-[320px] py-4">
           <AdPlaceholder
             title="Tu marca puede vivir aca"
             subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
@@ -994,7 +994,7 @@ export default function LeagueClient() {
         </div>
 
         <footer
-          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[324px] ${
+          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[344px] ${
             sidebarOpen ? "xl:pl-[388px]" : "xl:pl-[88px]"
           }`}
         >

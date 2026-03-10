@@ -1,15 +1,19 @@
 @import "tailwindcss";
 
-/* ✅ Tailwind v4: dark: por clase .dark */
+/* Tailwind v4: dark por clase .dark */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ✅ TEST: si esto no aparece, el CSS NO está cargando */
-body { outline: 6px solid red !important; }
+html,
+body {
+  min-height: 100%;
+  background: #0e4f33;
+  color: #ffffff;
+}
 
 /* RugbyNow scrollbars: visibles en dark y en fondo verde */
 .rn-scroll {
-  scrollbar-width: thin;                 /* Firefox */
-  scrollbar-color: rgba(255,255,255,.35) rgba(255,255,255,.12);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.12);
 }
 
 .rn-scroll::-webkit-scrollbar {
@@ -18,16 +22,16 @@ body { outline: 6px solid red !important; }
 }
 
 .rn-scroll::-webkit-scrollbar-track {
-  background: rgba(255,255,255,.10);
+  background: rgba(255, 255, 255, 0.10);
   border-radius: 999px;
 }
 
 .rn-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,.35);
+  background: rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  border: 2px solid rgba(255,255,255,.10);
+  border: 2px solid rgba(255, 255, 255, 0.10);
 }
 
 .rn-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,.50);
+  background: rgba(255, 255, 255, 0.50);
 }

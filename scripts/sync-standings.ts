@@ -15,10 +15,13 @@ type StandingRow = {
   points: number;
 };
 
+type TeamRow = {
+  id: number;
+  name: string;
+};
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// ✅ NUEVO: standings URLs
 const STANDINGS_URLS = process.env.STANDINGS_URLS;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !STANDINGS_URLS) {
@@ -36,30 +39,22 @@ function urlsFromEnv(multiline: string) {
     .filter(Boolean);
 }
 
-// ⚠️ IMPORTANTE: NO BORRAMOS HASH
 function normalizeStandingsUrl(raw: string) {
-  const u = new URL(raw.trim());
-  u.search = "";
-  // u.hash SE DEJA TAL CUAL
-  return u.toString();
+  const url = new URL(raw.trim());
+  url.search = "";
+  return url.toString();
 }
 
 function competitionSlugFromUrl(url: string) {
-  const u = new URL(url);
-  const parts = u.pathname.split("/").filter(Boolean);
-  // rugby-union / france / top-14 / standings /
-  if (parts.length < 4) return null;
-  if (parts[0] !== "rugby-union") return null;
+  const parts = new URL(url).pathname.split("/").filter(Boolean);
+  if (parts.length < 4 || parts[0] !== "rugby-union") return null;
 
   const compSlug = parts[2];
-
-  // Mapeo a tus slugs en Supabase:
   if (compSlug === "top-14") return "fr-top14";
   if (compSlug === "super-rugby-americas") return "sra";
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
-  if (compSlug === "premiership-rugby") return "en-premiership"; // ✅ agrego esto
-
+  if (compSlug === "premiership-rugby") return "en-premiership-rugby";
   return null;
 }
 
@@ -84,9 +79,9 @@ async function maybeAcceptConsent(page: Page) {
     "#onetrust-accept-btn-handler",
   ];
 
-  for (const sel of selectors) {
+  for (const selector of selectors) {
     try {
-      const el = page.locator(sel).first();
+      const el = page.locator(selector).first();
       if (await el.isVisible({ timeout: 1500 })) {
         await el.click({ timeout: 1500 });
         await page.waitForTimeout(500);
@@ -97,25 +92,26 @@ async function maybeAcceptConsent(page: Page) {
 }
 
 async function gotoWithRetry(page: Page, url: string, tries = 3) {
-  let lastErr: any = null;
+  let lastError: unknown = null;
+
   for (let i = 1; i <= tries; i++) {
     try {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
       return;
-    } catch (e) {
-      lastErr = e;
+    } catch (error) {
+      lastError = error;
       console.log(`WARN: goto failed (try ${i}/${tries}) -> ${url}`);
       await page.waitForTimeout(1500 * i).catch(() => {});
     }
   }
-  throw lastErr;
+
+  throw lastError;
 }
 
 async function scrapeStandings(page: Page): Promise<StandingRow[]> {
-  // Esperamos algo de la tabla (Flashscore a veces tarda)
   await page.waitForTimeout(1500);
 
-  const js = `
+  const script = `
 (() => {
   const text = (el) => (el ? (el.textContent || "").trim() : "");
   const toInt = (s) => {
@@ -125,7 +121,6 @@ async function scrapeStandings(page: Page): Promise<StandingRow[]> {
     return Number.isFinite(n) ? n : 0;
   };
 
-  // rows candidates
   const rowSelectors = [
     ".ui-table__row",
     ".table__row",
@@ -135,12 +130,15 @@ async function scrapeStandings(page: Page): Promise<StandingRow[]> {
   ];
 
   let rows = [];
-  for (const sel of rowSelectors) {
-    const found = Array.from(document.querySelectorAll(sel));
-    if (found.length > 3) { rows = found; break; }
+  for (const selector of rowSelectors) {
+    const found = Array.from(document.querySelectorAll(selector));
+    if (found.length > 3) {
+      rows = found;
+      break;
+    }
   }
 
-  rows = rows.filter(r => (r.textContent || "").trim().length > 10);
+  rows = rows.filter((row) => (row.textContent || "").trim().length > 10);
 
   const teamSelectors = [
     ".tableCellParticipant__name",
@@ -149,10 +147,9 @@ async function scrapeStandings(page: Page): Promise<StandingRow[]> {
   ];
 
   const pickTeam = (row) => {
-    for (const sel of teamSelectors) {
-      const el = row.querySelector(sel);
-      const t = text(el);
-      if (t) return t;
+    for (const selector of teamSelectors) {
+      const team = text(row.querySelector(selector));
+      if (team) return team;
     }
     return "";
   };
@@ -160,8 +157,7 @@ async function scrapeStandings(page: Page): Promise<StandingRow[]> {
   const pickCells = (row) => {
     let cells = Array.from(row.querySelectorAll(".ui-table__cell, .table__cell"));
     if (cells.length >= 6) return cells;
-    cells = Array.from(row.children);
-    return cells;
+    return Array.from(row.children);
   };
 
   const out = [];
@@ -169,93 +165,113 @@ async function scrapeStandings(page: Page): Promise<StandingRow[]> {
     const cells = pickCells(row);
     if (!cells || cells.length < 6) continue;
 
-    const rawTexts = cells.map(c => text(c)).filter(Boolean);
+    const rawTexts = cells.map((cell) => text(cell)).filter(Boolean);
     if (rawTexts.length < 6) continue;
 
-    // position
-    let pos = 0;
-    for (const s of rawTexts.slice(0, 3)) {
-      const n = toInt(s);
-      if (n > 0) { pos = n; break; }
+    let position = 0;
+    for (const value of rawTexts.slice(0, 3)) {
+      const parsed = toInt(value);
+      if (parsed > 0) {
+        position = parsed;
+        break;
+      }
     }
-    if (!pos) continue;
 
-    const team = pickTeam(row);
-    if (!team) continue;
+    const teamName = pickTeam(row);
+    if (!position || !teamName) continue;
 
-    const nums = rawTexts.map(toInt);
+    const numbers = rawTexts.map(toInt);
+    const points = numbers[numbers.length - 1] ?? 0;
 
-    const points = nums[nums.length - 1] ?? 0;
+    let played = 0;
+    let won = 0;
+    let drawn = 0;
+    let lost = 0;
+    let pointsFor = 0;
+    let pointsAgainst = 0;
+    let diff = 0;
+    let bonusPoints = 0;
 
-    let played=0, won=0, drawn=0, lost=0, pf=0, pa=0, diff=0, bonus=0;
-
-    if (nums.length >= 11) {
-      played = nums[2]; won = nums[3]; drawn = nums[4]; lost = nums[5];
-      pf = nums[6]; pa = nums[7]; diff = nums[8]; bonus = nums[9];
-    } else if (nums.length >= 9) {
-      played = nums[2]; won = nums[3]; drawn = nums[4]; lost = nums[5];
-      pf = nums[6] ?? 0; pa = nums[7] ?? 0;
-      diff = nums[8] ?? (pf - pa);
-      bonus = 0;
+    if (numbers.length >= 11) {
+      played = numbers[2];
+      won = numbers[3];
+      drawn = numbers[4];
+      lost = numbers[5];
+      pointsFor = numbers[6];
+      pointsAgainst = numbers[7];
+      diff = numbers[8];
+      bonusPoints = numbers[9];
+    } else if (numbers.length >= 9) {
+      played = numbers[2];
+      won = numbers[3];
+      drawn = numbers[4];
+      lost = numbers[5];
+      pointsFor = numbers[6] ?? 0;
+      pointsAgainst = numbers[7] ?? 0;
+      diff = numbers[8] ?? (pointsFor - pointsAgainst);
     } else {
-      played = nums[2] ?? 0;
-      won = nums[3] ?? 0;
-      drawn = nums[4] ?? 0;
-      lost = nums[5] ?? 0;
-      pf = 0; pa = 0; diff = 0; bonus = 0;
+      played = numbers[2] ?? 0;
+      won = numbers[3] ?? 0;
+      drawn = numbers[4] ?? 0;
+      lost = numbers[5] ?? 0;
     }
 
     out.push({
-      position: pos,
-      teamName: team,
-      played, won, drawn, lost,
-      pointsFor: pf,
-      pointsAgainst: pa,
-      diff: diff || (pf - pa),
-      bonusPoints: bonus,
+      position,
+      teamName,
+      played,
+      won,
+      drawn,
+      lost,
+      pointsFor,
+      pointsAgainst,
+      diff,
+      bonusPoints,
       points,
     });
   }
 
-  out.sort((a,b) => a.position - b.position);
+  out.sort((a, b) => a.position - b.position);
   return out;
 })()
 `;
-  return (await page.evaluate(js)) as StandingRow[];
+
+  return (await page.evaluate(script)) as StandingRow[];
 }
 
 async function getLatestSeasonIdByCompSlug(compSlug: string) {
-  const { data: comp, error: compErr } = await supabase
+  const { data: competition, error: competitionError } = await supabase
     .from("competitions")
     .select("id")
     .eq("slug", compSlug)
     .maybeSingle();
 
-  if (compErr) throw compErr;
-  if (!comp?.id) throw new Error(`No competition found for slug=${compSlug}`);
+  if (competitionError) throw competitionError;
+  if (!competition?.id) throw new Error(`No competition found for slug=${compSlug}`);
 
-  const { data: seasons, error: seasonErr } = await supabase
+  const { data: seasons, error: seasonsError } = await supabase
     .from("seasons")
     .select("id,name")
-    .eq("competition_id", comp.id);
+    .eq("competition_id", competition.id);
 
-  if (seasonErr) throw seasonErr;
+  if (seasonsError) throw seasonsError;
   if (!seasons || seasons.length === 0) throw new Error(`No seasons found for compSlug=${compSlug}`);
 
-  const best = seasons.slice().sort((a, b) => (b.name || "").localeCompare(a.name || ""))[0];
-  return { seasonId: best.id as number, seasonName: best.name as string };
+  const latest = seasons.slice().sort((a, b) => String(b.name || "").localeCompare(String(a.name || "")))[0];
+  return { seasonId: latest.id as number, seasonName: latest.name as string };
 }
 
 async function resolveTeamIdByName(teamName: string): Promise<number | null> {
-  const n = norm(teamName);
-  if (!n) return null;
+  const normalized = norm(teamName);
+  if (!normalized) return null;
 
   const { data, error } = await supabase.from("teams").select("id,name");
   if (error) throw error;
 
-  for (const t of data || []) {
-    if (norm((t as any).name) === n) return (t as any).id as number;
+  for (const team of (data || []) as TeamRow[]) {
+    if (norm(team.name) === normalized) return team.id;
   }
+
   return null;
 }
 
@@ -285,7 +301,6 @@ async function main() {
       }
 
       const { seasonId, seasonName } = await getLatestSeasonIdByCompSlug(compSlug);
-
       console.log(`\n== ${compSlug} (${seasonName}) ==`);
       console.log("Standings URL:", url);
 
@@ -300,32 +315,31 @@ async function main() {
         continue;
       }
 
-      // Simple: delete+insert (como tu tabla no tiene UNIQUE)
-      const { error: delErr } = await supabase.from("standings").delete().eq("season_id", seasonId);
-      if (delErr) throw delErr;
+      const { error: deleteError } = await supabase.from("standings").delete().eq("season_id", seasonId);
+      if (deleteError) throw deleteError;
 
-      const inserts: any[] = [];
-      for (const r of rows) {
-        const teamId = await resolveTeamIdByName(r.teamName);
+      const inserts: Array<Record<string, number | string>> = [];
+      for (const row of rows) {
+        const teamId = await resolveTeamIdByName(row.teamName);
         if (!teamId) {
-          console.log("Unmapped team in standings:", r.teamName);
+          console.log("Unmapped team in standings:", row.teamName);
           continue;
         }
 
         inserts.push({
           season_id: seasonId,
           team_id: teamId,
-          played: r.played,
-          won: r.won,
-          drawn: r.drawn,
-          lost: r.lost,
-          points_for: r.pointsFor,
-          points_against: r.pointsAgainst,
-          diff: r.diff,
+          played: row.played,
+          won: row.won,
+          drawn: row.drawn,
+          lost: row.lost,
+          points_for: row.pointsFor,
+          points_against: row.pointsAgainst,
+          diff: row.diff,
           tries_for: 0,
           tries_against: 0,
-          bonus_points: r.bonusPoints,
-          points: r.points,
+          bonus_points: row.bonusPoints,
+          points: row.points,
           updated_at: new Date().toISOString(),
         });
       }
@@ -335,8 +349,8 @@ async function main() {
         continue;
       }
 
-      const { error: insErr } = await supabase.from("standings").insert(inserts);
-      if (insErr) throw insErr;
+      const { error: insertError } = await supabase.from("standings").insert(inserts);
+      if (insertError) throw insertError;
 
       console.log("Inserted standings:", inserts.length);
     }
@@ -344,10 +358,10 @@ async function main() {
     await browser.close();
   }
 
-  console.log("\nDONE ✅ standings sync");
+  console.log("\nDONE standings sync");
 }
 
-main().catch((e) => {
-  console.error("ERROR ❌", e);
+main().catch((error) => {
+  console.error("ERROR", error);
   process.exit(1);
 });

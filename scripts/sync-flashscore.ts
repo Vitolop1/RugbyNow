@@ -336,7 +336,7 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
 
   const best = seasons
     .slice()
-    .sort((a, b) => seasonSortKey((b as any).name) - seasonSortKey((a as any).name))[0] as SeasonRow;
+    .sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0] as SeasonRow;
 
   return { seasonId: best.id, seasonName: best.name };
 }
@@ -1283,7 +1283,7 @@ async function main() {
       console.log(`Existing matches in season: ${existingMatches.length}`);
 
       const variants = buildFlashVariants(item.url);
-      let scrapedAll: ScrapedRow[] = [];
+      const scrapedAll: ScrapedRow[] = [];
 
       for (const url of variants.resultsAndFixtures) {
         try {
@@ -1446,8 +1446,8 @@ async function main() {
               insertedHere++;
               totalInsertedOrUpserted++;
             }
-          } catch (e: any) {
-            console.log("WARN: save by source_event_key failed:", e?.message || e);
+          } catch (e: unknown) {
+            console.log("WARN: save by source_event_key failed:", e instanceof Error ? e.message : e);
           }
         }
       }
@@ -1474,8 +1474,8 @@ async function main() {
             standings,
           });
         }
-      } catch (e: any) {
-        console.log("WARN: standings scrape failed:", e?.message || e);
+      } catch (e: unknown) {
+        console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
       }
 
       if (unresolvedTeams.size > 0) {

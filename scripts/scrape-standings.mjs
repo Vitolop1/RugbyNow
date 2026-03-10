@@ -43,7 +43,7 @@ async function scrapeStandings(url) {
 
   // Heurística: busca filas en la tabla de standings
   // (Flashscore cambia clases seguido; esto intenta ser robusto)
-  const rows = await page.$$eval("div", (divs) => {
+  await page.$$eval("div", (divs) => {
     const textContains = (el, t) => el && el.textContent && el.textContent.toLowerCase().includes(t);
     // intenta encontrar el bloque que tiene "PTS" y cerca tiene filas con equipos
     const candidates = divs.filter((d) => textContains(d, "pts") && d.textContent.length > 50);

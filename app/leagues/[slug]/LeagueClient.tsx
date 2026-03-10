@@ -24,6 +24,30 @@ type DbMatchRow = {
   away_team: { id: number; name: string; slug: string } | null;
 };
 
+type TeamRefRow = {
+  home_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
+  away_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
+};
+
+type StandingMatchRow = {
+  home_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
+  away_team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null;
+  home_score: number | null;
+  away_score: number | null;
+};
+
+type RoundQueryRow = {
+  round: number | string | null;
+  match_date: string;
+  status: MatchStatus | null;
+};
+
+function asTeamRef(
+  team: { id: number; name: string; slug: string | null } | Array<{ id: number; name: string; slug: string | null }> | null
+) {
+  return Array.isArray(team) ? (team[0] ?? null) : team;
+}
+
 type Competition = {
   id: number;
   name: string;
@@ -243,7 +267,7 @@ function formatKickoffInTZ(match_date: string, kickoff_time: string | null, time
   }).format(dt);
 }
 
-function parseRound(v: any): number | null {
+function parseRound(v: number | string | null | undefined): number | null {
   if (v == null) return null;
   if (typeof v === "number" && Number.isFinite(v)) return v;
   if (typeof v === "string" && v.trim() !== "") {
@@ -299,17 +323,20 @@ async function fetchTeamsForSeason(seasonId: number) {
 
   const map = new Map<number, { name: string; slug: string | null }>();
 
-  for (const r of (data || []) as any[]) {
-    if (r.home_team?.id) {
-      map.set(r.home_team.id, {
-        name: r.home_team.name,
-        slug: r.home_team.slug ?? null,
+  for (const r of (data || []) as TeamRefRow[]) {
+    const homeTeam = asTeamRef(r.home_team);
+    const awayTeam = asTeamRef(r.away_team);
+
+    if (homeTeam?.id) {
+      map.set(homeTeam.id, {
+        name: homeTeam.name,
+        slug: homeTeam.slug ?? null,
       });
     }
-    if (r.away_team?.id) {
-      map.set(r.away_team.id, {
-        name: r.away_team.name,
-        slug: r.away_team.slug ?? null,
+    if (awayTeam?.id) {
+      map.set(awayTeam.id, {
+        name: awayTeam.name,
+        slug: awayTeam.slug ?? null,
       });
     }
   }
@@ -356,9 +383,9 @@ async function fetchStandingsComputed(seasonId: number, compSlug: string) {
 
   let ftCount = 0;
 
-  for (const r of (data || []) as any[]) {
-    const ht = r.home_team;
-    const at = r.away_team;
+  for (const r of (data || []) as StandingMatchRow[]) {
+    const ht = asTeamRef(r.home_team);
+    const at = asTeamRef(r.away_team);
     const hs = r.home_score;
     const as = r.away_score;
 
@@ -546,7 +573,7 @@ export default function LeagueClient() {
 
     const map = new Map<number, { first: string; last: string; count: number; ft: number }>();
 
-    for (const row of (data || []) as any[]) {
+    for (const row of (data || []) as RoundQueryRow[]) {
       const r = parseRound(row.round);
       if (r == null) continue;
 
@@ -626,8 +653,8 @@ export default function LeagueClient() {
         const meta = await fetchRoundMeta(seasonData.id);
         setRoundMeta(meta);
         setSelectedRound(meta.length > 0 ? pickAutoRound(meta, refISO) : null);
-      } catch (e: any) {
-        setErr(e?.message ?? "Error loading rounds");
+      } catch (e: unknown) {
+        setErr(e instanceof Error ? e.message : "Error loading rounds");
         setLoadingLeague(false);
         return;
       }
@@ -665,9 +692,9 @@ export default function LeagueClient() {
 
         const hasLive = m.some((x) => x.status === "LIVE");
         timer = setTimeout(load, hasLive ? 10_000 : 60_000);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        setErr(e?.message ?? "Error loading matches");
+        setErr(e instanceof Error ? e.message : "Error loading matches");
         timer = setTimeout(load, 60_000);
       } finally {
         if (!cancelled) setLoadingMatches(false);
@@ -681,7 +708,7 @@ export default function LeagueClient() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [season?.id, selectedRound]);
+  }, [season, selectedRound]);
 
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {

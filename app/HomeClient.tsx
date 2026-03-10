@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 import { getLeagueLogo, getTeamLogo } from "@/app/lib/assets";
+import { usePrefs } from "@/lib/usePrefs";
+
 type MatchStatus = "NS" | "LIVE" | "FT";
 
 type Match = {
@@ -46,16 +48,11 @@ type DbMatchRow = {
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
-  round: number | null;
-  venue: string | null;
   home_team: { id: number; name: string; slug: string } | null;
   away_team: { id: number; name: string; slug: string } | null;
   season:
     | {
-        id: number;
-        name: string;
         competition: {
-          id: number;
           name: string;
           slug: string;
           region: string | null;
@@ -64,15 +61,7 @@ type DbMatchRow = {
     | null;
 };
 
-function TeamLogo({
-  slug,
-  alt,
-  size = 22,
-}: {
-  slug?: string | null;
-  alt: string;
-  size?: number;
-}) {
+function TeamLogo({ slug, alt, size = 22 }: { slug?: string | null; alt: string; size?: number }) {
   return (
     <img
       src={getTeamLogo(slug)}
@@ -88,15 +77,7 @@ function TeamLogo({
   );
 }
 
-function LeagueLogo({
-  slug,
-  alt,
-  size = 20,
-}: {
-  slug?: string | null;
-  alt: string;
-  size?: number;
-}) {
+function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: string; size?: number }) {
   return (
     <img
       src={getLeagueLogo(slug)}
@@ -123,27 +104,13 @@ function StatusBadge({ status }: { status: MatchStatus }) {
   }
 
   if (status === "FT") {
-    return (
-      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white border border-white/15">
-        FT
-      </span>
-    );
+    return <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white border border-white/15">FT</span>;
   }
 
-  return (
-    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white/90 border border-white/15">
-      PRE
-    </span>
-  );
+  return <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 text-white/90 border border-white/15">PRE</span>;
 }
 
-function TeamName({
-  name,
-  slug,
-}: {
-  name: string;
-  slug?: string | null;
-}) {
+function TeamName({ name, slug }: { name: string; slug?: string | null }) {
   return (
     <span className="flex items-center gap-2 min-w-0">
       <TeamLogo slug={slug} alt={name} />
@@ -165,9 +132,9 @@ function fromISODateLocal(iso: string) {
 }
 
 function addDays(d: Date, delta: number) {
-  const x = new Date(d);
-  x.setDate(x.getDate() + delta);
-  return x;
+  const next = new Date(d);
+  next.setDate(next.getDate() + delta);
+  return next;
 }
 
 function niceDate(d: Date) {
@@ -179,78 +146,56 @@ function niceDate(d: Date) {
   });
 }
 
+function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
+  if (!kickoffTime) return "TBD";
+  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
+  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
+    new Date(`${matchDate}T${normalized}Z`)
+  );
+}
+
 function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
 
-function formatKickoffTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
-  if (!kickoff_time) return "TBD";
-
-  const t = kickoff_time.length === 5 ? `${kickoff_time}:00` : kickoff_time;
-  const dt = new Date(`${match_date}T${t}Z`);
-
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone,
-  }).format(dt);
-}
-
 function dedupeBlock(block: LeagueBlock) {
   const seen = new Set<string>();
-  const out: Match[] = [];
+  const matches: Match[] = [];
 
-  for (const m of block.matches) {
-    const key = `${block.slug}|${m.timeLabel}|${m.home}|${m.away}|${m.status}|${m.hs ?? ""}|${m.as ?? ""}`;
+  for (const match of block.matches) {
+    const key = `${block.slug}|${match.timeLabel}|${match.home}|${match.away}|${match.status}|${match.hs ?? ""}|${match.as ?? ""}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(m);
+    matches.push(match);
   }
 
-  return { ...block, matches: out };
+  return { ...block, matches };
+}
+
+function getInitialSelectedISO() {
+  if (typeof window === "undefined") return toISODateLocal(new Date());
+  const params = new URLSearchParams(window.location.search);
+  const date = params.get("date");
+  return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : toISODateLocal(new Date());
 }
 
 export default function HomeClient() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [timeZone, setTimeZone] = useState<string>("America/New_York");
+  const { timeZone } = usePrefs();
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
+  const [selectedISO, setSelectedISO] = useState<string>(getInitialSelectedISO);
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
   const [compError, setCompError] = useState("");
-
   const [blocks, setBlocks] = useState<LeagueBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-  const todayLocal = new Date();
-  const selectedISO = toISODateLocal(selectedDate);
-  const dateQuery = `?date=${selectedISO}`;
-
   const lastPushedISO = useRef<string>("");
-
-  useEffect(() => {
-    const saved = localStorage.getItem("tz");
-    if (saved) setTimeZone(saved);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("tz", timeZone);
-  }, [timeZone]);
-
-  useEffect(() => {
-    const d = searchParams?.get("date");
-    if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
-      setSelectedDate(fromISODateLocal(d));
-    } else {
-      setSelectedDate(new Date());
-    }
-  }, [searchParams]);
+  const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
+  const todayLocal = new Date();
+  const dateQuery = `?date=${selectedISO}`;
 
   useEffect(() => {
     if (lastPushedISO.current === selectedISO) return;
@@ -259,7 +204,7 @@ export default function HomeClient() {
   }, [router, selectedISO]);
 
   useEffect(() => {
-    const loadComps = async () => {
+    const loadCompetitions = async () => {
       setCompLoading(true);
       setCompError("");
 
@@ -274,93 +219,15 @@ export default function HomeClient() {
       if (error) {
         setCompetitions([]);
         setCompError(error.message ?? "Unknown competitions error");
-        setCompLoading(false);
-        return;
+      } else {
+        setCompetitions((data || []) as Competition[]);
       }
 
-      setCompetitions((data || []) as Competition[]);
       setCompLoading(false);
     };
 
-    loadComps();
+    loadCompetitions();
   }, []);
-
-  const dedupedCompetitions = useMemo(() => {
-    const pickBetter = (a: Competition, b: Competition) => {
-      const af = !!a.is_featured;
-      const bf = !!b.is_featured;
-      if (af !== bf) return af ? a : b;
-
-      const aso = a.sort_order ?? 9999;
-      const bso = b.sort_order ?? 9999;
-      if (aso !== bso) return aso < bso ? a : b;
-
-      return a.id < b.id ? a : b;
-    };
-
-    const bySlug = new Map<string, Competition>();
-
-    for (const c of competitions) {
-      const k = (c.slug ?? "").trim().toLowerCase();
-      if (!k) continue;
-
-      if (!bySlug.has(k)) bySlug.set(k, c);
-      else bySlug.set(k, pickBetter(bySlug.get(k)!, c));
-    }
-
-    const list = Array.from(bySlug.values());
-
-    const keyOf = (c: Competition) => {
-      const g = (c.group_name ?? "").trim().toLowerCase();
-      const n = (c.name ?? "").trim().toLowerCase();
-      const cat = (c.category ?? "").trim().toLowerCase();
-      return `${g}::${cat}::${n}`;
-    };
-
-    const map = new Map<string, Competition>();
-    for (const c of list) {
-      const k = keyOf(c);
-      if (!map.has(k)) map.set(k, c);
-      else map.set(k, pickBetter(map.get(k)!, c));
-    }
-
-    return Array.from(map.values());
-  }, [competitions]);
-
-  const groupedCompetitions = useMemo(() => {
-    const map = new Map<string, Competition[]>();
-
-    for (const c of dedupedCompetitions) {
-      const group = (c.group_name ?? "").trim() || "Other";
-      if (!map.has(group)) map.set(group, []);
-      map.get(group)!.push(c);
-    }
-
-    const entries = Array.from(map.entries());
-
-    entries.sort((a, b) => {
-      const aFeat = a[1].some((x) => x.is_featured);
-      const bFeat = b[1].some((x) => x.is_featured);
-      if (aFeat !== bFeat) return aFeat ? -1 : 1;
-      return a[0].localeCompare(b[0]);
-    });
-
-    for (const [, comps] of entries) {
-      comps.sort((x, y) => {
-        const xf = !!x.is_featured;
-        const yf = !!y.is_featured;
-        if (xf !== yf) return xf ? -1 : 1;
-
-        const xs = x.sort_order ?? 9999;
-        const ys = y.sort_order ?? 9999;
-        if (xs !== ys) return xs - ys;
-
-        return x.name.localeCompare(y.name);
-      });
-    }
-
-    return entries;
-  }, [dedupedCompetitions]);
 
   useEffect(() => {
     let cancelled = false;
@@ -369,8 +236,6 @@ export default function HomeClient() {
     const loadMatches = async () => {
       setLoading(true);
       setLoadError("");
-
-      const dayISO = toISODateLocal(selectedDate);
 
       const { data, error } = await supabase
         .from("matches")
@@ -382,17 +247,13 @@ export default function HomeClient() {
           minute,
           home_score,
           away_score,
-          round,
-          venue,
           home_team:home_team_id ( id, name, slug ),
           away_team:away_team_id ( id, name, slug ),
           season:season_id (
-            id,
-            name,
-            competition:competition_id ( id, name, slug, region )
+            competition:competition_id ( name, slug, region )
           )
         `)
-        .eq("match_date", dayISO)
+        .eq("match_date", selectedISO)
         .order("kickoff_time", { ascending: true })
         .limit(2000);
 
@@ -407,57 +268,44 @@ export default function HomeClient() {
       }
 
       const rows = (data || []) as unknown as DbMatchRow[];
-      const map = new Map<string, LeagueBlock>();
+      const byLeague = new Map<string, LeagueBlock>();
       let hasLive = false;
 
-      for (const r of rows) {
-        if (r.status === "LIVE") hasLive = true;
+      for (const row of rows) {
+        if (row.status === "LIVE") hasLive = true;
 
-        const compName = r.season?.competition?.name ?? "Unknown Competition";
-        const compSlug = r.season?.competition?.slug ?? "unknown";
-        const region = r.season?.competition?.region ?? "";
+        const leagueName = row.season?.competition?.name ?? "Unknown Competition";
+        const leagueSlug = row.season?.competition?.slug ?? "unknown";
+        const region = row.season?.competition?.region ?? "";
 
-        const kickoffLabel =
-          r.status === "LIVE"
-            ? `LIVE ${r.minute ?? ""}${r.minute ? "'" : ""}`.trim()
-            : r.status === "FT"
+        const timeLabel =
+          row.status === "LIVE"
+            ? `LIVE ${row.minute ?? ""}${row.minute ? "'" : ""}`.trim()
+            : row.status === "FT"
               ? "FT"
-              : formatKickoffTZ(r.match_date, r.kickoff_time, timeZone);
-
-        const hs = r.status === "NS" ? null : r.home_score;
-        const as = r.status === "NS" ? null : r.away_score;
+              : formatKickoffTZ(row.match_date, row.kickoff_time, timeZone);
 
         const match: Match = {
-          timeLabel: kickoffLabel,
-          home: r.home_team?.name ?? "TBD",
-          away: r.away_team?.name ?? "TBD",
-          homeSlug: r.home_team?.slug ?? null,
-          awaySlug: r.away_team?.slug ?? null,
-          hs,
-          as,
-          status: r.status,
+          timeLabel,
+          home: row.home_team?.name ?? "TBD",
+          away: row.away_team?.name ?? "TBD",
+          homeSlug: row.home_team?.slug ?? null,
+          awaySlug: row.away_team?.slug ?? null,
+          hs: row.status === "NS" ? null : row.home_score,
+          as: row.status === "NS" ? null : row.away_score,
+          status: row.status,
         };
 
-        if (!map.has(compSlug)) {
-          map.set(compSlug, {
-            league: compName,
-            region,
-            slug: compSlug,
-            matches: [],
-          });
+        if (!byLeague.has(leagueSlug)) {
+          byLeague.set(leagueSlug, { league: leagueName, region, slug: leagueSlug, matches: [] });
         }
 
-        map.get(compSlug)!.matches.push(match);
+        byLeague.get(leagueSlug)!.matches.push(match);
       }
 
-      const blocksRaw = Array.from(map.values());
-      const blocksDeduped = blocksRaw.map(dedupeBlock);
-
-      setBlocks(blocksDeduped);
+      setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
       setLoading(false);
-
-      const nextMs = hasLive ? 10000 : 60000;
-      timer = setTimeout(loadMatches, nextMs);
+      timer = setTimeout(loadMatches, hasLive ? 10000 : 60000);
     };
 
     loadMatches();
@@ -466,17 +314,55 @@ export default function HomeClient() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [selectedDate, timeZone]);
+  }, [selectedISO, timeZone]);
+
+  const dedupedCompetitions = useMemo(() => {
+    const pickBetter = (a: Competition, b: Competition) => {
+      if (!!a.is_featured !== !!b.is_featured) return a.is_featured ? a : b;
+      const aSort = a.sort_order ?? 9999;
+      const bSort = b.sort_order ?? 9999;
+      if (aSort !== bSort) return aSort < bSort ? a : b;
+      return a.id < b.id ? a : b;
+    };
+
+    const bySlug = new Map<string, Competition>();
+    for (const competition of competitions) {
+      const key = competition.slug.trim().toLowerCase();
+      if (!key) continue;
+      bySlug.set(key, bySlug.has(key) ? pickBetter(bySlug.get(key)!, competition) : competition);
+    }
+
+    return Array.from(bySlug.values());
+  }, [competitions]);
+
+  const groupedCompetitions = useMemo(() => {
+    const groups = new Map<string, Competition[]>();
+
+    for (const competition of dedupedCompetitions) {
+      const group = (competition.group_name ?? "").trim() || "Other";
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group)!.push(competition);
+    }
+
+    return Array.from(groups.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([groupName, comps]) => [
+        groupName,
+        comps.sort((a, b) => {
+          if (!!a.is_featured !== !!b.is_featured) return a.is_featured ? -1 : 1;
+          const aSort = a.sort_order ?? 9999;
+          const bSort = b.sort_order ?? 9999;
+          if (aSort !== bSort) return aSort - bSort;
+          return a.name.localeCompare(b.name);
+        }),
+      ] as const);
+  }, [dedupedCompetitions]);
 
   const filteredBlocks = useMemo(() => {
     if (tab !== "LIVE") return blocks;
-
     return blocks
-      .map((b) => ({
-        ...b,
-        matches: b.matches.filter((m) => m.status === "LIVE"),
-      }))
-      .filter((b) => b.matches.length > 0);
+      .map((block) => ({ ...block, matches: block.matches.filter((match) => match.status === "LIVE") }))
+      .filter((block) => block.matches.length > 0);
   }, [blocks, tab]);
 
   return (
@@ -494,24 +380,21 @@ export default function HomeClient() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-semibold text-white/90">Fechas</div>
-
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setSelectedDate((d) => addDays(d, -1))}
+                    onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
                     className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
                   >
                     ←
                   </button>
-
                   <button
-                    onClick={() => setSelectedDate(new Date())}
+                    onClick={() => setSelectedISO(toISODateLocal(new Date()))}
                     className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
                   >
                     Today
                   </button>
-
                   <button
-                    onClick={() => setSelectedDate((d) => addDays(d, 1))}
+                    onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, 1)))}
                     className="px-3 py-1.5 rounded-lg text-xs font-extrabold border border-emerald-300/30 bg-emerald-400/25 hover:bg-emerald-400/35 transition"
                   >
                     NEXT →
@@ -523,7 +406,7 @@ export default function HomeClient() {
                 <input
                   type="date"
                   value={selectedISO}
-                  onChange={(e) => setSelectedDate(fromISODateLocal(e.target.value))}
+                  onChange={(e) => setSelectedISO(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl text-sm border border-white/15 bg-white/10 text-white outline-none"
                 />
                 <span
@@ -553,15 +436,12 @@ export default function HomeClient() {
                 <div className="space-y-3">
                   {groupedCompetitions.map(([groupName, comps]) => {
                     const open = openGroups[groupName] ?? false;
-                    const featuredCount = comps.filter((x) => x.is_featured).length;
+                    const featuredCount = comps.filter((competition) => competition.is_featured).length;
 
                     return (
-                      <div
-                        key={groupName}
-                        className="rounded-xl border border-white/15 bg-white/10 overflow-hidden"
-                      >
+                      <div key={groupName} className="rounded-xl border border-white/15 bg-white/10 overflow-hidden">
                         <button
-                          onClick={() => setOpenGroups((p) => ({ ...p, [groupName]: !open }))}
+                          onClick={() => setOpenGroups((prev) => ({ ...prev, [groupName]: !open }))}
                           className="w-full px-3 py-2 flex items-center justify-between text-left"
                           aria-label={`Toggle group ${groupName}`}
                         >
@@ -576,26 +456,24 @@ export default function HomeClient() {
 
                         {open ? (
                           <div className="px-2 pb-2 space-y-2">
-                            {comps.map((c) => (
+                            {comps.map((competition) => (
                               <Link
-                                key={`${c.slug}-${c.id}`}
-                                href={`/leagues/${c.slug}${dateQuery}`}
+                                key={`${competition.slug}-${competition.id}`}
+                                href={`/leagues/${competition.slug}${dateQuery}`}
                                 className="block w-full text-left px-3 py-2 rounded-xl border border-white/15 transition bg-black/20 hover:bg-black/30"
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <LeagueLogo slug={c.slug} alt={c.name} />
-                                    <div className="text-sm font-medium truncate text-white">{c.name}</div>
+                                    <LeagueLogo slug={competition.slug} alt={competition.name} />
+                                    <div className="text-sm font-medium truncate text-white">{competition.name}</div>
                                   </div>
-
-                                  {c.is_featured ? (
+                                  {competition.is_featured ? (
                                     <span className="text-[10px] font-extrabold px-2 py-1 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30">
                                       PIN
                                     </span>
                                   ) : null}
                                 </div>
-
-                                {c.region ? <div className="text-xs text-white/70 mt-1">{c.region}</div> : null}
+                                {competition.region ? <div className="text-xs text-white/70 mt-1">{competition.region}</div> : null}
                               </Link>
                             ))}
                           </div>
@@ -613,30 +491,22 @@ export default function HomeClient() {
               <h2 className="text-xl font-bold text-white">Matches</h2>
               <p className="text-sm text-white/80">
                 Date: <span className="font-semibold text-white">{niceDate(selectedDate)}</span> •{" "}
-                {tab === "LIVE" ? "Live only" : "All matches"} • TZ:{" "}
-                <span className="font-semibold text-white">{timeZone}</span>
+                {tab === "LIVE" ? "Live only" : "All matches"} • TZ: <span className="font-semibold text-white">{timeZone}</span>
               </p>
             </div>
 
             {loading ? (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">
-                Loading matches...
-              </div>
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">Loading matches...</div>
             ) : loadError ? (
               <div className="rounded-2xl border border-red-200/30 bg-black/20 backdrop-blur p-6 text-white">
                 <div className="font-bold">Supabase error</div>
                 <div className="mt-2 text-sm text-white/80">{loadError}</div>
               </div>
             ) : filteredBlocks.length === 0 ? (
-              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">
-                No matches for this date
-              </div>
+              <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-8 text-center text-white/80">No matches for this date</div>
             ) : (
               filteredBlocks.map((block) => (
-                <div
-                  key={block.slug}
-                  className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur overflow-hidden"
-                >
+                <div key={block.slug} className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur overflow-hidden">
                   <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
                     <div className="flex items-center gap-2 min-w-0">
                       <LeagueLogo slug={block.slug} alt={block.league} />
@@ -646,38 +516,33 @@ export default function HomeClient() {
                   </div>
 
                   <div className="divide-y divide-white/10">
-                    {block.matches.map((m, idx) => (
+                    {block.matches.map((match, index) => (
                       <div
-                        key={`${block.slug}-${idx}-${m.timeLabel}-${m.home}-${m.away}`}
+                        key={`${block.slug}-${index}-${match.timeLabel}-${match.home}-${match.away}`}
                         className={`px-4 py-3 flex items-center gap-4 transition ${
-                          m.status === "LIVE" ? "ring-1 ring-red-300/40 bg-red-400/10" : "hover:bg-white/5"
+                          match.status === "LIVE" ? "ring-1 ring-red-300/40 bg-red-400/10" : "hover:bg-white/5"
                         }`}
                       >
                         <div className="w-32 shrink-0">
-                          <div className="text-lg font-extrabold tracking-tight text-white">{m.timeLabel}</div>
+                          <div className="text-lg font-extrabold tracking-tight text-white">{match.timeLabel}</div>
                           <div className="mt-1">
-                            <StatusBadge status={m.status} />
+                            <StatusBadge status={match.status} />
                           </div>
                         </div>
 
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                           <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <TeamName name={m.home} slug={m.homeSlug} />
-                            <span className="font-extrabold tabular-nums text-white">
-                              {m.status === "NS" ? "—" : m.hs ?? "-"}
-                            </span>
+                            <TeamName name={match.home} slug={match.homeSlug} />
+                            <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "—" : match.hs ?? "-"}</span>
                           </div>
-
                           <div className="flex items-center justify-between rounded-xl bg-white/10 border border-white/15 px-3 py-2">
-                            <TeamName name={m.away} slug={m.awaySlug} />
-                            <span className="font-extrabold tabular-nums text-white">
-                              {m.status === "NS" ? "—" : m.as ?? "-"}
-                            </span>
+                            <TeamName name={match.away} slug={match.awaySlug} />
+                            <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "—" : match.as ?? "-"}</span>
                           </div>
                         </div>
 
                         <div className="hidden md:block w-36 text-right text-xs text-white/70 shrink-0">
-                          {m.status === "LIVE" ? "Live action" : m.status === "FT" ? "Final" : "Upcoming"}
+                          {match.status === "LIVE" ? "Live action" : match.status === "FT" ? "Final" : "Upcoming"}
                         </div>
                       </div>
                     ))}
@@ -700,21 +565,12 @@ export default function HomeClient() {
         <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-white/70">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              RugbyNow • Built by <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
-              <span className="font-semibold text-white">{timeZone}</span>
+              RugbyNow • Built by <span className="font-semibold text-white">Vito Loprestti</span> • TZ: <span className="font-semibold text-white">{timeZone}</span>
             </div>
             <div className="opacity-90">
-              Contact:{" "}
-              <a className="underline" href="mailto:lopresttivito@gmail.com">
-                lopresttivito@gmail.com
-              </a>
+              Contact: <a className="underline" href="mailto:lopresttivito@gmail.com">lopresttivito@gmail.com</a>
               <span className="mx-2">•</span>
-              <a
-                className="underline"
-                href="https://www.linkedin.com/in/vitoloprestti/"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
                 LinkedIn
               </a>
             </div>

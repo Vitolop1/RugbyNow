@@ -1,4 +1,3 @@
-// scripts/backfillResults.ts
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
@@ -17,12 +16,26 @@ type ApiResultRow = {
   venue?: string;
 };
 
-// ---------- CONFIG ----------
+type ApiResponseItem = {
+  date?: string;
+  match_date?: string;
+  time?: string;
+  kickoff_time?: string;
+  home_team?: { name?: string | null } | null;
+  away_team?: { name?: string | null } | null;
+  home?: string;
+  away?: string;
+  home_score?: number | string;
+  away_score?: number | string;
+  hs?: number | string;
+  as?: number | string;
+  round?: number | string | null;
+  venue?: string | null;
+};
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SCRUMBASE_API_KEY = process.env.SCRUMBASE_API_KEY;
-
-// Si tu API devuelve timezone local, ajustalo. Ideal: guardar kickoff_time en UTC.
 const DEFAULT_KICKOFF_TIME = "00:00:00";
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SCRUMBASE_API_KEY) {
@@ -33,19 +46,12 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
-// ---------- HELPERS ----------
 function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/['"]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  return s.toLowerCase().trim().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
 async function upsertTeam(name: string, countryCode?: string | null) {
   const slug = slugify(name);
-
   const { data, error } = await supabase
     .from("teams")
     .upsert(
@@ -61,12 +67,7 @@ async function upsertTeam(name: string, countryCode?: string | null) {
     .single();
 
   if (error) throw error;
-
-  return data as {
-    id: number;
-    name: string;
-    slug: string;
-  };
+  return data as { id: number; name: string; slug: string };
 }
 
 async function upsertMatch(row: {
@@ -88,12 +89,8 @@ async function upsertMatch(row: {
   if (error) throw error;
 }
 
-// ---------- SCRUMBASE FETCH ----------
-async function fetchResultsFromApi(params: {
-  query: string;
-}): Promise<ApiResultRow[]> {
+async function fetchResultsFromApi(params: { query: string }): Promise<ApiResultRow[]> {
   const url = `https://api.scrumbase.com/v1/${params.query}`;
-
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${SCRUMBASE_API_KEY}`,
@@ -102,32 +99,24 @@ async function fetchResultsFromApi(params: {
   });
 
   if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`API error ${res.status}: ${txt}`);
+    throw new Error(`API error ${res.status}: ${await res.text()}`);
   }
 
   const json = await res.json();
-  const items = (json?.data ?? json?.results ?? []) as any[];
+  const items = (json?.data ?? json?.results ?? []) as ApiResponseItem[];
 
-  return items.map((x): ApiResultRow => {
-    const timeRaw = x.time ?? x.kickoff_time;
-    const roundRaw = x.round;
-    const venueRaw = x.venue;
-
-    return {
-      date: String(x.date ?? x.match_date ?? ""),
-      time: timeRaw == null || timeRaw === "" ? undefined : String(timeRaw),
-      home: String(x.home_team?.name ?? x.home ?? ""),
-      away: String(x.away_team?.name ?? x.away ?? ""),
-      hs: Number(x.home_score ?? x.hs ?? 0),
-      as: Number(x.away_score ?? x.as ?? 0),
-      round: roundRaw == null ? undefined : Number(roundRaw),
-      venue: venueRaw == null || venueRaw === "" ? undefined : String(venueRaw),
-    };
-  });
+  return items.map((item): ApiResultRow => ({
+    date: String(item.date ?? item.match_date ?? ""),
+    time: item.time == null || item.time === "" ? item.kickoff_time ?? undefined : String(item.time),
+    home: String(item.home_team?.name ?? item.home ?? ""),
+    away: String(item.away_team?.name ?? item.away ?? ""),
+    hs: Number(item.home_score ?? item.hs ?? 0),
+    as: Number(item.away_score ?? item.as ?? 0),
+    round: item.round == null ? undefined : Number(item.round),
+    venue: item.venue == null || item.venue === "" ? undefined : String(item.venue),
+  }));
 }
 
-// ---------- MAIN ----------
 async function main() {
   const { data: seasons, error: seasonsErr } = await supabase
     .from("seasons")
@@ -137,7 +126,7 @@ async function main() {
 
   if (seasonsErr) throw seasonsErr;
 
-  console.log("Seasons found:", seasons?.map((s) => `${s.id} - ${s.name}`));
+  console.log("Seasons found:", seasons?.map((season) => `${season.id} - ${season.name}`));
 
   const seasonId = seasons?.[0]?.id;
   if (!seasonId) throw new Error("No seasons in DB");
@@ -148,35 +137,37 @@ async function main() {
   const results = await fetchResultsFromApi({ query: apiQuery });
   console.log("Results fetched:", results.length);
 
-  for (const r of results) {
-    if (!r.date || !r.home || !r.away) continue;
+  for (const result of results) {
+    if (!result.date || !result.home || !result.away) continue;
 
-    const kickoff_time =
-      r.time && r.time !== "undefined" && r.time !== "null"
-        ? (r.time.length === 5 ? `${r.time}:00` : r.time)
+    const kickoffTime =
+      result.time && result.time !== "undefined" && result.time !== "null"
+        ? result.time.length === 5
+          ? `${result.time}:00`
+          : result.time
         : DEFAULT_KICKOFF_TIME;
 
-    const home = await upsertTeam(r.home, null);
-    const away = await upsertTeam(r.away, null);
+    const home = await upsertTeam(result.home, null);
+    const away = await upsertTeam(result.away, null);
 
     await upsertMatch({
       season_id: seasonId,
-      match_date: r.date,
-      kickoff_time,
+      match_date: result.date,
+      kickoff_time: kickoffTime,
       status: "FT",
       home_team_id: home.id,
       away_team_id: away.id,
-      home_score: Number.isFinite(r.hs) ? r.hs : null,
-      away_score: Number.isFinite(r.as) ? r.as : null,
-      round: r.round ?? null,
-      venue: r.venue ?? null,
+      home_score: Number.isFinite(result.hs) ? result.hs : null,
+      away_score: Number.isFinite(result.as) ? result.as : null,
+      round: result.round ?? null,
+      venue: result.venue ?? null,
     });
   }
 
-  console.log("✅ Backfill done");
+  console.log("Backfill done");
 }
 
-main().catch((e) => {
-  console.error("❌ Backfill failed:", e);
+main().catch((error) => {
+  console.error("Backfill failed:", error);
   process.exit(1);
 });

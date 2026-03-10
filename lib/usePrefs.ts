@@ -1,4 +1,3 @@
-// lib/usePrefs.ts
 "use client";
 
 import { useEffect, useState } from "react";
@@ -21,69 +20,74 @@ function readTheme(): boolean {
   return localStorage.getItem("theme") === "dark";
 }
 
+function getInitialTimeZone() {
+  return typeof window === "undefined" ? DEFAULT_TZ : readTZ();
+}
+
+function getInitialLang(): Lang {
+  return typeof window === "undefined" ? "en" : readLang();
+}
+
+function getInitialTheme() {
+  return typeof window !== "undefined" && readTheme();
+}
+
 export function usePrefs() {
-  const [timeZone, setTimeZone] = useState<string>(DEFAULT_TZ);
-  const [lang, setLang] = useState<Lang>("en");
-  const [dark, setDark] = useState<boolean>(false);
-  const [mounted, setMounted] = useState(false);
+  const [timeZone, setTimeZone] = useState<string>(getInitialTimeZone);
+  const [lang, setLang] = useState<Lang>(getInitialLang);
+  const [dark, setDark] = useState<boolean>(getInitialTheme);
+  const mounted = true;
 
-  // init + listeners
   useEffect(() => {
-    setMounted(true);
-
-    setTimeZone(readTZ());
-    setLang(readLang());
-    setDark(readTheme());
     document.documentElement.classList.toggle("dark", readTheme());
 
     const onStorage = (e: StorageEvent) => {
       if (e.key === "tz") setTimeZone(readTZ());
       if (e.key === "lang") setLang(readLang());
       if (e.key === "theme") {
-        const d = readTheme();
-        setDark(d);
-        document.documentElement.classList.toggle("dark", d);
+        const nextDark = readTheme();
+        setDark(nextDark);
+        document.documentElement.classList.toggle("dark", nextDark);
       }
     };
-    window.addEventListener("storage", onStorage);
 
-    const onTZ = () => setTimeZone(readTZ());
-    const onLang = () => setLang(readLang());
-    const onTheme = () => {
-      const d = readTheme();
-      setDark(d);
-      document.documentElement.classList.toggle("dark", d);
+    const onTZ: EventListener = () => setTimeZone(readTZ());
+    const onLang: EventListener = () => setLang(readLang());
+    const onTheme: EventListener = () => {
+      const nextDark = readTheme();
+      setDark(nextDark);
+      document.documentElement.classList.toggle("dark", nextDark);
     };
 
-    window.addEventListener("tz-change", onTZ as any);
-    window.addEventListener("lang-change", onLang as any);
-    window.addEventListener("theme-change", onTheme as any);
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("tz-change", onTZ);
+    window.addEventListener("lang-change", onLang);
+    window.addEventListener("theme-change", onTheme);
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("tz-change", onTZ as any);
-      window.removeEventListener("lang-change", onLang as any);
-      window.removeEventListener("theme-change", onTheme as any);
+      window.removeEventListener("tz-change", onTZ);
+      window.removeEventListener("lang-change", onLang);
+      window.removeEventListener("theme-change", onTheme);
     };
   }, []);
 
-  // setters “globales”
   const setTZEverywhere = (tz: string) => {
     localStorage.setItem("tz", tz);
     setTimeZone(tz);
     window.dispatchEvent(new Event("tz-change"));
   };
 
-  const setLangEverywhere = (l: Lang) => {
-    localStorage.setItem("lang", l);
-    setLang(l);
+  const setLangEverywhere = (nextLang: Lang) => {
+    localStorage.setItem("lang", nextLang);
+    setLang(nextLang);
     window.dispatchEvent(new Event("lang-change"));
   };
 
-  const setThemeEverywhere = (d: boolean) => {
-    localStorage.setItem("theme", d ? "dark" : "light");
-    setDark(d);
-    document.documentElement.classList.toggle("dark", d);
+  const setThemeEverywhere = (nextDark: boolean) => {
+    localStorage.setItem("theme", nextDark ? "dark" : "light");
+    setDark(nextDark);
+    document.documentElement.classList.toggle("dark", nextDark);
     window.dispatchEvent(new Event("theme-change"));
   };
 

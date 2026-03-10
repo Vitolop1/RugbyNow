@@ -31,7 +31,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
-        run: npx tsx scripts/sync-flashscore.ts
+        run: |
+          npm run ensure:flashscore-competitions
+          npx tsx scripts/sync-flashscore.ts
 
       - name: Export Supabase snapshot
         env:

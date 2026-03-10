@@ -9,6 +9,7 @@
     "lint": "eslint",
     "sync:flashscore": "tsx scripts/sync-flashscore.ts",
     "rebuild:flashscore": "tsx scripts/rebuild-flashscore.ts",
+    "ensure:flashscore-competitions": "tsx scripts/ensure-flashscore-competitions.ts",
     "check:supabase": "tsx scripts/check-supabase.ts",
     "export:supabase-snapshot": "tsx scripts/export-supabase-snapshot.ts",
     "build:weekly": "tsx scripts/build-weekly.ts",

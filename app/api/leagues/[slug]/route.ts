@@ -30,6 +30,20 @@ type MatchMetaRow = {
   status: "NS" | "LIVE" | "FT";
 };
 
+type MatchRow = {
+  id: number;
+  match_date: string;
+  kickoff_time: string | null;
+  status: "NS" | "LIVE" | "FT";
+  minute: number | null;
+  home_score: number | null;
+  away_score: number | null;
+  round: number | null;
+  venue?: string | null;
+  home_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
+  away_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
+};
+
 function seasonSortKey(name: string) {
   const s = (name || "").trim();
   const mRange = s.match(/\b(\d{4})\s*\/\s*(\d{2,4})\b/);
@@ -208,7 +222,8 @@ export async function GET(
 
     if (seasonMatchesError) throw seasonMatchesError;
 
-    const derived = deriveRoundMeta((seasonMatches || []) as Array<{ id: number; match_date: string; kickoff_time: string | null; status: string }>);
+    const detailedMatches = (seasonMatches || []) as MatchRow[];
+    const derived = deriveRoundMeta(detailedMatches);
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
     const selectedRound = roundOverride ?? autoSelectedRound;
@@ -216,10 +231,10 @@ export async function GET(
     const matches =
       selectedRound == null
         ? []
-        : (seasonMatches || []).filter((row: any) => derived.assignment.get(row.id) === selectedRound);
+        : detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound);
 
     const table = new Map<number, StandingsAccumulator>();
-    for (const row of (seasonMatches || []).filter((item: any) => item.status === "FT")) {
+    for (const row of detailedMatches.filter((item) => item.status === "FT")) {
       const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
       const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
       if (home?.id && !table.has(home.id)) table.set(home.id, { teamId: home.id, team: home.name, teamSlug: home.slug ?? null, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 });

@@ -208,33 +208,111 @@ function hydrateLeagueMatch(snapshot: SnapshotPayload, match: SnapshotMatch): Le
 }
 
 function buildRoundMeta(matches: SnapshotMatch[]): RoundMeta[] {
-  const roundMap = new Map<number, { first: string; last: string; count: number; ft: number }>();
+  const sorted = matches
+    .slice()
+    .sort(
+      (a, b) =>
+        a.match_date.localeCompare(b.match_date) ||
+        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
+    );
 
-  for (const row of matches) {
-    const round = typeof row.round === "number" ? row.round : Number.parseInt(String(row.round), 10);
-    if (!Number.isFinite(round)) continue;
-    const current = roundMap.get(round);
-    const date = String(row.match_date);
-    const isFt = row.status === "FT";
-    if (!current) {
-      roundMap.set(round, { first: date, last: date, count: 1, ft: isFt ? 1 : 0 });
-    } else {
-      if (date < current.first) current.first = date;
-      if (date > current.last) current.last = date;
-      current.count += 1;
-      if (isFt) current.ft += 1;
+  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number }>();
+  let currentRound = 0;
+  let lastDate: string | null = null;
+
+  for (const row of sorted) {
+    const gapDays =
+      lastDate == null
+        ? Number.POSITIVE_INFINITY
+        : Math.round(
+            (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
+          );
+
+    if (lastDate == null || gapDays > 4) {
+      currentRound += 1;
+      roundMap.set(currentRound, {
+        first_date: row.match_date,
+        last_date: row.match_date,
+        matches: 0,
+        ft: 0,
+      });
     }
+
+    lastDate = row.match_date;
+    const meta = roundMap.get(currentRound)!;
+    meta.last_date = row.match_date;
+    meta.matches += 1;
+    if (row.status === "FT") meta.ft += 1;
   }
 
-  return Array.from(roundMap.entries())
-    .map(([round, value]) => ({
-      round,
-      first_date: value.first,
-      last_date: value.last,
-      matches: value.count,
-      ft: value.ft,
-    }))
-    .sort((a, b) => a.round - b.round);
+  return Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta }));
+}
+
+function buildRoundAssignment(matches: SnapshotMatch[]) {
+  const sorted = matches
+    .slice()
+    .sort(
+      (a, b) =>
+        a.match_date.localeCompare(b.match_date) ||
+        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
+    );
+
+  const assignment = new Map<number, number>();
+  let currentRound = 0;
+  let lastDate: string | null = null;
+
+  for (const row of sorted) {
+    const gapDays =
+      lastDate == null
+        ? Number.POSITIVE_INFINITY
+        : Math.round(
+            (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
+          );
+    if (lastDate == null || gapDays > 4) currentRound += 1;
+    lastDate = row.match_date;
+    assignment.set(row.id, currentRound);
+  }
+
+  return assignment;
+}
+
+function pickSeasonForReference(snapshot: SnapshotPayload, competitionId: number, refISO: string) {
+  const seasons = snapshot.seasons.filter((season) => season.competition_id === competitionId);
+  if (!seasons.length) return null;
+
+  const summaries = seasons
+    .map((season) => {
+      const seasonMatches = snapshot.matches.filter((match) => match.season_id === season.id);
+      if (!seasonMatches.length) {
+        return { season, count: 0, distance: Number.POSITIVE_INFINITY, last: "" };
+      }
+      const dates = seasonMatches.map((match) => match.match_date).sort();
+      const first = dates[0];
+      const last = dates[dates.length - 1];
+      const ref = new Date(`${refISO}T00:00:00Z`).getTime();
+      const firstTs = new Date(`${first}T00:00:00Z`).getTime();
+      const lastTs = new Date(`${last}T00:00:00Z`).getTime();
+      const distance =
+        ref < firstTs ? (firstTs - ref) / 86400000 : ref > lastTs ? (ref - lastTs) / 86400000 : 0;
+      return { season, count: seasonMatches.length, distance, last };
+    })
+    .sort((a, b) => {
+      if (!!a.count !== !!b.count) return a.count ? -1 : 1;
+      if (a.distance !== b.distance) return a.distance - b.distance;
+      if (a.last !== b.last) return b.last.localeCompare(a.last);
+      return seasonSortKey(b.season.name) - seasonSortKey(a.season.name);
+    });
+
+  return summaries[0]?.season ?? seasons.slice().sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0];
+}
+
+function pickAutoRound(roundMeta: RoundMeta[], refISO: string) {
+  if (!roundMeta.length) return null;
+  const current = roundMeta.find((item) => item.first_date <= refISO && refISO <= item.last_date);
+  if (current) return current.round;
+  const next = roundMeta.find((item) => item.first_date >= refISO);
+  if (next) return next.round;
+  return roundMeta[roundMeta.length - 1]?.round ?? null;
 }
 
 function buildStandings(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {
@@ -351,23 +429,17 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   const competition = snapshot.competitions.find((item) => item.slug === slug);
   if (!competition) return null;
 
-  const competitionSeasons = snapshot.seasons
-    .filter((season) => season.competition_id === competition.id)
-    .sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name));
-  const season = competitionSeasons[0];
+  const season = pickSeasonForReference(snapshot, competition.id, refISO);
   if (!season) return null;
 
   const seasonMatches = snapshot.matches.filter((match) => match.season_id === season.id);
   const roundMeta = buildRoundMeta(seasonMatches);
-  const autoSelectedRound =
-    roundMeta.find((item) => item.first_date <= refISO && refISO <= item.last_date)?.round ??
-    roundMeta.find((item) => item.first_date >= refISO)?.round ??
-    roundMeta[0]?.round ??
-    null;
+  const roundAssignment = buildRoundAssignment(seasonMatches);
+  const autoSelectedRound = pickAutoRound(roundMeta, refISO);
   const selectedRound = roundOverride ?? autoSelectedRound;
 
   const matches = seasonMatches
-    .filter((match) => match.round === selectedRound)
+    .filter((match) => roundAssignment.get(match.id) === selectedRound)
     .sort(
       (a, b) =>
         a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
+import { getSnapshotLeagueData } from "@/lib/supabaseSnapshot";
 
 type StandingsAccumulator = {
   teamId: number;
@@ -159,6 +160,15 @@ export async function GET(
       source: "supabase",
     });
   } catch (error) {
+    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
+    if (snapshot) {
+      return NextResponse.json({
+        ...snapshot,
+        source: "snapshot",
+        warning: error instanceof Error ? error.message : String(error),
+      });
+    }
+
     const fallback = getFallbackLeagueData(slug, refISO);
     if (!fallback) {
       return NextResponse.json(

@@ -1,0 +1,1135 @@
+{
+  "generatedAt": "2026-03-10T20:21:37.567Z",
+  "windowStart": "2026-03-03",
+  "windowEnd": "2026-03-17",
+  "leagues": [
+    {
+      "slug": "eu-champions-cup",
+      "name": "European Rugby Champions Cup",
+      "group": "International",
+      "region": "International",
+      "articleCount": 0,
+      "summary": "Weekly desk for European Rugby Champions Cup: article feed is ready, but there are no curated notes yet.",
+      "summaryEs": "Mesa semanal de European Rugby Champions Cup: la fuente de noticias esta lista, pero todavia no hay notas curadas.",
+      "articles": [],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "ar-liga-norte-grande",
+      "name": "Liga Norte Grande",
+      "group": "Argentina",
+      "region": "Argentina",
+      "articleCount": 0,
+      "summary": "Latest result: Tiro Federal de Salta 43-33 Santiago Rugby Club. Next fixture: Universitario de Salta vs Tiro Federal de Salta on 2026-03-14.",
+      "summaryEs": "Ultimo resultado: Tiro Federal de Salta 43-33 Santiago Rugby Club. Proximo partido: Universitario de Salta vs Tiro Federal de Salta el 2026-03-14.",
+      "articles": [],
+      "recentMatches": [
+        {
+          "id": 1506,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Tiro Federal de Salta",
+          "away": "Santiago Rugby Club",
+          "homeScore": 43,
+          "awayScore": 33
+        },
+        {
+          "id": 1488,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Tigres RC",
+          "away": "Universitario de Salta",
+          "homeScore": 24,
+          "awayScore": 38
+        },
+        {
+          "id": 1494,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Jockey Club de Salta",
+          "away": "Santiago Lawn Tennis Club",
+          "homeScore": 56,
+          "awayScore": 38
+        },
+        {
+          "id": 1500,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Old Lions RC",
+          "away": "Gimnasia y Tiro",
+          "homeScore": 38,
+          "awayScore": 7
+        }
+      ],
+      "upcomingMatches": [
+        {
+          "id": 1481,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Universitario de Salta",
+          "away": "Tiro Federal de Salta",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 1484,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Santiago Lawn Tennis Club",
+          "away": "Tigres RC",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 1490,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Gimnasia y Tiro",
+          "away": "Jockey Club de Salta",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 1496,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Santiago Rugby Club",
+          "away": "Old Lions RC",
+          "homeScore": null,
+          "awayScore": null
+        }
+      ]
+    },
+    {
+      "slug": "us-mlr",
+      "name": "Major League Rugby",
+      "group": "USA",
+      "region": "United States",
+      "articleCount": 0,
+      "summary": "Weekly desk for Major League Rugby: article feed is ready, but there are no curated notes yet.",
+      "summaryEs": "Mesa semanal de Major League Rugby: la fuente de noticias esta lista, pero todavia no hay notas curadas.",
+      "articles": [],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "int-nations-championship",
+      "name": "Nations Championship",
+      "group": "International",
+      "region": "International",
+      "articleCount": 1,
+      "summary": "1 linked stories tracked for Nations Championship.",
+      "summaryEs": "1 noticias enlazadas para Nations Championship.",
+      "articles": [
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/videos/c5yq8q8n90vo?at_medium=RSS&at_campaign=rss",
+          "title": "Scotland destroy France Grand Slam dreams after stunning win",
+          "link": "https://www.bbc.com/sport/rugby-union/videos/c5yq8q8n90vo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-07T16:57:11.000Z",
+          "leagueSlugs": [
+            "int-six-nations",
+            "int-nations-championship"
+          ],
+          "teaser": "Rampant Scotland annihilate French Grand Slam dreams with a stunning seven-try victory at Murrayfield that blows the Six Nations championship wide open.",
+          "teaserEs": "Rampant Scotland annihilate French Grand Slam dreams with a stunning seven-try victory at Murrayfield that blows the Six Nations championship wide open.",
+          "titleEs": "Scotland destroy France Grand Slam dreams after stunning win"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "en-premiership-rugby",
+      "name": "Premiership Rugby",
+      "group": "Other",
+      "region": "",
+      "articleCount": 5,
+      "summary": "5 linked stories tracked for Premiership Rugby.",
+      "summaryEs": "5 noticias enlazadas para Premiership Rugby.",
+      "articles": [
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cn5g9ddkdkvo?at_medium=RSS&at_campaign=rss",
+          "title": "Sale sign South African prop Dlamini for next season",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cn5g9ddkdkvo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T14:52:35.000Z",
+          "leagueSlugs": [
+            "en-premiership-rugby"
+          ],
+          "teaser": "South African tighthead prop Cebo Dlamini will join Sale Sharks on a two-year deal from next season.",
+          "teaserEs": "South African tighthead prop Cebo Dlamini will join Sale Sharks on a two-year deal from next season.",
+          "titleEs": "Sale sign South African prop Dlamini for next season"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/c4gjy23l4w4o?at_medium=RSS&at_campaign=rss",
+          "title": "Barbeary to join Saracens from Bath in 2026-27",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/c4gjy23l4w4o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-09T16:14:25.000Z",
+          "leagueSlugs": [
+            "en-premiership-rugby"
+          ],
+          "teaser": "Saracens sign number eight Alfie Barbeary from Prem rivals Bath for the 2026-27 season.",
+          "teaserEs": "Saracens sign number eight Alfie Barbeary from Prem rivals Bath for the 2026-27 season.",
+          "titleEs": "Barbeary to join Saracens from Bath in 2026-27"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/09/leicester-tigers-sign-puma-joel-sclavi-from-la-rochelle/",
+          "title": "Leicester Tigers sign Puma Joel Sclavi from La Rochelle",
+          "link": "https://www.americasrugbynews.com/2026/03/09/leicester-tigers-sign-puma-joel-sclavi-from-la-rochelle/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-09T14:13:07.000Z",
+          "leagueSlugs": [
+            "fr-top14",
+            "en-premiership-rugby"
+          ],
+          "teaser": "Joel Sclavi is moving from La Rochelle in the Top 14 to the Leicester Tigers in the English Premiership. Confirmation came from L&#8217;Equipe of the move which means the ongoin...",
+          "teaserEs": "Joel Sclavi is moving from La Rochelle in the Top 14 to the Leicester Tigers in the English Premiership. Confirmation came from L&#8217;Equipe of the move which means the ongoin...",
+          "titleEs": "Leicester Tigers sign Puma Joel Sclavi from La Rochelle"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/c5y6e654ev0o?at_medium=RSS&at_campaign=rss",
+          "title": "Leicester beat youthful Bath to gain home cup final",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/c5y6e654ev0o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-08T18:12:14.000Z",
+          "leagueSlugs": [
+            "en-premiership-rugby"
+          ],
+          "teaser": "Leicester Tigers overpower defending champions Bath to set up a Prem Rugby Cup final meeting with Exeter at Welford Road.",
+          "teaserEs": "Leicester Tigers overpower defending champions Bath to set up a Prem Rugby Cup final meeting with Exeter at Welford Road.",
+          "titleEs": "Leicester beat youthful Bath to gain home cup final"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cvg33d369gzo?at_medium=RSS&at_campaign=rss",
+          "title": "'Born to play at this level' - meet rising star Lucas Friday",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cvg33d369gzo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-05T09:00:35.000Z",
+          "leagueSlugs": [
+            "int-six-nations",
+            "en-premiership-rugby"
+          ],
+          "teaser": "England Under-20 star Lucas Friday on his anterior cruciate ligament recovery and learning off Harlequins scrum-half Danny Care.",
+          "teaserEs": "England Under-20 star Lucas Friday on his anterior cruciate ligament recovery and learning off Harlequins scrum-half Danny Care.",
+          "titleEs": "'Born to play at this level' - meet rising star Lucas Friday"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "int-world-cup",
+      "name": "Rugby World Cup",
+      "group": "International",
+      "region": "International",
+      "articleCount": 0,
+      "summary": "Weekly desk for Rugby World Cup: article feed is ready, but there are no curated notes yet.",
+      "summaryEs": "Mesa semanal de Rugby World Cup: la fuente de noticias esta lista, pero todavia no hay notas curadas.",
+      "articles": [],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "it-serie-a-elite",
+      "name": "Serie A Elite",
+      "group": "Italy",
+      "region": "Italy",
+      "articleCount": 8,
+      "summary": "8 linked stories tracked for Serie A Elite. Next fixture: Lyons Piacenza vs Viadana on 2026-03-14.",
+      "summaryEs": "8 noticias enlazadas para Serie A Elite. Proximo partido: Lyons Piacenza vs Viadana el 2026-03-14.",
+      "articles": [
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cly87eq6lm3o?at_medium=RSS&at_campaign=rss",
+          "title": "'Banged up' Wainwright set to face Italy for Wales",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cly87eq6lm3o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T15:22:27.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "Wales number eight Aaron Wainwright in line to face Italy in the Six Nations despite an early exit against Ireland.",
+          "teaserEs": "Wales number eight Aaron Wainwright in line to face Italy in the Six Nations despite an early exit against Ireland.",
+          "titleEs": "'Banged up' Wainwright set to face Italy for Wales"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/c78xqqjd92go?at_medium=RSS&at_campaign=rss",
+          "title": "How Scotland went from brink of disaster to edge of glory",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/c78xqqjd92go?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-09T07:11:44.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "As Scotland's players stood with hands on heads after what appeared to be a ruinous opening Six Nations defeat by Italy in Rome, a Wooden Spoon appeared a distinct possibility....",
+          "teaserEs": "As Scotland's players stood with hands on heads after what appeared to be a ruinous opening Six Nations defeat by Italy in Rome, a Wooden Spoon appeared a distinct possibility....",
+          "titleEs": "How Scotland went from brink of disaster to edge of glory"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/ce82pkdylleo?at_medium=RSS&at_campaign=rss",
+          "title": "'Brutal' Scotland, and England in crisis - Six Nations talking points",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/ce82pkdylleo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-09T06:24:17.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "A sensational fourth weekend of the Six Nations sees Scotland give themselves a chance of the title, while Italy beat England for the first time.",
+          "teaserEs": "A sensational fourth weekend of the Six Nations sees Scotland give themselves a chance of the title, while Italy beat England for the first time.",
+          "titleEs": "'Brutal' Scotland, and England in crisis - Six Nations talking points"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/videos/cgqgp54kx97o?at_medium=RSS&at_campaign=rss",
+          "title": "'Sloppy' England display against Italy shows 'lack of confidence'",
+          "link": "https://www.bbc.com/sport/rugby-union/videos/cgqgp54kx97o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-08T19:13:06.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "Rugby Special's John Barclay and Sam Warburton believes there is a \"lack of clarity\" within the England squad after a \"disjointed\" performance against Italy, as coach Steve Bort...",
+          "teaserEs": "Rugby Special's John Barclay and Sam Warburton believes there is a \"lack of clarity\" within the England squad after a \"disjointed\" performance against Italy, as coach Steve Bort...",
+          "titleEs": "'Sloppy' England display against Italy shows 'lack of confidence'"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/c93jxv5518zo?at_medium=RSS&at_campaign=rss",
+          "title": "'There is nothing to lose in Paris, so let players express themselves'",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/c93jxv5518zo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-08T11:49:14.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "England World Cup winner Matt Dawson discusses their historic first loss to Italy and why they need to play with more freedom against France.",
+          "teaserEs": "England World Cup winner Matt Dawson discusses their historic first loss to Italy and why they need to play with more freedom against France.",
+          "titleEs": "'There is nothing to lose in Paris, so let players express themselves'"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/videos/crl414p309zo?at_medium=RSS&at_campaign=rss",
+          "title": "Italy claim first ever Six Nations win over England",
+          "link": "https://www.bbc.com/sport/rugby-union/videos/crl414p309zo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-08T00:00:28.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "England's Six Nations campaign plunges deeper into crisis as second-half yellow cards for Sam Underhill and Maro Itoje pave the way to victory for a joyous Italy in Rome.",
+          "teaserEs": "England's Six Nations campaign plunges deeper into crisis as second-half yellow cards for Sam Underhill and Maro Itoje pave the way to victory for a joyous Italy in Rome.",
+          "titleEs": "Italy claim first ever Six Nations win over England"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/crl4pdjwl99o?at_medium=RSS&at_campaign=rss",
+          "title": "Does Rome defeat mark beginning of end of Borthwick empire?",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/crl4pdjwl99o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-07T22:08:43.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "England's defeat by Italy has turned the spotlight on England's leadership, both on and off the pitch",
+          "teaserEs": "England's defeat by Italy has turned the spotlight on England's leadership, both on and off the pitch",
+          "titleEs": "Does Rome defeat mark beginning of end of Borthwick empire?"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/videos/cy8g2ej24edo?at_medium=RSS&at_campaign=rss",
+          "title": "England's leadership and gameplan 'under the microscope'",
+          "link": "https://www.bbc.com/sport/rugby-union/videos/cy8g2ej24edo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-07T21:48:20.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "Rugby Union Weekly's Matt Dawson and Chris Jones react after England lose to Italy 23-18 in round four of the Six Nations.",
+          "teaserEs": "Rugby Union Weekly's Matt Dawson and Chris Jones react after England lose to Italy 23-18 in round four of the Six Nations.",
+          "titleEs": "England's leadership and gameplan 'under the microscope'"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": [
+        {
+          "id": 8715,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Lyons Piacenza",
+          "away": "Viadana",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8717,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Valorugby Emilia",
+          "away": "Biella",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8714,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Petrarca",
+          "away": "Fiamme Oro",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8716,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Vicenza",
+          "away": "Rovigo",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8718,
+          "matchDate": "2026-03-15",
+          "status": "NS",
+          "home": "Biella",
+          "away": "Lyons Piacenza",
+          "homeScore": null,
+          "awayScore": null
+        }
+      ]
+    },
+    {
+      "slug": "int-six-nations",
+      "name": "Six Nations",
+      "group": "International",
+      "region": "International",
+      "articleCount": 8,
+      "summary": "8 linked stories tracked for Six Nations. Latest result: Ireland 27-17 Wales. Next fixture: France vs England on 2026-03-14.",
+      "summaryEs": "8 noticias enlazadas para Six Nations. Ultimo resultado: Ireland 27-17 Wales. Proximo partido: France vs England el 2026-03-14.",
+      "articles": [
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cx2lw2626zeo?at_medium=RSS&at_campaign=rss",
+          "title": "Townsend faces dilemmas before his 'most significant' selection",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cx2lw2626zeo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T20:10:52.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "Scotland head coach Gregor Townsend faces the most significant team selection of his long reign before Saturday's Six Nations trip to Dublin, writes BBC Scotland's chief sports...",
+          "teaserEs": "Scotland head coach Gregor Townsend faces the most significant team selection of his long reign before Saturday's Six Nations trip to Dublin, writes BBC Scotland's chief sports...",
+          "titleEs": "Townsend faces dilemmas before his 'most significant' selection"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/videos/cgqgjxk2537o?at_medium=RSS&at_campaign=rss",
+          "title": "Lydiate eyes more progress after Wales' defence boost",
+          "link": "https://www.bbc.com/sport/rugby-union/videos/cgqgjxk2537o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T18:29:33.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "Assistant coach Dan Lydiate praises Wales’ defensive improvement but says there is still progress to be made in this year’s Six Nations.",
+          "teaserEs": "Assistant coach Dan Lydiate praises Wales’ defensive improvement but says there is still progress to be made in this year’s Six Nations.",
+          "titleEs": "Lydiate eyes more progress after Wales' defence boost"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cy4wexv00ypo?at_medium=RSS&at_campaign=rss",
+          "title": "'Excitement, nerves and edge' for Ireland in build-up",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cy4wexv00ypo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T17:16:24.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "Assistant coach Andrew Goodman says Ireland are enjoying an \"edge\" to the build-up to Saturday's Six Nations Triple Crown shootout with Scotland.",
+          "teaserEs": "Assistant coach Andrew Goodman says Ireland are enjoying an \"edge\" to the build-up to Saturday's Six Nations Triple Crown shootout with Scotland.",
+          "titleEs": "'Excitement, nerves and edge' for Ireland in build-up"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cly87eq6lm3o?at_medium=RSS&at_campaign=rss",
+          "title": "'Banged up' Wainwright set to face Italy for Wales",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cly87eq6lm3o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T15:22:27.000Z",
+          "leagueSlugs": [
+            "it-serie-a-elite",
+            "int-six-nations"
+          ],
+          "teaser": "Wales number eight Aaron Wainwright in line to face Italy in the Six Nations despite an early exit against Ireland.",
+          "teaserEs": "Wales number eight Aaron Wainwright in line to face Italy in the Six Nations despite an early exit against Ireland.",
+          "titleEs": "'Banged up' Wainwright set to face Italy for Wales"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/c39wymm7j8zo?at_medium=RSS&at_campaign=rss",
+          "title": "Chessum starts in back row in only England change as they try to stop rot",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/c39wymm7j8zo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T14:46:53.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "Ollie Chessum's inclusion in the back row is the only change to the starting XV as England attempt to turn things around after three straight defeats.",
+          "teaserEs": "Ollie Chessum's inclusion in the back row is the only change to the starting XV as England attempt to turn things around after three straight defeats.",
+          "titleEs": "Chessum starts in back row in only England change as they try to stop rot"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/cjwzg78j83zo?at_medium=RSS&at_campaign=rss",
+          "title": "England are sticking together, not cracking up - Roebuck",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/cjwzg78j83zo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-09T23:09:25.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "England wing Tom Roebuck says the entire set-up is united in attempting to turn around a dismal run of form which has wrecked their Six Nations title ambitions.",
+          "teaserEs": "England wing Tom Roebuck says the entire set-up is united in attempting to turn around a dismal run of form which has wrecked their Six Nations title ambitions.",
+          "titleEs": "England are sticking together, not cracking up - Roebuck"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/articles/cyv99dgl7e4o?at_medium=RSS&at_campaign=rss",
+          "title": "Permutations as France, Scotland and Ireland chase title",
+          "link": "https://www.bbc.com/sport/articles/cyv99dgl7e4o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-09T18:29:33.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "The 2026 Six Nations is set for a thrilling final day next Saturday with France, Scotland and Ireland all competing to win the championship.",
+          "teaserEs": "The 2026 Six Nations is set for a thrilling final day next Saturday with France, Scotland and Ireland all competing to win the championship.",
+          "titleEs": "Permutations as France, Scotland and Ireland chase title"
+        },
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/articles/c743ykxk7ejo?at_medium=RSS&at_campaign=rss",
+          "title": "Six Scotland players ruled out of Ireland match",
+          "link": "https://www.bbc.com/sport/articles/c743ykxk7ejo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-09T12:33:22.000Z",
+          "leagueSlugs": [
+            "int-six-nations"
+          ],
+          "teaser": "Scotland will be without first-choice second-row pair Gregor Brown and Scott Cummings, winger Duhan van der Merwe and three others in Dublin.",
+          "teaserEs": "Scotland will be without first-choice second-row pair Gregor Brown and Scott Cummings, winger Duhan van der Merwe and three others in Dublin.",
+          "titleEs": "Six Scotland players ruled out of Ireland match"
+        }
+      ],
+      "recentMatches": [
+        {
+          "id": 8744,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Ireland",
+          "away": "Wales",
+          "homeScore": 27,
+          "awayScore": 17
+        },
+        {
+          "id": 8742,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Italy",
+          "away": "England",
+          "homeScore": 23,
+          "awayScore": 18
+        },
+        {
+          "id": 8743,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Scotland",
+          "away": "France",
+          "homeScore": 50,
+          "awayScore": 40
+        },
+        {
+          "id": 8745,
+          "matchDate": "2026-03-06",
+          "status": "FT",
+          "home": "France",
+          "away": "Italy",
+          "homeScore": 33,
+          "awayScore": 8
+        }
+      ],
+      "upcomingMatches": [
+        {
+          "id": 8756,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "France",
+          "away": "England",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8754,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Ireland",
+          "away": "Scotland",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8755,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Wales",
+          "away": "Italy",
+          "homeScore": null,
+          "awayScore": null
+        }
+      ]
+    },
+    {
+      "slug": "sra",
+      "name": "Super Rugby Americas",
+      "group": "Argentina",
+      "region": "Argentina",
+      "articleCount": 4,
+      "summary": "4 linked stories tracked for Super Rugby Americas. Latest result: Cobras Brasil Rugby 21-19 Yacare XV. Next fixture: Tarucas vs Pampas XV on 2026-03-13.",
+      "summaryEs": "4 noticias enlazadas para Super Rugby Americas. Ultimo resultado: Cobras Brasil Rugby 21-19 Yacare XV. Proximo partido: Tarucas vs Pampas XV el 2026-03-13.",
+      "articles": [
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/08/cobras-put-an-end-to-two-years-of-losses-by-beating-yacare/",
+          "title": "Cobras Put an end to Two years of losses by beating Yacare",
+          "link": "https://www.americasrugbynews.com/2026/03/08/cobras-put-an-end-to-two-years-of-losses-by-beating-yacare/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-08T22:43:42.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "Os Cobras put an end to two years of losses, and a 19-match losing streak, by beating Yacare. Sunday&#8217;s victory in São Paulo sees Os Cobras moving past the same team on the...",
+          "teaserEs": "Os Cobras put an end to two years of losses, and a 19-match losing streak, by beating Yacare. Sunday&#8217;s victory in São Paulo sees Os Cobras moving past the same team on the...",
+          "titleEs": "Cobras Put an end to Two years of losses by beating Yacare"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/penarol-down-selknam-for-first-win-of-sra-2026/",
+          "title": "Peñarol down Selknam for first win of SRA 2026",
+          "link": "https://www.americasrugbynews.com/2026/03/07/penarol-down-selknam-for-first-win-of-sra-2026/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-08T01:22:47.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "Peñarol downed Selknam on Saturday, claiming a 40-27 home victory in Montevideo. The win was Peñarol&#8217;s first of the Super Rugby Americas (SRA) 2026 season. It came after c...",
+          "teaserEs": "Peñarol downed Selknam on Saturday, claiming a 40-27 home victory in Montevideo. The win was Peñarol&#8217;s first of the Super Rugby Americas (SRA) 2026 season. It came after c...",
+          "titleEs": "Peñarol down Selknam for first win of SRA 2026"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/tarucas-and-dogos-play-out-a-classic-rugby-contest-in-tucuman/",
+          "title": "Tarucas and Dogos play out a classic rugby contest in Tucumán",
+          "link": "https://www.americasrugbynews.com/2026/03/07/tarucas-and-dogos-play-out-a-classic-rugby-contest-in-tucuman/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T11:17:20.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific",
+            "ar-urba-top14"
+          ],
+          "teaser": "Super Rugby Americas (SRA) 2026 delivered a fantastic Friday evening double in Argentina. First, Los Pampas defeated Los Capibaras in a match that weren&#8217;t down to the wire...",
+          "teaserEs": "Super Rugby Americas (SRA) 2026 delivered a fantastic Friday evening double in Argentina. First, Los Pampas defeated Los Capibaras in a match that weren&#8217;t down to the wire...",
+          "titleEs": "Tarucas and Dogos play out a classic rugby contest in Tucumán"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/06/santiago-pernas-magic-sinks-capibaras/",
+          "title": "Santiago Pernas Magic Sinks Capibaras",
+          "link": "https://www.americasrugbynews.com/2026/03/06/santiago-pernas-magic-sinks-capibaras/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T00:53:52.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "A magical play from Santiago Pernas saw Los Pampas sinking Los Capibaras in Buenos Aires on Friday. Pernas scored a sensational second-half try to see Los Pampas home to a 25-20...",
+          "teaserEs": "A magical play from Santiago Pernas saw Los Pampas sinking Los Capibaras in Buenos Aires on Friday. Pernas scored a sensational second-half try to see Los Pampas home to a 25-20...",
+          "titleEs": "Santiago Pernas Magic Sinks Capibaras"
+        }
+      ],
+      "recentMatches": [
+        {
+          "id": 8757,
+          "matchDate": "2026-03-08",
+          "status": "FT",
+          "home": "Cobras Brasil Rugby",
+          "away": "Yacare XV",
+          "homeScore": 21,
+          "awayScore": 19
+        },
+        {
+          "id": 8758,
+          "matchDate": "2026-03-08",
+          "status": "FT",
+          "home": "Peñarol Rugby",
+          "away": "Selknam",
+          "homeScore": 40,
+          "awayScore": 27
+        },
+        {
+          "id": 8759,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Tarucas",
+          "away": "Dogos XV",
+          "homeScore": 29,
+          "awayScore": 26
+        },
+        {
+          "id": 8760,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Pampas XV",
+          "away": "Capibaras XV",
+          "homeScore": 25,
+          "awayScore": 20
+        },
+        {
+          "id": 8761,
+          "matchDate": "2026-03-06",
+          "status": "FT",
+          "home": "Pampas XV",
+          "away": "Dogos XV",
+          "homeScore": 34,
+          "awayScore": 36
+        }
+      ],
+      "upcomingMatches": [
+        {
+          "id": 8770,
+          "matchDate": "2026-03-13",
+          "status": "NS",
+          "home": "Tarucas",
+          "away": "Pampas XV",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8769,
+          "matchDate": "2026-03-13",
+          "status": "NS",
+          "home": "Peñarol Rugby",
+          "away": "Cobras Brasil Rugby",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8771,
+          "matchDate": "2026-03-13",
+          "status": "NS",
+          "home": "Dogos XV",
+          "away": "Selknam",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8772,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Yacare XV",
+          "away": "Capibaras XV",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8773,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Dogos XV",
+          "away": "Peñarol Rugby",
+          "homeScore": null,
+          "awayScore": null
+        }
+      ]
+    },
+    {
+      "slug": "int-super-rugby-pacific",
+      "name": "Super Rugby Pacific",
+      "group": "International",
+      "region": "International",
+      "articleCount": 5,
+      "summary": "5 linked stories tracked for Super Rugby Pacific.",
+      "summaryEs": "5 noticias enlazadas para Super Rugby Pacific.",
+      "articles": [
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/articles/ce82jev8mydo?at_medium=RSS&at_campaign=rss",
+          "title": "Exeter sign scrum-half Wolstenholme from Bristol",
+          "link": "https://www.bbc.com/sport/rugby-union/articles/ce82jev8mydo?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-10T13:27:58.000Z",
+          "leagueSlugs": [
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "Exeter Chiefs sign scrum-half Sam Wolstenholme from Bristol Bears for the 2026-27 season.",
+          "teaserEs": "Exeter Chiefs sign scrum-half Sam Wolstenholme from Bristol Bears for the 2026-27 season.",
+          "titleEs": "Exeter sign scrum-half Wolstenholme from Bristol"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/08/cobras-put-an-end-to-two-years-of-losses-by-beating-yacare/",
+          "title": "Cobras Put an end to Two years of losses by beating Yacare",
+          "link": "https://www.americasrugbynews.com/2026/03/08/cobras-put-an-end-to-two-years-of-losses-by-beating-yacare/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-08T22:43:42.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "Os Cobras put an end to two years of losses, and a 19-match losing streak, by beating Yacare. Sunday&#8217;s victory in São Paulo sees Os Cobras moving past the same team on the...",
+          "teaserEs": "Os Cobras put an end to two years of losses, and a 19-match losing streak, by beating Yacare. Sunday&#8217;s victory in São Paulo sees Os Cobras moving past the same team on the...",
+          "titleEs": "Cobras Put an end to Two years of losses by beating Yacare"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/penarol-down-selknam-for-first-win-of-sra-2026/",
+          "title": "Peñarol down Selknam for first win of SRA 2026",
+          "link": "https://www.americasrugbynews.com/2026/03/07/penarol-down-selknam-for-first-win-of-sra-2026/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-08T01:22:47.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "Peñarol downed Selknam on Saturday, claiming a 40-27 home victory in Montevideo. The win was Peñarol&#8217;s first of the Super Rugby Americas (SRA) 2026 season. It came after c...",
+          "teaserEs": "Peñarol downed Selknam on Saturday, claiming a 40-27 home victory in Montevideo. The win was Peñarol&#8217;s first of the Super Rugby Americas (SRA) 2026 season. It came after c...",
+          "titleEs": "Peñarol down Selknam for first win of SRA 2026"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/tarucas-and-dogos-play-out-a-classic-rugby-contest-in-tucuman/",
+          "title": "Tarucas and Dogos play out a classic rugby contest in Tucumán",
+          "link": "https://www.americasrugbynews.com/2026/03/07/tarucas-and-dogos-play-out-a-classic-rugby-contest-in-tucuman/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T11:17:20.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific",
+            "ar-urba-top14"
+          ],
+          "teaser": "Super Rugby Americas (SRA) 2026 delivered a fantastic Friday evening double in Argentina. First, Los Pampas defeated Los Capibaras in a match that weren&#8217;t down to the wire...",
+          "teaserEs": "Super Rugby Americas (SRA) 2026 delivered a fantastic Friday evening double in Argentina. First, Los Pampas defeated Los Capibaras in a match that weren&#8217;t down to the wire...",
+          "titleEs": "Tarucas and Dogos play out a classic rugby contest in Tucumán"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/06/santiago-pernas-magic-sinks-capibaras/",
+          "title": "Santiago Pernas Magic Sinks Capibaras",
+          "link": "https://www.americasrugbynews.com/2026/03/06/santiago-pernas-magic-sinks-capibaras/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T00:53:52.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific"
+          ],
+          "teaser": "A magical play from Santiago Pernas saw Los Pampas sinking Los Capibaras in Buenos Aires on Friday. Pernas scored a sensational second-half try to see Los Pampas home to a 25-20...",
+          "teaserEs": "A magical play from Santiago Pernas saw Los Pampas sinking Los Capibaras in Buenos Aires on Friday. Pernas scored a sensational second-half try to see Los Pampas home to a 25-20...",
+          "titleEs": "Santiago Pernas Magic Sinks Capibaras"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "svns-australia",
+      "name": "SVNS Australia",
+      "group": "Seven",
+      "region": "World",
+      "articleCount": 0,
+      "summary": "Latest result: Ireland 27-17 Wales. Next fixture: France vs England on 2026-03-14.",
+      "summaryEs": "Ultimo resultado: Ireland 27-17 Wales. Proximo partido: France vs England el 2026-03-14.",
+      "articles": [],
+      "recentMatches": [
+        {
+          "id": 8744,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Ireland",
+          "away": "Wales",
+          "homeScore": 27,
+          "awayScore": 17
+        },
+        {
+          "id": 8742,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Italy",
+          "away": "England",
+          "homeScore": 23,
+          "awayScore": 18
+        },
+        {
+          "id": 8743,
+          "matchDate": "2026-03-07",
+          "status": "FT",
+          "home": "Scotland",
+          "away": "France",
+          "homeScore": 50,
+          "awayScore": 40
+        },
+        {
+          "id": 8745,
+          "matchDate": "2026-03-06",
+          "status": "FT",
+          "home": "France",
+          "away": "Italy",
+          "homeScore": 33,
+          "awayScore": 8
+        }
+      ],
+      "upcomingMatches": [
+        {
+          "id": 8756,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "France",
+          "away": "England",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8754,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Ireland",
+          "away": "Scotland",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8755,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Wales",
+          "away": "Italy",
+          "homeScore": null,
+          "awayScore": null
+        }
+      ]
+    },
+    {
+      "slug": "svns-hong-kong",
+      "name": "SVNS Hong Kong",
+      "group": "Seven",
+      "region": "World",
+      "articleCount": 0,
+      "summary": "Next fixture: Lyons Piacenza vs Viadana on 2026-03-14.",
+      "summaryEs": "Proximo partido: Lyons Piacenza vs Viadana el 2026-03-14.",
+      "articles": [],
+      "recentMatches": [],
+      "upcomingMatches": [
+        {
+          "id": 8715,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Lyons Piacenza",
+          "away": "Viadana",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8717,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Valorugby Emilia",
+          "away": "Biella",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8714,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Petrarca",
+          "away": "Fiamme Oro",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8716,
+          "matchDate": "2026-03-14",
+          "status": "NS",
+          "home": "Vicenza",
+          "away": "Rovigo",
+          "homeScore": null,
+          "awayScore": null
+        },
+        {
+          "id": 8718,
+          "matchDate": "2026-03-15",
+          "status": "NS",
+          "home": "Biella",
+          "away": "Lyons Piacenza",
+          "homeScore": null,
+          "awayScore": null
+        }
+      ]
+    },
+    {
+      "slug": "svns-singapore",
+      "name": "SVNS Singapore",
+      "group": "Seven",
+      "region": "World",
+      "articleCount": 0,
+      "summary": "Weekly desk for SVNS Singapore: article feed is ready, but there are no curated notes yet.",
+      "summaryEs": "Mesa semanal de SVNS Singapore: la fuente de noticias esta lista, pero todavia no hay notas curadas.",
+      "articles": [],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "svns-usa",
+      "name": "SVNS USA",
+      "group": "Seven",
+      "region": "World",
+      "articleCount": 1,
+      "summary": "1 linked stories tracked for SVNS USA.",
+      "summaryEs": "1 noticias enlazadas para SVNS USA.",
+      "articles": [
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/08/usa-women-3rd-canada-women-argentina-men-5th-at-vancouver-7s/",
+          "title": "USA Women the best of the Americas at 2026 Vancouver 7&#8217;s",
+          "link": "https://www.americasrugbynews.com/2026/03/08/usa-women-3rd-canada-women-argentina-men-5th-at-vancouver-7s/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-08T23:45:42.000Z",
+          "leagueSlugs": [
+            "int-six-nations",
+            "svns-usa"
+          ],
+          "teaser": "There was one place for an Americas competitor on the podium at the Vancouver Sevens. The USA Women&#8217;s Eagles claimed 3rd place at the tournament by defeating France 35-21....",
+          "teaserEs": "There was one place for an Americas competitor on the podium at the Vancouver Sevens. The USA Women&#8217;s Eagles claimed 3rd place at the tournament by defeating France 35-21....",
+          "titleEs": "USA Women the best of the Americas at 2026 Vancouver 7&#8217;s"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "fr-top14",
+      "name": "Top 14",
+      "group": "France",
+      "region": "France",
+      "articleCount": 2,
+      "summary": "2 linked stories tracked for Top 14.",
+      "summaryEs": "2 noticias enlazadas para Top 14.",
+      "articles": [
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/09/leicester-tigers-sign-puma-joel-sclavi-from-la-rochelle/",
+          "title": "Leicester Tigers sign Puma Joel Sclavi from La Rochelle",
+          "link": "https://www.americasrugbynews.com/2026/03/09/leicester-tigers-sign-puma-joel-sclavi-from-la-rochelle/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-09T14:13:07.000Z",
+          "leagueSlugs": [
+            "fr-top14",
+            "en-premiership-rugby"
+          ],
+          "teaser": "Joel Sclavi is moving from La Rochelle in the Top 14 to the Leicester Tigers in the English Premiership. Confirmation came from L&#8217;Equipe of the move which means the ongoin...",
+          "teaserEs": "Joel Sclavi is moving from La Rochelle in the Top 14 to the Leicester Tigers in the English Premiership. Confirmation came from L&#8217;Equipe of the move which means the ongoin...",
+          "titleEs": "Leicester Tigers sign Puma Joel Sclavi from La Rochelle"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/at-a-glance-americas-rugby-news-round-up-5/",
+          "title": "At a Glance: Americas Rugby News Round Up",
+          "link": "https://www.americasrugbynews.com/2026/03/07/at-a-glance-americas-rugby-news-round-up-5/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T06:11:51.000Z",
+          "leagueSlugs": [
+            "fr-top14",
+            "int-six-nations",
+            "int-united-rugby-championship"
+          ],
+          "teaser": "Thomas Gallo has completed a move from the United Rugby Championship (URC) to the Top 14. He has signed a four-year-deal with Lyon starting next season. Former Pumas prop Enriqu...",
+          "teaserEs": "Thomas Gallo has completed a move from the United Rugby Championship (URC) to the Top 14. He has signed a four-year-deal with Lyon starting next season. Former Pumas prop Enriqu...",
+          "titleEs": "At a Glance: Americas Rugby News Round Up"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "int-united-rugby-championship",
+      "name": "United Rugby Championship",
+      "group": "Europe",
+      "region": "Europe",
+      "articleCount": 1,
+      "summary": "1 linked stories tracked for United Rugby Championship.",
+      "summaryEs": "1 noticias enlazadas para United Rugby Championship.",
+      "articles": [
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/at-a-glance-americas-rugby-news-round-up-5/",
+          "title": "At a Glance: Americas Rugby News Round Up",
+          "link": "https://www.americasrugbynews.com/2026/03/07/at-a-glance-americas-rugby-news-round-up-5/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T06:11:51.000Z",
+          "leagueSlugs": [
+            "fr-top14",
+            "int-six-nations",
+            "int-united-rugby-championship"
+          ],
+          "teaser": "Thomas Gallo has completed a move from the United Rugby Championship (URC) to the Top 14. He has signed a four-year-deal with Lyon starting next season. Former Pumas prop Enriqu...",
+          "teaserEs": "Thomas Gallo has completed a move from the United Rugby Championship (URC) to the Top 14. He has signed a four-year-deal with Lyon starting next season. Former Pumas prop Enriqu...",
+          "titleEs": "At a Glance: Americas Rugby News Round Up"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    },
+    {
+      "slug": "ar-urba-top14",
+      "name": "URBA Top 14",
+      "group": "Argentina",
+      "region": "Argentina",
+      "articleCount": 2,
+      "summary": "2 linked stories tracked for URBA Top 14.",
+      "summaryEs": "2 noticias enlazadas para URBA Top 14.",
+      "articles": [
+        {
+          "id": "bbc-rugby-union:https://www.bbc.com/sport/rugby-union/videos/ckglpdl84k7o?at_medium=RSS&at_campaign=rss",
+          "title": "'Physical' Wales need to start getting small moments right",
+          "link": "https://www.bbc.com/sport/rugby-union/videos/ckglpdl84k7o?at_medium=RSS&at_campaign=rss",
+          "source": "BBC Rugby Union",
+          "publishedAt": "2026-03-08T19:33:48.000Z",
+          "leagueSlugs": [
+            "int-six-nations",
+            "ar-urba-top14"
+          ],
+          "teaser": "Rugby Special's ex-Wales captain Sam Warburton believes Wales have made progress with their physicality in defence while \"finding their sense of combination\" going forward.",
+          "teaserEs": "Rugby Special's ex-Wales captain Sam Warburton believes Wales have made progress with their physicality in defence while \"finding their sense of combination\" going forward.",
+          "titleEs": "'Physical' Wales need to start getting small moments right"
+        },
+        {
+          "id": "americas-rugby-news:https://www.americasrugbynews.com/2026/03/07/tarucas-and-dogos-play-out-a-classic-rugby-contest-in-tucuman/",
+          "title": "Tarucas and Dogos play out a classic rugby contest in Tucumán",
+          "link": "https://www.americasrugbynews.com/2026/03/07/tarucas-and-dogos-play-out-a-classic-rugby-contest-in-tucuman/",
+          "source": "Americas Rugby News",
+          "publishedAt": "2026-03-07T11:17:20.000Z",
+          "leagueSlugs": [
+            "sra",
+            "int-super-rugby-pacific",
+            "ar-urba-top14"
+          ],
+          "teaser": "Super Rugby Americas (SRA) 2026 delivered a fantastic Friday evening double in Argentina. First, Los Pampas defeated Los Capibaras in a match that weren&#8217;t down to the wire...",
+          "teaserEs": "Super Rugby Americas (SRA) 2026 delivered a fantastic Friday evening double in Argentina. First, Los Pampas defeated Los Capibaras in a match that weren&#8217;t down to the wire...",
+          "titleEs": "Tarucas and Dogos play out a classic rugby contest in Tucumán"
+        }
+      ],
+      "recentMatches": [],
+      "upcomingMatches": []
+    }
+  ],
+  "sources": [
+    {
+      "key": "americas-rugby-news",
+      "name": "Americas Rugby News",
+      "homepage": "https://www.americasrugbynews.com",
+      "feedUrl": "https://www.americasrugbynews.com/feed/"
+    },
+    {
+      "key": "bbc-rugby-union",
+      "name": "BBC Rugby Union",
+      "homepage": "https://www.bbc.com/sport/rugby-union",
+      "feedUrl": "https://feeds.bbci.co.uk/sport/rugby-union/rss.xml"
+    }
+  ]
+}

@@ -11,6 +11,7 @@
     "rebuild:flashscore": "tsx scripts/rebuild-flashscore.ts",
     "check:supabase": "tsx scripts/check-supabase.ts",
     "export:supabase-snapshot": "tsx scripts/export-supabase-snapshot.ts",
+    "build:weekly": "tsx scripts/build-weekly.ts",
     "sync:live": "LIVE_ONLY=1 tsx scripts/sync-flashscore.ts",
     "audit:fallback": "tsx scripts/audit-fallback.ts"
   },

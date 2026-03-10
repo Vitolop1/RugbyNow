@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
+import AdSlot from "@/app/components/AdSlot";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
@@ -122,35 +123,6 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
   );
 }
 
-function AdPlaceholder({
-  title,
-  subtitle,
-  className,
-}: {
-  title: string;
-  subtitle: string;
-  className?: string;
-}) {
-  return (
-    <div className={`overflow-hidden rounded-2xl border border-dashed border-emerald-200/25 bg-black/20 backdrop-blur ${className ?? ""}`}>
-      <div className="flex h-full flex-col justify-between bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.14),_transparent_50%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))] p-5">
-        <div>
-          <div className="inline-flex rounded-full border border-emerald-200/20 bg-emerald-300/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-emerald-100/85">
-            Ad Space
-          </div>
-          <h3 className="mt-3 text-lg font-extrabold text-white">{title}</h3>
-          <p className="mt-1 max-w-[28ch] text-sm text-white/75">{subtitle}</p>
-        </div>
-
-        <div className="mt-6 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
-          <span>Temporal placeholder</span>
-          <span className="font-semibold text-white/80">320x600 / 970x140</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -224,6 +196,8 @@ export default function LeagueClient() {
   const [data, setData] = useState<LeaguePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const leagueBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_LEAGUE_BANNER;
+  const leagueRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_LEAGUE_RAIL;
 
   const roundsScrollRef = useRef<HTMLDivElement | null>(null);
   const activeRoundRef = useRef<HTMLButtonElement | null>(null);
@@ -623,9 +597,12 @@ export default function LeagueClient() {
                       </div>
                     </div>
 
-                    <AdPlaceholder
-                      title="Banner premium RugbyNow"
-                      subtitle="Placeholder horizontal para anuncios, campañas o house ads debajo de la tabla."
+                    <AdSlot
+                      slot={leagueBannerSlot}
+                      format="horizontal"
+                      minHeight={140}
+                      fallbackTitle="Banner premium RugbyNow"
+                      fallbackSubtitle="Espacio horizontal para anuncios debajo de la tabla."
                       className="hidden min-h-[140px] w-full lg:block"
                     />
                   </section>
@@ -636,9 +613,12 @@ export default function LeagueClient() {
         </main>
 
         <div className="pointer-events-none fixed bottom-0 right-4 top-[145px] z-20 hidden w-[320px] py-4 xl:block">
-          <AdPlaceholder
-            title="Tu marca puede vivir acá"
-            subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
+          <AdSlot
+            slot={leagueRailSlot}
+            format="vertical"
+            minHeight={600}
+            fallbackTitle="Tu marca puede vivir aca"
+            fallbackSubtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
             className="h-full"
           />
         </div>

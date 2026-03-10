@@ -46,4 +46,10 @@ jobs:
           git add data/supabase-snapshot.json
           git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
           git commit -m "Update Supabase snapshot [skip ci]"
-          git push
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Snapshot push retry $attempt failed, retrying..."
+            sleep 5
+          done
+          echo "Failed to push snapshot after 3 attempts."
+          exit 1

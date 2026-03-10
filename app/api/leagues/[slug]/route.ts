@@ -60,6 +60,39 @@ type MatchRow = {
   away_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
 };
 
+function dedupeMatches(rows: MatchRow[]) {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
+    const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
+    const key = [
+      row.match_date,
+      String(row.kickoff_time || ""),
+      home?.id ?? 0,
+      away?.id ?? 0,
+      row.status,
+      row.home_score ?? "",
+      row.away_score ?? "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function hasUsableStandingCache(rows: StandingCacheRow[]) {
+  return rows.some(
+    (row) =>
+      row.played != null ||
+      row.won != null ||
+      row.drawn != null ||
+      row.lost != null ||
+      row.points_for != null ||
+      row.points_against != null ||
+      row.points != null
+  );
+}
+
 function seasonSortKey(name: string) {
   const s = (name || "").trim();
   const mRange = s.match(/\b(\d{4})\s*\/\s*(\d{2,4})\b/);
@@ -280,7 +313,7 @@ export async function GET(
     const matches =
       selectedRound == null
         ? []
-        : detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound);
+        : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound));
 
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
@@ -317,8 +350,10 @@ export async function GET(
 
     if (standingsCacheError) throw standingsCacheError;
 
+    const useStandingsCache = hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]);
+
     const standings =
-      (standingsCache || []).length > 0
+      useStandingsCache
         ? ((standingsCache as StandingCacheRow[])
             .map((row, index) => {
               const team = Array.isArray(row.team) ? row.team[0] : row.team;
@@ -350,7 +385,7 @@ export async function GET(
       selectedRound,
       matches: matches || [],
       standings,
-      standingsSource: (standingsCache || []).length > 0 ? "cache" : "computed",
+      standingsSource: useStandingsCache ? "cache" : "computed",
       source: "supabase",
     });
   } catch (error) {

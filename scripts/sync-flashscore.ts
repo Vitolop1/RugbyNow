@@ -752,11 +752,15 @@ function pickBestCandidate(possible: DbMatchRow[], referenceIsoDate?: string | n
 
 function parseKickoffTime(raw: string): string | null {
   const s = raw || "";
-  const m = s.match(/\b(\d{1,2}):(\d{2})\b/);
+  const m = s.match(/\b(\d{1,2}):(\d{2})(?:\s*([AP])\.?M?\.?)?\b/i);
   if (!m) return null;
-  const hh = m[1].padStart(2, "0");
-  const mm = m[2];
-  return `${hh}:${mm}:00`;
+  let hour = Number.parseInt(m[1], 10);
+  const minute = m[2];
+  const meridiem = m[3]?.toUpperCase() ?? null;
+  if (meridiem === "P" && hour < 12) hour += 12;
+  if (meridiem === "A" && hour === 12) hour = 0;
+  const hh = String(hour).padStart(2, "0");
+  return `${hh}:${minute}:00`;
 }
 
 function inferMatchDateFromRawText(rawText: string, seasonName: string): string | null {
@@ -1050,7 +1054,20 @@ async function scrapeStandingsPage(page: Page) {
     let pointsAgainst: number | null = null;
     let points: number | null = null;
 
-    if (r.nums.length >= 7) {
+    const compact = r.raw.replace(/\s+/g, " ").trim();
+    const structured =
+      compact.match(/^\s*\d+\.\s+(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+):(\d+)\s+(-?\d+)\b/) ||
+      compact.match(/^\s*(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+):(\d+)\s+(-?\d+)\b/);
+
+    if (structured) {
+      played = Number.parseInt(structured[2], 10);
+      won = Number.parseInt(structured[3], 10);
+      drawn = Number.parseInt(structured[4], 10);
+      lost = Number.parseInt(structured[5], 10);
+      pointsFor = Number.parseInt(structured[6], 10);
+      pointsAgainst = Number.parseInt(structured[7], 10);
+      points = Number.parseInt(structured[8], 10);
+    } else if (r.nums.length >= 7) {
       played = r.nums[0] ?? null;
       won = r.nums[1] ?? null;
       drawn = r.nums[2] ?? null;
@@ -1398,7 +1415,7 @@ async function main() {
 
         let sourceKey: string | null = null;
         let target: DbMatchRow | null = null;
-        const kickoffTime = parseKickoffTime(row.rawText);
+        const kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
         const matchDate = inferredDate;
 
         sourceKey = buildSourceEventKey({
@@ -1456,11 +1473,6 @@ async function main() {
 
         if (target?.id && !touchedIds.has(target.id)) {
           const patch: Record<string, unknown> = { ...payload };
-          delete patch.season_id;
-          delete patch.match_date;
-          delete patch.kickoff_time;
-          delete patch.home_team_id;
-          delete patch.away_team_id;
 
           if (target.status === "FT" && patch.status === "NS") {
             continue;

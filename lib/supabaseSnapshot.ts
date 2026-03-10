@@ -113,6 +113,37 @@ type LeagueStandingRow = {
   form?: Array<"W" | "D" | "L">;
 };
 
+function hasUsableStandingCacheRows(rows: SnapshotStandingCache[]) {
+  return rows.some(
+    (row) =>
+      row.played != null ||
+      row.won != null ||
+      row.drawn != null ||
+      row.lost != null ||
+      row.points_for != null ||
+      row.points_against != null ||
+      row.points != null
+  );
+}
+
+function dedupeLeagueMatches(rows: SnapshotMatch[]) {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = [
+      row.match_date,
+      String(row.kickoff_time || ""),
+      row.home_team_id ?? 0,
+      row.away_team_id ?? 0,
+      row.status,
+      row.home_score ?? "",
+      row.away_score ?? "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 type RoundMeta = {
   round: number;
   first_date: string;
@@ -453,7 +484,7 @@ function buildStandingsCache(snapshot: SnapshotPayload, seasonId: number, matche
       return (b.points ?? 0) - (a.points ?? 0);
     });
 
-  if (!rows.length) return null;
+  if (!rows.length || !hasUsableStandingCacheRows(rows)) return null;
 
   const recentForm = buildRecentForm(snapshot, matches);
 
@@ -530,7 +561,7 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   const autoSelectedRound = pickAutoRound(roundMeta, refISO);
   const selectedRound = roundOverride ?? autoSelectedRound;
 
-  const matches = seasonMatches
+  const matches = dedupeLeagueMatches(seasonMatches)
     .filter((match) => roundAssignment.get(match.id) === selectedRound)
     .sort(
       (a, b) =>

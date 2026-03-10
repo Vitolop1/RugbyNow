@@ -10,12 +10,17 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 async function hit(path: string, method: "GET" | "HEAD" = "GET") {
   const url = `${SUPABASE_URL}${path}`;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+  };
+
+  if (SUPABASE_SERVICE_ROLE_KEY) {
+    headers.apikey = SUPABASE_SERVICE_ROLE_KEY;
+  }
+
   const response = await fetch(url, {
     method,
-    headers: {
-      apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-    },
+    headers,
   });
 
   const text = method === "HEAD" ? "" : await response.text();

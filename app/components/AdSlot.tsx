@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -60,13 +60,9 @@ export default function AdSlot({
   fallbackSubtitle,
 }: AdSlotProps) {
   const pushedRef = useRef(false);
-  const [isLocalhost, setIsLocalhost] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const host = window.location.hostname;
-    setIsLocalhost(host === "localhost" || host === "127.0.0.1");
-  }, []);
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
   useEffect(() => {
     if (!slot || pushedRef.current) return;

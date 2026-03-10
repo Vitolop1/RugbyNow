@@ -8,6 +8,7 @@ import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
+import { getDisplayGroupName, readSlugList, toggleSlug, writeSlugList } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
 
@@ -226,6 +227,8 @@ export default function HomeClient() {
   const [loadError, setLoadError] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
+  const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
   const homeBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_BANNER;
   const homeRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_RAIL;
 
@@ -236,11 +239,15 @@ export default function HomeClient() {
   const dateQuery = `?date=${selectedISO}`;
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const europeGroupLabel = tr("groupsEurope");
+  const sevenGroupLabel = tr("groupsSeven");
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
     const id = window.requestAnimationFrame(() => {
       setSidebarOpen(window.localStorage.getItem("rn:home-sidebar-open") !== "0");
+      setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
+      setHiddenSlugs(readSlugList("rn:hidden-leagues"));
     });
     return () => window.cancelAnimationFrame(id);
   }, [mounted]);
@@ -249,6 +256,16 @@ export default function HomeClient() {
     if (!mounted || typeof window === "undefined") return;
     window.localStorage.setItem("rn:home-sidebar-open", sidebarOpen ? "1" : "0");
   }, [mounted, sidebarOpen]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    writeSlugList("rn:favorite-leagues", favoriteSlugs);
+  }, [favoriteSlugs, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    writeSlugList("rn:hidden-leagues", hiddenSlugs);
+  }, [hiddenSlugs, mounted]);
 
   useEffect(() => {
     if (lastPushedISO.current === selectedISO) return;
@@ -368,8 +385,12 @@ export default function HomeClient() {
   const groupedCompetitions = useMemo(() => {
     const groups = new Map<string, Competition[]>();
 
-    for (const competition of dedupedCompetitions) {
-      const group = (competition.group_name ?? "").trim() || otherGroupLabel;
+    for (const competition of dedupedCompetitions.filter((item) => !hiddenSlugs.includes(item.slug))) {
+      const group = getDisplayGroupName(competition, {
+        other: otherGroupLabel,
+        europe: europeGroupLabel,
+        seven: sevenGroupLabel,
+      });
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group)!.push(competition);
     }
@@ -386,16 +407,33 @@ export default function HomeClient() {
           return a.name.localeCompare(b.name);
         }),
       ] as const);
-  }, [dedupedCompetitions, otherGroupLabel]);
+  }, [dedupedCompetitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel]);
+
+  const favoriteCompetitions = useMemo(
+    () =>
+      dedupedCompetitions
+        .filter((competition) => favoriteSlugs.includes(competition.slug) && !hiddenSlugs.includes(competition.slug))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [dedupedCompetitions, favoriteSlugs, hiddenSlugs]
+  );
+
+  const hiddenCompetitions = useMemo(
+    () => dedupedCompetitions.filter((competition) => hiddenSlugs.includes(competition.slug)).sort((a, b) => a.name.localeCompare(b.name)),
+    [dedupedCompetitions, hiddenSlugs]
+  );
 
   const filteredBlocks = useMemo(() => {
-    if (tab !== "LIVE") return blocks;
-    return blocks
+    const visibleBlocks = blocks.filter((block) => !hiddenSlugs.includes(block.slug));
+    if (tab !== "LIVE") return visibleBlocks;
+    return visibleBlocks
       .map((block) => ({ ...block, matches: block.matches.filter((match) => match.status === "LIVE") }))
       .filter((block) => block.matches.length > 0);
-  }, [blocks, tab]);
+  }, [blocks, tab, hiddenSlugs]);
 
   const dateHeroLabel = isSameDay(selectedDate, todayLocal) ? tr("today").toUpperCase() : niceDate(selectedDate);
+
+  const toggleFavoriteLeague = (slug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, slug));
+  const toggleHiddenLeague = (slug: string) => setHiddenSlugs((prev) => toggleSlug(prev, slug));
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0E4F33] text-white">
@@ -438,6 +476,44 @@ export default function HomeClient() {
                 <div className="text-xs text-red-200">{compError}</div>
               ) : (
                 <div className="space-y-3">
+                  {favoriteCompetitions.length ? (
+                    <div className="rounded-xl border border-amber-200/20 bg-amber-300/10 p-3">
+                      <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-amber-100/80">{tr("favorites")}</div>
+                      <div className="space-y-2">
+                        {favoriteCompetitions.map((competition) => (
+                          <div
+                            key={`favorite-${competition.slug}`}
+                            className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
+                          >
+                            <Link href={`/leagues/${competition.slug}${dateQuery}`} className="flex min-w-0 flex-1 items-center gap-2">
+                              <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                              <LeagueLogo slug={competition.slug} alt={competition.name} />
+                              <span className="truncate text-sm font-medium text-white">{competition.name}</span>
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => toggleFavoriteLeague(competition.slug)}
+                              className="shrink-0 text-base"
+                              title={tr("removeFavorite")}
+                              aria-label={tr("removeFavorite")}
+                            >
+                              ★
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => toggleHiddenLeague(competition.slug)}
+                              className="shrink-0 text-sm text-white/80"
+                              title={tr("hideLeague")}
+                              aria-label={tr("hideLeague")}
+                            >
+                              👁
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
                   {groupedCompetitions.map(([groupName, comps]) => {
                     const open = openGroups[groupName] ?? false;
                     const featuredCount = comps.filter((competition) => competition.is_featured).length;
@@ -465,31 +541,77 @@ export default function HomeClient() {
                         {open ? (
                           <div className="space-y-2 px-2 pb-2">
                             {comps.map((competition) => (
-                              <Link
+                              <div
                                 key={`${competition.slug}-${competition.id}`}
-                                href={`/leagues/${competition.slug}${dateQuery}`}
-                                className="block w-full rounded-xl border border-white/15 bg-black/20 px-3 py-2 text-left transition hover:bg-black/30"
+                                className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2 transition hover:bg-black/30"
                               >
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex min-w-0 items-center gap-2">
-                                    <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
-                                    <LeagueLogo slug={competition.slug} alt={competition.name} />
-                                    <div className="truncate text-sm font-medium text-white">{competition.name}</div>
+                                <Link href={`/leagues/${competition.slug}${dateQuery}`} className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                      <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                                      <LeagueLogo slug={competition.slug} alt={competition.name} />
+                                      <div className="truncate text-sm font-medium text-white">{competition.name}</div>
+                                    </div>
+                                    {competition.is_featured ? (
+                                      <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
+                                        {tr("pinned")}
+                                      </span>
+                                    ) : null}
                                   </div>
-                                  {competition.is_featured ? (
-                                    <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
-                                      {tr("pinned")}
-                                    </span>
-                                  ) : null}
-                                </div>
-                                {competition.region ? <div className="mt-1 text-xs text-white/70">{competition.region}</div> : null}
-                              </Link>
+                                  {competition.region ? <div className="mt-1 text-xs text-white/70">{competition.region}</div> : null}
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleFavoriteLeague(competition.slug)}
+                                  className={`shrink-0 text-base ${favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"}`}
+                                  title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
+                                  aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
+                                >
+                                  {favoriteSlugs.includes(competition.slug) ? "★" : "☆"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleHiddenLeague(competition.slug)}
+                                  className="shrink-0 text-sm text-white/80"
+                                  title={tr("hideLeague")}
+                                  aria-label={tr("hideLeague")}
+                                >
+                                  👁
+                                </button>
+                              </div>
                             ))}
                           </div>
                         ) : null}
                       </div>
                     );
                   })}
+
+                  {hiddenCompetitions.length ? (
+                    <div className="rounded-xl border border-white/15 bg-white/5 p-3">
+                      <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/70">{tr("hiddenLeagues")}</div>
+                      <div className="space-y-2">
+                        {hiddenCompetitions.map((competition) => (
+                          <div
+                            key={`hidden-${competition.slug}`}
+                            className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2"
+                          >
+                            <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                            <LeagueLogo slug={competition.slug} alt={competition.name} />
+                            <span className="min-w-0 flex-1 truncate text-sm text-white/80">{competition.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => toggleHiddenLeague(competition.slug)}
+                              className="shrink-0 text-sm text-white"
+                              title={tr("showLeague")}
+                              aria-label={tr("showLeague")}
+                            >
+                              👁‍🗨
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

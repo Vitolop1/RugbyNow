@@ -263,7 +263,12 @@ function competitionSlugFromUrl(url: string) {
   if (compSlug === "world-cup") return "int-world-cup";
   if (compSlug === "nations-championship") return "int-nations-championship";
   if (compSlug === "super-rugby") return "int-super-rugby-pacific";
+  if (compSlug === "united-rugby-championship") return "int-united-rugby-championship";
   if (compSlug === "major-league-rugby") return "us-mlr";
+  if (compSlug === "svns-australia") return "svns-australia";
+  if (compSlug === "svns-usa") return "svns-usa";
+  if (compSlug === "svns-hong-kong") return "svns-hong-kong";
+  if (compSlug === "svns-singapore") return "svns-singapore";
 
   if (regionOrCountry === "argentina" && compSlug === "top-14") {
     return "ar-urba-top14";

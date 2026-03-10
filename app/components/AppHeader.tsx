@@ -81,9 +81,9 @@ export default function AppHeader({
         <Image
           src="/logohorizontal.png"
           alt="RugbyNow"
-          width={220}
-          height={44}
-          className="h-auto w-[170px] object-contain sm:w-[220px]"
+          width={280}
+          height={56}
+          className="h-auto w-[195px] object-contain sm:w-[260px]"
           onError={() => setBrandOk(false)}
           priority
         />

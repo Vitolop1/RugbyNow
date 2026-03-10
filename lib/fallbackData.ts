@@ -109,16 +109,21 @@ type JsonlRow = {
 const COMPETITIONS: Competition[] = [
   { id: 1, name: "Top 14", slug: "fr-top14", region: "France", country_code: "FR", group_name: "France", sort_order: 1, is_featured: true },
   { id: 2, name: "Serie A Elite", slug: "it-serie-a-elite", region: "Italy", country_code: "IT", group_name: "Italy", sort_order: 1, is_featured: false },
-  { id: 3, name: "Six Nations", slug: "int-six-nations", region: "Europe", country_code: null, group_name: "International", sort_order: 1, is_featured: true },
+  { id: 3, name: "Six Nations", slug: "int-six-nations", region: "Europe", country_code: null, group_name: "Europe", sort_order: 1, is_featured: true },
   { id: 4, name: "Super Rugby Americas", slug: "sra", region: "South America", country_code: null, group_name: "International", sort_order: 2, is_featured: true },
-  { id: 5, name: "Premiership Rugby", slug: "en-premiership-rugby", region: "England", country_code: "GB", group_name: "International", sort_order: 3, is_featured: true },
-  { id: 6, name: "European Rugby Champions Cup", slug: "eu-champions-cup", region: "Europe", country_code: null, group_name: "International", sort_order: 4, is_featured: true },
+  { id: 5, name: "Premiership Rugby", slug: "en-premiership-rugby", region: "England", country_code: "GB", group_name: "Europe", sort_order: 3, is_featured: true },
+  { id: 6, name: "European Rugby Champions Cup", slug: "eu-champions-cup", region: "Europe", country_code: null, group_name: "Europe", sort_order: 4, is_featured: true },
   { id: 7, name: "World Cup", slug: "int-world-cup", region: "World", country_code: null, group_name: "International", sort_order: 5, is_featured: false },
   { id: 8, name: "Nations Championship", slug: "int-nations-championship", region: "World", country_code: null, group_name: "International", sort_order: 6, is_featured: false },
   { id: 9, name: "Super Rugby Pacific", slug: "int-super-rugby-pacific", region: "World", country_code: null, group_name: "International", sort_order: 7, is_featured: true },
   { id: 10, name: "URBA Top 14", slug: "ar-urba-top14", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 1, is_featured: true },
   { id: 11, name: "Major League Rugby", slug: "us-mlr", region: "USA", country_code: "US", group_name: "USA", sort_order: 1, is_featured: true },
   { id: 12, name: "Norte Grande", slug: "ar-liga-norte-grande", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 2, is_featured: false },
+  { id: 13, name: "United Rugby Championship", slug: "int-united-rugby-championship", region: "Europe", country_code: null, group_name: "Europe", sort_order: 5, is_featured: false },
+  { id: 14, name: "SVNS Australia", slug: "svns-australia", region: "World", country_code: null, group_name: "Seven", sort_order: 1, is_featured: false },
+  { id: 15, name: "SVNS USA", slug: "svns-usa", region: "World", country_code: null, group_name: "Seven", sort_order: 2, is_featured: false },
+  { id: 16, name: "SVNS Hong Kong", slug: "svns-hong-kong", region: "World", country_code: null, group_name: "Seven", sort_order: 3, is_featured: false },
+  { id: 17, name: "SVNS Singapore", slug: "svns-singapore", region: "World", country_code: null, group_name: "Seven", sort_order: 4, is_featured: false },
 ];
 
 const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {

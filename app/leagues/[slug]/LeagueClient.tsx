@@ -7,6 +7,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
+import { getDisplayGroupName, readSlugList, toggleSlug, writeSlugList } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { usePrefs } from "@/lib/usePrefs";
@@ -208,6 +209,8 @@ export default function LeagueClient() {
   const { lang, mounted, timeZone } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const europeGroupLabel = tr("groupsEurope");
+  const sevenGroupLabel = tr("groupsSeven");
 
   const slug = params.slug;
   const refISO = searchParams.get("date") || toISODateLocal(new Date());
@@ -215,6 +218,8 @@ export default function LeagueClient() {
 
   const [sidebarOpen, setSidebarOpen] = useState(getInitialLeagueSidebarOpen);
   const [sidebarGroups, setSidebarGroups] = useState<Record<string, boolean>>({});
+  const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
+  const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
   const [data, setData] = useState<LeaguePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -226,8 +231,28 @@ export default function LeagueClient() {
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
+    const id = window.requestAnimationFrame(() => {
+      setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
+      setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
+      setHiddenSlugs(readSlugList("rn:hidden-leagues"));
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [mounted]);
+
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
     window.localStorage.setItem("rn:league-sidebar-open", sidebarOpen ? "1" : "0");
   }, [mounted, sidebarOpen]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    writeSlugList("rn:favorite-leagues", favoriteSlugs);
+  }, [favoriteSlugs, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    writeSlugList("rn:hidden-leagues", hiddenSlugs);
+  }, [hiddenSlugs, mounted]);
 
   useEffect(() => {
     let cancelled = false;
@@ -273,8 +298,37 @@ export default function LeagueClient() {
   }, [data?.selectedRound]);
 
   const groupedCompetitions = useMemo(
-    () => groupCompetitions(data?.competitions || [], otherGroupLabel),
-    [data?.competitions, otherGroupLabel]
+    () =>
+      groupCompetitions(
+        (data?.competitions || [])
+          .filter((competition) => !hiddenSlugs.includes(competition.slug))
+          .map((competition) => ({
+            ...competition,
+            group_name: getDisplayGroupName(competition, {
+              other: otherGroupLabel,
+              europe: europeGroupLabel,
+              seven: sevenGroupLabel,
+            }),
+          })),
+        otherGroupLabel
+      ),
+    [data?.competitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel]
+  );
+
+  const favoriteCompetitions = useMemo(
+    () =>
+      (data?.competitions || [])
+        .filter((competition) => favoriteSlugs.includes(competition.slug) && !hiddenSlugs.includes(competition.slug))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [data?.competitions, favoriteSlugs, hiddenSlugs]
+  );
+
+  const hiddenCompetitions = useMemo(
+    () =>
+      (data?.competitions || [])
+        .filter((competition) => hiddenSlugs.includes(competition.slug))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [data?.competitions, hiddenSlugs]
   );
 
   const selectedRound = data?.selectedRound ?? null;
@@ -282,6 +336,7 @@ export default function LeagueClient() {
   const selectedRoundMeta = roundMeta.find((item) => item.round === selectedRound) ?? null;
   const canGoPrevRound = selectedRound != null && roundMeta.some((item) => item.round < selectedRound);
   const canGoNextRound = selectedRound != null && roundMeta.some((item) => item.round > selectedRound);
+  const visibleMatches = data?.competition && hiddenSlugs.includes(data.competition.slug) ? [] : data?.matches || [];
 
   const setRound = (nextRound: number) => {
     const qs = new URLSearchParams(searchParams.toString());
@@ -299,6 +354,8 @@ export default function LeagueClient() {
 
   const title = data?.competition?.name || tr("leagueView");
   const seasonName = data?.season?.name || "—";
+  const toggleFavoriteLeague = (nextSlug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, nextSlug));
+  const toggleHiddenLeague = (nextSlug: string) => setHiddenSlugs((prev) => toggleSlug(prev, nextSlug));
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0E4F33] text-white">
@@ -351,6 +408,35 @@ export default function LeagueClient() {
             <div>
               <div className="mb-2 text-sm font-semibold text-white/90">{tr("leagues")}</div>
               <div className="space-y-3">
+                {favoriteCompetitions.length ? (
+                  <div className="rounded-xl border border-amber-200/20 bg-amber-300/10 p-3">
+                    <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-amber-100/80">{tr("favorites")}</div>
+                    <div className="space-y-2">
+                      {favoriteCompetitions.map((competition) => (
+                        <div
+                          key={`favorite-${competition.slug}`}
+                          className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
+                        >
+                          <Link href={`/leagues/${competition.slug}?date=${refISO}`} className="flex min-w-0 flex-1 items-center gap-2">
+                            <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                            <LeagueLogo slug={competition.slug} alt={competition.name} />
+                            <span className="truncate text-sm font-medium text-white">{competition.name}</span>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => toggleFavoriteLeague(competition.slug)}
+                            className="shrink-0 text-base text-amber-300"
+                            title={tr("removeFavorite")}
+                            aria-label={tr("removeFavorite")}
+                          >
+                            ★
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
                 {groupedCompetitions.map(([groupName, comps]) => {
                   const open = sidebarGroups[groupName] ?? true;
                   const featuredCount = comps.filter((competition) => competition.is_featured).length;
@@ -394,11 +480,37 @@ export default function LeagueClient() {
                                     <LeagueLogo slug={competition.slug} alt={competition.name} />
                                     <div className="truncate text-sm font-medium text-white">{competition.name}</div>
                                   </div>
-                                  {competition.is_featured ? (
-                                    <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
-                                      {tr("pinned")}
-                                    </span>
-                                  ) : null}
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        toggleFavoriteLeague(competition.slug);
+                                      }}
+                                      className={`shrink-0 text-base ${favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"}`}
+                                      title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
+                                      aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
+                                    >
+                                      {favoriteSlugs.includes(competition.slug) ? "★" : "☆"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        toggleHiddenLeague(competition.slug);
+                                      }}
+                                      className="shrink-0 text-sm text-white/70"
+                                      title={tr("hideLeague")}
+                                      aria-label={tr("hideLeague")}
+                                    >
+                                      👁
+                                    </button>
+                                    {competition.is_featured ? (
+                                      <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
+                                        {tr("pinned")}
+                                      </span>
+                                    ) : null}
+                                  </div>
                                 </div>
                                 {competition.region ? <div className="mt-1 text-xs text-white/70">{competition.region}</div> : null}
                               </Link>
@@ -409,6 +521,33 @@ export default function LeagueClient() {
                     </div>
                   );
                 })}
+
+                {hiddenCompetitions.length ? (
+                  <div className="rounded-xl border border-white/15 bg-black/20 p-3">
+                    <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/70">{tr("hiddenLeagues")}</div>
+                    <div className="space-y-2">
+                      {hiddenCompetitions.map((competition) => (
+                        <div
+                          key={`hidden-${competition.slug}`}
+                          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        >
+                          <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                          <LeagueLogo slug={competition.slug} alt={competition.name} />
+                          <span className="min-w-0 flex-1 truncate text-sm text-white/85">{competition.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => toggleHiddenLeague(competition.slug)}
+                            className="shrink-0 text-sm text-white"
+                            title={tr("showLeague")}
+                            aria-label={tr("showLeague")}
+                          >
+                            👁
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           </aside>
@@ -505,7 +644,7 @@ export default function LeagueClient() {
                       </p>
                     </div>
 
-                    {data.matches.length === 0 ? (
+                    {visibleMatches.length === 0 ? (
                       <div className="rounded-2xl border border-white/15 bg-black/20 p-8 text-center text-white/80 backdrop-blur">
                         {selectedRound == null ? tr("noMatchesSeason") : tr("noMatchesRound")}
                       </div>
@@ -521,7 +660,7 @@ export default function LeagueClient() {
                         </div>
 
                         <div className="divide-y divide-white/10">
-                          {data.matches.map((match) => {
+                          {visibleMatches.map((match) => {
                             const timeLabel =
                               match.status === "LIVE"
                                 ? `${tr("statusLive")} ${match.minute ?? ""}${match.minute ? "'" : ""}`.trim()

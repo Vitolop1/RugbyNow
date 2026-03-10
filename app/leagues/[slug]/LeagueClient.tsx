@@ -319,9 +319,13 @@ export default function LeagueClient() {
           </span>
         </button>
 
-        <main className={`w-full px-4 py-6 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
+        <main
+          className={`w-full overflow-x-clip px-4 py-6 sm:px-6 xl:pr-[348px] ${
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"
+          }`}
+        >
           <aside
-            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[380px] space-y-4 overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[calc(100vw-2rem)] max-w-[380px] space-y-4 overflow-x-hidden overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
             } transition-all duration-300`}
           >

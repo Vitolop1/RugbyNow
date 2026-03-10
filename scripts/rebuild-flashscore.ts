@@ -88,15 +88,37 @@ async function main() {
 
   console.log("Starting sync-flashscore...");
 
-  const result = spawnSync("npx", ["tsx", "scripts/sync-flashscore.ts"], {
+  const npxBin = process.platform === "win32" ? "npx.cmd" : "npx";
+
+  const result = spawnSync(npxBin, ["tsx", "scripts/sync-flashscore.ts"], {
     cwd: process.cwd(),
     stdio: "inherit",
-    shell: true,
     env: process.env,
   });
 
+  if (result.error) {
+    throw {
+      step: "spawn sync-flashscore",
+      ...describeError(result.error),
+      status: result.status,
+      signal: result.signal,
+    };
+  }
+
+  if (result.signal) {
+    throw {
+      step: "sync-flashscore terminated by signal",
+      status: result.status,
+      signal: result.signal,
+    };
+  }
+
   if (typeof result.status === "number" && result.status !== 0) {
-    process.exit(result.status);
+    throw {
+      step: "sync-flashscore exited non-zero",
+      status: result.status,
+      signal: result.signal,
+    };
   }
 }
 

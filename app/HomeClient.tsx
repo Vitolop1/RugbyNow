@@ -442,8 +442,7 @@ export default function HomeClient() {
           >
             <div className="hidden">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold text-white/90">Fechas</div>
-                <div className="flex items-center gap-2">
+              <div className="grid gap-3 lg:grid-cols-[150px_minmax(0,1fr)_150px]">
                   <button
                     onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
                     className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
@@ -554,31 +553,49 @@ export default function HomeClient() {
             <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
               <section className="space-y-4 min-w-0 flex-1">
             <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="text-sm font-semibold text-white/90">Fechas</div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
-                    className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={() => setSelectedISO(toISODateLocal(new Date()))}
-                    className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
-                  >
-                    Today
-                  </button>
-                  <button
-                    onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, 1)))}
-                    className="px-3 py-1.5 rounded-lg text-xs font-extrabold border border-emerald-300/30 bg-emerald-400/25 hover:bg-emerald-400/35 transition"
-                  >
-                    NEXT →
-                  </button>
-                </div>
+              <div className="mb-4 text-sm font-semibold text-white/90">Fechas</div>
+
+              <div className="grid gap-3 lg:grid-cols-[150px_minmax(0,1fr)_150px]">
+                <button
+                  onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
+                  className="flex min-h-[72px] items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 transition hover:bg-white/15"
+                >
+                  <span className="text-3xl font-black text-white">&larr;</span>
+                  <span className="flex flex-col text-left">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">Ir a</span>
+                    <span className="text-lg font-extrabold text-white">Ayer</span>
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setSelectedISO(toISODateLocal(new Date()))}
+                  className={`flex min-h-[72px] flex-col items-center justify-center rounded-2xl border px-4 py-3 transition ${
+                    isSameDay(selectedDate, todayLocal)
+                      ? "border-emerald-300/35 bg-emerald-400/20 text-white"
+                      : "border-white/15 bg-white/10 text-white hover:bg-white/15"
+                  }`}
+                >
+                  <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/55">
+                    {isSameDay(selectedDate, todayLocal) ? "Estamos en" : "Parado en"}
+                  </span>
+                  <span className="mt-1 text-3xl font-black leading-none">
+                    {isSameDay(selectedDate, todayLocal) ? "TODAY" : compactDateLabel(selectedDate)}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, 1)))}
+                  className="flex min-h-[72px] items-center justify-center gap-3 rounded-2xl border border-emerald-300/30 bg-emerald-400/25 px-4 py-3 transition hover:bg-emerald-400/35"
+                >
+                  <span className="flex flex-col text-right">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/60">Ir a</span>
+                    <span className="text-lg font-extrabold text-white">Manana</span>
+                  </span>
+                  <span className="text-3xl font-black text-white">&rarr;</span>
+                </button>
               </div>
 
-              <div className="flex items-center gap-2 mb-2">
+              <div className="mt-3 flex items-center gap-2 mb-2">
                 <input
                   type="date"
                   value={selectedISO}

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import AppHeader from "@/app/components/AppHeader";
 import { getLeagueLogo } from "@/lib/assets";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
@@ -58,24 +57,16 @@ export default function LeaguesPage() {
     const load = async () => {
       setLoading(true);
 
-      const { data: comps, error: compsError } = await supabase
-        .from("competitions")
-        .select("id, name, slug, region, country_code, group_name, sort_order, is_featured")
-        .order("group_name", { ascending: true })
-        .order("sort_order", { ascending: true })
-        .order("name", { ascending: true });
+      const response = await fetch("/api/leagues", { cache: "no-store" });
+      const payload = await response.json();
 
-      const { data: ssn, error: seasonsError } = await supabase
-        .from("seasons")
-        .select("id, name, competition_id");
-
-      if (compsError || seasonsError) {
-        console.error(compsError || seasonsError);
+      if (!response.ok) {
+        console.error(payload.error);
         setLeagues([]);
         setSeasons([]);
       } else {
-        setLeagues((comps || []) as League[]);
-        setSeasons((ssn || []) as Season[]);
+        setLeagues((payload.competitions || []) as League[]);
+        setSeasons((payload.seasons || []) as Season[]);
       }
 
       setLoading(false);

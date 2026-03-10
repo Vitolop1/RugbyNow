@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
-import { Agent } from "undici";
+
+// Local workaround for intercepted TLS/corporate filtering during development.
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey =
@@ -9,15 +11,6 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error("Missing Supabase server env vars");
 }
 
-const insecureAgent = new Agent({
-  connect: {
-    rejectUnauthorized: false,
-  },
-});
-
 export const serverSupabase = createClient(supabaseUrl, supabaseKey, {
   auth: { persistSession: false },
-  global: {
-    fetch: (input, init) => fetch(input, { ...init, dispatcher: insecureAgent }),
-  },
 });

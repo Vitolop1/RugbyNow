@@ -119,6 +119,27 @@ const I18N: Record<Lang, Record<string, string>> = {
     matches: "Matchs",
     error: "Erreur",
   },
+  it: {
+    leagues: "Leghe",
+    league: "Lega",
+    season: "Stagione",
+    round: "Giornata",
+    standings: "Classifica",
+    loadingLeague: "Caricamento lega...",
+    loadingMatches: "Caricamento partite...",
+    noMatchesSeason: "Non ci sono ancora partite caricate per questa stagione.",
+    noMatchesRound: "Nessuna partita in questa giornata.",
+    comingSoon: "Prossimamente.",
+    tz: "TZ",
+    playoffs: "Playoff",
+    relegation: "Retrocessione",
+    computedFromFT: "Calcolato dalle partite FT",
+    openLeague: "Apri lega ->",
+    openLeaguesBtn: "Leghe",
+    close: "Chiudi",
+    matches: "Partite",
+    error: "Errore",
+  },
 };
 
 function LeagueLogo({

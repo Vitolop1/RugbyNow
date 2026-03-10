@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-export type Lang = "en" | "es" | "fr";
+export type Lang = "en" | "es" | "fr" | "it";
 
 const DEFAULT_TZ = "America/New_York";
 
 function readLang(): Lang {
   const v = localStorage.getItem("lang");
-  return v === "en" || v === "es" || v === "fr" ? v : "en";
+  return v === "en" || v === "es" || v === "fr" || v === "it" ? v : "en";
 }
 
 function readTZ(): string {

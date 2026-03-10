@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
+import { t } from "@/lib/i18n";
 import { usePrefs, type Lang } from "@/lib/usePrefs";
 
 type Props = {
@@ -10,9 +11,9 @@ type Props = {
   subtitle?: string;
   showTabs?: boolean;
   tab?: "ALL" | "LIVE";
-  setTab?: (t: "ALL" | "LIVE") => void;
+  setTab?: (tab: "ALL" | "LIVE") => void;
   lang?: Lang;
-  onLangChange?: (l: Lang) => void;
+  onLangChange?: (lang: Lang) => void;
 };
 
 function formatTodayTZ(now: Date, timeZone: string) {
@@ -52,6 +53,7 @@ export default function AppHeader({
 
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
   const effectiveLang = langProp ?? lang;
+  const tr = (key: string) => t(effectiveLang, key);
 
   useEffect(() => {
     const tick = () => setNowTick(Date.now());
@@ -68,13 +70,13 @@ export default function AppHeader({
   const centerTitle = title ? (
     <div className="text-center select-none text-white">
       <div className="min-w-0">
-        <div className="text-[18px] sm:text-[22px] font-extrabold truncate">{title}</div>
-        {subtitle ? <div className="text-[11px] text-white/75 truncate">{subtitle}</div> : null}
+        <div className="truncate text-[18px] font-extrabold sm:text-[22px]">{title}</div>
+        {subtitle ? <div className="truncate text-[11px] text-white/75">{subtitle}</div> : null}
       </div>
     </div>
   ) : (
     <Link href="/" className="block text-center select-none text-white">
-      <h1 className="text-[22px] sm:text-[26px] leading-none font-extrabold tracking-tight whitespace-nowrap">
+      <h1 className="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight sm:text-[26px]">
         Rugby<span className="text-emerald-300">Now</span>
       </h1>
     </Link>
@@ -82,17 +84,17 @@ export default function AppHeader({
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B3E28]/80 backdrop-blur">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-3">
+      <div className="mx-auto max-w-[1280px] px-4 py-3 sm:px-6">
         <div className="relative flex items-center">
-          <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="h-12 w-12 sm:h-[54px] sm:w-[54px] rounded-xl shadow overflow-hidden bg-black/20 border border-white/10 flex items-center justify-center">
+          <Link href="/" className="flex shrink-0 items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow sm:h-[54px] sm:w-[54px]">
               {logoOk ? (
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="RugbyNow logo"
                   width={54}
                   height={54}
-                  className="h-full w-full object-cover object-[52%_48%] scale-[1.14]"
+                  className="h-full w-full scale-[1.14] object-cover object-[52%_48%]"
                   onError={() => setLogoOk(false)}
                   priority
                 />
@@ -102,51 +104,54 @@ export default function AppHeader({
             </div>
           </Link>
 
-          <div className="absolute left-1/2 -translate-x-1/2 max-w-[70%] sm:max-w-[80%]">{centerTitle}</div>
+          <div className="absolute left-1/2 max-w-[70%] -translate-x-1/2 sm:max-w-[80%]">{centerTitle}</div>
 
           <div className="ml-auto flex items-center gap-2">
             <Link
               href="/leagues"
-              className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30"
+              className="hidden h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30 sm:inline-flex"
             >
-              Leagues
+              {tr("leagues")}
             </Link>
             <Link
               href="/weekly"
-              className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30"
+              className="hidden h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30 sm:inline-flex"
             >
-              Weekly
+              {tr("weekly")}
             </Link>
             <Link
               href="/about"
-              className="hidden sm:inline-flex h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30"
+              className="hidden h-9 items-center rounded-full border border-white/10 bg-black/20 px-3 text-xs font-extrabold text-white/90 hover:bg-black/30 sm:inline-flex"
             >
-              About
+              {tr("about")}
             </Link>
-            <div className="sm:hidden h-11 w-11" />
+            <div className="h-11 w-11 sm:hidden" />
           </div>
         </div>
 
-        <div className="mt-3 flex flex-col md:flex-row md:items-center gap-3">
-          <div className="relative flex items-center gap-2 flex-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch] h-9 w-full pr-12">
-            <div className="inline-flex items-center gap-2 h-9 rounded-full border border-white/10 bg-black/20 px-2 shrink-0">
+        <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="relative flex h-9 w-full flex-nowrap items-center gap-2 overflow-x-auto pr-12 [-webkit-overflow-scrolling:touch]">
+            <div className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2">
               <span className="text-sm" aria-hidden="true">
                 🌐
               </span>
               <select
                 value={effectiveLang}
                 onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
-                className="h-9 bg-transparent text-xs sm:text-sm font-semibold outline-none cursor-pointer text-white"
-                aria-label="Select language"
+                className="h-9 cursor-pointer bg-transparent text-xs font-semibold text-white outline-none sm:text-sm"
+                aria-label={tr("language")}
               >
                 <option className="text-black" value="en">
-                  EN
+                  🇺🇸 EN
                 </option>
                 <option className="text-black" value="es">
-                  ES
+                  🇪🇸 ES
                 </option>
                 <option className="text-black" value="fr">
-                  FR
+                  🇫🇷 FR
+                </option>
+                <option className="text-black" value="it">
+                  🇮🇹 IT
                 </option>
               </select>
             </div>
@@ -154,7 +159,7 @@ export default function AppHeader({
             <select
               value={timeZone}
               onChange={(e) => setTZEverywhere(e.target.value)}
-              className="h-9 px-2 rounded-full text-xs sm:text-sm border bg-black/20 border-white/10 text-white shrink-0 w-[140px] sm:w-auto"
+              className="h-9 w-[140px] shrink-0 rounded-full border border-white/10 bg-black/20 px-2 text-xs text-white sm:w-auto sm:text-sm"
               title="Timezone"
             >
               <option className="text-black" value="America/New_York">
@@ -178,46 +183,46 @@ export default function AppHeader({
             </select>
 
             {showTabs && tab && setTab ? (
-              <div className="inline-flex h-9 rounded-full border border-white/10 bg-black/20 overflow-hidden shrink-0">
+              <div className="inline-flex h-9 shrink-0 overflow-hidden rounded-full border border-white/10 bg-black/20">
                 <button
                   onClick={() => setTab("ALL")}
-                  className={`h-9 px-3 text-xs sm:text-sm font-semibold transition ${
-                    tab === "ALL" ? "bg-emerald-300 text-black" : "hover:bg-white/10 text-white"
+                  className={`h-9 px-3 text-xs font-semibold transition sm:text-sm ${
+                    tab === "ALL" ? "bg-emerald-300 text-black" : "text-white hover:bg-white/10"
                   }`}
                 >
-                  All
+                  {tr("all")}
                 </button>
                 <button
                   onClick={() => setTab("LIVE")}
-                  className={`h-9 px-3 text-xs sm:text-sm font-semibold transition ${
-                    tab === "LIVE" ? "bg-red-500 text-white" : "hover:bg-white/10 text-white"
+                  className={`h-9 px-3 text-xs font-semibold transition sm:text-sm ${
+                    tab === "LIVE" ? "bg-red-500 text-white" : "text-white hover:bg-white/10"
                   }`}
                 >
-                  Live
+                  {tr("live")}
                 </button>
               </div>
             ) : null}
 
             <button
               onClick={() => setThemeEverywhere(!dark)}
-              className="absolute right-0 top-0 h-9 w-9 rounded-full text-sm border bg-black/20 border-white/10 text-white flex items-center justify-center hover:bg-white/10"
+              className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/20 text-sm text-white hover:bg-white/10"
               title="Toggle theme"
             >
               {dark ? "☀️" : "🌙"}
             </button>
           </div>
 
-          <div className="hidden md:flex md:ml-auto items-center gap-3">
-            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-black/20 border-white/10 flex flex-col justify-center text-white">
-              <div className="text-[11px] font-semibold text-white/70">Today</div>
-              <div className="mt-1 text-base font-extrabold leading-tight truncate">
+          <div className="hidden items-center gap-3 md:ml-auto md:flex">
+            <div className="flex h-[56px] w-[190px] flex-col justify-center rounded-2xl border border-white/10 bg-black/20 px-4 py-2 text-white">
+              <div className="text-[11px] font-semibold text-white/70">{tr("today")}</div>
+              <div className="mt-1 truncate text-base font-extrabold leading-tight">
                 {mounted && now ? formatTodayTZ(now, timeZone) : ""}
               </div>
             </div>
 
-            <div className="w-[190px] h-[56px] px-4 py-2 rounded-2xl border bg-black/20 border-white/10 flex flex-col justify-center text-white">
-              <div className="text-[11px] font-semibold text-white/70">Time</div>
-              <div className="mt-1 text-base font-extrabold tabular-nums leading-tight">
+            <div className="flex h-[56px] w-[190px] flex-col justify-center rounded-2xl border border-white/10 bg-black/20 px-4 py-2 text-white">
+              <div className="text-[11px] font-semibold text-white/70">{tr("time")}</div>
+              <div className="mt-1 text-base font-extrabold leading-tight tabular-nums">
                 {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
                 <span className="ml-1 text-sm font-black text-white/80">
                   {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
@@ -226,7 +231,7 @@ export default function AppHeader({
             </div>
           </div>
 
-          <div className="md:hidden text-xs text-white/85">
+          <div className="text-xs text-white/85 md:hidden">
             {mounted && now ? (
               <span className="font-semibold">
                 {formatTodayTZ(now, timeZone)} • {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}

@@ -175,13 +175,13 @@ function detectStatusAndMinute(
     };
   }
 
+  if (sourcePage === "results" && hs !== null && as !== null) {
+    return { status: "FT" as MatchStatus, minute: null as number | null };
+  }
+
   const timeMatch = s.match(/\b\d{1,2}:\d{2}\b/);
   if (timeMatch) {
     return { status: "NS" as MatchStatus, minute: null as number | null };
-  }
-
-  if (sourcePage === "results" && hs !== null && as !== null) {
-    return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
   return { status: "NS" as MatchStatus, minute: null as number | null };
@@ -316,7 +316,7 @@ function seasonYearBounds(seasonName: string) {
   return { startYear: now, endYear: now };
 }
 
-async function getLatestSeasonIdByCompSlug(compSlug: string) {
+async function getSeasonCandidatesByCompSlug(compSlug: string) {
   const { data: comp, error: compErr } = await ensureSupabase()
     .from("competitions")
     .select("id,slug,name")
@@ -334,9 +334,44 @@ async function getLatestSeasonIdByCompSlug(compSlug: string) {
   if (seasonErr) throw seasonErr;
   if (!seasons || seasons.length === 0) throw new Error(`No seasons found for compSlug=${compSlug}`);
 
-  const best = seasons
+  return seasons
     .slice()
-    .sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0] as SeasonRow;
+    .sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name)) as SeasonRow[];
+}
+
+function pickSeasonForScrapedRows(seasons: SeasonRow[], rows: ScrapedRow[]) {
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const nowMs = Date.now();
+
+  let best = seasons[0];
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  for (const season of seasons) {
+    let score = 0;
+    let parsedCount = 0;
+
+    for (const row of rows) {
+      const inferred =
+        inferMatchDateFromRawText(row.dateLabel, season.name) ||
+        inferMatchDateFromRawText(row.rawText, season.name);
+      if (!inferred) continue;
+
+      parsedCount += 1;
+      const distanceDays = Math.abs(new Date(`${inferred}T00:00:00Z`).getTime() - nowMs) / (1000 * 60 * 60 * 24);
+      score += Math.max(0, 365 - distanceDays);
+
+      if (inferred <= todayIso) {
+        score += 20;
+      }
+    }
+
+    score += parsedCount * 100;
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = season;
+    }
+  }
 
   return { seasonId: best.id, seasonName: best.name };
 }
@@ -1272,14 +1307,7 @@ async function main() {
         continue;
       }
 
-      const seasonMeta = DRY_RUN
-        ? { seasonId: 0, seasonName: `dry-run-${new Date().getUTCFullYear()}` }
-        : await getLatestSeasonIdByCompSlug(compSlug);
-      const existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
-      const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
-
-      console.log(`\n== ${compSlug} (${seasonMeta.seasonName}) ==`);
-      console.log(`Existing matches in season: ${existingMatches.length}`);
+      const seasonCandidates = DRY_RUN ? [] : await getSeasonCandidatesByCompSlug(compSlug);
 
       const variants = buildFlashVariants(item.url);
       const scrapedAll: ScrapedRow[] = [];
@@ -1316,6 +1344,15 @@ async function main() {
       const scraped = dedupeScrapedRows(scrapedAll);
       console.log("Scraped rows total (deduped):", scraped.length);
 
+      const seasonMeta = DRY_RUN
+        ? { seasonId: 0, seasonName: `dry-run-${new Date().getUTCFullYear()}` }
+        : pickSeasonForScrapedRows(seasonCandidates, scraped);
+      const existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
+      const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
+
+      console.log(`\n== ${compSlug} (${seasonMeta.seasonName}) ==`);
+      console.log(`Existing matches in season: ${existingMatches.length}`);
+
       let updatedHere = 0;
       let insertedHere = 0;
       let skippedWithoutDate = 0;
@@ -1336,7 +1373,7 @@ async function main() {
         const hs = parseScore(row.hs);
         const as = parseScore(row.as);
         const parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
-        const round = parseRound(row.roundText);
+        const round = parseRound(row.roundText || row.rawText);
 
         let sourceKey: string | null = null;
         let target: DbMatchRow | null = null;

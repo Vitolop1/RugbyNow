@@ -1085,16 +1085,14 @@ function buildExistingIndexes(matches: DbMatchRow[]) {
   const bySourceKey = new Map<string, DbMatchRow>();
 
   for (const m of matches) {
-    const directKey = `${m.home_team_id}__${m.away_team_id}`;
-    const reverseKey = `${m.away_team_id}__${m.home_team_id}`;
+    const pairKey =
+      m.home_team_id < m.away_team_id
+        ? `${m.home_team_id}__${m.away_team_id}`
+        : `${m.away_team_id}__${m.home_team_id}`;
 
-    const arr1 = byTeams.get(directKey) || [];
+    const arr1 = byTeams.get(pairKey) || [];
     arr1.push(m);
-    byTeams.set(directKey, arr1);
-
-    const arr2 = byTeams.get(reverseKey) || [];
-    arr2.push(m);
-    byTeams.set(reverseKey, arr2);
+    byTeams.set(pairKey, arr1);
 
     if (m.source_event_key) {
       bySourceKey.set(m.source_event_key, m);
@@ -1189,13 +1187,13 @@ async function upsertStandingsCache(
   if (!rows.length) return;
   if (DRY_RUN) return;
 
-  const payload: Array<Record<string, unknown>> = [];
+  const payloadByTeam = new Map<number, Record<string, unknown>>();
 
   for (const row of rows) {
     const teamId = await getOrCreateTeamId(row.team, teamsMap, teamNamesNorm);
     if (!teamId) continue;
 
-    payload.push({
+    payloadByTeam.set(teamId, {
       season_id: seasonId,
       team_id: teamId,
       position: row.pos,
@@ -1211,6 +1209,7 @@ async function upsertStandingsCache(
     });
   }
 
+  const payload = Array.from(payloadByTeam.values());
   if (!payload.length) return;
 
   const { error } = await ensureSupabase()
@@ -1342,10 +1341,8 @@ async function main() {
         let sourceKey: string | null = null;
         let target: DbMatchRow | null = null;
 
-        const directKey = `${homeId}__${awayId}`;
-        const reverseKey = `${awayId}__${homeId}`;
-
-        const possible = byTeams.get(directKey) || byTeams.get(reverseKey) || [];
+        const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+        const possible = byTeams.get(pairKey) || [];
         if (possible.length > 0) {
           target = pickBestCandidate(possible);
         }

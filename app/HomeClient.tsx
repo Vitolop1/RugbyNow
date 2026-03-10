@@ -193,7 +193,12 @@ function dedupeBlock(block: LeagueBlock) {
   const matches: Match[] = [];
 
   for (const match of block.matches) {
-    const key = `${block.slug}|${match.timeLabel}|${match.home}|${match.away}|${match.status}|${match.hs ?? ""}|${match.as ?? ""}`;
+    const pair = [match.home, match.away].map((value) => value.trim().toLowerCase()).sort().join("|");
+    const scores =
+      match.hs == null && match.as == null
+        ? ""
+        : [match.hs ?? "", match.as ?? ""].map(String).sort().join("|");
+    const key = `${block.slug}|${match.timeLabel}|${pair}|${match.status}|${scores}`;
     if (seen.has(key)) continue;
     seen.add(key);
     matches.push(match);

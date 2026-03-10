@@ -103,6 +103,7 @@ type JsonlRow = {
   status: "NS" | "LIVE" | "FT";
   kickoff_time: string | null;
   match_date: string;
+  source_event_key?: string | null;
 };
 
 const COMPETITIONS: Competition[] = [
@@ -119,6 +120,35 @@ const COMPETITIONS: Competition[] = [
   { id: 11, name: "Major League Rugby", slug: "us-mlr", region: "USA", country_code: "US", group_name: "USA", sort_order: 1, is_featured: true },
   { id: 12, name: "Norte Grande", slug: "ar-liga-norte-grande", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 2, is_featured: false },
 ];
+
+const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
+  "ar-liga-norte-grande": [
+    { round: 1, home: "Universitario de Salta", away: "Tiro Federal de Salta", home_score: 31, away_score: 24, status: "FT", kickoff_time: "18:00:00", match_date: "2026-03-07" },
+    { round: 1, home: "Santiago Lawn Tennis Club", away: "Tigres RC", home_score: 28, away_score: 20, status: "FT", kickoff_time: "18:00:00", match_date: "2026-03-07" },
+    { round: 1, home: "Gimnasia y Tiro", away: "Jockey Club de Salta", home_score: 19, away_score: 22, status: "FT", kickoff_time: "18:00:00", match_date: "2026-03-07" },
+    { round: 1, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: 27, away_score: 23, status: "FT", kickoff_time: "18:00:00", match_date: "2026-03-07" },
+
+    { round: 2, home: "Universitario de Salta", away: "Tiro Federal de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-14" },
+    { round: 2, home: "Santiago Lawn Tennis Club", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-14" },
+    { round: 2, home: "Gimnasia y Tiro", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-14" },
+    { round: 2, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-14" },
+
+    { round: 3, home: "Old Lions RC", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-21" },
+    { round: 3, home: "Jockey Club de Salta", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-21" },
+    { round: 3, home: "Tigres RC", away: "Gimnasia y Tiro", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-21" },
+    { round: 3, home: "Tiro Federal de Salta", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-21" },
+
+    { round: 4, home: "Universitario de Salta", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-28" },
+    { round: 4, home: "Santiago Lawn Tennis Club", away: "Gimnasia y Tiro", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-28" },
+    { round: 4, home: "Tigres RC", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-28" },
+    { round: 4, home: "Tiro Federal de Salta", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-03-28" },
+
+    { round: 5, home: "Old Lions RC", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-04-04" },
+    { round: 5, home: "Jockey Club de Salta", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-04-04" },
+    { round: 5, home: "Gimnasia y Tiro", away: "Tiro Federal de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-04-04" },
+    { round: 5, home: "Santiago Rugby Club", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "18:00:00", match_date: "2026-04-04" },
+  ],
+};
 
 function norm(s: string) {
   return (s || "")
@@ -295,33 +325,81 @@ function loadDryRunDumps(): DryRunDump[] {
 
 function loadJsonlRowsByCompetition() {
   const logsDir = path.join(process.cwd(), "logs");
-  if (!fs.existsSync(logsDir)) return new Map<string, JsonlRow[]>();
+  const out = new Map<string, JsonlRow[]>(
+    Object.entries(STATIC_JSONL_ROWS).map(([competition, rows]) => [competition, rows.slice()])
+  );
 
-  const latestByCompetition = new Map<string, string>();
+  if (!fs.existsSync(logsDir)) return out;
+
+  const latestByCompetition = new Map<string, { file: string; stamp: string }>();
 
   for (const file of fs.readdirSync(logsDir)) {
-    const match = file.match(/^flashscore_(.+?)_\d{4}-\d{4}_.*\.jsonl$/i);
+    const match = file.match(/^flashscore_(.+?)_\d{4}-\d{4}_(.*)\.jsonl$/i);
     if (!match) continue;
-    latestByCompetition.set(match[1], path.join(logsDir, file));
+    const competition = match[1];
+    const stamp = match[2];
+    const current = latestByCompetition.get(competition);
+    if (!current || stamp > current.stamp) {
+      latestByCompetition.set(competition, { file: path.join(logsDir, file), stamp });
+    }
   }
 
-  const out = new Map<string, JsonlRow[]>();
-
-  for (const [competition, file] of latestByCompetition.entries()) {
+  for (const [competition, entry] of latestByCompetition.entries()) {
     try {
       const rows = fs
-        .readFileSync(file, "utf8")
+        .readFileSync(entry.file, "utf8")
         .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => JSON.parse(line) as JsonlRow);
-      out.set(competition, rows);
+      out.set(competition, dedupeJsonlRows(rows));
     } catch {
-      out.set(competition, []);
+      if (!out.has(competition)) out.set(competition, []);
     }
   }
 
   return out;
+}
+
+function compareJsonlPreference(a: JsonlRow, b: JsonlRow) {
+  const score = (row: JsonlRow) => {
+    let value = 0;
+    if (row.status === "FT") value += 8;
+    else if (row.status === "LIVE") value += 4;
+    if (row.home_score != null || row.away_score != null) value += 2;
+    if (row.round != null) value += 1;
+    return value;
+  };
+
+  return score(b) - score(a);
+}
+
+function canonicalJsonlKey(row: JsonlRow) {
+  if (row.source_event_key) return row.source_event_key;
+
+  const teams = [norm(row.home), norm(row.away)].sort().join("|");
+  const kickoff = row.kickoff_time ?? "";
+  return `${row.match_date}|${kickoff}|${teams}`;
+}
+
+function dedupeJsonlRows(rows: JsonlRow[]) {
+  const bestByKey = new Map<string, JsonlRow>();
+
+  for (const row of rows) {
+    const key = canonicalJsonlKey(row);
+    const existing = bestByKey.get(key);
+    if (!existing || compareJsonlPreference(existing, row) > 0) {
+      bestByKey.set(key, row);
+    }
+  }
+
+  return Array.from(bestByKey.values()).sort((a, b) => {
+    if (a.match_date !== b.match_date) return a.match_date.localeCompare(b.match_date);
+    if ((a.kickoff_time ?? "") !== (b.kickoff_time ?? "")) {
+      return (a.kickoff_time ?? "").localeCompare(b.kickoff_time ?? "");
+    }
+    return `${a.home}|${a.away}`.localeCompare(`${b.home}|${b.away}`);
+  });
 }
 
 function assignDerivedRounds(matches: LeagueMatchRow[]) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
+import { getFallbackMatchesByDate } from "@/lib/fallbackData";
 
 export async function GET(request: NextRequest) {
   const date = request.nextUrl.searchParams.get("date");
@@ -8,32 +9,36 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid or missing date" }, { status: 400 });
   }
 
-  const { data, error } = await serverSupabase
-    .from("matches")
-    .select(`
-      id,
-      match_date,
-      kickoff_time,
-      status,
-      minute,
-      home_score,
-      away_score,
-      home_team:home_team_id ( id, name, slug ),
-      away_team:away_team_id ( id, name, slug ),
-      season:season_id (
-        competition:competition_id ( name, slug, region )
-      )
-    `)
-    .eq("match_date", date)
-    .order("kickoff_time", { ascending: true })
-    .limit(2000);
+  try {
+    const { data, error } = await serverSupabase
+      .from("matches")
+      .select(`
+        id,
+        match_date,
+        kickoff_time,
+        status,
+        minute,
+        home_score,
+        away_score,
+        home_team:home_team_id ( id, name, slug ),
+        away_team:away_team_id ( id, name, slug ),
+        season:season_id (
+          competition:competition_id ( name, slug, region )
+        )
+      `)
+      .eq("match_date", date)
+      .order("kickoff_time", { ascending: true })
+      .limit(2000);
 
-  if (error) {
-    return NextResponse.json(
-      { error: error.message || "Failed to load matches" },
-      { status: 500 }
-    );
+    if (error) throw error;
+
+    return NextResponse.json({ matches: data || [], source: "supabase" });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({
+      matches: getFallbackMatchesByDate(date),
+      source: "fallback",
+      warning: message,
+    });
   }
-
-  return NextResponse.json({ matches: data || [] });
 }

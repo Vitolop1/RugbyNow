@@ -418,9 +418,13 @@ export default function HomeClient() {
           </span>
         </button>
 
-        <main className={`w-full px-4 py-6 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
+        <main
+          className={`w-full overflow-x-clip px-4 py-6 sm:px-6 xl:pr-[348px] ${
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"
+          }`}
+        >
           <aside
-            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[380px] space-y-4 overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[calc(100vw-2rem)] max-w-[380px] space-y-4 overflow-x-hidden overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
             } transition-all duration-300`}
           >
@@ -496,13 +500,13 @@ export default function HomeClient() {
                 <div className="rounded-2xl border border-white/15 bg-black/20 p-4 backdrop-blur">
                   <div className="mb-4 text-sm font-semibold text-white/90">{tr("dates")}</div>
 
-                  <div className="grid gap-3 lg:grid-cols-[150px_minmax(0,1fr)_150px]">
+                  <div className="grid grid-cols-[72px_minmax(0,1fr)_72px] gap-3 lg:grid-cols-[150px_minmax(0,1fr)_150px]">
                     <button
                       onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
-                      className="flex min-h-[72px] items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 transition hover:bg-white/15"
+                      className="flex min-h-[72px] items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-2 py-3 transition hover:bg-white/15 lg:gap-3 lg:px-4"
                     >
                       <span className="text-3xl font-black text-white">←</span>
-                      <span className="flex flex-col text-left">
+                      <span className="hidden flex-col text-left lg:flex">
                         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">{tr("goTo")}</span>
                         <span className="text-lg font-extrabold text-white">{tr("yesterday")}</span>
                       </span>
@@ -517,7 +521,7 @@ export default function HomeClient() {
                         datePickerRef.current?.focus();
                         datePickerRef.current?.click();
                       }}
-                      className={`flex min-h-[72px] flex-col items-center justify-center rounded-2xl border px-4 py-3 transition ${
+                      className={`flex min-h-[72px] min-w-0 flex-col items-center justify-center rounded-2xl border px-3 py-3 transition lg:px-4 ${
                         isSameDay(selectedDate, todayLocal)
                           ? "border-emerald-300/35 bg-emerald-400/20 text-white"
                           : "border-white/15 bg-white/10 text-white hover:bg-white/15"
@@ -526,14 +530,16 @@ export default function HomeClient() {
                       <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/55">
                         {isSameDay(selectedDate, todayLocal) ? tr("weAreOn") : tr("standingOn")}
                       </span>
-                      <span className="mt-1 text-center text-2xl font-black leading-tight lg:text-3xl">{dateHeroLabel}</span>
+                      <span className="mt-1 line-clamp-2 text-center text-xl font-black leading-tight sm:text-2xl lg:text-3xl">
+                        {dateHeroLabel}
+                      </span>
                     </button>
 
                     <button
                       onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, 1)))}
-                      className="flex min-h-[72px] items-center justify-center gap-3 rounded-2xl border border-emerald-300/30 bg-emerald-400/25 px-4 py-3 transition hover:bg-emerald-400/35"
+                      className="flex min-h-[72px] items-center justify-center rounded-2xl border border-emerald-300/30 bg-emerald-400/25 px-2 py-3 transition hover:bg-emerald-400/35 lg:gap-3 lg:px-4"
                     >
-                      <span className="flex flex-col text-right">
+                      <span className="hidden flex-col text-right lg:flex">
                         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/60">{tr("goTo")}</span>
                         <span className="text-lg font-extrabold text-white">{tr("tomorrow")}</span>
                       </span>

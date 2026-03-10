@@ -14,6 +14,22 @@ type StandingsAccumulator = {
   pf: number;
   pa: number;
   pts: number;
+  form?: Array<"W" | "D" | "L">;
+};
+
+type StandingCacheRow = {
+  position: number | null;
+  played: number | null;
+  won: number | null;
+  drawn: number | null;
+  lost: number | null;
+  points_for: number | null;
+  points_against: number | null;
+  points: number | null;
+  team:
+    | { id: number; name: string; slug: string | null }
+    | { id: number; name: string; slug: string | null }[]
+    | null;
 };
 
 type SeasonRow = {
@@ -155,6 +171,39 @@ function pickAutoRound(
   return roundMeta[roundMeta.length - 1]?.round ?? null;
 }
 
+function buildRecentForm(rows: MatchRow[]) {
+  const formMap = new Map<number, Array<"W" | "D" | "L">>();
+  const sorted = rows
+    .filter((item) => item.status === "FT" && item.home_score != null && item.away_score != null)
+    .slice()
+    .sort(
+      (a, b) =>
+        b.match_date.localeCompare(a.match_date) ||
+        String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
+    );
+
+  for (const row of sorted) {
+    const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
+    const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
+    if (!home?.id || !away?.id || row.home_score == null || row.away_score == null) continue;
+
+    const homeForm = formMap.get(home.id) || [];
+    const awayForm = formMap.get(away.id) || [];
+
+    if (homeForm.length < 5) {
+      homeForm.push(row.home_score > row.away_score ? "W" : row.home_score < row.away_score ? "L" : "D");
+      formMap.set(home.id, homeForm);
+    }
+
+    if (awayForm.length < 5) {
+      awayForm.push(row.away_score > row.home_score ? "W" : row.away_score < row.home_score ? "L" : "D");
+      formMap.set(away.id, awayForm);
+    }
+  }
+
+  return formMap;
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ slug: string }> }
@@ -233,6 +282,7 @@ export async function GET(
         ? []
         : detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound);
 
+    const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
     for (const row of detailedMatches.filter((item) => item.status === "FT")) {
       const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
@@ -251,9 +301,46 @@ export async function GET(
       else { h.d += 1; a.d += 1; h.pts += 2; a.pts += 2; }
     }
 
-    const standings = Array.from(table.values())
+    const computedStandings = Array.from(table.values())
       .sort((a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team))
-      .map((row, index) => ({ ...row, position: index + 1, badge: null }));
+      .map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
+
+    const { data: standingsCache, error: standingsCacheError } = await serverSupabase
+      .from("standings_cache")
+      .select(`
+        position, played, won, drawn, lost, points_for, points_against, points,
+        team:team_id ( id, name, slug )
+      `)
+      .eq("season_id", season.id)
+      .eq("source", "flashscore")
+      .order("position", { ascending: true });
+
+    if (standingsCacheError) throw standingsCacheError;
+
+    const standings =
+      (standingsCache || []).length > 0
+        ? ((standingsCache as StandingCacheRow[])
+            .map((row, index) => {
+              const team = Array.isArray(row.team) ? row.team[0] : row.team;
+              if (!team) return null;
+              return {
+                position: row.position ?? index + 1,
+                teamId: team.id,
+                team: team.name,
+                teamSlug: team.slug ?? null,
+                pj: row.played ?? 0,
+                w: row.won ?? 0,
+                d: row.drawn ?? 0,
+                l: row.lost ?? 0,
+                pf: row.points_for ?? 0,
+                pa: row.points_against ?? 0,
+                pts: row.points ?? 0,
+                badge: null,
+                form: recentForm.get(team.id) ?? [],
+              } satisfies StandingsAccumulator & { position: number; badge: null };
+            })
+            .filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>)
+        : computedStandings;
 
     return NextResponse.json({
       competition,
@@ -263,6 +350,7 @@ export async function GET(
       selectedRound,
       matches: matches || [],
       standings,
+      standingsSource: (standingsCache || []).length > 0 ? "cache" : "computed",
       source: "supabase",
     });
   } catch (error) {

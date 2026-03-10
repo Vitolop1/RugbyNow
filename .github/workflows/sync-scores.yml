@@ -1,12 +1,15 @@
-name: sync-scores (every 5m)
+name: sync-scores (every 30m)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
 
 concurrency:
-  group: rugby-now-sync
+  group: rugby-now-sync-full
   cancel-in-progress: true
 
 jobs:
@@ -29,3 +32,18 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: npx tsx scripts/sync-flashscore.ts
+
+      - name: Export Supabase snapshot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run export:supabase-snapshot
+
+      - name: Commit snapshot if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/supabase-snapshot.json
+          git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
+          git commit -m "Update Supabase snapshot [skip ci]"
+          git push

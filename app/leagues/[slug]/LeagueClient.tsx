@@ -51,6 +51,7 @@ type StandingRow = {
   pa: number;
   pts: number;
   badge?: string | null;
+  form?: Array<"W" | "D" | "L">;
 };
 
 type RoundMeta = {
@@ -69,9 +70,27 @@ type LeaguePayload = {
   selectedRound: number | null;
   matches: LeagueMatch[];
   standings: StandingRow[];
+  standingsSource?: "cache" | "computed";
   source?: string;
   warning?: string;
 };
+
+function FormPill({ value }: { value: "W" | "D" | "L" }) {
+  const cls =
+    value === "W"
+      ? "bg-green-500/90 text-white"
+      : value === "D"
+        ? "bg-amber-400/90 text-black"
+        : "bg-red-500/90 text-white";
+  return (
+    <span
+      className={`inline-flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-black ${cls}`}
+      title={value}
+    >
+      {value}
+    </span>
+  );
+}
 
 function countryCodeToFlag(code?: string | null) {
   if (!code || code.length !== 2) return null;
@@ -551,7 +570,9 @@ export default function LeagueClient() {
                       <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
                         <div>
                           <div className="text-xl font-bold text-white">{tr("standings")}</div>
-                          <div className="mt-1 text-sm text-white/70">{tr("computedFromFT")}</div>
+                          <div className="mt-1 text-sm text-white/70">
+                            {data.standingsSource === "cache" ? tr("scrapedStandings") : tr("computedFromFT")}
+                          </div>
                         </div>
                         <div className="text-sm text-white/70">
                           {tr("seasonLabel")}: {seasonName}
@@ -570,6 +591,7 @@ export default function LeagueClient() {
                               <th className="px-3 py-3 text-right">L</th>
                               <th className="px-3 py-3 text-right">PF</th>
                               <th className="px-3 py-3 text-right">PA</th>
+                              <th className="px-3 py-3 text-center">{tr("recentForm")}</th>
                               <th className="px-4 py-3 text-right">PTS</th>
                             </tr>
                           </thead>
@@ -589,6 +611,13 @@ export default function LeagueClient() {
                                 <td className="px-3 py-3 text-right">{row.l}</td>
                                 <td className="px-3 py-3 text-right">{row.pf}</td>
                                 <td className="px-3 py-3 text-right">{row.pa}</td>
+                                <td className="px-3 py-3">
+                                  <div className="flex items-center justify-center gap-1">
+                                    {(row.form || []).map((value, index) => (
+                                      <FormPill key={`${row.teamId}-${index}-${value}`} value={value} />
+                                    ))}
+                                  </div>
+                                </td>
                                 <td className="px-4 py-3 text-right font-extrabold text-white">{row.pts}</td>
                               </tr>
                             ))}

@@ -40,12 +40,28 @@ type SnapshotMatch = {
   away_team_id: number | null;
 };
 
+type SnapshotStandingCache = {
+  season_id: number;
+  team_id: number;
+  position: number | null;
+  played: number | null;
+  won: number | null;
+  drawn: number | null;
+  lost: number | null;
+  points_for: number | null;
+  points_against: number | null;
+  points: number | null;
+  source?: string | null;
+  updated_at?: string | null;
+};
+
 type SnapshotPayload = {
   generatedAt: string;
   competitions: SnapshotCompetition[];
   seasons: SnapshotSeason[];
   teams: SnapshotTeam[];
   matches: SnapshotMatch[];
+  standings_cache: SnapshotStandingCache[];
 };
 
 type HomeMatchRow = {
@@ -94,6 +110,7 @@ type LeagueStandingRow = {
   pts: number;
   position?: number;
   badge?: "champions" | "europe" | "relegation" | null;
+  form?: Array<"W" | "D" | "L">;
 };
 
 type RoundMeta = {
@@ -315,9 +332,10 @@ function pickAutoRound(roundMeta: RoundMeta[], refISO: string) {
   return roundMeta[roundMeta.length - 1]?.round ?? null;
 }
 
-function buildStandings(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {
+function buildStandingsFromMatches(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {
   const teams = getTeamMap(snapshot);
   const table = new Map<number, LeagueStandingRow>();
+  const recentForm = buildRecentForm(snapshot, matches);
 
   for (const row of matches.filter((match) => match.status === "FT")) {
     const home = row.home_team_id ? teams.get(row.home_team_id) ?? null : null;
@@ -386,7 +404,81 @@ function buildStandings(snapshot: SnapshotPayload, matches: SnapshotMatch[]): Le
     .sort(
       (a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team)
     )
-    .map((row, index) => ({ ...row, position: index + 1, badge: null }));
+    .map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
+}
+
+function buildRecentForm(snapshot: SnapshotPayload, matches: SnapshotMatch[]) {
+  const teams = getTeamMap(snapshot);
+  const formMap = new Map<number, Array<"W" | "D" | "L">>();
+
+  const sorted = matches
+    .filter((match) => match.status === "FT" && match.home_score != null && match.away_score != null)
+    .slice()
+    .sort(
+      (a, b) =>
+        b.match_date.localeCompare(a.match_date) || String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
+    );
+
+  for (const row of sorted) {
+    const home = row.home_team_id ? teams.get(row.home_team_id) ?? null : null;
+    const away = row.away_team_id ? teams.get(row.away_team_id) ?? null : null;
+    if (!home || !away || row.home_score == null || row.away_score == null) continue;
+
+    const homeForm = formMap.get(home.id) || [];
+    const awayForm = formMap.get(away.id) || [];
+
+    if (homeForm.length < 5) {
+      homeForm.push(row.home_score > row.away_score ? "W" : row.home_score < row.away_score ? "L" : "D");
+      formMap.set(home.id, homeForm);
+    }
+
+    if (awayForm.length < 5) {
+      awayForm.push(row.away_score > row.home_score ? "W" : row.away_score < row.home_score ? "L" : "D");
+      formMap.set(away.id, awayForm);
+    }
+  }
+
+  return formMap;
+}
+
+function buildStandingsCache(snapshot: SnapshotPayload, seasonId: number, matches: SnapshotMatch[]) {
+  const teams = getTeamMap(snapshot);
+  const rows = (snapshot.standings_cache || [])
+    .filter((row) => row.season_id === seasonId)
+    .slice()
+    .sort((a, b) => {
+      const posA = a.position ?? 999;
+      const posB = b.position ?? 999;
+      if (posA !== posB) return posA - posB;
+      return (b.points ?? 0) - (a.points ?? 0);
+    });
+
+  if (!rows.length) return null;
+
+  const recentForm = buildRecentForm(snapshot, matches);
+
+  return rows
+    .map((row, index) => {
+      const team = teams.get(row.team_id);
+      if (!team) return null;
+
+      return {
+        teamId: row.team_id,
+        team: team.name,
+        teamSlug: team.slug ?? null,
+        pj: row.played ?? 0,
+        w: row.won ?? 0,
+        d: row.drawn ?? 0,
+        l: row.lost ?? 0,
+        pf: row.points_for ?? 0,
+        pa: row.points_against ?? 0,
+        pts: row.points ?? 0,
+        position: row.position ?? index + 1,
+        badge: null,
+        form: recentForm.get(row.team_id) ?? [],
+      } satisfies LeagueStandingRow;
+    })
+    .filter(Boolean) as LeagueStandingRow[];
 }
 
 export function getSnapshotCompetitions() {
@@ -447,6 +539,8 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
     .map((match) => hydrateLeagueMatch(snapshot, match))
     .filter((match): match is LeagueMatchRow => Boolean(match));
 
+  const cachedStandings = buildStandingsCache(snapshot, season.id, seasonMatches);
+
   return {
     competition,
     season,
@@ -454,7 +548,8 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
     roundMeta,
     selectedRound,
     matches,
-    standings: buildStandings(snapshot, seasonMatches),
+    standings: cachedStandings ?? buildStandingsFromMatches(snapshot, seasonMatches),
+    standingsSource: cachedStandings ? "cache" : "computed",
     generatedAt: snapshot.generatedAt,
   };
 }

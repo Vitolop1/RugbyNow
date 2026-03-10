@@ -22,6 +22,7 @@ async function main() {
     { data: seasons, error: seasonsError },
     { data: teams, error: teamsError },
     { data: matches, error: matchesError },
+    { data: standingsCache, error: standingsCacheError },
   ] = await Promise.all([
     supabase
       .from("competitions")
@@ -33,12 +34,16 @@ async function main() {
       .select(
         "id,season_id,match_date,kickoff_time,status,minute,home_score,away_score,round,venue,home_team_id,away_team_id"
       ),
+    supabase
+      .from("standings_cache")
+      .select("season_id,team_id,position,played,won,drawn,lost,points_for,points_against,points,source,updated_at"),
   ]);
 
   if (competitionsError) throw competitionsError;
   if (seasonsError) throw seasonsError;
   if (teamsError) throw teamsError;
   if (matchesError) throw matchesError;
+  if (standingsCacheError) throw standingsCacheError;
 
   const dir = path.join(process.cwd(), "data");
   fs.mkdirSync(dir, { recursive: true });
@@ -53,6 +58,7 @@ async function main() {
         seasons: seasons || [],
         teams: teams || [],
         matches: matches || [],
+        standings_cache: standingsCache || [],
       },
       null,
       2
@@ -61,7 +67,7 @@ async function main() {
   );
 
   console.log(
-    `Snapshot written: competitions=${competitions?.length ?? 0}, seasons=${seasons?.length ?? 0}, teams=${teams?.length ?? 0}, matches=${matches?.length ?? 0}`
+    `Snapshot written: competitions=${competitions?.length ?? 0}, seasons=${seasons?.length ?? 0}, teams=${teams?.length ?? 0}, matches=${matches?.length ?? 0}, standings_cache=${standingsCache?.length ?? 0}`
   );
   console.log(file);
 }

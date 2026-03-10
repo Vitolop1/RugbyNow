@@ -727,18 +727,22 @@ function buildSourceEventKey(params: {
   );
 }
 
-function dateDistanceDays(isoDate: string) {
+function dateDistanceDays(isoDate: string, referenceIsoDate?: string | null) {
   const d = new Date(`${isoDate}T00:00:00Z`).getTime();
-  const now = Date.now();
-  return Math.abs(d - now) / (1000 * 60 * 60 * 24);
+  const ref = referenceIsoDate ? new Date(`${referenceIsoDate}T00:00:00Z`).getTime() : Date.now();
+  return Math.abs(d - ref) / (1000 * 60 * 60 * 24);
 }
 
-function pickBestCandidate(possible: DbMatchRow[]) {
+function pickBestCandidate(possible: DbMatchRow[], referenceIsoDate?: string | null, kickoffTime?: string | null) {
   return possible
     .slice()
     .sort((a, b) => {
-      const da = dateDistanceDays(a.match_date);
-      const db = dateDistanceDays(b.match_date);
+      const kickoffBonusA =
+        kickoffTime && a.kickoff_time && a.kickoff_time.slice(0, 5) === kickoffTime.slice(0, 5) ? -0.5 : 0;
+      const kickoffBonusB =
+        kickoffTime && b.kickoff_time && b.kickoff_time.slice(0, 5) === kickoffTime.slice(0, 5) ? -0.5 : 0;
+      const da = dateDistanceDays(a.match_date, referenceIsoDate) + kickoffBonusA;
+      const db = dateDistanceDays(b.match_date, referenceIsoDate) + kickoffBonusB;
       if (da !== db) return da - db;
       if (a.status === "FT" && b.status !== "FT") return -1;
       if (b.status === "FT" && a.status !== "FT") return 1;
@@ -1375,22 +1379,11 @@ async function main() {
         const parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
         const round = parseRound(row.roundText || row.rawText);
 
-        let sourceKey: string | null = null;
-        let target: DbMatchRow | null = null;
-
-        const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
-        const possible = byTeams.get(pairKey) || [];
-        if (possible.length > 0) {
-          target = pickBestCandidate(possible);
-        }
-
         const inferredDate =
           inferMatchDateFromRawText(row.dateLabel, seasonMeta.seasonName) ||
           inferMatchDateFromRawText(row.rawText, seasonMeta.seasonName);
 
-        const matchDate = target?.match_date || inferredDate;
-
-        if (!matchDate) {
+        if (!inferredDate) {
           if (skippedWithoutDate < 10) {
             console.log("NO DATE:", {
               home: row.home,
@@ -1403,7 +1396,10 @@ async function main() {
           continue;
         }
 
-        const kickoffTime = target?.kickoff_time || parseKickoffTime(row.rawText);
+        let sourceKey: string | null = null;
+        let target: DbMatchRow | null = null;
+        const kickoffTime = parseKickoffTime(row.rawText);
+        const matchDate = inferredDate;
 
         sourceKey = buildSourceEventKey({
           compSlug,
@@ -1416,6 +1412,19 @@ async function main() {
 
         if (bySourceKey.has(sourceKey)) {
           target = bySourceKey.get(sourceKey)!;
+        }
+
+        if (!target) {
+          const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+          const possible = (byTeams.get(pairKey) || []).filter((candidate) => {
+            if (candidate.match_date !== matchDate) return false;
+            if (!kickoffTime || !candidate.kickoff_time) return true;
+            return candidate.kickoff_time.slice(0, 5) === kickoffTime.slice(0, 5);
+          });
+
+          if (possible.length > 0) {
+            target = pickBestCandidate(possible, matchDate, kickoffTime);
+          }
         }
 
         if (target?.status === "FT" && parsed.status === "NS") {

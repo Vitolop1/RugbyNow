@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -60,6 +60,13 @@ export default function AdSlot({
   fallbackSubtitle,
 }: AdSlotProps) {
   const pushedRef = useRef(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const host = window.location.hostname;
+    setIsLocalhost(host === "localhost" || host === "127.0.0.1");
+  }, []);
 
   useEffect(() => {
     if (!slot || pushedRef.current) return;
@@ -90,13 +97,21 @@ export default function AdSlot({
       className={`overflow-hidden rounded-2xl border border-dashed border-emerald-200/25 bg-black/10 backdrop-blur ${className ?? ""}`}
       style={{ minHeight }}
     >
+      {isLocalhost ? (
+        <AdFallback
+          title={fallbackTitle}
+          subtitle="En localhost AdSense suele no servir anuncios reales. Verificalo en produccion o preview."
+          minHeight={minHeight}
+        />
+      ) : null}
       <ins
-        className="adsbygoogle block h-full w-full"
+        className={`adsbygoogle block h-full w-full ${isLocalhost ? "opacity-0 pointer-events-none absolute inset-0" : ""}`}
         style={{ display: "block", minHeight }}
         data-ad-client="ca-pub-4088690490762441"
         data-ad-slot={slot}
         data-ad-format={adFormat}
         data-full-width-responsive={format === "horizontal" ? "true" : "false"}
+        data-adtest={isLocalhost ? "on" : undefined}
       />
     </div>
   );

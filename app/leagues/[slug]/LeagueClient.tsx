@@ -222,6 +222,16 @@ function formatDateShortTZ(iso: string, timeZone: string) {
   }).format(dt);
 }
 
+function formatRoundMiniDate(iso: string, timeZone: string) {
+  const { y, m, d } = parseISODateParts(iso);
+  const dt = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1, 0, 0, 0));
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    day: "numeric",
+    timeZone,
+  }).format(dt);
+}
+
 function formatKickoffInTZ(match_date: string, kickoff_time: string | null, timeZone: string) {
   if (!kickoff_time) return "TBD";
   const { y, m, d } = parseISODateParts(match_date);
@@ -502,7 +512,7 @@ export default function LeagueClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className="fixed left-4 top-[124px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
+          className="fixed left-4 top-[148px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
         >
           <span className="flex flex-col gap-1.5">
@@ -513,12 +523,12 @@ export default function LeagueClient() {
         </button>
 
         <main
-          className={`mx-auto max-w-[1280px] px-4 sm:px-6 py-6 transition-[padding] duration-300 ${
-            sidebarOpen ? "lg:pl-[390px]" : "lg:pl-6"
+          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[324px] ${
+            sidebarOpen ? "xl:pl-[364px]" : "xl:pl-[88px]"
           }`}
         >
           {sidebarOpen ? (
-          <aside className="fixed left-4 top-[188px] z-30 w-[340px] h-[calc(100vh-220px)] overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 text-white space-y-4">
+          <aside className="fixed left-4 top-[212px] z-30 w-[340px] h-[calc(100vh-244px)] overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 text-white space-y-4">
             <div>
               <div className="text-sm font-semibold text-white/80">{t("league")}</div>
               <div className="mt-2 flex items-center gap-3 min-w-0">
@@ -530,7 +540,7 @@ export default function LeagueClient() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-white/15 bg-white/10 p-3">
+            <div className="hidden rounded-xl border border-white/15 bg-white/10 p-3">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="text-sm font-semibold text-white/85">{t("round")}</div>
                 <div className="text-xs text-white/70">
@@ -730,6 +740,64 @@ export default function LeagueClient() {
           ) : null}
 
           <section className="space-y-4 min-w-0 text-white">
+            <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div>
+                  <div className="text-sm font-semibold text-white/85">{t("round")}</div>
+                  <div className="text-xs text-white/70 mt-1">
+                    {t("season")}: <span className="font-semibold">{season?.name ?? "â€”"}</span>
+                  </div>
+                </div>
+                <div className="text-xs text-white/70">{selectedRound != null ? `#${selectedRound}` : "â€”"}</div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => selectedIdx > 0 && setSelectedRound(roundsList[selectedIdx - 1])}
+                  disabled={selectedIdx <= 0}
+                  className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 disabled:opacity-40 text-white"
+                >
+                  â†
+                </button>
+
+                <div className="flex-1 overflow-x-auto">
+                  <div className="flex gap-1.5 pb-1">
+                    {roundMeta.map((meta) => {
+                      const active = selectedRound === meta.round;
+                      return (
+                        <button
+                          key={`main-round-${meta.round}`}
+                          onClick={() => setSelectedRound(meta.round)}
+                          className={`min-w-[44px] shrink-0 rounded-2xl px-2 py-1.5 text-xs font-semibold border transition flex flex-col items-center justify-center tabular-nums ${
+                            active
+                              ? "bg-emerald-400 text-black border-emerald-300"
+                              : "bg-white/10 border-white/15 hover:bg-white/15 text-white"
+                          }`}
+                        >
+                          <span className="text-sm leading-none font-extrabold">{meta.round}</span>
+                          <span className={`mt-1 text-[10px] leading-none ${active ? "text-black/70" : "text-white/65"}`}>
+                            {formatRoundMiniDate(meta.first_date, timeZone)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() =>
+                    selectedIdx >= 0 &&
+                    selectedIdx < roundsList.length - 1 &&
+                    setSelectedRound(roundsList[selectedIdx + 1])
+                  }
+                  disabled={selectedIdx < 0 || selectedIdx >= roundsList.length - 1}
+                  className="px-2 py-1 rounded-lg text-xs font-extrabold border border-emerald-300 bg-emerald-400 text-black hover:bg-emerald-300 disabled:opacity-40"
+                >
+                  â†’
+                </button>
+              </div>
+            </div>
+
             <div>
               <h2 className="text-xl font-bold">{t("matches")}</h2>
               <p className="text-sm text-white/80">
@@ -885,10 +953,28 @@ export default function LeagueClient() {
                 </>
               )}
             </div>
+
+            <AdPlaceholder
+              title="Banner premium RugbyNow"
+              subtitle="Placeholder horizontal para anuncios, campañas o house ads debajo de la tabla."
+              className="hidden min-h-[140px] w-full lg:block"
+            />
           </section>
         </main>
 
-        <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-white/70">
+        <div className="pointer-events-none fixed right-0 top-[212px] bottom-0 z-20 hidden xl:block w-[320px] p-4 pl-0">
+          <AdPlaceholder
+            title="Tu marca puede vivir aca"
+            subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
+            className="h-full"
+          />
+        </div>
+
+        <footer
+          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[324px] ${
+            sidebarOpen ? "xl:pl-[364px]" : "xl:pl-[88px]"
+          }`}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div className="min-w-0">
               RugbyNow • TZ: <span className="font-semibold break-all">{timeZone}</span>
@@ -909,6 +995,37 @@ export default function LeagueClient() {
             </div>
           </div>
         </footer>
+      </div>
+    </div>
+  );
+}
+
+function AdPlaceholder({
+  title,
+  subtitle,
+  className,
+}: {
+  title: string;
+  subtitle: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border border-dashed border-emerald-200/25 bg-black/20 backdrop-blur overflow-hidden ${className ?? ""}`}
+    >
+      <div className="flex h-full flex-col justify-between bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.14),_transparent_50%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))] p-5">
+        <div>
+          <div className="inline-flex rounded-full border border-emerald-200/20 bg-emerald-300/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-emerald-100/85">
+            Ad Space
+          </div>
+          <h3 className="mt-3 text-lg font-extrabold text-white">{title}</h3>
+          <p className="mt-1 max-w-[28ch] text-sm text-white/75">{subtitle}</p>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
+          <span>Temporal placeholder</span>
+          <span className="font-semibold text-white/80">320x600 / 970x140</span>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 export type Lang = "en" | "es" | "fr";
 
@@ -36,10 +36,13 @@ export function usePrefs() {
   const [timeZone, setTimeZone] = useState<string>(getInitialTimeZone);
   const [lang, setLang] = useState<Lang>(getInitialLang);
   const [dark, setDark] = useState<boolean>(getInitialTheme);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
-    setMounted(true);
     document.documentElement.classList.toggle("dark", readTheme());
 
     const onStorage = (e: StorageEvent) => {

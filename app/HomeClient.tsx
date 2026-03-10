@@ -118,6 +118,37 @@ function TeamName({ name, slug }: { name: string; slug?: string | null }) {
   );
 }
 
+function AdPlaceholder({
+  title,
+  subtitle,
+  className,
+}: {
+  title: string;
+  subtitle: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border border-dashed border-emerald-200/25 bg-black/20 backdrop-blur overflow-hidden ${className ?? ""}`}
+    >
+      <div className="flex h-full flex-col justify-between bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.14),_transparent_50%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))] p-5">
+        <div>
+          <div className="inline-flex rounded-full border border-emerald-200/20 bg-emerald-300/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-emerald-100/85">
+            Ad Space
+          </div>
+          <h3 className="mt-3 text-lg font-extrabold text-white">{title}</h3>
+          <p className="mt-1 max-w-[28ch] text-sm text-white/75">{subtitle}</p>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
+          <span>Temporal placeholder</span>
+          <span className="font-semibold text-white/80">320x600 / 970x140</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function toISODateLocal(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -185,6 +216,10 @@ function countryCodeToFlag(code?: string | null) {
     .split("")
     .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
     .join("");
+}
+
+function competitionFlag(competition: Competition) {
+  return countryCodeToFlag(competition.country_code) ?? "🏉";
 }
 
 export default function HomeClient() {
@@ -389,16 +424,16 @@ export default function HomeClient() {
         </button>
 
         <main
-          className={`mx-auto max-w-[1280px] px-4 sm:px-6 py-6 transition-[padding] duration-300 ${
-            sidebarOpen ? "lg:pl-[390px]" : "lg:pl-6"
+          className={`w-full px-4 sm:px-6 py-6 transition-[padding] duration-300 xl:pr-[324px] ${
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[88px]"
           }`}
         >
           <aside
-            className={`fixed left-4 top-[212px] z-30 w-[340px] rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 h-[calc(100vh-244px)] overflow-y-auto space-y-4 transition-all duration-300 ${
+            className={`fixed left-4 top-[212px] z-30 w-[380px] rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 h-[calc(100vh-244px)] overflow-y-auto space-y-4 transition-all duration-300 ${
               sidebarOpen ? "translate-x-0 opacity-100" : "-translate-x-[120%] opacity-0 pointer-events-none"
             }`}
           >
-            <div>
+            <div className="hidden">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-semibold text-white/90">Fechas</div>
                 <div className="flex items-center gap-2">
@@ -485,6 +520,7 @@ export default function HomeClient() {
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-2 min-w-0">
+                                    <span className="text-base shrink-0">{competitionFlag(competition)}</span>
                                     <LeagueLogo slug={competition.slug} alt={competition.name} />
                                     <div className="text-sm font-medium truncate text-white">{competition.name}</div>
                                   </div>
@@ -507,7 +543,57 @@ export default function HomeClient() {
             </div>
           </aside>
 
-          <section className="space-y-4 min-w-0">
+          <div className="space-y-6 min-w-0">
+            <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
+              <section className="space-y-4 min-w-0 flex-1">
+            <div className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="text-sm font-semibold text-white/90">Fechas</div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
+                    className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={() => setSelectedISO(toISODateLocal(new Date()))}
+                    className="px-2 py-1 rounded-lg text-xs border border-white/15 bg-white/10 hover:bg-white/15 transition"
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, 1)))}
+                    className="px-3 py-1.5 rounded-lg text-xs font-extrabold border border-emerald-300/30 bg-emerald-400/25 hover:bg-emerald-400/35 transition"
+                  >
+                    NEXT →
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="date"
+                  value={selectedISO}
+                  onChange={(e) => setSelectedISO(e.target.value)}
+                  className="w-full max-w-[280px] px-3 py-2 rounded-xl text-sm border border-white/15 bg-white/10 text-white outline-none"
+                />
+                <span
+                  className={`px-2 py-1 rounded-full text-[11px] border whitespace-nowrap ${
+                    isSameDay(selectedDate, todayLocal)
+                      ? "bg-emerald-400/30 text-white border-emerald-200/30"
+                      : "bg-white/10 border-white/15 text-white/80"
+                  }`}
+                >
+                  {isSameDay(selectedDate, todayLocal) ? "HOY" : "OTRO"}
+                </span>
+              </div>
+
+              <div className="text-xs text-white/70">
+                Seleccionada: <span className="font-semibold text-white">{niceDate(selectedDate)}</span>
+              </div>
+            </div>
+
             <div>
               <h2 className="text-xl font-bold text-white">Matches</h2>
               <p className="text-sm text-white/80">
@@ -530,6 +616,9 @@ export default function HomeClient() {
                 <div key={block.slug} className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur overflow-hidden">
                   <div className="px-4 py-3 flex items-center justify-between border-b border-white/15">
                     <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-base shrink-0">
+                        {competitionFlag(competitions.find((competition) => competition.slug === block.slug) ?? { id: 0, name: "", slug: "", region: null })}
+                      </span>
                       <LeagueLogo slug={block.slug} alt={block.league} />
                       <div className="font-semibold truncate text-white">{block.league}</div>
                     </div>
@@ -580,10 +669,31 @@ export default function HomeClient() {
                 </div>
               ))
             )}
-          </section>
+              </section>
+
+            </div>
+
+            <AdPlaceholder
+              title="Banner premium RugbyNow"
+              subtitle="Placeholder horizontal para anuncios, campañas o house ads debajo de los partidos."
+              className="hidden min-h-[140px] w-full lg:block"
+            />
+          </div>
         </main>
 
-        <footer className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 text-xs text-white/70">
+        <div className="pointer-events-none fixed right-0 top-[212px] bottom-0 z-20 hidden xl:block w-[320px] p-4 pl-0">
+          <AdPlaceholder
+            title="Tu marca puede vivir aca"
+            subtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
+            className="h-full"
+          />
+        </div>
+
+        <footer
+          className={`w-full px-4 sm:px-6 py-8 text-xs text-white/70 xl:pr-[324px] ${
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[88px]"
+          }`}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               RugbyNow • Built by <span className="font-semibold text-white">Vito Loprestti</span> • TZ: <span className="font-semibold text-white">{timeZone}</span>

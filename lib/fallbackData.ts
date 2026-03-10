@@ -117,6 +117,7 @@ const COMPETITIONS: Competition[] = [
   { id: 9, name: "Super Rugby Pacific", slug: "int-super-rugby-pacific", region: "World", country_code: null, group_name: "International", sort_order: 7, is_featured: true },
   { id: 10, name: "URBA Top 14", slug: "ar-urba-top14", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 1, is_featured: true },
   { id: 11, name: "Major League Rugby", slug: "us-mlr", region: "USA", country_code: "US", group_name: "USA", sort_order: 1, is_featured: true },
+  { id: 12, name: "Norte Grande", slug: "ar-liga-norte-grande", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 2, is_featured: false },
 ];
 
 function norm(s: string) {

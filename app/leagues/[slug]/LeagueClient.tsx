@@ -248,7 +248,7 @@ function formatScore(status: MatchStatus, hs: number | null, as: number | null) 
 }
 
 export default function LeagueClient() {
-  const { timeZone, lang, setLangEverywhere } = usePrefs();
+  const { timeZone, lang, setLangEverywhere, mounted } = usePrefs();
 
   const params = useParams<{ slug: string }>();
   const slug = params?.slug;
@@ -275,8 +275,23 @@ export default function LeagueClient() {
   const [err, setErr] = useState("");
 
   const [leaguesOpen, setLeaguesOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const t = (key: string) => I18N[lang][key] ?? key;
+
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+    const id = window.requestAnimationFrame(() => {
+      setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("rn:league-sidebar-open", sidebarOpen ? "1" : "0");
+  }, [mounted, sidebarOpen]);
 
   useEffect(() => {
     const loadComps = async () => {
@@ -485,8 +500,25 @@ export default function LeagueClient() {
           onLangChange={(l) => setLangEverywhere(l)}
         />
 
-        <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-          <aside className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4 h-fit text-white space-y-4">
+        <button
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          className="fixed left-4 top-[124px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
+          aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
+        >
+          <span className="flex flex-col gap-1.5">
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+          </span>
+        </button>
+
+        <main
+          className={`mx-auto max-w-[1280px] px-4 sm:px-6 py-6 transition-[padding] duration-300 ${
+            sidebarOpen ? "lg:pl-[390px]" : "lg:pl-6"
+          }`}
+        >
+          {sidebarOpen ? (
+          <aside className="fixed left-4 top-[188px] z-30 w-[340px] h-[calc(100vh-220px)] overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 text-white space-y-4">
             <div>
               <div className="text-sm font-semibold text-white/80">{t("league")}</div>
               <div className="mt-2 flex items-center gap-3 min-w-0">
@@ -695,6 +727,7 @@ export default function LeagueClient() {
               ) : null}
             </div>
           </aside>
+          ) : null}
 
           <section className="space-y-4 min-w-0 text-white">
             <div>
@@ -788,15 +821,6 @@ export default function LeagueClient() {
                       </div>
                     );
                   })}
-                </div>
-
-                <div className="px-4 py-3 border-t border-white/15 flex justify-end">
-                  <Link
-                    href={`/leagues/${slug}${dateQuery}`}
-                    className="text-xs font-extrabold px-3 py-2 rounded-full bg-emerald-300/25 text-white border border-emerald-200/30 hover:bg-emerald-300/35 transition"
-                  >
-                    {t("openLeague")}
-                  </Link>
                 </div>
               </div>
             )}

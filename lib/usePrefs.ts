@@ -36,9 +36,10 @@ export function usePrefs() {
   const [timeZone, setTimeZone] = useState<string>(getInitialTimeZone);
   const [lang, setLang] = useState<Lang>(getInitialLang);
   const [dark, setDark] = useState<boolean>(getInitialTheme);
-  const mounted = true;
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     document.documentElement.classList.toggle("dark", readTheme());
 
     const onStorage = (e: StorageEvent) => {

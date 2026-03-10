@@ -178,9 +178,18 @@ function getInitialSelectedISO() {
   return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : toISODateLocal(new Date());
 }
 
+function countryCodeToFlag(code?: string | null) {
+  if (!code || code.length !== 2) return null;
+  return code
+    .toUpperCase()
+    .split("")
+    .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+    .join("");
+}
+
 export default function HomeClient() {
   const router = useRouter();
-  const { timeZone } = usePrefs();
+  const { timeZone, mounted } = usePrefs();
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedISO, setSelectedISO] = useState<string>(getInitialSelectedISO);
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -190,11 +199,26 @@ export default function HomeClient() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const lastPushedISO = useRef<string>("");
   const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
   const todayLocal = new Date();
   const dateQuery = `?date=${selectedISO}`;
+
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+    const id = window.requestAnimationFrame(() => {
+      setSidebarOpen(window.localStorage.getItem("rn:home-sidebar-open") !== "0");
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("rn:home-sidebar-open", sidebarOpen ? "1" : "0");
+  }, [mounted, sidebarOpen]);
 
   useEffect(() => {
     if (lastPushedISO.current === selectedISO) return;
@@ -352,8 +376,28 @@ export default function HomeClient() {
       <div className="relative">
         <AppHeader showTabs tab={tab} setTab={setTab} />
 
-        <main className="mx-auto max-w-[1280px] px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
-          <aside className="rounded-2xl border border-white/15 bg-black/20 backdrop-blur p-4 h-fit space-y-4">
+        <button
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          className="fixed left-4 top-[148px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
+          aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
+        >
+          <span className="flex flex-col gap-1.5">
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+            <span className="block h-0.5 w-6 rounded-full bg-white" />
+          </span>
+        </button>
+
+        <main
+          className={`mx-auto max-w-[1280px] px-4 sm:px-6 py-6 transition-[padding] duration-300 ${
+            sidebarOpen ? "lg:pl-[390px]" : "lg:pl-6"
+          }`}
+        >
+          <aside
+            className={`fixed left-4 top-[212px] z-30 w-[340px] rounded-2xl border border-white/15 bg-[#0a4b31]/90 backdrop-blur p-4 h-[calc(100vh-244px)] overflow-y-auto space-y-4 transition-all duration-300 ${
+              sidebarOpen ? "translate-x-0 opacity-100" : "-translate-x-[120%] opacity-0 pointer-events-none"
+            }`}
+          >
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-semibold text-white/90">Fechas</div>

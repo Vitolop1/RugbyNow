@@ -65,19 +65,19 @@ export default function AppHeader({
     setLangEverywhere(nextLang);
   };
 
-  const centerTitle = (
+  const centerTitle = title ? (
     <div className="text-center select-none text-white">
-      {title ? (
-        <div className="min-w-0">
-          <div className="text-[18px] sm:text-[22px] font-extrabold truncate">{title}</div>
-          {subtitle ? <div className="text-[11px] text-white/75 truncate">{subtitle}</div> : null}
-        </div>
-      ) : (
-        <h1 className="text-[22px] sm:text-[26px] leading-none font-extrabold tracking-tight whitespace-nowrap">
-          Rugby<span className="text-emerald-300">Now</span>
-        </h1>
-      )}
+      <div className="min-w-0">
+        <div className="text-[18px] sm:text-[22px] font-extrabold truncate">{title}</div>
+        {subtitle ? <div className="text-[11px] text-white/75 truncate">{subtitle}</div> : null}
+      </div>
     </div>
+  ) : (
+    <Link href="/" className="block text-center select-none text-white">
+      <h1 className="text-[22px] sm:text-[26px] leading-none font-extrabold tracking-tight whitespace-nowrap">
+        Rugby<span className="text-emerald-300">Now</span>
+      </h1>
+    </Link>
   );
 
   return (
@@ -92,7 +92,7 @@ export default function AppHeader({
                   alt="RugbyNow logo"
                   width={48}
                   height={48}
-                  className="h-full w-full object-contain object-center p-1"
+                  className="h-full w-full object-contain object-center scale-[0.88]"
                   onError={() => setLogoOk(false)}
                   priority
                 />

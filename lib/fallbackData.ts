@@ -94,6 +94,17 @@ type DryRunDump = {
   scrapedMatches: DryRunRow[];
 };
 
+type JsonlRow = {
+  round: number | null;
+  home: string;
+  away: string;
+  home_score: number | null;
+  away_score: number | null;
+  status: "NS" | "LIVE" | "FT";
+  kickoff_time: string | null;
+  match_date: string;
+};
+
 const COMPETITIONS: Competition[] = [
   { id: 1, name: "Top 14", slug: "fr-top14", region: "France", country_code: "FR", group_name: "France", sort_order: 1, is_featured: true },
   { id: 2, name: "Serie A Elite", slug: "it-serie-a-elite", region: "Italy", country_code: "IT", group_name: "Italy", sort_order: 1, is_featured: false },
@@ -230,18 +241,35 @@ function pointsForResult(home: number, away: number) {
   return { homePts: 2, awayPts: 2, homeW: 0, awayW: 0, d: 1 };
 }
 
+function countDateTokens(text: string) {
+  const value = text || "";
+  const dotMatches = value.match(/\b\d{1,2}\.\d{1,2}\.?\b/g) ?? [];
+  const slashMatches = value.match(/\b\d{1,2}\/\d{1,2}\b/g) ?? [];
+  const monthMatches =
+    value.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\b/gi) ?? [];
+  return dotMatches.length + slashMatches.length + monthMatches.length;
+}
+
 function dedupeRows(rows: DryRunRow[]) {
-  const out: DryRunRow[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, DryRunRow>();
 
   for (const row of rows) {
+    if (countDateTokens(row.rawText) > 1) continue;
+
     const key = [norm(row.home), norm(row.away), row.statusOrTime, row.hs, row.as, row.sourcePage].join("|");
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(row);
+    const current = seen.get(key);
+
+    if (!current) {
+      seen.set(key, row);
+      continue;
+    }
+
+    const currentScore = (current.roundText ? 4 : 0) + (current.dateLabel ? 2 : 0) - current.rawText.length;
+    const nextScore = (row.roundText ? 4 : 0) + (row.dateLabel ? 2 : 0) - row.rawText.length;
+    if (nextScore > currentScore) seen.set(key, row);
   }
 
-  return out;
+  return Array.from(seen.values());
 }
 
 function loadDryRunDumps(): DryRunDump[] {
@@ -264,6 +292,69 @@ function loadDryRunDumps(): DryRunDump[] {
     .filter((value): value is DryRunDump => value !== null);
 }
 
+function loadJsonlRowsByCompetition() {
+  const logsDir = path.join(process.cwd(), "logs");
+  if (!fs.existsSync(logsDir)) return new Map<string, JsonlRow[]>();
+
+  const latestByCompetition = new Map<string, string>();
+
+  for (const file of fs.readdirSync(logsDir)) {
+    const match = file.match(/^flashscore_(.+?)_\d{4}-\d{4}_.*\.jsonl$/i);
+    if (!match) continue;
+    latestByCompetition.set(match[1], path.join(logsDir, file));
+  }
+
+  const out = new Map<string, JsonlRow[]>();
+
+  for (const [competition, file] of latestByCompetition.entries()) {
+    try {
+      const rows = fs
+        .readFileSync(file, "utf8")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as JsonlRow);
+      out.set(competition, rows);
+    } catch {
+      out.set(competition, []);
+    }
+  }
+
+  return out;
+}
+
+function assignDerivedRounds(matches: LeagueMatchRow[]) {
+  if (matches.some((match) => match.round != null)) return matches;
+
+  const teamCount = new Set(
+    matches.flatMap((match) => [match.home_team?.slug, match.away_team?.slug].filter(Boolean) as string[])
+  ).size;
+  const matchesPerRound = Math.max(1, Math.floor(teamCount / 2));
+
+  let currentRound = 1;
+  let currentCount = 0;
+  let currentTeams = new Set<string>();
+
+  for (const match of matches) {
+    const home = match.home_team?.slug ?? "";
+    const away = match.away_team?.slug ?? "";
+    const clashesCurrentRound = currentTeams.has(home) || currentTeams.has(away);
+
+    if (currentCount >= matchesPerRound || clashesCurrentRound) {
+      currentRound += 1;
+      currentCount = 0;
+      currentTeams = new Set<string>();
+    }
+
+    match.round = currentRound;
+    currentCount += 1;
+    if (home) currentTeams.add(home);
+    if (away) currentTeams.add(away);
+  }
+
+  return matches;
+}
+
 export function getFallbackCompetitions() {
   return COMPETITIONS;
 }
@@ -277,13 +368,48 @@ export function getFallbackSeasons() {
 }
 
 export function getFallbackMatchesByDate(date: string): HomeMatchRow[] {
+  const jsonl = loadJsonlRowsByCompetition();
   const dumps = loadDryRunDumps();
   const rows: HomeMatchRow[] = [];
   let id = 1;
+  const teamIds = new Map<string, number>();
 
-  for (const dump of dumps) {
-    const competition = COMPETITIONS.find((item) => item.slug === dump.competition);
-    if (!competition) continue;
+  const getTeamRef = (name: string) => {
+    const slug = slugify(name);
+    if (!teamIds.has(slug)) teamIds.set(slug, teamIds.size + 1);
+    return { id: teamIds.get(slug) ?? 0, name, slug };
+  };
+
+  for (const competition of COMPETITIONS) {
+    const jsonlRows = jsonl.get(competition.slug) ?? [];
+    if (jsonlRows.length > 0) {
+      for (const row of jsonlRows) {
+        if (row.match_date !== date) continue;
+
+        rows.push({
+          id: id++,
+          match_date: row.match_date,
+          kickoff_time: row.kickoff_time,
+          status: row.status,
+          minute: null,
+          home_score: row.status === "NS" ? null : row.home_score,
+          away_score: row.status === "NS" ? null : row.away_score,
+          home_team: getTeamRef(row.home),
+          away_team: getTeamRef(row.away),
+          season: {
+            competition: {
+              name: competition.name,
+              slug: competition.slug,
+              region: competition.region,
+            },
+          },
+        });
+      }
+      continue;
+    }
+
+    const dump = dumps.find((item) => item.competition === competition.slug);
+    if (!dump) continue;
 
     for (const row of dedupeRows(dump.scrapedMatches || [])) {
       const matchDate = inferDate(row.dateLabel || row.statusOrTime || row.rawText);
@@ -301,8 +427,8 @@ export function getFallbackMatchesByDate(date: string): HomeMatchRow[] {
         minute: parsed.minute,
         home_score: parsed.status === "NS" ? null : hs,
         away_score: parsed.status === "NS" ? null : as,
-        home_team: { id: id * 10 + 1, name: row.home, slug: slugify(row.home) },
-        away_team: { id: id * 10 + 2, name: row.away, slug: slugify(row.away) },
+        home_team: getTeamRef(row.home),
+        away_team: getTeamRef(row.away),
         season: {
           competition: {
             name: competition.name,
@@ -318,12 +444,51 @@ export function getFallbackMatchesByDate(date: string): HomeMatchRow[] {
 }
 
 function getFallbackLeagueMatches(compSlug: string): LeagueMatchRow[] {
+  const jsonl = loadJsonlRowsByCompetition();
+  const jsonlRows = jsonl.get(compSlug) ?? [];
+  if (jsonlRows.length > 0) {
+    const teamIds = new Map<string, number>();
+    const getTeamRef = (name: string) => {
+      const slug = slugify(name);
+      if (!teamIds.has(slug)) teamIds.set(slug, teamIds.size + 1);
+      return { id: teamIds.get(slug) ?? 0, name, slug };
+    };
+
+    const rows = jsonlRows
+      .map((row, index) => ({
+        id: index + 1,
+        match_date: row.match_date,
+        kickoff_time: row.kickoff_time,
+        status: row.status,
+        minute: null,
+        home_score: row.status === "NS" ? null : row.home_score,
+        away_score: row.status === "NS" ? null : row.away_score,
+        round: row.round,
+        venue: null,
+        home_team: getTeamRef(row.home),
+        away_team: getTeamRef(row.away),
+      }))
+      .sort((a, b) => {
+        if (a.match_date !== b.match_date) return a.match_date.localeCompare(b.match_date);
+        return (a.kickoff_time || "").localeCompare(b.kickoff_time || "");
+      });
+
+    return assignDerivedRounds(rows);
+  }
+
   const dumps = loadDryRunDumps();
   const dump = dumps.find((item) => item.competition === compSlug);
   if (!dump) return [];
 
   const rows: LeagueMatchRow[] = [];
   let id = 1;
+  const teamIds = new Map<string, number>();
+
+  const getTeamRef = (name: string) => {
+    const slug = slugify(name);
+    if (!teamIds.has(slug)) teamIds.set(slug, teamIds.size + 1);
+    return { id: teamIds.get(slug) ?? 0, name, slug };
+  };
 
   for (const row of dedupeRows(dump.scrapedMatches || [])) {
     const matchDate = inferDate(row.dateLabel || row.statusOrTime || row.rawText);
@@ -343,25 +508,15 @@ function getFallbackLeagueMatches(compSlug: string): LeagueMatchRow[] {
       away_score: parsed.status === "NS" ? null : as,
       round: parseRound(row.roundText || row.rawText),
       venue: null,
-      home_team: { id: id * 10 + 1, name: row.home, slug: slugify(row.home) },
-      away_team: { id: id * 10 + 2, name: row.away, slug: slugify(row.away) },
+      home_team: getTeamRef(row.home),
+      away_team: getTeamRef(row.away),
     });
   }
 
-  const hasExplicitRounds = rows.some((row) => row.round != null);
-  if (!hasExplicitRounds) {
-    const orderedDates = Array.from(new Set(rows.map((row) => row.match_date))).sort((a, b) => a.localeCompare(b));
-    const roundByDate = new Map(orderedDates.map((date, index) => [date, index + 1]));
-
-    for (const row of rows) {
-      row.round = roundByDate.get(row.match_date) ?? null;
-    }
-  }
-
-  return rows.sort((a, b) => {
+  return assignDerivedRounds(rows.sort((a, b) => {
     if (a.match_date !== b.match_date) return a.match_date.localeCompare(b.match_date);
     return (a.kickoff_time || "").localeCompare(b.kickoff_time || "");
-  });
+  }));
 }
 
 function getFallbackRoundMeta(matches: LeagueMatchRow[]): RoundMeta[] {

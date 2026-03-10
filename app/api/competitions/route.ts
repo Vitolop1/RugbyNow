@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackCompetitions } from "@/lib/fallbackData";
+import { getSnapshotCompetitions } from "@/lib/supabaseSnapshot";
 
 export async function GET() {
   try {
@@ -16,6 +17,15 @@ export async function GET() {
     return NextResponse.json({ competitions: data || [], source: "supabase" });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const snapshot = getSnapshotCompetitions();
+    if (snapshot) {
+      return NextResponse.json({
+        competitions: snapshot,
+        source: "snapshot",
+        warning: message,
+      });
+    }
+
     return NextResponse.json({
       competitions: getFallbackCompetitions(),
       source: "fallback",

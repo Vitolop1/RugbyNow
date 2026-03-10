@@ -176,13 +176,6 @@ function niceDate(d: Date) {
   });
 }
 
-function compactDateLabel(d: Date) {
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-}
-
 function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
   if (!kickoffTime) return "TBD";
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
@@ -578,8 +571,8 @@ export default function HomeClient() {
                   <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/55">
                     {isSameDay(selectedDate, todayLocal) ? "Estamos en" : "Parado en"}
                   </span>
-                  <span className="mt-1 text-3xl font-black leading-none">
-                    {isSameDay(selectedDate, todayLocal) ? "TODAY" : compactDateLabel(selectedDate)}
+                  <span className="mt-1 text-center text-2xl font-black leading-tight lg:text-3xl">
+                    {isSameDay(selectedDate, todayLocal) ? "TODAY" : niceDate(selectedDate)}
                   </span>
                 </button>
 
@@ -593,28 +586,6 @@ export default function HomeClient() {
                   </span>
                   <span className="text-3xl font-black text-white">&rarr;</span>
                 </button>
-              </div>
-
-              <div className="mt-3 flex items-center gap-2 mb-2">
-                <input
-                  type="date"
-                  value={selectedISO}
-                  onChange={(e) => setSelectedISO(e.target.value)}
-                  className="w-full max-w-[280px] px-3 py-2 rounded-xl text-sm border border-white/15 bg-white/10 text-white outline-none"
-                />
-                <span
-                  className={`px-2 py-1 rounded-full text-[11px] border whitespace-nowrap ${
-                    isSameDay(selectedDate, todayLocal)
-                      ? "bg-emerald-400/30 text-white border-emerald-200/30"
-                      : "bg-white/10 border-white/15 text-white/80"
-                  }`}
-                >
-                  {isSameDay(selectedDate, todayLocal) ? "HOY" : "OTRO"}
-                </span>
-              </div>
-
-              <div className="text-xs text-white/70">
-                Seleccionada: <span className="font-semibold text-white">{niceDate(selectedDate)}</span>
               </div>
             </div>
 

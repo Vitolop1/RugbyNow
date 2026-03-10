@@ -85,14 +85,14 @@ export default function AppHeader({
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-3">
         <div className="relative flex items-center">
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl shadow overflow-hidden bg-black/20 border border-white/10 flex items-center justify-center">
+            <div className="h-12 w-12 sm:h-[54px] sm:w-[54px] rounded-xl shadow overflow-hidden bg-black/20 border border-white/10 flex items-center justify-center">
               {logoOk ? (
                 <Image
                   src="/logo.jpg"
                   alt="RugbyNow logo"
-                  width={48}
-                  height={48}
-                  className="h-full w-full object-contain object-center scale-[0.88]"
+                  width={54}
+                  height={54}
+                  className="h-full w-full object-cover object-[52%_48%] scale-[1.14]"
                   onError={() => setLogoOk(false)}
                   priority
                 />

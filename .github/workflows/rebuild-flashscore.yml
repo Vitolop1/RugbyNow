@@ -48,11 +48,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/supabase-snapshot.json
-          git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
-          git commit -m "Update Supabase snapshot [skip ci]"
+          cp data/supabase-snapshot.json /tmp/supabase-snapshot.json
           for attempt in 1 2 3; do
-            git pull --rebase origin main && git push && exit 0
+            git fetch origin main
+            git reset --hard origin/main
+            cp /tmp/supabase-snapshot.json data/supabase-snapshot.json
+            git add data/supabase-snapshot.json
+            git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
+            git commit -m "Update Supabase snapshot [skip ci]"
+            git push && exit 0
             echo "Snapshot push retry $attempt failed, retrying..."
             sleep 5
           done

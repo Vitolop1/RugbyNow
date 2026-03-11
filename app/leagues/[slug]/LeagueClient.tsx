@@ -77,6 +77,21 @@ type LeaguePayload = {
   warning?: string;
 };
 
+type LeagueTab = "overview" | "teams" | "champions";
+
+type LeagueTeamCard = {
+  id: number;
+  name: string;
+  slug: string | null;
+  position?: number;
+  played?: number;
+  wins?: number;
+  draws?: number;
+  losses?: number;
+  points?: number;
+  form?: Array<"W" | "D" | "L">;
+};
+
 function FormPill({ value, lang }: { value: "W" | "D" | "L"; lang: "en" | "es" | "fr" | "it" }) {
   const tr = (key: string) => t(lang, key);
   const cls =
@@ -259,6 +274,7 @@ export default function LeagueClient() {
   const [sidebarGroups, setSidebarGroups] = useState<Record<string, boolean>>({});
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<LeagueTab>("overview");
   const [data, setData] = useState<LeaguePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -369,6 +385,49 @@ export default function LeagueClient() {
   const canGoPrevRound = selectedRound != null && roundMeta.some((item) => item.round < selectedRound);
   const canGoNextRound = selectedRound != null && roundMeta.some((item) => item.round > selectedRound);
   const visibleMatches = data?.competition && hiddenSlugs.includes(data.competition.slug) ? [] : data?.matches || [];
+  const leagueTeams = useMemo(() => {
+    const byId = new Map<number, LeagueTeamCard>();
+
+    for (const row of data?.standings || []) {
+      byId.set(row.teamId, {
+        id: row.teamId,
+        name: row.team,
+        slug: row.teamSlug,
+        position: row.position,
+        played: row.pj,
+        wins: row.w,
+        draws: row.d,
+        losses: row.l,
+        points: row.pts,
+        form: row.form || [],
+      });
+    }
+
+    for (const match of data?.matches || []) {
+      if (match.home_team?.id && !byId.has(match.home_team.id)) {
+        byId.set(match.home_team.id, {
+          id: match.home_team.id,
+          name: match.home_team.name,
+          slug: match.home_team.slug,
+        });
+      }
+      if (match.away_team?.id && !byId.has(match.away_team.id)) {
+        byId.set(match.away_team.id, {
+          id: match.away_team.id,
+          name: match.away_team.name,
+          slug: match.away_team.slug,
+        });
+      }
+    }
+
+    return Array.from(byId.values()).sort((a, b) => {
+      const posA = a.position ?? 9999;
+      const posB = b.position ?? 9999;
+      if (posA !== posB) return posA - posB;
+      return a.name.localeCompare(b.name);
+    });
+  }, [data?.matches, data?.standings]);
+  const topTeams = useMemo(() => leagueTeams.filter((team) => team.position != null).slice(0, 12), [leagueTeams]);
 
   const setRound = (nextRound: number) => {
     const qs = new URLSearchParams(searchParams.toString());
@@ -595,6 +654,45 @@ export default function LeagueClient() {
               </div>
             ) : (
               <>
+                <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
+                  <div className="grid grid-cols-1 sm:grid-cols-3">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("overview")}
+                      className={`px-4 py-4 text-sm font-black uppercase tracking-[0.16em] transition ${
+                        activeTab === "overview"
+                          ? "bg-emerald-400/20 text-emerald-100"
+                          : "bg-transparent text-white/70 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {tr("overviewTab")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("teams")}
+                      className={`border-t border-white/10 px-4 py-4 text-sm font-black uppercase tracking-[0.16em] transition sm:border-l sm:border-t-0 ${
+                        activeTab === "teams"
+                          ? "bg-emerald-400/20 text-emerald-100"
+                          : "bg-transparent text-white/70 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {tr("teamsTab")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("champions")}
+                      className={`border-t border-white/10 px-4 py-4 text-sm font-black uppercase tracking-[0.16em] transition sm:border-l sm:border-t-0 ${
+                        activeTab === "champions"
+                          ? "bg-emerald-400/20 text-emerald-100"
+                          : "bg-transparent text-white/70 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {tr("championsTab")}
+                    </button>
+                  </div>
+                </div>
+
+                {activeTab === "overview" ? (
                 <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
                   <section className="min-w-0 flex-1 space-y-4">
                     <div className="rounded-2xl border border-white/15 bg-black/20 p-4 backdrop-blur">
@@ -809,6 +907,108 @@ export default function LeagueClient() {
                     />
                   </section>
                 </div>
+                ) : null}
+
+                {activeTab === "teams" ? (
+                  <section className="space-y-6">
+                    <div className="grid gap-4 md:grid-cols-4">
+                      <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("teamLabel")}s</div>
+                        <div className="mt-2 text-3xl font-black text-white">{leagueTeams.length}</div>
+                      </div>
+                      <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("matches")}</div>
+                        <div className="mt-2 text-3xl font-black text-white">{data.matches.length}</div>
+                      </div>
+                      <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">FT</div>
+                        <div className="mt-2 text-3xl font-black text-white">{data.matches.filter((match) => match.status === "FT").length}</div>
+                      </div>
+                      <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("seasonLabel")}</div>
+                        <div className="mt-2 truncate text-2xl font-black text-white">{seasonName}</div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                      <div className="mb-4 flex items-center justify-between gap-4">
+                        <div>
+                          <h2 className="text-xl font-black text-white">{tr("teamsTab")}</h2>
+                          <p className="text-sm text-white/70">{tr("leagueTeamsIntro")}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        {leagueTeams.map((team) => (
+                          <Link
+                            key={team.id}
+                            href={team.slug ? `/teams/${team.slug}` : "#"}
+                            className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
+                          >
+                            <div className="flex items-center gap-3">
+                              <TeamLogo slug={team.slug} alt={team.name} size={38} />
+                              <div className="min-w-0">
+                                <div className="truncate text-base font-bold text-white">{team.name}</div>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-white/65">
+                                  {team.position != null ? <span>#{team.position}</span> : null}
+                                  {team.points != null ? <span>PTS {team.points}</span> : null}
+                                  {team.played != null ? <span>PJ {team.played}</span> : null}
+                                </div>
+                              </div>
+                            </div>
+
+                            {team.form?.length ? (
+                              <div className="mt-3 flex gap-1.5">
+                                {team.form.map((value, index) => (
+                                  <FormPill key={`${team.id}-${index}-${value}`} value={value} lang={lang} />
+                                ))}
+                              </div>
+                            ) : null}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                ) : null}
+
+                {activeTab === "champions" ? (
+                  <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+                    <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                      <h2 className="text-xl font-black text-white">{tr("champions")}</h2>
+                      <p className="mt-2 text-sm leading-7 text-white/75">
+                        {tr("championsIntro")}
+                      </p>
+
+                      <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("seasonLabel")}</div>
+                        <div className="mt-2 text-2xl font-black text-white">{seasonName}</div>
+                        <div className="mt-2 text-sm text-white/70">
+                          {data.competition.name} • {data.competition.region || "RugbyNow"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                      <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("currentTopTeams")}</div>
+                      <div className="mt-4 space-y-3">
+                        {topTeams.map((team) => (
+                          <div key={`champions-${team.id}`} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-400/20 text-sm font-black text-white">
+                              {team.position ?? "-"}
+                            </div>
+                            <TeamLogo slug={team.slug} alt={team.name} size={28} />
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-semibold text-white">{team.name}</div>
+                              <div className="text-xs text-white/65">
+                                {team.points != null ? `PTS ${team.points}` : ""}{team.played != null ? ` • PJ ${team.played}` : ""}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                ) : null}
               </>
             )}
           </div>

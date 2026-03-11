@@ -68,33 +68,6 @@ export default function AppHeader({
     setLangEverywhere(nextLang);
   };
 
-  const brand = title ? (
-    <div className="select-none text-center text-white">
-      <div className="min-w-0">
-        <div className="truncate text-[18px] font-extrabold sm:text-[22px]">{title}</div>
-        {subtitle ? <div className="truncate text-[11px] text-white/75">{subtitle}</div> : null}
-      </div>
-    </div>
-  ) : (
-    <Link href="/" className="flex items-center justify-center">
-      {brandOk ? (
-        <Image
-          src="/logohorizontal.png"
-          alt="RugbyNow"
-          width={280}
-          height={56}
-          className="h-auto w-[195px] object-contain sm:w-[260px]"
-          onError={() => setBrandOk(false)}
-          priority
-        />
-      ) : (
-        <h1 className="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight sm:text-[26px]">
-          Rugby<span className="text-emerald-300">Now</span>
-        </h1>
-      )}
-    </Link>
-  );
-
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B3E28]/80 backdrop-blur">
       <div className="mx-auto max-w-[1280px] px-4 py-3 sm:px-6">
@@ -117,7 +90,25 @@ export default function AppHeader({
             </div>
           </Link>
 
-          <div className="absolute left-1/2 max-w-[70%] -translate-x-1/2 sm:max-w-[80%]">{brand}</div>
+          <div className="absolute left-1/2 max-w-[70%] -translate-x-1/2 sm:max-w-[80%]">
+            <Link href="/" className="flex items-center justify-center">
+              {brandOk ? (
+                <Image
+                  src="/logohorizontal.png"
+                  alt="RugbyNow"
+                  width={312}
+                  height={62}
+                  className="h-auto w-[215px] object-contain sm:w-[288px]"
+                  onError={() => setBrandOk(false)}
+                  priority
+                />
+              ) : (
+                <h1 className="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight sm:text-[26px]">
+                  Rugby<span className="text-emerald-300">Now</span>
+                </h1>
+              )}
+            </Link>
+          </div>
 
           <div className="ml-auto flex items-center gap-2">
             <Link
@@ -143,10 +134,10 @@ export default function AppHeader({
         </div>
 
         <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="relative flex h-9 w-full flex-nowrap items-center gap-2 overflow-x-auto pr-12 [-webkit-overflow-scrolling:touch]">
+          <div className="relative flex h-9 w-full flex-nowrap items-center gap-2 overflow-x-auto pr-16 [-webkit-overflow-scrolling:touch]">
             <div className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2">
-              <span className="text-sm" aria-hidden="true">
-                🌐
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/75" aria-hidden="true">
+                Lang
               </span>
               <select
                 value={effectiveLang}
@@ -155,16 +146,16 @@ export default function AppHeader({
                 aria-label={tr("language")}
               >
                 <option className="text-black" value="en">
-                  🇺🇸 EN
+                  EN
                 </option>
                 <option className="text-black" value="es">
-                  🇪🇸 ES
+                  ES
                 </option>
                 <option className="text-black" value="fr">
-                  🇫🇷 FR
+                  FR
                 </option>
                 <option className="text-black" value="it">
-                  🇮🇹 IT
+                  IT
                 </option>
               </select>
             </div>
@@ -218,10 +209,10 @@ export default function AppHeader({
 
             <button
               onClick={() => setThemeEverywhere(!dark)}
-              className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/20 text-sm text-white hover:bg-white/10"
+              className="absolute right-0 top-0 flex h-9 min-w-[58px] items-center justify-center rounded-full border border-white/10 bg-black/20 px-2 text-[10px] font-black uppercase tracking-[0.18em] text-white hover:bg-white/10"
               title={tr("toggleTheme")}
             >
-              {dark ? "☀️" : "🌙"}
+              {dark ? "Sun" : "Moon"}
             </button>
           </div>
 
@@ -247,13 +238,20 @@ export default function AppHeader({
           <div className="text-xs text-white/85 md:hidden">
             {mounted && now ? (
               <span className="font-semibold">
-                {formatTodayTZ(now, timeZone)} • {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
+                {formatTodayTZ(now, timeZone)} | {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
               </span>
             ) : (
               <span />
             )}
           </div>
         </div>
+
+        {title ? (
+          <div className="mt-3 text-center">
+            <div className="truncate text-sm font-extrabold text-white/90 sm:text-base">{title}</div>
+            {subtitle ? <div className="truncate text-xs text-white/65">{subtitle}</div> : null}
+          </div>
+        ) : null}
       </div>
     </header>
   );

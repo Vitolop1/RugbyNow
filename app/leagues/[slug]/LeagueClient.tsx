@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
@@ -265,9 +265,6 @@ export default function LeagueClient() {
   const leagueBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_LEAGUE_BANNER;
   const leagueRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_LEAGUE_RAIL;
 
-  const roundsScrollRef = useRef<HTMLDivElement | null>(null);
-  const activeRoundRef = useRef<HTMLButtonElement | null>(null);
-
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
     const id = window.requestAnimationFrame(() => {
@@ -332,10 +329,6 @@ export default function LeagueClient() {
     };
   }, [slug, refISO, roundFromUrl]);
 
-  useEffect(() => {
-    activeRoundRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [data?.selectedRound]);
-
   const groupedCompetitions = useMemo(
     () =>
       groupCompetitions(
@@ -391,7 +384,6 @@ export default function LeagueClient() {
     if (next != null) setRound(next);
   };
 
-  const title = data?.competition?.name || tr("leagueView");
   const seasonName = data?.season?.name || "—";
   const toggleFavoriteLeague = (nextSlug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, nextSlug));
   const toggleHiddenLeague = (nextSlug: string) => setHiddenSlugs((prev) => toggleSlug(prev, nextSlug));
@@ -404,7 +396,7 @@ export default function LeagueClient() {
       </div>
 
       <div className="relative">
-        <AppHeader title={title} subtitle={data?.competition?.region ?? undefined} />
+        <AppHeader />
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
@@ -635,16 +627,12 @@ export default function LeagueClient() {
                             ←
                           </button>
 
-                          <div
-                            ref={roundsScrollRef}
-                            className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]"
-                          >
+                          <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
                             {roundMeta.map((item) => {
                               const active = item.round === selectedRound;
                               return (
                                 <button
                                   key={item.round}
-                                  ref={active ? activeRoundRef : null}
                                   onClick={() => setRound(item.round)}
                                   className={`shrink-0 rounded-2xl border px-4 py-2 text-center transition ${
                                     active

@@ -124,11 +124,21 @@ function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" 
 }
 
 function TeamName({ name, slug }: { name: string; slug?: string | null }) {
-  return (
-    <span className="flex min-w-0 items-center gap-2">
+  const content = (
+    <>
       <TeamLogo slug={slug} alt={name} />
       <span className="truncate">{name}</span>
-    </span>
+    </>
+  );
+
+  if (!slug) {
+    return <span className="flex min-w-0 items-center gap-2">{content}</span>;
+  }
+
+  return (
+    <Link href={`/teams/${slug}`} className="flex min-w-0 items-center gap-2 hover:text-emerald-200">
+      {content}
+    </Link>
   );
 }
 

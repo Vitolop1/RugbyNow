@@ -188,8 +188,37 @@ function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_tim
 
   return {
     assignment,
-    roundMeta: Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta })),
+    roundMeta: attachKnockoutPhaseMeta(Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta }))),
   };
+}
+
+function attachKnockoutPhaseMeta(
+  roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>
+) {
+  const labels: Record<number, string> = {
+    1: "final",
+    2: "semifinal",
+    4: "quarterfinal",
+    8: "round16",
+    16: "round32",
+  };
+
+  const counts = new Set(roundMeta.map((item) => item.matches));
+  const hasFinal = counts.has(1);
+
+  return roundMeta.map((item) => {
+    const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
+    const allPowerOfTwo =
+      item.matches > 0 &&
+      (item.matches & (item.matches - 1)) === 0 &&
+      smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
+
+    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) {
+      return { ...item, phaseKey: null };
+    }
+
+    return { ...item, phaseKey: labels[item.matches] };
+  });
 }
 
 function pickAutoRound(

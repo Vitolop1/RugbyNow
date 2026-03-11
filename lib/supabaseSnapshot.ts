@@ -150,6 +150,7 @@ type RoundMeta = {
   last_date: string;
   matches: number;
   ft: number;
+  phaseKey?: string | null;
 };
 
 let cachedSnapshot: SnapshotPayload | null | undefined;
@@ -363,6 +364,33 @@ function pickAutoRound(roundMeta: RoundMeta[], refISO: string) {
   return roundMeta[roundMeta.length - 1]?.round ?? null;
 }
 
+function attachKnockoutPhaseMeta(roundMeta: RoundMeta[]) {
+  const labels: Record<number, string> = {
+    1: "final",
+    2: "semifinal",
+    4: "quarterfinal",
+    8: "round16",
+    16: "round32",
+  };
+
+  const counts = new Set(roundMeta.map((item) => item.matches));
+  const hasFinal = counts.has(1);
+
+  return roundMeta.map((item) => {
+    const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
+    const allPowerOfTwo =
+      item.matches > 0 &&
+      (item.matches & (item.matches - 1)) === 0 &&
+      smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
+
+    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) {
+      return { ...item, phaseKey: null };
+    }
+
+    return { ...item, phaseKey: labels[item.matches] };
+  });
+}
+
 function buildStandingsFromMatches(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {
   const teams = getTeamMap(snapshot);
   const table = new Map<number, LeagueStandingRow>();
@@ -556,7 +584,7 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   if (!season) return null;
 
   const seasonMatches = snapshot.matches.filter((match) => match.season_id === season.id);
-  const roundMeta = buildRoundMeta(seasonMatches);
+  const roundMeta = attachKnockoutPhaseMeta(buildRoundMeta(seasonMatches));
   const roundAssignment = buildRoundAssignment(seasonMatches);
   const autoSelectedRound = pickAutoRound(roundMeta, refISO);
   const selectedRound = roundOverride ?? autoSelectedRound;

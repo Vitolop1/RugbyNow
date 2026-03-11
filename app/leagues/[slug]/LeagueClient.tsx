@@ -61,6 +61,7 @@ type RoundMeta = {
   last_date: string;
   matches?: number;
   ft?: number;
+  phaseKey?: string | null;
 };
 
 type LeaguePayload = {
@@ -144,6 +145,44 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
       }}
     />
   );
+}
+
+function TeamLink({
+  slug,
+  name,
+  fallback,
+}: {
+  slug?: string | null;
+  name?: string | null;
+  fallback: string;
+}) {
+  const label = name || fallback;
+  const content = (
+    <>
+      <TeamLogo slug={slug} alt={label} />
+      <span className="truncate">{label}</span>
+    </>
+  );
+
+  if (!slug) {
+    return <span className="flex min-w-0 items-center gap-2">{content}</span>;
+  }
+
+  return (
+    <Link href={`/teams/${slug}`} className="flex min-w-0 items-center gap-2 hover:text-emerald-200">
+      {content}
+    </Link>
+  );
+}
+
+function phaseLabel(tr: (key: string) => string, phaseKey?: string | null) {
+  if (!phaseKey) return null;
+  if (phaseKey === "round32") return tr("phaseRound32");
+  if (phaseKey === "round16") return tr("phaseRound16");
+  if (phaseKey === "quarterfinal") return tr("phaseQuarterfinal");
+  if (phaseKey === "semifinal") return tr("phaseSemifinal");
+  if (phaseKey === "final") return tr("phaseFinal");
+  return null;
 }
 
 function toISODateLocal(d: Date) {
@@ -615,6 +654,11 @@ export default function LeagueClient() {
                                 >
                                   <div className="text-xl font-black leading-none">{item.round}</div>
                                   <div className="mt-1 text-[11px] font-semibold text-white/70">{formatRoundDate(item.first_date)}</div>
+                                  {phaseLabel(tr, item.phaseKey) ? (
+                                    <div className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-100/80">
+                                      {phaseLabel(tr, item.phaseKey)}
+                                    </div>
+                                  ) : null}
                                 </button>
                               );
                             })}
@@ -691,19 +735,13 @@ export default function LeagueClient() {
 
                                 <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                    <span className="flex min-w-0 items-center gap-2">
-                                      <TeamLogo slug={match.home_team?.slug} alt={match.home_team?.name || tr("teamHomeFallback")} />
-                                      <span className="truncate">{match.home_team?.name || tr("tbd")}</span>
-                                    </span>
+                                    <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("teamHomeFallback")} />
                                     <span className="font-extrabold tabular-nums text-white">
                                       {match.status === "NS" ? "—" : match.home_score ?? "-"}
                                     </span>
                                   </div>
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                    <span className="flex min-w-0 items-center gap-2">
-                                      <TeamLogo slug={match.away_team?.slug} alt={match.away_team?.name || tr("teamAwayFallback")} />
-                                      <span className="truncate">{match.away_team?.name || tr("tbd")}</span>
-                                    </span>
+                                    <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("teamAwayFallback")} />
                                     <span className="font-extrabold tabular-nums text-white">
                                       {match.status === "NS" ? "—" : match.away_score ?? "-"}
                                     </span>
@@ -750,10 +788,7 @@ export default function LeagueClient() {
                               <tr key={row.teamId} className="border-t border-white/10">
                                 <td className="px-4 py-3 text-white/80">{row.position}</td>
                                 <td className="px-4 py-3">
-                                  <span className="flex min-w-0 items-center gap-2">
-                                    <TeamLogo slug={row.teamSlug} alt={row.team} />
-                                    <span className="truncate font-semibold text-white">{row.team}</span>
-                                  </span>
+                                  <TeamLink slug={row.teamSlug} name={row.team} fallback={tr("teamLabel")} />
                                 </td>
                                 <td className="px-3 py-3 text-right">{row.pj}</td>
                                 <td className="px-3 py-3 text-right">{row.w}</td>

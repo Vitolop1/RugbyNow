@@ -73,6 +73,7 @@ type RoundMeta = {
   last_date: string;
   matches: number;
   ft: number;
+  phaseKey?: string | null;
 };
 
 type DryRunRow = {
@@ -269,6 +270,33 @@ function pickAutoRound(meta: RoundMeta[], refISO: string) {
 
   const lastIncomplete = rounds.slice().reverse().find((r) => r.ft < r.matches);
   return (lastIncomplete ?? rounds[rounds.length - 1]).round;
+}
+
+function attachKnockoutPhaseMeta(meta: RoundMeta[]) {
+  const labels: Record<number, string> = {
+    1: "final",
+    2: "semifinal",
+    4: "quarterfinal",
+    8: "round16",
+    16: "round32",
+  };
+
+  const counts = new Set(meta.map((item) => item.matches));
+  const hasFinal = counts.has(1);
+
+  return meta.map((item) => {
+    const smallerRounds = meta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
+    const allPowerOfTwo =
+      item.matches > 0 &&
+      (item.matches & (item.matches - 1)) === 0 &&
+      smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
+
+    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) {
+      return { ...item, phaseKey: null };
+    }
+
+    return { ...item, phaseKey: labels[item.matches] };
+  });
 }
 
 function pointsForResult(home: number, away: number) {
@@ -705,7 +733,8 @@ function getFallbackRoundMeta(matches: LeagueMatchRow[]): RoundMeta[] {
     if (row.status === "FT") existing.ft += 1;
   }
 
-  return Array.from(map.entries())
+  return attachKnockoutPhaseMeta(
+    Array.from(map.entries())
     .map(([round, value]) => ({
       round,
       first_date: value.first,
@@ -713,7 +742,8 @@ function getFallbackRoundMeta(matches: LeagueMatchRow[]): RoundMeta[] {
       matches: value.count,
       ft: value.ft,
     }))
-    .sort((a, b) => a.round - b.round);
+    .sort((a, b) => a.round - b.round)
+  );
 }
 
 function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): LeagueStandingRow[] {

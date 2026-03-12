@@ -1,14 +1,21 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
+import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
-import { getDisplayGroupName, readSlugList, toggleSlug, writeSlugList } from "@/lib/competitionPrefs";
+import {
+  getCompetitionGroupPriority,
+  getCompetitionSortPriority,
+  getDisplayGroupName,
+  readSlugList,
+  toggleSlug,
+  writeSlugList,
+} from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
@@ -265,13 +272,18 @@ function groupCompetitions(competitions: Competition[], otherLabel: string) {
     groups.get(group)!.push(competition);
   }
   return Array.from(groups.entries())
-    .sort((a, b) => a[0].localeCompare(b[0]))
+    .sort((a, b) => {
+      const aPriority = getCompetitionGroupPriority(a[1][0]);
+      const bPriority = getCompetitionGroupPriority(b[1][0]);
+      if (aPriority !== bPriority) return aPriority - bPriority;
+      return a[0].localeCompare(b[0]);
+    })
     .map(([groupName, comps]) => [
       groupName,
       comps.sort((a, b) => {
         if (!!a.is_featured !== !!b.is_featured) return a.is_featured ? -1 : 1;
-        const aSort = a.sort_order ?? 9999;
-        const bSort = b.sort_order ?? 9999;
+        const aSort = getCompetitionSortPriority(a);
+        const bSort = getCompetitionSortPriority(b);
         if (aSort !== bSort) return aSort - bSort;
         return a.name.localeCompare(b.name);
       }),
@@ -282,11 +294,12 @@ export default function LeagueClient() {
   const params = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { lang, mounted, timeZone } = usePrefs();
+  const { lang, mounted, timeZone, theme } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
   const europeGroupLabel = tr("groupsEurope");
   const sevenGroupLabel = tr("groupsSeven");
+  const southAmericaGroupLabel = tr("groupsSouthAmerica");
 
   const slug = params.slug;
   const refISO = searchParams.get("date") || toISODateLocal(new Date());
@@ -384,11 +397,12 @@ export default function LeagueClient() {
               other: otherGroupLabel,
               europe: europeGroupLabel,
               seven: sevenGroupLabel,
+              southAmerica: southAmericaGroupLabel,
             }),
           })),
         otherGroupLabel
       ),
-    [data?.competitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel]
+    [data?.competitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel, southAmericaGroupLabel]
   );
 
   const favoriteCompetitions = useMemo(
@@ -471,7 +485,7 @@ export default function LeagueClient() {
     if (next != null) setRound(next);
   };
 
-  const seasonName = data?.season?.name || "—";
+  const seasonName = data?.season?.name || "-";
   const toggleFavoriteLeague = (nextSlug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, nextSlug));
   const toggleHiddenLeague = (nextSlug: string) => setHiddenSlugs((prev) => toggleSlug(prev, nextSlug));
 
@@ -547,7 +561,7 @@ export default function LeagueClient() {
                             title={tr("removeFavorite")}
                             aria-label={tr("removeFavorite")}
                           >
-                            ★
+                            {"\u2605"}
                           </button>
                         </div>
                       ))}
@@ -572,10 +586,10 @@ export default function LeagueClient() {
                           </div>
                           <div className="text-[11px] text-white/70">
                             {comps.length} {tr("leagues").toLowerCase()}
-                            {featuredCount ? ` • ${featuredCount} ${tr("featured")}` : ""}
+                            {featuredCount ? ` | ${featuredCount} ${tr("featured")}` : ""}
                           </div>
                         </div>
-                        <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+                        <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
                       </button>
 
                       {open ? (
@@ -605,11 +619,13 @@ export default function LeagueClient() {
                                         event.preventDefault();
                                         toggleFavoriteLeague(competition.slug);
                                       }}
-                                      className={`shrink-0 text-base ${favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"}`}
+                                      className={`shrink-0 text-base ${
+                                        favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"
+                                      }`}
                                       title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                       aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                     >
-                                      {favoriteSlugs.includes(competition.slug) ? "★" : "☆"}
+                                      {favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}
                                     </button>
                                     <button
                                       type="button"
@@ -621,7 +637,7 @@ export default function LeagueClient() {
                                       title={tr("hideLeague")}
                                       aria-label={tr("hideLeague")}
                                     >
-                                      👁
+                                      {"\u{1F441}"}
                                     </button>
                                     {competition.is_featured ? (
                                       <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
@@ -659,7 +675,7 @@ export default function LeagueClient() {
                             title={tr("showLeague")}
                             aria-label={tr("showLeague")}
                           >
-                            👁
+                            {"\u{1F441}"}
                           </button>
                         </div>
                       ))}
@@ -750,32 +766,36 @@ export default function LeagueClient() {
                                 : "border-white/10 bg-white/5 text-white/30"
                             }`}
                           >
-                            ←
+                            &lt;
                           </button>
 
-                          <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
-                            {roundMeta.map((item) => {
-                              const active = item.round === selectedRound;
-                              return (
-                                <button
-                                  key={item.round}
-                                  onClick={() => setRound(item.round)}
-                                  className={`shrink-0 rounded-2xl border px-4 py-2 text-center transition ${
-                                    active
-                                      ? "border-emerald-300/35 bg-emerald-400/25 text-white"
-                                      : "border-white/15 bg-white/10 text-white/85 hover:bg-white/15"
-                                  }`}
-                                >
-                                  <div className="text-xl font-black leading-none">{item.round}</div>
-                                  <div className="mt-1 text-[11px] font-semibold text-white/70">{formatRoundDate(item.first_date)}</div>
-                                  {phaseLabel(tr, item.phaseKey) ? (
-                                    <div className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-100/80">
-                                      {phaseLabel(tr, item.phaseKey)}
-                                    </div>
-                                  ) : null}
-                                </button>
-                              );
-                            })}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex justify-center">
+                              <div className="flex min-w-max max-w-full gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
+                                {roundMeta.map((item) => {
+                                  const active = item.round === selectedRound;
+                                  return (
+                                    <button
+                                      key={item.round}
+                                      onClick={() => setRound(item.round)}
+                                      className={`shrink-0 rounded-2xl border px-4 py-2 text-center transition ${
+                                        active
+                                          ? "border-emerald-300/35 bg-emerald-400/25 text-white"
+                                          : "border-white/15 bg-white/10 text-white/85 hover:bg-white/15"
+                                      }`}
+                                    >
+                                      <div className="text-xl font-black leading-none">{item.round}</div>
+                                      <div className="mt-1 text-[11px] font-semibold text-white/70">{formatRoundDate(item.first_date)}</div>
+                                      {phaseLabel(tr, item.phaseKey) ? (
+                                        <div className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-100/80">
+                                          {phaseLabel(tr, item.phaseKey)}
+                                        </div>
+                                      ) : null}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           </div>
 
                           <button
@@ -787,7 +807,7 @@ export default function LeagueClient() {
                                 : "border-white/10 bg-white/5 text-white/30"
                             }`}
                           >
-                            →
+                            &gt;
                           </button>
                         </div>
                       ) : null}
@@ -796,8 +816,8 @@ export default function LeagueClient() {
                     <div>
                       <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                       <p className="text-sm text-white/80">
-                        {tr("seasonLabel")}: <span className="font-semibold text-white">{seasonName}</span> • {tr("round")}:{" "}
-                        <span className="font-semibold text-white">{selectedRound ?? "—"}</span> • {tr("tz")}:{" "}
+                        {tr("seasonLabel")}: <span className="font-semibold text-white">{seasonName}</span>  |  {tr("round")}:{" "}
+                        <span className="font-semibold text-white">{selectedRound ?? "-"}</span>  |  {tr("tz")}:{" "}
                         <span className="font-semibold text-white">{timeZone}</span>
                       </p>
                     </div>
@@ -857,13 +877,13 @@ export default function LeagueClient() {
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                     <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("teamHomeFallback")} />
                                     <span className="font-extrabold tabular-nums text-white">
-                                      {match.status === "NS" ? "—" : match.home_score ?? "-"}
+                                      {match.status === "NS" ? "-" : match.home_score ?? "-"}
                                     </span>
                                   </div>
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                     <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("teamAwayFallback")} />
                                     <span className="font-extrabold tabular-nums text-white">
-                                      {match.status === "NS" ? "—" : match.away_score ?? "-"}
+                                      {match.status === "NS" ? "-" : match.away_score ?? "-"}
                                     </span>
                                   </div>
                                 </div>
@@ -962,7 +982,7 @@ export default function LeagueClient() {
                   <section className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-4">
                       <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
-                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("teamLabel")}s</div>
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("teamsTab")}</div>
                         <div className="mt-2 text-3xl font-black text-white">{leagueTeams.length}</div>
                       </div>
                       <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
@@ -1032,7 +1052,7 @@ export default function LeagueClient() {
                         <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("seasonLabel")}</div>
                         <div className="mt-2 text-2xl font-black text-white">{seasonName}</div>
                         <div className="mt-2 text-sm text-white/70">
-                          {data.competition.name} • {data.competition.region || "RugbyNow"}
+                          {data.competition.name}  |  {data.competition.region || "RugbyNow"}
                         </div>
                       </div>
                     </div>
@@ -1049,7 +1069,7 @@ export default function LeagueClient() {
                             <div className="min-w-0 flex-1">
                               <div className="truncate font-semibold text-white">{team.name}</div>
                               <div className="text-xs text-white/65">
-                                {team.points != null ? `PTS ${team.points}` : ""}{team.played != null ? ` • PJ ${team.played}` : ""}
+                                {team.points != null ? `PTS ${team.points}` : ""}{team.played != null ? `  |  PJ ${team.played}` : ""}
                               </div>
                             </div>
                           </div>
@@ -1077,15 +1097,16 @@ export default function LeagueClient() {
         <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <Image
-                src="/logohorizontal.png"
-                alt="RugbyNow"
+              <BrandWordmark
+                key={`league-footer-brand-${theme}`}
+                theme={theme}
                 width={150}
                 height={28}
                 className="h-auto w-[120px] object-contain sm:w-[150px]"
+                fallbackClassName="text-base font-extrabold rn-text-primary"
               />
               <div>
-                {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
+                {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span>  |  TZ:{" "}
                 <span className="font-semibold text-white">{timeZone}</span>
               </div>
             </div>
@@ -1094,7 +1115,7 @@ export default function LeagueClient() {
               <a className="underline" href="mailto:lopresttivito@gmail.com">
                 lopresttivito@gmail.com
               </a>
-              <span className="mx-2">•</span>
+              <span className="mx-2"> | </span>
               <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
                 LinkedIn
               </a>
@@ -1105,3 +1126,4 @@ export default function LeagueClient() {
     </div>
   );
 }
+

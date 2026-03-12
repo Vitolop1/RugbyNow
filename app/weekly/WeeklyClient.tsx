@@ -30,7 +30,7 @@ export default function WeeklyClient({ digest }: Props) {
           <p className="mt-3 text-white/80">{tr("weeklyHubBody")}</p>
           {digest ? (
             <p className="mt-3 text-xs text-white/60">
-              {tr("weeklyUpdated")}: {new Date(digest.generatedAt).toLocaleString()} • {digest.windowStart} → {digest.windowEnd}
+              {tr("weeklyUpdated")}: {new Date(digest.generatedAt).toLocaleString()} | {digest.windowStart} {"->"} {digest.windowEnd}
             </p>
           ) : null}
         </div>
@@ -65,7 +65,7 @@ export default function WeeklyClient({ digest }: Props) {
                   <div>
                     <h2 className="text-2xl font-extrabold">{league.name}</h2>
                     <p className="text-sm text-white/70">
-                      {league.group} • {league.region || tr("groupsOther")} • {league.articleCount} {tr("weeklyStories")}
+                      {league.group} | {league.region || tr("groupsOther")} | {league.articleCount} {tr("weeklyStories")}
                     </p>
                   </div>
                   <Link

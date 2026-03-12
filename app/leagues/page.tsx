@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
 import { getLeagueLogo } from "@/lib/assets";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
+import { getCompetitionGroupPriority, getCompetitionSortPriority, getDisplayGroupName } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
 
@@ -44,6 +45,9 @@ export default function LeaguesPage() {
   const { lang } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const europeGroupLabel = tr("groupsEurope");
+  const sevenGroupLabel = tr("groupsSeven");
+  const southAmericaGroupLabel = tr("groupsSouthAmerica");
   const [leagues, setLeagues] = useState<League[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,28 +89,38 @@ export default function LeaguesPage() {
     const map = new Map<string, League[]>();
 
     for (const league of leagues) {
-      const group = (league.group_name || otherGroupLabel).trim();
+      const group = getDisplayGroupName(league, {
+        other: otherGroupLabel,
+        europe: europeGroupLabel,
+        seven: sevenGroupLabel,
+        southAmerica: southAmericaGroupLabel,
+      });
       if (!map.has(group)) map.set(group, []);
       map.get(group)!.push(league);
     }
 
     const entries = Array.from(map.entries());
-    entries.sort((a, b) => a[0].localeCompare(b[0]));
+    entries.sort((a, b) => {
+      const aPriority = getCompetitionGroupPriority(a[1][0]);
+      const bPriority = getCompetitionGroupPriority(b[1][0]);
+      if (aPriority !== bPriority) return aPriority - bPriority;
+      return a[0].localeCompare(b[0]);
+    });
 
     for (const [, items] of entries) {
       items.sort((a, b) => {
-        const aSort = a.sort_order ?? 9999;
-        const bSort = b.sort_order ?? 9999;
+        const aSort = getCompetitionSortPriority(a);
+        const bSort = getCompetitionSortPriority(b);
         if (aSort !== bSort) return aSort - bSort;
         return a.name.localeCompare(b.name);
       });
     }
 
     return entries;
-  }, [leagues, otherGroupLabel]);
+  }, [leagues, otherGroupLabel, europeGroupLabel, sevenGroupLabel, southAmericaGroupLabel]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0E4F33] text-white">
+    <div className="rn-app-bg relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-green-300/10 blur-3xl" />
@@ -148,20 +162,20 @@ export default function LeaguesPage() {
                             <div className="min-w-0">
                               <div className="truncate font-semibold">{league.name}</div>
                               <div className="mt-1 text-xs text-white/75">
-                                {getCompetitionEmoji(league.slug, league.group_name, league.country_code)} {league.region || "—"}
+                                {getCompetitionEmoji(league.slug, league.group_name, league.country_code)} {league.region || "-"}
                               </div>
                             </div>
                           </div>
 
                           {league.is_featured ? (
                             <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
-                              PIN
+                              {tr("pinned")}
                             </span>
                           ) : null}
                         </div>
 
                         <div className="mt-3 text-xs text-white/70">
-                          {tr("seasonLabel")}: <span className="font-semibold text-white">{season?.name || "—"}</span>
+                          {tr("seasonLabel")}: <span className="font-semibold text-white">{season?.name || "-"}</span>
                         </div>
                       </Link>
                     );

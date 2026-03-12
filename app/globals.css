@@ -82,6 +82,7 @@ html.theme-dark {
 
 html.theme-light .bg-\[\#0E4F33\],
 html.theme-light .bg-\[\#0B3E28\],
+html.theme-light .bg-\[\#0a4b31\]\/90,
 html.theme-light .bg-black\/20,
 html.theme-light .bg-black\/25,
 html.theme-light .bg-black\/30 {
@@ -89,16 +90,27 @@ html.theme-light .bg-black\/30 {
 }
 
 html.theme-light .bg-white\/10,
-html.theme-light .bg-white\/5 {
+html.theme-light .bg-white\/5,
+html.theme-light .bg-white\/15 {
   background-color: var(--rn-surface-soft) !important;
 }
 
 html.theme-light .bg-emerald-300\/15,
+html.theme-light .bg-emerald-300\/20,
+html.theme-light .bg-emerald-300\/25,
 html.theme-light .bg-lime-200\/10,
+html.theme-light .bg-green-300\/10,
 html.theme-light .bg-emerald-400\/25,
+html.theme-light .bg-emerald-400\/20,
 html.theme-light .bg-emerald-400\/35,
 html.theme-light .bg-red-400\/10 {
   background-color: rgba(23, 33, 43, 0.06) !important;
+}
+
+html.theme-light .text-emerald-100,
+html.theme-light .text-emerald-100\/80,
+html.theme-light .text-emerald-200 {
+  color: var(--rn-text) !important;
 }
 
 html.theme-light .text-white,
@@ -123,8 +135,16 @@ html.theme-light .border-white\/30 {
   border-color: var(--rn-border) !important;
 }
 
+html.theme-light .border-emerald-200\/30,
+html.theme-light .border-emerald-300\/30,
+html.theme-light .border-emerald-300\/35,
+html.theme-light .border-emerald-300\/40 {
+  border-color: var(--rn-border) !important;
+}
+
 html.theme-dark .bg-\[\#0E4F33\],
 html.theme-dark .bg-\[\#0B3E28\],
+html.theme-dark .bg-\[\#0a4b31\]\/90,
 html.theme-dark .bg-black\/20,
 html.theme-dark .bg-black\/25,
 html.theme-dark .bg-black\/30 {
@@ -132,13 +152,26 @@ html.theme-dark .bg-black\/30 {
 }
 
 html.theme-dark .bg-white\/10,
-html.theme-dark .bg-white\/5 {
+html.theme-dark .bg-white\/5,
+html.theme-dark .bg-white\/15 {
   background-color: var(--rn-surface-soft) !important;
 }
 
 html.theme-dark .bg-emerald-300\/15,
-html.theme-dark .bg-lime-200\/10 {
-  background-color: rgba(40, 230, 154, 0.08) !important;
+html.theme-dark .bg-emerald-300\/20,
+html.theme-dark .bg-emerald-300\/25,
+html.theme-dark .bg-lime-200\/10,
+html.theme-dark .bg-green-300\/10,
+html.theme-dark .bg-emerald-400\/20,
+html.theme-dark .bg-emerald-400\/25,
+html.theme-dark .bg-emerald-400\/35 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.theme-dark .text-emerald-100,
+html.theme-dark .text-emerald-100\/80,
+html.theme-dark .text-emerald-200 {
+  color: var(--rn-text) !important;
 }
 
 html.theme-dark .border-white\/10,
@@ -147,9 +180,20 @@ html.theme-dark .border-white\/30 {
   border-color: var(--rn-border) !important;
 }
 
+html.theme-dark .border-emerald-200\/30,
+html.theme-dark .border-emerald-300\/30,
+html.theme-dark .border-emerald-300\/35,
+html.theme-dark .border-emerald-300\/40 {
+  border-color: var(--rn-border) !important;
+}
+
 html.theme-light img,
 html.theme-dark img {
   transition: filter 160ms ease;
+}
+
+html.theme-light img[data-brand-wordmark="true"] {
+  filter: brightness(0) saturate(100%);
 }
 
 /* RugbyNow scrollbars: visibles en dark y en fondo verde */

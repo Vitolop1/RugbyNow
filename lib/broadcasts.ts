@@ -90,7 +90,7 @@ export function getBroadcastsForCompetition(slug?: string | null): BroadcastProv
     if (slug === "ar-liga-norte-grande" && id === "youtube") {
       return {
         ...provider,
-        href: "https://www.youtube.com/results?search_query=Tercer+Tiempo+Salta+Josema",
+        href: "https://www.youtube.com/@tercertiemposalta",
       };
     }
 

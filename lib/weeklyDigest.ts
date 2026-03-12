@@ -113,9 +113,64 @@ const SOURCE_CONFIGS: SourceConfig[] = [
   },
 ];
 
+const CURATED_ARTICLES: WeeklyArticle[] = [
+  {
+    id: "onrugby:serie-a-elite-mercato-2025-26",
+    title: "Rugbymercato Serie A Elite: tutti gli acquisti e le cessioni della stagione 2025/26",
+    titleEs: "Mercado Serie A Elite: altas y bajas de la temporada 2025/26",
+    link: "https://www.onrugby.it/2025/09/09/rugbymercato-serie-a-elite-tutti-gli-acquisti-e-le-cessioni-della-stagione-2025-26/",
+    source: "OnRugby",
+    publishedAt: "2025-09-09T00:00:00.000Z",
+    leagueSlugs: ["it-serie-a-elite"],
+    teaser:
+      "OnRugby followed the full 2025/26 Serie A Elite market and the picture is clear: Argentine players are spread across the league.",
+    teaserEs:
+      "OnRugby siguio todo el mercado 2025/26 de la Serie A Elite y el panorama es claro: hay jugadores argentinos repartidos por toda la liga.",
+  },
+  {
+    id: "onrugby:viadana-ledesma",
+    title: "Viadana, l'apertura argentina Tadeo Ledesma e giallonera",
+    titleEs: "Viadana suma al apertura argentino Tadeo Ledesma",
+    link: "https://www.onrugby.it/2025/07/16/viadana-lapertura-argentina-tadeo-ledesma-e-giallonera/",
+    source: "OnRugby",
+    publishedAt: "2025-07-16T00:00:00.000Z",
+    leagueSlugs: ["it-serie-a-elite"],
+    teaser:
+      "Viadana added Argentine fly-half Tadeo Ledesma as part of its build for the new Serie A Elite season.",
+    teaserEs:
+      "Viadana incorporo al apertura argentino Tadeo Ledesma como parte de su armado para la nueva temporada de Serie A Elite.",
+  },
+  {
+    id: "onrugby:mogliano-bruno",
+    title: "Serie A Elite, Mogliano: nuovo rinforzo in seconda linea",
+    titleEs: "Mogliano suma al argentino Felipe Bruno en la segunda linea",
+    link: "https://www.onrugby.it/2025/08/07/serie-a-elite-mogliano-nuovo-rinforzo-in-seconda-linea/",
+    source: "OnRugby",
+    publishedAt: "2025-08-07T00:00:00.000Z",
+    leagueSlugs: ["it-serie-a-elite"],
+    teaser:
+      "Mogliano reinforced its pack with Argentine lock Felipe Bruno, another sign of Argentina's growing footprint in Italy's top flight.",
+    teaserEs:
+      "Mogliano reforzo su pack con el segunda linea argentino Felipe Bruno, otra senal del peso que tiene Argentina en la elite italiana.",
+  },
+  {
+    id: "onrugby:valorugby-due-argentini",
+    title: "Serie A Elite: due argentini per il Valorugby Emilia",
+    titleEs: "Valorugby Emilia incorpora dos argentinos para la Serie A Elite",
+    link: "https://www.onrugby.it/2025/08/09/serie-a-elite-due-argentini-per-il-valorugby-emilia/",
+    source: "OnRugby",
+    publishedAt: "2025-08-09T00:00:00.000Z",
+    leagueSlugs: ["it-serie-a-elite"],
+    teaser:
+      "Valorugby Emilia added two Argentine players, reinforcing the Argentine pipeline into the Italian domestic game.",
+    teaserEs:
+      "Valorugby Emilia sumo dos jugadores argentinos, reforzando la via argentina dentro del rugby italiano.",
+  },
+];
+
 const LEAGUE_CONFIGS: LeagueConfig[] = [
   { slug: "fr-top14", aliases: ["top 14", "stade toulousain", "montpellier", "clermont", "racing 92", "toulon"] },
-  { slug: "it-serie-a-elite", aliases: ["serie a elite", "italy", "italia rugby", "rovigo", "viadana", "petrarca"] },
+  { slug: "it-serie-a-elite", aliases: ["serie a elite", "rovigo", "viadana", "petrarca", "mogliano", "valorugby", "colorno", "fiamme oro"] },
   { slug: "int-six-nations", aliases: ["six nations", "england", "wales", "ireland", "scotland", "france", "italy"] },
   { slug: "sra", aliases: ["super rugby americas", "sra", "pampas", "dogos", "selknam", "peñarol", "penarol", "tarucas", "yacare", "capibaras", "cobras"] },
   { slug: "en-premiership-rugby", aliases: ["premiership rugby", "leicester tigers", "saracens", "harlequins", "sale sharks", "northampton saints"] },
@@ -242,7 +297,7 @@ async function fetchArticles() {
     }
   }
 
-  return dedupeArticles(results).sort((a, b) => (b.publishedAt || "").localeCompare(a.publishedAt || ""));
+  return dedupeArticles([...CURATED_ARTICLES, ...results]).sort((a, b) => (b.publishedAt || "").localeCompare(a.publishedAt || ""));
 }
 
 function loadSnapshot() {

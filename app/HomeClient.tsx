@@ -1,16 +1,23 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
+import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
-import { getDisplayGroupName, readSlugList, toggleSlug, writeSlugList } from "@/lib/competitionPrefs";
+import {
+  getCompetitionGroupPriority,
+  getCompetitionSortPriority,
+  getDisplayGroupName,
+  readSlugList,
+  toggleSlug,
+  writeSlugList,
+} from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { usePrefs } from "@/lib/usePrefs";
@@ -223,7 +230,7 @@ function competitionFlag(competition: Competition) {
 
 export default function HomeClient() {
   const router = useRouter();
-  const { timeZone, mounted, lang } = usePrefs();
+  const { timeZone, mounted, lang, theme } = usePrefs();
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedISO, setSelectedISO] = useState<string>(getInitialSelectedISO);
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -249,6 +256,7 @@ export default function HomeClient() {
   const otherGroupLabel = tr("groupsOther");
   const europeGroupLabel = tr("groupsEurope");
   const sevenGroupLabel = tr("groupsSeven");
+  const southAmericaGroupLabel = tr("groupsSouthAmerica");
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
@@ -399,24 +407,30 @@ export default function HomeClient() {
         other: otherGroupLabel,
         europe: europeGroupLabel,
         seven: sevenGroupLabel,
+        southAmerica: southAmericaGroupLabel,
       });
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group)!.push(competition);
     }
 
     return Array.from(groups.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
+      .sort((a, b) => {
+        const aPriority = getCompetitionGroupPriority(a[1][0]);
+        const bPriority = getCompetitionGroupPriority(b[1][0]);
+        if (aPriority !== bPriority) return aPriority - bPriority;
+        return a[0].localeCompare(b[0]);
+      })
       .map(([groupName, comps]) => [
         groupName,
         comps.sort((a, b) => {
           if (!!a.is_featured !== !!b.is_featured) return a.is_featured ? -1 : 1;
-          const aSort = a.sort_order ?? 9999;
-          const bSort = b.sort_order ?? 9999;
+          const aSort = getCompetitionSortPriority(a);
+          const bSort = getCompetitionSortPriority(b);
           if (aSort !== bSort) return aSort - bSort;
           return a.name.localeCompare(b.name);
         }),
       ] as const);
-  }, [dedupedCompetitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel]);
+  }, [dedupedCompetitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel, southAmericaGroupLabel]);
 
   const favoriteCompetitions = useMemo(
     () =>
@@ -502,11 +516,11 @@ export default function HomeClient() {
                             <button
                               type="button"
                               onClick={() => toggleFavoriteLeague(competition.slug)}
-                              className="shrink-0 text-base"
+                              className="shrink-0 text-base text-amber-300"
                               title={tr("removeFavorite")}
                               aria-label={tr("removeFavorite")}
                             >
-                              ★
+                              {"\u2605"}
                             </button>
                             <button
                               type="button"
@@ -515,7 +529,7 @@ export default function HomeClient() {
                               title={tr("hideLeague")}
                               aria-label={tr("hideLeague")}
                             >
-                              👁
+                              {"\u{1F441}"}
                             </button>
                           </div>
                         ))}
@@ -541,10 +555,10 @@ export default function HomeClient() {
                             </div>
                             <div className="text-[11px] text-white/70">
                               {comps.length} {tr("leagues").toLowerCase()}
-                              {featuredCount ? ` • ${featuredCount} ${tr("featured")}` : ""}
+                              {featuredCount ? ` | ${featuredCount} ${tr("featured")}` : ""}
                             </div>
                           </div>
-                          <span className="text-xs text-white/70">{open ? "−" : "+"}</span>
+                          <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
                         </button>
 
                         {open ? (
@@ -576,7 +590,7 @@ export default function HomeClient() {
                                   title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                   aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                 >
-                                  {favoriteSlugs.includes(competition.slug) ? "★" : "☆"}
+                                  {favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}
                                 </button>
                                 <button
                                   type="button"
@@ -585,7 +599,7 @@ export default function HomeClient() {
                                   title={tr("hideLeague")}
                                   aria-label={tr("hideLeague")}
                                 >
-                                  👁
+                                  {"\u{1F441}"}
                                 </button>
                               </div>
                             ))}
@@ -614,7 +628,7 @@ export default function HomeClient() {
                               title={tr("showLeague")}
                               aria-label={tr("showLeague")}
                             >
-                              👁‍🗨
+                              {"\u{1F441}"}
                             </button>
                           </div>
                         ))}
@@ -637,7 +651,7 @@ export default function HomeClient() {
                       onClick={() => setSelectedISO(toISODateLocal(addDays(selectedDate, -1)))}
                       className="flex min-h-[72px] items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-2 py-3 transition hover:bg-white/15 lg:gap-3 lg:px-4"
                     >
-                      <span className="text-3xl font-black text-white">←</span>
+                      <span className="text-3xl font-black text-white">&lt;</span>
                       <span className="hidden flex-col text-left lg:flex">
                         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">{tr("goTo")}</span>
                         <span className="text-lg font-extrabold text-white">{tr("yesterday")}</span>
@@ -675,7 +689,7 @@ export default function HomeClient() {
                         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/60">{tr("goTo")}</span>
                         <span className="text-lg font-extrabold text-white">{tr("tomorrow")}</span>
                       </span>
-                      <span className="text-3xl font-black text-white">→</span>
+                      <span className="text-3xl font-black text-white">&gt;</span>
                     </button>
                   </div>
 
@@ -703,8 +717,8 @@ export default function HomeClient() {
                 <div>
                   <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                   <p className="text-sm text-white/80">
-                    {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate)}</span> •{" "}
-                    {tab === "LIVE" ? tr("liveOnly") : tr("allMatches")} • {tr("tz")}:{" "}
+                    {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate)}</span>  | {" "}
+                    {tab === "LIVE" ? tr("liveOnly") : tr("allMatches")}  |  {tr("tz")}:{" "}
                     <span className="font-semibold text-white">{timeZone}</span>
                   </p>
                 </div>
@@ -782,11 +796,11 @@ export default function HomeClient() {
                             <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                               <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                 <TeamName name={match.home} slug={match.homeSlug} />
-                                <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "—" : match.hs ?? "-"}</span>
+                                <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "-" : match.hs ?? "-"}</span>
                               </div>
                               <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                 <TeamName name={match.away} slug={match.awaySlug} />
-                                <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "—" : match.as ?? "-"}</span>
+                                <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "-" : match.as ?? "-"}</span>
                               </div>
                             </div>
 
@@ -852,15 +866,16 @@ export default function HomeClient() {
         <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <Image
-                src="/logohorizontal.png"
-                alt="RugbyNow"
+              <BrandWordmark
+                key={`home-footer-brand-${theme}`}
+                theme={theme}
                 width={150}
                 height={28}
                 className="h-auto w-[120px] object-contain sm:w-[150px]"
+                fallbackClassName="text-base font-extrabold rn-text-primary"
               />
               <div>
-                {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span> • TZ:{" "}
+                {tr("builtBy")} <span className="font-semibold text-white">Vito Loprestti</span>  |  TZ:{" "}
                 <span className="font-semibold text-white">{timeZone}</span>
               </div>
             </div>
@@ -869,7 +884,7 @@ export default function HomeClient() {
               <a className="underline" href="mailto:lopresttivito@gmail.com">
                 lopresttivito@gmail.com
               </a>
-              <span className="mx-2">•</span>
+              <span className="mx-2"> | </span>
               <a className="underline" href="https://www.linkedin.com/in/vitoloprestti/" target="_blank" rel="noreferrer">
                 LinkedIn
               </a>
@@ -880,3 +895,4 @@ export default function HomeClient() {
     </div>
   );
 }
+

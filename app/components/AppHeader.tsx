@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
+import BrandWordmark from "@/app/components/BrandWordmark";
 import { t } from "@/lib/i18n";
 import { usePrefs, type Lang, type ThemeMode } from "@/lib/usePrefs";
 
@@ -57,11 +58,16 @@ function ThemeGlyph({ theme }: { theme: ThemeMode }) {
   }
 
   return (
-    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <path d="M7 5.8c1.3-1.3 3.15-1.9 5-1.9s3.7.6 5 1.9c2.7 2.7 2.7 9.7 0 12.4-1.3 1.3-3.15 1.9-5 1.9s-3.7-.6-5-1.9c-2.7-2.7-2.7-9.7 0-12.4Z" />
-      <path d="M9.1 7.2c1.05.68 1.9 1.57 2.57 2.68M14.9 16.8c-1.05-.68-1.9-1.57-2.57-2.68M15.05 7.05c-.82 1.14-1.42 2.51-1.74 4.05M8.95 16.95c.82-1.14 1.42-2.51 1.74-4.05" />
-      <path d="M8.05 10.25h7.9M8.05 13.75h7.9" />
-    </svg>
+    <span className="relative block h-[18px] w-[18px] overflow-hidden rounded-full">
+      <Image
+        src="/logo.png"
+        alt=""
+        aria-hidden="true"
+        width={18}
+        height={18}
+        className="h-full w-full scale-[1.14] object-cover object-[52%_48%]"
+      />
+    </span>
   );
 }
 
@@ -77,7 +83,6 @@ export default function AppHeader({
   const { mounted, timeZone, setTZEverywhere, lang, setLangEverywhere, theme, setThemeEverywhere } = usePrefs();
   const [nowTick, setNowTick] = useState<number | null>(null);
   const [logoOk, setLogoOk] = useState(true);
-  const [brandOk, setBrandOk] = useState(true);
 
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
   const effectiveLang = langProp ?? lang;
@@ -124,21 +129,15 @@ export default function AppHeader({
 
           <div className="absolute left-1/2 max-w-[70%] -translate-x-1/2 sm:max-w-[80%]">
             <Link href="/" className="flex items-center justify-center">
-              {brandOk ? (
-                <Image
-                  src="/logohorizontal.png"
-                  alt="RugbyNow"
-                  width={312}
-                  height={62}
-                  className="h-auto w-[215px] object-contain sm:w-[288px]"
-                  onError={() => setBrandOk(false)}
-                  priority
-                />
-              ) : (
-                <h1 className="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight sm:text-[26px]">
-                  Rugby<span className="text-emerald-300">Now</span>
-                </h1>
-              )}
+              <BrandWordmark
+                key={`header-brand-${theme}`}
+                theme={theme}
+                width={312}
+                height={62}
+                className="h-auto w-[215px] object-contain sm:w-[288px]"
+                fallbackClassName="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight rn-text-primary sm:text-[26px]"
+                priority
+              />
             </Link>
           </div>
 

@@ -17,6 +17,7 @@ const STAR = emoji(0x2b50);
 const RUGBY = emoji(0x1f3c9);
 const SEVEN = "7\uFE0F\u20E3";
 const SOUTH_AMERICA = emoji(0x1f30e);
+const CLUBS = emoji(0x1f3df);
 
 export function getCompetitionEmoji(slug?: string | null, groupName?: string | null, countryCode?: string | null) {
   const s = (slug || "").toLowerCase();
@@ -32,8 +33,7 @@ export function getCompetitionEmoji(slug?: string | null, groupName?: string | n
   if (s === "fr-top14") return flag("FR");
   if (s === "it-serie-a-elite") return flag("IT");
   if (s === "en-premiership-rugby") return RUGBY;
-  if (s === "ar-urba-top14") return flag("AR");
-  if (s === "ar-liga-norte-grande") return flag("AR");
+  if (s.startsWith("ar-")) return flag("AR");
   if (s.startsWith("svns-")) return SEVEN;
 
   if (countryCode === "AR") return flag("AR");
@@ -45,7 +45,28 @@ export function getCompetitionEmoji(slug?: string | null, groupName?: string | n
   if (group === "europe" || group === "europa") return flag("EU");
   if (group === "seven") return SEVEN;
   if (group === "south america" || group === "sudamerica") return SOUTH_AMERICA;
+  if (group === "argentina") return flag("AR");
+  if (group === "international selections" || group === "internacional selecciones") return GLOBE;
+  if (group === "international clubs" || group === "internacional clubes") return CLUBS;
   if (group === "international") return GLOBE;
 
   return RUGBY;
+}
+
+export function getCompetitionGroupEmoji(groupKey: string) {
+  if (groupKey === "argentina") return flag("AR");
+  if (groupKey === "southAmerica") return SOUTH_AMERICA;
+  if (groupKey === "europe") return flag("EU");
+  if (groupKey === "internationalSelections") return GLOBE;
+  if (groupKey === "internationalClubs") return CLUBS;
+  if (groupKey === "seven") return SEVEN;
+  if (groupKey === "usa") return flag("US");
+  return RUGBY;
+}
+
+export function getCompetitionGroupIconPath(groupKey: string) {
+  if (groupKey === "internationalSelections") return "/league-logos/int-world-cup.png";
+  if (groupKey === "internationalClubs") return "/league-logos/eu-champions-cup.png";
+  if (groupKey === "seven") return "/league-logos/Rugby_World_Cup_Sevens_logo.png";
+  return null;
 }

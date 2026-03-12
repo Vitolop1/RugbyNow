@@ -4,8 +4,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
 import { getLeagueLogo } from "@/lib/assets";
-import { getCompetitionEmoji } from "@/lib/competitionMeta";
-import { getCompetitionGroupPriority, getCompetitionSortPriority, getDisplayGroupName } from "@/lib/competitionPrefs";
+import { getCompetitionEmoji, getCompetitionGroupEmoji, getCompetitionGroupIconPath } from "@/lib/competitionMeta";
+import {
+  getCompetitionGroupKey,
+  getCompetitionGroupPriority,
+  getCompetitionSortPriority,
+  getDisplayGroupName,
+} from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
 
@@ -41,13 +46,38 @@ function LeagueLogo({ slug, alt, size = 22 }: { slug?: string | null; alt: strin
   );
 }
 
+function GroupBadge({ groupKey, alt }: { groupKey: string; alt: string }) {
+  const src = getCompetitionGroupIconPath(groupKey);
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        width={20}
+        height={20}
+        className="h-5 w-5 shrink-0 rounded-sm bg-white/5 object-contain"
+        onError={(e) => {
+          e.currentTarget.onerror = null;
+          e.currentTarget.style.display = "none";
+        }}
+      />
+    );
+  }
+
+  return <span className="text-lg">{getCompetitionGroupEmoji(groupKey)}</span>;
+}
+
 export default function LeaguesPage() {
   const { lang } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const argentinaGroupLabel = tr("groupsArgentina");
   const europeGroupLabel = tr("groupsEurope");
   const sevenGroupLabel = tr("groupsSeven");
   const southAmericaGroupLabel = tr("groupsSouthAmerica");
+  const internationalSelectionsGroupLabel = tr("groupsInternationalSelections");
+  const internationalClubsGroupLabel = tr("groupsInternationalClubs");
+  const usaGroupLabel = tr("groupsUSA");
   const [leagues, setLeagues] = useState<League[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,10 +120,14 @@ export default function LeaguesPage() {
 
     for (const league of leagues) {
       const group = getDisplayGroupName(league, {
+        argentina: argentinaGroupLabel,
         other: otherGroupLabel,
         europe: europeGroupLabel,
         seven: sevenGroupLabel,
         southAmerica: southAmericaGroupLabel,
+        internationalSelections: internationalSelectionsGroupLabel,
+        internationalClubs: internationalClubsGroupLabel,
+        usa: usaGroupLabel,
       });
       if (!map.has(group)) map.set(group, []);
       map.get(group)!.push(league);
@@ -117,7 +151,17 @@ export default function LeaguesPage() {
     }
 
     return entries;
-  }, [leagues, otherGroupLabel, europeGroupLabel, sevenGroupLabel, southAmericaGroupLabel]);
+  }, [
+    leagues,
+    argentinaGroupLabel,
+    otherGroupLabel,
+    europeGroupLabel,
+    sevenGroupLabel,
+    southAmericaGroupLabel,
+    internationalSelectionsGroupLabel,
+    internationalClubsGroupLabel,
+    usaGroupLabel,
+  ]);
 
   return (
     <div className="rn-app-bg relative min-h-screen overflow-hidden">
@@ -139,7 +183,7 @@ export default function LeaguesPage() {
             {grouped.map(([groupName, items]) => (
               <section key={groupName}>
                 <div className="mb-3 flex items-center gap-2">
-                  <span className="text-lg">{getCompetitionEmoji(undefined, groupName, items[0]?.country_code ?? null)}</span>
+                  <GroupBadge groupKey={getCompetitionGroupKey(items[0])} alt={groupName} />
                   <h2 className="text-lg font-bold">{groupName}</h2>
                   <span className="text-xs text-white/60">
                     {items.length} {tr("leagues").toLowerCase()}

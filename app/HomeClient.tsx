@@ -9,8 +9,9 @@ import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
-import { getCompetitionEmoji } from "@/lib/competitionMeta";
+import { getCompetitionEmoji, getCompetitionGroupEmoji, getCompetitionGroupIconPath } from "@/lib/competitionMeta";
 import {
+  getCompetitionGroupKey,
   getCompetitionGroupPriority,
   getCompetitionSortPriority,
   getDisplayGroupName,
@@ -107,6 +108,27 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
       }}
     />
   );
+}
+
+function GroupBadge({ groupKey, alt }: { groupKey: string; alt: string }) {
+  const src = getCompetitionGroupIconPath(groupKey);
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        width={18}
+        height={18}
+        className="h-[18px] w-[18px] shrink-0 rounded-sm bg-white/5 object-contain"
+        onError={(e) => {
+          e.currentTarget.onerror = null;
+          e.currentTarget.style.display = "none";
+        }}
+      />
+    );
+  }
+
+  return <span>{getCompetitionGroupEmoji(groupKey)}</span>;
 }
 
 function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
@@ -254,9 +276,13 @@ export default function HomeClient() {
   const dateQuery = `?date=${selectedISO}`;
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const argentinaGroupLabel = tr("groupsArgentina");
   const europeGroupLabel = tr("groupsEurope");
   const sevenGroupLabel = tr("groupsSeven");
   const southAmericaGroupLabel = tr("groupsSouthAmerica");
+  const internationalSelectionsGroupLabel = tr("groupsInternationalSelections");
+  const internationalClubsGroupLabel = tr("groupsInternationalClubs");
+  const usaGroupLabel = tr("groupsUSA");
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
@@ -404,10 +430,14 @@ export default function HomeClient() {
 
     for (const competition of dedupedCompetitions.filter((item) => !hiddenSlugs.includes(item.slug))) {
       const group = getDisplayGroupName(competition, {
+        argentina: argentinaGroupLabel,
         other: otherGroupLabel,
         europe: europeGroupLabel,
         seven: sevenGroupLabel,
         southAmerica: southAmericaGroupLabel,
+        internationalSelections: internationalSelectionsGroupLabel,
+        internationalClubs: internationalClubsGroupLabel,
+        usa: usaGroupLabel,
       });
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group)!.push(competition);
@@ -430,7 +460,18 @@ export default function HomeClient() {
           return a.name.localeCompare(b.name);
         }),
       ] as const);
-  }, [dedupedCompetitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel, southAmericaGroupLabel]);
+  }, [
+    dedupedCompetitions,
+    hiddenSlugs,
+    argentinaGroupLabel,
+    otherGroupLabel,
+    europeGroupLabel,
+    sevenGroupLabel,
+    southAmericaGroupLabel,
+    internationalSelectionsGroupLabel,
+    internationalClubsGroupLabel,
+    usaGroupLabel,
+  ]);
 
   const favoriteCompetitions = useMemo(
     () =>
@@ -550,7 +591,7 @@ export default function HomeClient() {
                         >
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 truncate text-sm font-extrabold text-white">
-                              <span>{getCompetitionEmoji(undefined, groupName, comps[0]?.country_code ?? null)}</span>
+                              <GroupBadge groupKey={getCompetitionGroupKey(comps[0])} alt={groupName} />
                               <span>{groupName}</span>
                             </div>
                             <div className="text-[11px] text-white/70">

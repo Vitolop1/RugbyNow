@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,9 +13,53 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "RugbyNow",
-  description: "Live rugby scores, fixtures, and tables",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "RugbyNow",
+    template: "%s | RugbyNow",
+  },
+  description:
+    "Live rugby scores, fixtures, tables, standings, weekly recaps, and competition coverage from RugbyNow.",
+  applicationName: "RugbyNow",
+  keywords: [
+    "rugby",
+    "rugby scores",
+    "rugby fixtures",
+    "rugby standings",
+    "super rugby pacific",
+    "six nations",
+    "urba top 14",
+    "rugby world cup",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    title: "RugbyNow",
+    description:
+      "Live rugby scores, fixtures, tables, standings, weekly recaps, and competition coverage from RugbyNow.",
+    siteName: "RugbyNow",
+    images: [
+      {
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "RugbyNow",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RugbyNow",
+    description:
+      "Live rugby scores, fixtures, tables, standings, weekly recaps, and competition coverage from RugbyNow.",
+    images: ["/logo.png"],
+  },
 };
 
 const themeInitScript = `

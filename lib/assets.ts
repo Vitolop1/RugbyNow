@@ -63,6 +63,10 @@ const LEAGUE_LOGO_ALIASES: Record<string, string> = {
   "int-world-cup": "int-world-cup",
   "it-serie-a-elite": "it-serie-a-elite",
   "int-united-rugby-championship": "united-rugby-championship",
+  "svns-australia": "Rugby_World_Cup_Sevens_logo",
+  "svns-hong-kong": "Rugby_World_Cup_Sevens_logo",
+  "svns-singapore": "Rugby_World_Cup_Sevens_logo",
+  "svns-usa": "Rugby_World_Cup_Sevens_logo",
   "us-mlr": "us-mlr",
 };
 
@@ -73,6 +77,10 @@ export function resolveTeamLogoSlug(teamSlug?: string | null) {
 
 export function resolveLeagueLogoPath(compSlug?: string | null) {
   if (!compSlug) return "/league-logos/_placeholder.png";
+
+  if (compSlug.startsWith("svns-") || compSlug.includes("sevens")) {
+    return "/league-logos/Rugby_World_Cup_Sevens_logo.png";
+  }
 
   const resolved = LEAGUE_LOGO_ALIASES[compSlug];
   if (!resolved) return `/league-logos/${compSlug}.png`;

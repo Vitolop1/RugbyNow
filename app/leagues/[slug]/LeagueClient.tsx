@@ -297,9 +297,13 @@ export default function LeagueClient() {
   const { lang, mounted, timeZone, theme } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const argentinaGroupLabel = tr("groupsArgentina");
   const europeGroupLabel = tr("groupsEurope");
   const sevenGroupLabel = tr("groupsSeven");
   const southAmericaGroupLabel = tr("groupsSouthAmerica");
+  const internationalSelectionsGroupLabel = tr("groupsInternationalSelections");
+  const internationalClubsGroupLabel = tr("groupsInternationalClubs");
+  const usaGroupLabel = tr("groupsUSA");
 
   const slug = params.slug;
   const refISO = searchParams.get("date") || toISODateLocal(new Date());
@@ -394,15 +398,30 @@ export default function LeagueClient() {
           .map((competition) => ({
             ...competition,
             group_name: getDisplayGroupName(competition, {
+              argentina: argentinaGroupLabel,
               other: otherGroupLabel,
               europe: europeGroupLabel,
               seven: sevenGroupLabel,
               southAmerica: southAmericaGroupLabel,
+              internationalSelections: internationalSelectionsGroupLabel,
+              internationalClubs: internationalClubsGroupLabel,
+              usa: usaGroupLabel,
             }),
           })),
         otherGroupLabel
       ),
-    [data?.competitions, hiddenSlugs, otherGroupLabel, europeGroupLabel, sevenGroupLabel, southAmericaGroupLabel]
+    [
+      data?.competitions,
+      hiddenSlugs,
+      argentinaGroupLabel,
+      otherGroupLabel,
+      europeGroupLabel,
+      sevenGroupLabel,
+      southAmericaGroupLabel,
+      internationalSelectionsGroupLabel,
+      internationalClubsGroupLabel,
+      usaGroupLabel,
+    ]
   );
 
   const favoriteCompetitions = useMemo(

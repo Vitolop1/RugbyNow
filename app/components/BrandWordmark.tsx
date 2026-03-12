@@ -35,6 +35,8 @@ export default function BrandWordmark({
 
   const [sourceIndex, setSourceIndex] = useState(0);
   const [showFallback, setShowFallback] = useState(false);
+  const activeSource = sources[sourceIndex];
+  const tone = theme === "light" && activeSource === "/logohorizontal.png" ? "filtered" : "native";
 
   if (showFallback) {
     return (
@@ -52,6 +54,7 @@ export default function BrandWordmark({
       height={height}
       className={className}
       data-brand-wordmark="true"
+      data-brand-wordmark-tone={tone}
       priority={priority}
       onError={() => {
         if (sourceIndex < sources.length - 1) {

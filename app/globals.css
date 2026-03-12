@@ -192,7 +192,7 @@ html.theme-dark img {
   transition: filter 160ms ease;
 }
 
-html.theme-light img[data-brand-wordmark="true"] {
+html.theme-light img[data-brand-wordmark-tone="filtered"] {
   filter: brightness(0) saturate(100%);
 }
 

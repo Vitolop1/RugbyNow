@@ -9,7 +9,7 @@ export default function AboutPage() {
   const tr = (key: string) => t(lang, key);
 
   return (
-    <div className="min-h-screen bg-[#0E4F33] text-white">
+    <div className="rn-app-bg min-h-screen">
       <AppHeader />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="text-3xl font-extrabold">{tr("aboutTitle")}</h1>

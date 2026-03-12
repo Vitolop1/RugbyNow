@@ -6,10 +6,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
+import BroadcastPill from "@/app/components/BroadcastPill";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
 import { getDisplayGroupName, readSlugList, toggleSlug, writeSlugList } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
+import { getBroadcastsForCompetition } from "@/lib/broadcasts";
+import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { usePrefs } from "@/lib/usePrefs";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
@@ -162,6 +165,33 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
   );
 }
 
+function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
+  const tr = (key: string) => t(lang, key);
+
+  if (status === "LIVE") {
+    return (
+      <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
+        <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+        {tr("statusLive")}
+      </span>
+    );
+  }
+
+  if (status === "FT") {
+    return (
+      <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white">
+        {tr("statusFt")}
+      </span>
+    );
+  }
+
+  return (
+    <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white/90">
+      {tr("statusPre")}
+    </span>
+  );
+}
+
 function TeamLink({
   slug,
   name,
@@ -227,14 +257,6 @@ function niceDate(iso: string) {
   });
 }
 
-function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
-  if (!kickoffTime) return null;
-  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
-    new Date(`${matchDate}T${normalized}`)
-  );
-}
-
 function groupCompetitions(competitions: Competition[], otherLabel: string) {
   const groups = new Map<string, Competition[]>();
   for (const competition of competitions) {
@@ -278,6 +300,7 @@ export default function LeagueClient() {
   const [data, setData] = useState<LeaguePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [, setClockTick] = useState(0);
   const leagueBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_LEAGUE_BANNER;
   const leagueRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_LEAGUE_RAIL;
 
@@ -307,6 +330,11 @@ export default function LeagueClient() {
   }, [hiddenSlugs, mounted]);
 
   useEffect(() => {
+    const id = window.setInterval(() => setClockTick(Date.now()), 30000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -334,7 +362,7 @@ export default function LeagueClient() {
       setLoading(false);
 
       const hasLive = (payload.matches || []).some((match: LeagueMatch) => match.status === "LIVE");
-      timer = setTimeout(load, hasLive ? 10000 : 60000);
+      timer = setTimeout(load, hasLive ? 30000 : 180000);
     };
 
     load();
@@ -448,7 +476,7 @@ export default function LeagueClient() {
   const toggleHiddenLeague = (nextSlug: string) => setHiddenSlugs((prev) => toggleSlug(prev, nextSlug));
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0E4F33] text-white">
+    <div className="rn-app-bg relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-44 left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-emerald-300/15 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-lime-200/10 blur-3xl" />
@@ -791,31 +819,37 @@ export default function LeagueClient() {
 
                         <div className="divide-y divide-white/10">
                           {visibleMatches.map((match) => {
-                            const timeLabel =
-                              match.status === "LIVE"
-                                ? `${tr("statusLive")} ${match.minute ?? ""}${match.minute ? "'" : ""}`.trim()
-                                : match.status === "FT"
-                                  ? tr("statusFt")
-                                  : formatKickoffTZ(match.match_date, match.kickoff_time, timeZone) ?? tr("tbd");
+                            const clockLabel = getMatchClockLabel({
+                              status: match.status,
+                              minute: match.minute,
+                              matchDate: match.match_date,
+                              kickoffTime: match.kickoff_time,
+                              timeZone,
+                              lang,
+                            });
+                            const contextLabel = getMatchContextLabel({
+                              status: match.status,
+                              minute: match.minute,
+                              matchDate: match.match_date,
+                              kickoffTime: match.kickoff_time,
+                              timeZone,
+                              lang,
+                            });
+                            const broadcasts = getBroadcastsForCompetition(data.competition.slug);
 
                             return (
                               <div
                                 key={match.id}
-                                className={`flex items-center gap-4 px-4 py-3 ${
+                                className={`flex flex-col gap-3 px-4 py-3 transition ${
                                   match.status === "LIVE" ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
                                 }`}
                               >
+                                <div className="flex items-start gap-4">
                                 <div className="w-32 shrink-0">
-                                  <div className="text-lg font-extrabold tracking-tight text-white">{timeLabel}</div>
+                                  <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
                                   <div className="mt-1 flex items-center gap-2">
-                                    <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white/90">
-                                      {match.status === "FT"
-                                        ? tr("statusFt")
-                                        : match.status === "LIVE"
-                                          ? tr("statusLive")
-                                          : tr("statusPre")}
-                                    </span>
-                                    <span className="text-xs text-white/70">{niceDate(match.match_date)}</span>
+                                    <StatusBadge status={match.status} lang={lang} />
+                                    <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
                                   </div>
                                 </div>
 
@@ -832,6 +866,21 @@ export default function LeagueClient() {
                                       {match.status === "NS" ? "—" : match.away_score ?? "-"}
                                     </span>
                                   </div>
+                                </div>
+                                </div>
+
+                                <div className="flex flex-wrap items-center justify-between gap-2 pl-0 sm:pl-32">
+                                  <span className="text-xs text-white/70">{niceDate(match.match_date)}</span>
+                                  {broadcasts.length ? (
+                                    <div className="flex flex-wrap items-center justify-end gap-2">
+                                      <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
+                                        {tr("watchOn")}
+                                      </span>
+                                      {broadcasts.map((provider) => (
+                                        <BroadcastPill key={`${match.id}-${provider.id}`} provider={provider} compact />
+                                      ))}
+                                    </div>
+                                  ) : null}
                                 </div>
                               </div>
                             );

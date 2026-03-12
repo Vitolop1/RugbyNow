@@ -1,9 +1,9 @@
-name: sync-live (every 2m if LIVE)
+name: sync-live (every 5m if LIVE)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/2 * * * *"
+    - cron: "*/5 * * * *"
 
 concurrency:
   group: rugby-now-live
@@ -28,7 +28,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
-          LIVE_ONLY: "1"
         run: |
           npm run ensure:flashscore-competitions
-          npx tsx scripts/sync-flashscore.ts
+          npm run sync:live

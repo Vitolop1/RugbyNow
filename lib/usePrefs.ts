@@ -3,14 +3,15 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 export type Lang = "en" | "es" | "fr" | "it";
+export type ThemeMode = "rugby" | "light" | "dark";
 
 const DEFAULT_TZ = "America/New_York";
 const DEFAULT_LANG: Lang = "en";
-const DEFAULT_DARK = false;
+const DEFAULT_THEME: ThemeMode = "rugby";
 
 function readLang(): Lang {
   const v = localStorage.getItem("lang");
-  return v === "en" || v === "es" || v === "fr" || v === "it" ? v : "en";
+  return v === "en" || v === "es" || v === "fr" || v === "it" ? v : DEFAULT_LANG;
 }
 
 function readTZ(): string {
@@ -18,14 +19,22 @@ function readTZ(): string {
   return v && v.trim() ? v : DEFAULT_TZ;
 }
 
-function readTheme(): boolean {
-  return localStorage.getItem("theme") === "dark";
+function readTheme(): ThemeMode {
+  const v = localStorage.getItem("theme");
+  return v === "rugby" || v === "light" || v === "dark" ? v : DEFAULT_THEME;
+}
+
+function applyTheme(theme: ThemeMode) {
+  const root = document.documentElement;
+  root.classList.remove("theme-rugby", "theme-light", "theme-dark", "dark");
+  root.classList.add(`theme-${theme}`);
+  if (theme === "dark") root.classList.add("dark");
 }
 
 export function usePrefs() {
   const [timeZone, setTimeZone] = useState<string>(DEFAULT_TZ);
   const [lang, setLang] = useState<Lang>(DEFAULT_LANG);
-  const [dark, setDark] = useState<boolean>(DEFAULT_DARK);
+  const [theme, setTheme] = useState<ThemeMode>(DEFAULT_THEME);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -36,12 +45,12 @@ export function usePrefs() {
     const syncPrefs = () => {
       const nextTZ = readTZ();
       const nextLang = readLang();
-      const nextDark = readTheme();
+      const nextTheme = readTheme();
 
       setTimeZone(nextTZ);
       setLang(nextLang);
-      setDark(nextDark);
-      document.documentElement.classList.toggle("dark", nextDark);
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
     };
 
     const syncId = window.setTimeout(syncPrefs, 0);
@@ -50,18 +59,18 @@ export function usePrefs() {
       if (e.key === "tz") setTimeZone(readTZ());
       if (e.key === "lang") setLang(readLang());
       if (e.key === "theme") {
-        const nextDark = readTheme();
-        setDark(nextDark);
-        document.documentElement.classList.toggle("dark", nextDark);
+        const nextTheme = readTheme();
+        setTheme(nextTheme);
+        applyTheme(nextTheme);
       }
     };
 
     const onTZ: EventListener = () => setTimeZone(readTZ());
     const onLang: EventListener = () => setLang(readLang());
     const onTheme: EventListener = () => {
-      const nextDark = readTheme();
-      setDark(nextDark);
-      document.documentElement.classList.toggle("dark", nextDark);
+      const nextTheme = readTheme();
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
     };
 
     window.addEventListener("storage", onStorage);
@@ -90,10 +99,10 @@ export function usePrefs() {
     window.dispatchEvent(new Event("lang-change"));
   };
 
-  const setThemeEverywhere = (nextDark: boolean) => {
-    localStorage.setItem("theme", nextDark ? "dark" : "light");
-    setDark(nextDark);
-    document.documentElement.classList.toggle("dark", nextDark);
+  const setThemeEverywhere = (nextTheme: ThemeMode) => {
+    localStorage.setItem("theme", nextTheme);
+    setTheme(nextTheme);
+    applyTheme(nextTheme);
     window.dispatchEvent(new Event("theme-change"));
   };
 
@@ -103,7 +112,8 @@ export function usePrefs() {
     setTZEverywhere,
     lang,
     setLangEverywhere,
-    dark,
+    theme,
+    dark: theme === "dark",
     setThemeEverywhere,
   };
 }

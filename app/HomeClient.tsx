@@ -6,20 +6,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
+import BroadcastPill from "@/app/components/BroadcastPill";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
+import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
 import { getDisplayGroupName, readSlugList, toggleSlug, writeSlugList } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
+import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { usePrefs } from "@/lib/usePrefs";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
 type Match = {
-  timeLabel: string;
+  matchDate: string;
+  kickoffTime: string | null;
   home: string;
   away: string;
   homeSlug?: string | null;
   awaySlug?: string | null;
+  minute: number | null;
   hs: number | null;
   as: number | null;
   status: MatchStatus;
@@ -169,14 +174,6 @@ function niceDate(d: Date) {
   });
 }
 
-function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
-  if (!kickoffTime) return null;
-  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
-    new Date(`${matchDate}T${normalized}`)
-  );
-}
-
 function isSameDay(a: Date, b: Date) {
   return toISODateLocal(a) === toISODateLocal(b);
 }
@@ -191,7 +188,7 @@ function dedupeBlock(block: LeagueBlock) {
       match.hs == null && match.as == null
         ? ""
         : [match.hs ?? "", match.as ?? ""].map(String).sort().join("|");
-    const key = `${block.slug}|${match.timeLabel}|${pair}|${match.status}|${scores}`;
+    const key = `${block.slug}|${match.matchDate}|${match.kickoffTime ?? ""}|${pair}|${match.status}|${scores}`;
     if (seen.has(key)) continue;
     seen.add(key);
     matches.push(match);
@@ -239,6 +236,7 @@ export default function HomeClient() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
+  const [, setClockTick] = useState(0);
   const homeBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_BANNER;
   const homeRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_RAIL;
 
@@ -276,6 +274,11 @@ export default function HomeClient() {
     if (!mounted) return;
     writeSlugList("rn:hidden-leagues", hiddenSlugs);
   }, [hiddenSlugs, mounted]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setClockTick(Date.now()), 30000);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     if (lastPushedISO.current === selectedISO) return;
@@ -335,19 +338,15 @@ export default function HomeClient() {
         const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
         const leagueSlug = row.season?.competition?.slug ?? "unknown";
         const region = row.season?.competition?.region ?? "";
-        const timeLabel =
-          row.status === "LIVE"
-            ? `${tr("statusLive")} ${row.minute ?? ""}${row.minute ? "'" : ""}`.trim()
-            : row.status === "FT"
-              ? tr("statusFt")
-              : formatKickoffTZ(row.match_date, row.kickoff_time, timeZone) ?? tr("tbd");
 
         const match: Match = {
-          timeLabel,
+          matchDate: row.match_date,
+          kickoffTime: row.kickoff_time,
           home: row.home_team?.name ?? tr("tbd"),
           away: row.away_team?.name ?? tr("tbd"),
           homeSlug: row.home_team?.slug ?? null,
           awaySlug: row.away_team?.slug ?? null,
+          minute: row.minute,
           hs: row.status === "NS" ? null : row.home_score,
           as: row.status === "NS" ? null : row.away_score,
           status: row.status,
@@ -362,7 +361,7 @@ export default function HomeClient() {
 
       setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
       setLoading(false);
-      timer = setTimeout(loadMatches, hasLive ? 10000 : 60000);
+      timer = setTimeout(loadMatches, hasLive ? 30000 : 180000);
     };
 
     loadMatches();
@@ -446,7 +445,7 @@ export default function HomeClient() {
   const toggleHiddenLeague = (slug: string) => setHiddenSlugs((prev) => toggleSlug(prev, slug));
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0E4F33] text-white">
+    <div className="rn-app-bg relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-44 left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-emerald-300/15 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-lime-200/10 blur-3xl" />
@@ -745,17 +744,38 @@ export default function HomeClient() {
                       </div>
 
                       <div className="divide-y divide-white/10">
-                        {block.matches.map((match, index) => (
-                          <div
-                            key={`${block.slug}-${index}-${match.timeLabel}-${match.home}-${match.away}`}
-                            className={`flex items-center gap-4 px-4 py-3 transition ${
-                              match.status === "LIVE" ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
-                            }`}
-                          >
+                        {block.matches.map((match, index) => {
+                          const clockLabel = getMatchClockLabel({
+                            status: match.status,
+                            minute: match.minute,
+                            matchDate: match.matchDate,
+                            kickoffTime: match.kickoffTime,
+                            timeZone,
+                            lang,
+                          });
+                          const contextLabel = getMatchContextLabel({
+                            status: match.status,
+                            minute: match.minute,
+                            matchDate: match.matchDate,
+                            kickoffTime: match.kickoffTime,
+                            timeZone,
+                            lang,
+                          });
+                          const broadcasts = getBroadcastsForCompetition(block.slug);
+
+                          return (
+                            <div
+                              key={`${block.slug}-${index}-${match.matchDate}-${match.kickoffTime ?? ""}-${match.home}-${match.away}`}
+                              className={`flex flex-col gap-3 px-4 py-3 transition ${
+                                match.status === "LIVE" ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
+                              }`}
+                            >
+                              <div className="flex items-start gap-4">
                             <div className="w-32 shrink-0">
-                              <div className="text-lg font-extrabold tracking-tight text-white">{match.timeLabel}</div>
-                              <div className="mt-1">
+                              <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
+                              <div className="mt-1 flex items-center gap-2">
                                 <StatusBadge status={match.status} lang={lang} />
+                                <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
                               </div>
                             </div>
 
@@ -777,8 +797,20 @@ export default function HomeClient() {
                                   ? tr("final")
                                   : tr("upcoming")}
                             </div>
-                          </div>
-                        ))}
+                              </div>
+                          {broadcasts.length ? (
+                            <div className="flex flex-wrap items-center gap-2 pl-0 sm:pl-32">
+                              <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
+                                {tr("watchOn")}
+                              </span>
+                              {broadcasts.map((provider) => (
+                                <BroadcastPill key={`${block.slug}-${provider.id}`} provider={provider} compact />
+                              ))}
+                            </div>
+                          ) : null}
+                            </div>
+                          );
+                        })}
                       </div>
 
                       <div className="flex justify-end border-t border-white/15 px-4 py-3">

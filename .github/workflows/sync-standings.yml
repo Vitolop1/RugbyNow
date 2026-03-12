@@ -1,19 +1,19 @@
-name: sync-matches (every 30m)
+name: sync-standings (every 30m)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "15,45 * * * *"
 
 permissions:
   contents: write
 
 concurrency:
-  group: rugby-now-sync-full
+  group: rugby-now-sync-standings
   cancel-in-progress: true
 
 jobs:
-  sync_scores:
+  sync_standings:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,14 +26,14 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      - name: Run matches sync
+      - name: Run standings sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
           npm run ensure:flashscore-competitions
-          npm run sync:matches
+          npm run sync:standings
 
       - name: Export Supabase snapshot
         env:

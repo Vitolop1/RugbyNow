@@ -8,12 +8,14 @@
     "start": "next start",
     "lint": "eslint",
     "sync:flashscore": "tsx scripts/sync-flashscore.ts",
+    "sync:matches": "tsx scripts/sync-matches.ts",
+    "sync:standings": "tsx scripts/sync-standings-runner.ts",
     "rebuild:flashscore": "tsx scripts/rebuild-flashscore.ts",
     "ensure:flashscore-competitions": "tsx scripts/ensure-flashscore-competitions.ts",
     "check:supabase": "tsx scripts/check-supabase.ts",
     "export:supabase-snapshot": "tsx scripts/export-supabase-snapshot.ts",
     "build:weekly": "tsx scripts/build-weekly.ts",
-    "sync:live": "LIVE_ONLY=1 tsx scripts/sync-flashscore.ts",
+    "sync:live": "tsx scripts/sync-live-runner.ts",
     "audit:fallback": "tsx scripts/audit-fallback.ts"
   },
   "dependencies": {

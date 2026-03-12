@@ -73,6 +73,8 @@ type ScrapedStandingRow = {
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const LIVE_ONLY = process.env.LIVE_ONLY === "1";
+const MATCHES_ONLY = process.env.MATCHES_ONLY === "1";
+const STANDINGS_ONLY = process.env.STANDINGS_ONLY === "1";
 const DRY_RUN = process.env.DRY_RUN === "1";
 
 if (!DRY_RUN && (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)) {
@@ -230,6 +232,13 @@ function buildFlashVariants(raw: string) {
     .replace(/\/results$/i, "")
     .replace(/\/standings$/i, "");
 
+  if (STANDINGS_ONLY) {
+    return {
+      resultsAndFixtures: [] as string[],
+      standings: `${base}/standings`,
+    };
+  }
+
   if (LIVE_ONLY) {
     return {
       resultsAndFixtures: [`${base}/fixtures`],
@@ -241,6 +250,24 @@ function buildFlashVariants(raw: string) {
     resultsAndFixtures: [`${base}/results`, `${base}/fixtures`],
     standings: `${base}/standings`,
   };
+}
+
+function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
+  if (!matchDate) return null;
+  const time = kickoffTime && kickoffTime.trim() ? kickoffTime.trim() : "00:00";
+  const normalized = time.length === 5 ? `${time}:00` : time;
+  const value = new Date(`${matchDate}T${normalized}`);
+  return Number.isNaN(value.getTime()) ? null : value;
+}
+
+function isPotentiallyLiveWindow(matchDate: string, kickoffTime?: string | null, status?: MatchStatus | null) {
+  if (status === "LIVE") return true;
+
+  const kickoff = parseMatchDateTime(matchDate, kickoffTime);
+  if (!kickoff) return false;
+
+  const diffMinutes = Math.floor((Date.now() - kickoff.getTime()) / 60000);
+  return diffMinutes >= -15 && diffMinutes <= 130;
 }
 
 function competitionSlugFromUrl(url: string) {
@@ -400,7 +427,6 @@ async function getTeamsMap() {
   if (!DRY_RUN) {
     const { data, error } = await ensureSupabase().from("teams").select("id,name");
     if (error) throw error;
-
     for (const t of (data || []) as TeamRow[]) {
       const n = norm(t.name);
       map.set(n, t.id);
@@ -1300,6 +1326,7 @@ async function main() {
   const inputs = urlsFromEnv();
   console.log("Inputs:", inputs);
   console.log("Mode:", DRY_RUN ? "DRY_RUN" : "LIVE_DB");
+  console.log("Flags:", JSON.stringify({ LIVE_ONLY, MATCHES_ONLY, STANDINGS_ONLY }));
 
   if (!DRY_RUN) {
     const { error: pingErr } = await ensureSupabase().from("competitions").select("id").limit(1);
@@ -1307,11 +1334,32 @@ async function main() {
   }
 
   if (LIVE_ONLY && !DRY_RUN) {
-    const { data, error } = await ensureSupabase().from("matches").select("id").eq("status", "LIVE").limit(1);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const { data, error } = await ensureSupabase()
+      .from("matches")
+      .select("id,status,match_date,kickoff_time")
+      .gte("match_date", yesterday.toISOString().slice(0, 10))
+      .lte("match_date", tomorrow.toISOString().slice(0, 10))
+      .neq("status", "FT")
+      .limit(40);
 
     if (error) throw error;
+    const candidates = (data || []) as Array<{
+      id: number;
+      status: MatchStatus | null;
+      match_date: string;
+      kickoff_time: string | null;
+    }>;
+    const hasRelevantWindow = candidates.some((row) =>
+      isPotentiallyLiveWindow(row.match_date, row.kickoff_time, row.status ?? "NS")
+    );
 
-    if (!data || data.length === 0) {
+    if (!hasRelevantWindow) {
       console.log("LIVE_ONLY=1 but no LIVE matches in DB. Exiting fast ✅");
       return;
     }
@@ -1403,11 +1451,13 @@ async function main() {
       let updatedHere = 0;
       let insertedHere = 0;
       let skippedWithoutDate = 0;
+      let resetFutureScores = 0;
 
       const touchedIds = new Set<number>();
       const unresolvedTeams = new Set<string>();
+      const tomorrowIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-      for (const row of scraped) {
+      for (const row of STANDINGS_ONLY ? [] : scraped) {
         const homeId = await getOrCreateTeamId(row.home, teamsMap, teamNamesNorm);
         const awayId = await getOrCreateTeamId(row.away, teamsMap, teamNamesNorm);
 
@@ -1443,6 +1493,14 @@ async function main() {
         let target: DbMatchRow | null = null;
         const kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
         const matchDate = inferredDate;
+        const effectiveParsed =
+          parsed.status !== "NS" && matchDate > tomorrowIso
+            ? ({ status: "NS", minute: null } as const)
+            : parsed;
+
+        if (effectiveParsed !== parsed) {
+          resetFutureScores++;
+        }
 
         sourceKey = buildSourceEventKey({
           compSlug,
@@ -1470,7 +1528,7 @@ async function main() {
           }
         }
 
-        if (target?.status === "FT" && parsed.status === "NS") {
+        if (target?.status === "FT" && effectiveParsed.status === "NS") {
           continue;
         }
 
@@ -1478,8 +1536,8 @@ async function main() {
           season_id: seasonMeta.seasonId,
           match_date: matchDate,
           kickoff_time: kickoffTime,
-          status: parsed.status,
-          minute: parsed.minute,
+          status: effectiveParsed.status,
+          minute: effectiveParsed.minute,
           home_team_id: homeId,
           away_team_id: awayId,
           round: round ?? target?.round ?? null,
@@ -1489,7 +1547,7 @@ async function main() {
           updated_at: new Date().toISOString(),
         };
 
-        if (parsed.status === "NS") {
+        if (effectiveParsed.status === "NS") {
           payload.home_score = null;
           payload.away_score = null;
         } else {
@@ -1533,7 +1591,8 @@ async function main() {
         }
       }
 
-      try {
+      if (!MATCHES_ONLY && !LIVE_ONLY) {
+        try {
         console.log("Open standings:", variants.standings);
         await gotoWithRetry(page, variants.standings, 3);
         await maybeAcceptConsent(page);
@@ -1555,8 +1614,9 @@ async function main() {
             standings,
           });
         }
-      } catch (e: unknown) {
-        console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+        } catch (e: unknown) {
+          console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+        }
       }
 
       if (unresolvedTeams.size > 0) {
@@ -1568,6 +1628,10 @@ async function main() {
 
       if (skippedWithoutDate > 0) {
         console.log(`Skipped without inferable date in ${compSlug}: ${skippedWithoutDate}`);
+      }
+
+      if (resetFutureScores > 0) {
+        console.log(`Future score resets in ${compSlug}: ${resetFutureScores}`);
       }
 
       console.log(`Updated in ${compSlug}: ${updatedHere}`);

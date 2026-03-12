@@ -17,6 +17,8 @@ const TEAM_LOGO_ALIASES: Record<string, string> = {
   "exeter-chiefs": "exeter-chiefs",
   fiji: "fiji",
   "fiji-7s": "fiji",
+  "great-britain": "great-britain",
+  "great-britain-7s": "great-britain",
   "glasgow-warriors": "glasgow-warriors",
   gloucester: "gloucester",
   harlequins: "harlequins",

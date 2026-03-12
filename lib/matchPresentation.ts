@@ -22,17 +22,7 @@ export function estimateLiveMinute(matchDate: string, kickoffTime?: string | nul
   if (explicitMinute != null && explicitMinute > 0) {
     return clamp(explicitMinute, 1, 90);
   }
-
-  if (!kickoffTime) return null;
-
-  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  const kickoff = new Date(`${matchDate}T${normalized}`);
-  const elapsed = Math.floor((Date.now() - kickoff.getTime()) / 60000);
-
-  if (!Number.isFinite(elapsed) || elapsed <= 0) return null;
-
-  const adjusted = elapsed <= 40 ? elapsed : elapsed - 10;
-  return clamp(adjusted, 1, 90);
+  return null;
 }
 
 export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {

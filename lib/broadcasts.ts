@@ -2,7 +2,9 @@ export type BroadcastProviderId =
   | "disney-plus"
   | "espn"
   | "espn-plus"
+  | "rai-sport"
   | "rugbypass-tv"
+  | "the-rugby-channel"
   | "urc-tv"
   | "youtube";
 
@@ -28,10 +30,20 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
     label: "ESPN+",
     href: "https://plus.espn.com",
   },
+  "rai-sport": {
+    id: "rai-sport",
+    label: "Rai Sport",
+    href: "https://www.raisport.rai.it/",
+  },
   "rugbypass-tv": {
     id: "rugbypass-tv",
     label: "RugbyPass TV",
     href: "https://rugbypass.tv",
+  },
+  "the-rugby-channel": {
+    id: "the-rugby-channel",
+    label: "The Rugby Channel",
+    href: "https://www.therugbychannel.it/",
   },
   "urc-tv": {
     id: "urc-tv",
@@ -47,20 +59,21 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
 
 const BROADCASTS_BY_COMPETITION: Partial<Record<string, BroadcastProviderId[]>> = {
   "ar-liga-norte-grande": ["youtube"],
-  "ar-urba-top14": ["espn", "disney-plus"],
-  "en-premiership-rugby": ["espn", "disney-plus"],
-  "eu-champions-cup": ["espn", "disney-plus"],
-  "fr-top14": ["espn", "disney-plus"],
-  "int-six-nations": ["espn", "disney-plus"],
-  "int-super-rugby-pacific": ["espn", "disney-plus"],
-  "int-united-rugby-championship": ["espn", "disney-plus", "urc-tv"],
-  "int-world-cup": ["espn", "disney-plus"],
-  sra: ["espn", "disney-plus"],
-  "svns-australia": ["espn", "disney-plus", "rugbypass-tv"],
-  "svns-hong-kong": ["espn", "disney-plus", "rugbypass-tv"],
-  "svns-singapore": ["espn", "disney-plus", "rugbypass-tv"],
-  "svns-usa": ["espn", "disney-plus", "rugbypass-tv"],
-  "us-mlr": ["disney-plus", "espn", "espn-plus"],
+  "ar-urba-top14": ["disney-plus", "espn"],
+  "en-premiership-rugby": ["disney-plus", "espn"],
+  "eu-champions-cup": ["disney-plus", "espn"],
+  "fr-top14": ["disney-plus", "espn"],
+  "it-serie-a-elite": ["the-rugby-channel", "rai-sport"],
+  "int-six-nations": ["disney-plus", "espn"],
+  "int-super-rugby-pacific": ["disney-plus", "espn"],
+  "int-united-rugby-championship": ["disney-plus", "espn", "urc-tv"],
+  "int-world-cup": ["disney-plus", "espn"],
+  sra: ["disney-plus", "espn"],
+  "svns-australia": ["disney-plus", "espn", "rugbypass-tv"],
+  "svns-hong-kong": ["disney-plus", "espn", "rugbypass-tv"],
+  "svns-singapore": ["disney-plus", "espn", "rugbypass-tv"],
+  "svns-usa": ["disney-plus", "espn", "rugbypass-tv"],
+  "us-mlr": ["disney-plus", "espn-plus"],
 };
 
 export function getBroadcastLogo(id: BroadcastProviderId) {

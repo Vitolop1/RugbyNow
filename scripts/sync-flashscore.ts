@@ -6,7 +6,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 import fs from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { chromium, Page } from "playwright";
+import { chromium, Page, Route } from "playwright";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
 
@@ -55,7 +55,8 @@ type ScrapedRow = {
   roundText: string;
   rawText: string;
   dateLabel: string;
-  sourcePage: "results" | "fixtures";
+  detailUrl: string | null;
+  sourcePage: "results" | "fixtures" | "live";
 };
 
 type ScrapedStandingRow = {
@@ -153,7 +154,7 @@ function detectStatusAndMinute(
   raw: string,
   hs: number | null,
   as: number | null,
-  sourcePage: "results" | "fixtures"
+  sourcePage: "results" | "fixtures" | "live"
 ) {
   const s = (raw || "").toUpperCase().trim();
 
@@ -165,7 +166,7 @@ function detectStatusAndMinute(
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
-  if (/(HT|HALF TIME|LIVE)/.test(s)) {
+  if (/(HT|HALF TIME|LIVE|1ST HALF|2ND HALF|SECOND HALF|BREAK)/.test(s)) {
     return { status: "LIVE" as MatchStatus, minute: null as number | null };
   }
 
@@ -241,7 +242,7 @@ function buildFlashVariants(raw: string) {
 
   if (LIVE_ONLY) {
     return {
-      resultsAndFixtures: [`${base}/fixtures`],
+      resultsAndFixtures: [`${base}/live`],
       standings: `${base}/standings`,
     };
   }
@@ -927,7 +928,7 @@ async function clickShowMore(page: Page) {
   }
 }
 
-async function scrapePage(page: Page, sourcePage: "results" | "fixtures") {
+async function scrapePage(page: Page, sourcePage: "results" | "fixtures" | "live") {
   const js = `
 (() => {
   const pickText = (el) => {
@@ -992,10 +993,13 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures") {
       pickText(r.querySelector(".event__score--away")) ||
       pickText((r.querySelectorAll(".event__score")[1]) || null);
 
-    const statusOrTime =
-      pickText(r.querySelector(".event__time")) ||
-      pickText(r.querySelector(".event__stage")) ||
-      pickText(r.querySelector(".event__status"));
+    const statusOrTime = [
+      pickText(r.querySelector(".event__time")),
+      pickText(r.querySelector(".event__stage")),
+      pickText(r.querySelector(".event__status")),
+    ]
+      .filter(Boolean)
+      .join(" ");
 
     const roundText =
       pickText(r.querySelector(".event__round")) ||
@@ -1004,8 +1008,12 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures") {
 
     const rawText = pickText(r);
     const dateLabel = findDateLabel(r);
+    const detailUrl =
+      r.querySelector(".eventRowLink")?.getAttribute("href") ||
+      r.querySelector("a[href*='/match/']")?.getAttribute("href") ||
+      null;
 
-    out.push({ home, away, hs, as, statusOrTime, roundText, rawText, dateLabel });
+    out.push({ home, away, hs, as, statusOrTime, roundText, rawText, dateLabel, detailUrl });
   }
 
   return out;
@@ -1177,6 +1185,36 @@ function dedupeScrapedRows(rows: ScrapedRow[]) {
   }
 
   return out;
+}
+
+async function scrapeMatchDetailStatus(page: Page, rawUrl: string) {
+  const url = rawUrl.startsWith("http") ? rawUrl : `https://www.flashscore.com${rawUrl}`;
+
+  try {
+    await gotoWithRetry(page, url, 2);
+    await maybeAcceptConsent(page);
+    await page.waitForTimeout(900);
+
+    const statusText = await page.evaluate(() => {
+      const pick = (selector: string) => {
+        const node = document.querySelector(selector);
+        return String(node?.textContent ?? "").trim();
+      };
+
+      return [
+        pick(".detailScore__status"),
+        pick(".fixedHeaderDuel__detailStatus"),
+        pick(".detailScore__matchInfo"),
+      ]
+        .filter(Boolean)
+        .join(" ");
+    });
+
+    return statusText.trim() || null;
+  } catch (error) {
+    console.log("WARN: detail live status scrape failed:", url, describeError(error));
+    return null;
+  }
 }
 
 function buildExistingIndexes(matches: DbMatchRow[]) {
@@ -1374,12 +1412,23 @@ async function main() {
     userAgent:
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
   });
+  const detailPage = LIVE_ONLY
+    ? await browser.newPage({
+        userAgent:
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+      })
+    : null;
 
-  await page.route("**/*", (route) => {
+  const blockHeavyAssets = (route: Route) => {
     const type = route.request().resourceType();
     if (type === "image" || type === "font" || type === "media") return route.abort();
     return route.continue();
-  });
+  };
+
+  await page.route("**/*", blockHeavyAssets);
+  if (detailPage) {
+    await detailPage.route("**/*", blockHeavyAssets);
+  }
 
   let totalUpdates = 0;
   let totalInsertedOrUpserted = 0;
@@ -1409,7 +1458,11 @@ async function main() {
 
       for (const url of variants.resultsAndFixtures) {
         try {
-          const sourcePage: "results" | "fixtures" = /\/results$/i.test(url) ? "results" : "fixtures";
+          const sourcePage: "results" | "fixtures" | "live" = /\/results$/i.test(url)
+            ? "results"
+            : /\/live$/i.test(url)
+              ? "live"
+              : "fixtures";
 
           console.log("Open:", url);
           await gotoWithRetry(page, url, 3);
@@ -1469,7 +1522,7 @@ async function main() {
 
         const hs = parseScore(row.hs);
         const as = parseScore(row.as);
-        const parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
+        let parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
         const round = parseRound(row.roundText || row.rawText);
 
         const inferredDate =
@@ -1493,13 +1546,31 @@ async function main() {
         let target: DbMatchRow | null = null;
         const kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
         const matchDate = inferredDate;
-        const effectiveParsed =
+        let effectiveParsed =
           parsed.status !== "NS" && matchDate > tomorrowIso
             ? ({ status: "NS", minute: null } as const)
             : parsed;
 
         if (effectiveParsed !== parsed) {
           resetFutureScores++;
+        }
+
+        if (LIVE_ONLY && effectiveParsed.status === "LIVE" && effectiveParsed.minute == null && row.detailUrl && detailPage) {
+          const detailStatus = await scrapeMatchDetailStatus(detailPage, row.detailUrl);
+          if (detailStatus) {
+            const detailParsed = detectStatusAndMinute(detailStatus, hs, as, "live");
+            if (detailParsed.status === "LIVE" || detailParsed.status === "FT") {
+              parsed = detailParsed;
+              effectiveParsed =
+                matchDate > tomorrowIso
+                  ? ({ status: "NS", minute: null } as const)
+                  : detailParsed;
+            }
+          }
+        }
+
+        if (LIVE_ONLY && effectiveParsed.status === "NS") {
+          continue;
         }
 
         sourceKey = buildSourceEventKey({

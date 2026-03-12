@@ -27,7 +27,10 @@ export default function BrandWordmark({
     if (theme === "light") {
       return ["/logohorizontal-black.png", "/logohorizontal-light.png", "/logohorizontal.png"];
     }
-    return ["/logohorizontal.png"];
+    if (theme === "dark") {
+      return ["/logohorizontal-dark.png", "/logohorizontal.png"];
+    }
+    return ["/logohorizontal-rugby.png", "/logohorizontal.png"];
   }, [theme]);
 
   const [sourceIndex, setSourceIndex] = useState(0);

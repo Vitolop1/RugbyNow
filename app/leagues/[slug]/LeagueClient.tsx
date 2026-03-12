@@ -489,6 +489,12 @@ export default function LeagueClient() {
     });
   }, [data?.matches, data?.standings]);
   const topTeams = useMemo(() => leagueTeams.filter((team) => team.position != null).slice(0, 12), [leagueTeams]);
+  const hasLeagueEditorialContent =
+    !loading &&
+    !!data &&
+    ((activeTab === "overview" && (visibleMatches.length > 0 || data.standings.length > 0)) ||
+      (activeTab === "teams" && leagueTeams.length > 0) ||
+      (activeTab === "champions" && topTeams.length > 0));
 
   const setRound = (nextRound: number) => {
     const qs = new URLSearchParams(searchParams.toString());
@@ -985,14 +991,16 @@ export default function LeagueClient() {
                       </div>
                     </div>
 
-                    <AdSlot
-                      slot={leagueBannerSlot}
-                      format="horizontal"
-                      minHeight={140}
-                      fallbackTitle="Banner premium RugbyNow"
-                      fallbackSubtitle="Espacio horizontal para anuncios debajo de la tabla."
-                      className="hidden min-h-[140px] w-full lg:block"
-                    />
+                    {hasLeagueEditorialContent ? (
+                      <AdSlot
+                        slot={leagueBannerSlot}
+                        format="horizontal"
+                        minHeight={140}
+                        fallbackTitle="Banner premium RugbyNow"
+                        fallbackSubtitle="Espacio horizontal para anuncios debajo de la tabla."
+                        className="hidden min-h-[140px] w-full lg:block"
+                      />
+                    ) : null}
                   </section>
                 </div>
                 ) : null}
@@ -1102,16 +1110,18 @@ export default function LeagueClient() {
           </div>
         </main>
 
-        <div className="pointer-events-none fixed bottom-0 right-4 top-[145px] z-20 hidden w-[320px] py-4 xl:block">
-          <AdSlot
-            slot={leagueRailSlot}
-            format="vertical"
-            minHeight={600}
-            fallbackTitle="Tu marca puede vivir aca"
-            fallbackSubtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
-            className="h-full"
-          />
-        </div>
+        {hasLeagueEditorialContent ? (
+          <div className="pointer-events-none fixed bottom-0 right-4 top-[145px] z-20 hidden w-[320px] py-4 xl:block">
+            <AdSlot
+              slot={leagueRailSlot}
+              format="vertical"
+              minHeight={600}
+              fallbackTitle="Tu marca puede vivir aca"
+              fallbackSubtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
+              className="h-full"
+            />
+          </div>
+        ) : null}
 
         <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

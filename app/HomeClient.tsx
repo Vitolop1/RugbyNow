@@ -493,6 +493,7 @@ export default function HomeClient() {
       .map((block) => ({ ...block, matches: block.matches.filter((match) => match.status === "LIVE") }))
       .filter((block) => block.matches.length > 0);
   }, [blocks, tab, hiddenSlugs]);
+  const hasHomeEditorialContent = !loading && filteredBlocks.some((block) => block.matches.length > 0);
 
   const dateHeroLabel = isSameDay(selectedDate, todayLocal) ? tr("today").toUpperCase() : niceDate(selectedDate);
 
@@ -882,27 +883,31 @@ export default function HomeClient() {
               </section>
             </div>
 
-            <AdSlot
-              slot={homeBannerSlot}
-              format="horizontal"
-              minHeight={140}
-              fallbackTitle="Banner premium RugbyNow"
-              fallbackSubtitle="Espacio horizontal para anuncios debajo de los partidos."
-              className="hidden min-h-[140px] w-full lg:block"
-            />
+            {hasHomeEditorialContent ? (
+              <AdSlot
+                slot={homeBannerSlot}
+                format="horizontal"
+                minHeight={140}
+                fallbackTitle="Banner premium RugbyNow"
+                fallbackSubtitle="Espacio horizontal para anuncios debajo de los partidos."
+                className="hidden min-h-[140px] w-full lg:block"
+              />
+            ) : null}
           </div>
         </main>
 
-        <div className="pointer-events-none fixed bottom-0 right-4 top-[212px] z-20 hidden w-[320px] py-4 xl:block">
-          <AdSlot
-            slot={homeRailSlot}
-            format="vertical"
-            minHeight={600}
-            fallbackTitle="Tu marca puede vivir aca"
-            fallbackSubtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
-            className="h-full"
-          />
-        </div>
+        {hasHomeEditorialContent ? (
+          <div className="pointer-events-none fixed bottom-0 right-4 top-[212px] z-20 hidden w-[320px] py-4 xl:block">
+            <AdSlot
+              slot={homeRailSlot}
+              format="vertical"
+              minHeight={600}
+              fallbackTitle="Tu marca puede vivir aca"
+              fallbackSubtitle="Espacio vertical para sponsors, promos o publicidad propia de RugbyNow."
+              className="h-full"
+            />
+          </div>
+        ) : null}
 
         <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

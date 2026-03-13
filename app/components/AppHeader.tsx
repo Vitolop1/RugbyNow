@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import { t } from "@/lib/i18n";
 import { usePrefs, type Lang, type ThemeMode } from "@/lib/usePrefs";
@@ -15,6 +15,20 @@ type Props = {
   setTab?: (tab: "ALL" | "LIVE") => void;
   lang?: Lang;
   onLangChange?: (lang: Lang) => void;
+};
+
+type LanguageOption = {
+  value: Lang;
+  label: string;
+  short: string;
+  src?: string;
+  emoji?: string;
+};
+
+type TimeZoneOption = {
+  value: string;
+  short: string;
+  long: string;
 };
 
 function formatTodayTZ(now: Date, timeZone: string) {
@@ -71,6 +85,34 @@ function ThemeGlyph({ theme }: { theme: ThemeMode }) {
   );
 }
 
+function LanguageChip({
+  option,
+  compact = false,
+}: {
+  option: LanguageOption;
+  compact?: boolean;
+}) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1.5">
+      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full border border-black/10 bg-white/10 text-[11px] leading-none">
+        {option.src ? (
+          <Image
+            src={option.src}
+            alt=""
+            aria-hidden="true"
+            width={20}
+            height={20}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span>{option.emoji ?? option.short}</span>
+        )}
+      </span>
+      {!compact ? <span className="truncate">{option.short}</span> : null}
+    </span>
+  );
+}
+
 export default function AppHeader({
   title,
   subtitle,
@@ -83,10 +125,26 @@ export default function AppHeader({
   const { mounted, timeZone, setTZEverywhere, lang, setLangEverywhere, theme, setThemeEverywhere } = usePrefs();
   const [nowTick, setNowTick] = useState<number | null>(null);
   const [logoOk, setLogoOk] = useState(true);
+  const mobileLangMenuRef = useRef<HTMLDetailsElement | null>(null);
 
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
   const effectiveLang = langProp ?? lang;
   const tr = (key: string) => t(effectiveLang, key);
+  const languageOptions: LanguageOption[] = [
+    { value: "es", label: "Espanol", short: "ES", emoji: "🇪🇸" },
+    { value: "en", label: "English", short: "EN", src: "/flags/Flag_of_England.png" },
+    { value: "fr", label: "Francais", short: "FR", src: "/flags/Flag_of_France.png" },
+    { value: "it", label: "Italiano", short: "IT", src: "/flags/Flag_of_Italy.png" },
+  ];
+  const timeZoneOptions: TimeZoneOption[] = [
+    { value: "America/New_York", short: "NY (ET)", long: "New York (ET)" },
+    { value: "America/Chicago", short: "CHI (CT)", long: "Chicago (CT)" },
+    { value: "America/Denver", short: "DEN (MT)", long: "Denver (MT)" },
+    { value: "America/Los_Angeles", short: "LA (PT)", long: "Los Angeles (PT)" },
+    { value: "America/Argentina/Buenos_Aires", short: "ARG", long: "Argentina (ART)" },
+    { value: "Europe/London", short: "LON", long: "London (GMT)" },
+  ];
+  const currentLanguage = languageOptions.find((option) => option.value === effectiveLang) ?? languageOptions[0];
   const themeOptions: Array<{ value: ThemeMode; label: string }> = [
     { value: "rugby", label: tr("themeRugby") },
     { value: "light", label: tr("themeDay") },
@@ -164,7 +222,125 @@ export default function AppHeader({
           </div>
         </div>
 
-        <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="mt-3 space-y-2 md:hidden">
+          <div className="flex min-w-0 items-center gap-2">
+            <details ref={mobileLangMenuRef} className="relative shrink-0">
+              <summary className="rn-header-pill flex h-9 min-w-[62px] cursor-pointer list-none items-center justify-center gap-1.5 px-2 text-xs font-semibold rn-text-primary [&::-webkit-details-marker]:hidden">
+                <LanguageChip option={currentLanguage} compact />
+                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5 opacity-70" fill="currentColor">
+                  <path d="M5.6 7.2a1 1 0 0 1 1.4 0L10 10.2l3-3a1 1 0 1 1 1.4 1.4l-3.7 3.7a1 1 0 0 1-1.4 0L5.6 8.6a1 1 0 0 1 0-1.4Z" />
+                </svg>
+              </summary>
+              <div className="rn-header-card absolute left-0 top-full z-30 mt-2 grid min-w-[178px] grid-cols-2 gap-2 p-2">
+                {languageOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setLanguageEverywhere(option.value);
+                      mobileLangMenuRef.current?.removeAttribute("open");
+                    }}
+                    className={`flex h-10 items-center justify-center gap-2 rounded-xl border px-2 text-xs font-semibold transition ${
+                      effectiveLang === option.value
+                        ? "border-emerald-300/40 bg-emerald-300/20 text-white"
+                        : "border-white/15 bg-black/20 text-white/85 hover:bg-black/30"
+                    }`}
+                    aria-label={option.label}
+                    title={option.label}
+                  >
+                    <LanguageChip option={option} compact />
+                    <span>{option.short}</span>
+                  </button>
+                ))}
+              </div>
+            </details>
+
+            <select
+              value={timeZone}
+              onChange={(e) => setTZEverywhere(e.target.value)}
+              className="rn-header-pill h-9 min-w-0 w-[104px] shrink px-2 text-[11px] font-semibold"
+              title={tr("timezoneTitle")}
+              aria-label={tr("timezoneTitle")}
+            >
+              {timeZoneOptions.map((option) => (
+                <option key={option.value} className="text-black" value={option.value}>
+                  {option.short}
+                </option>
+              ))}
+            </select>
+
+            {showTabs && tab && setTab ? (
+              <div className="rn-header-pill inline-flex h-9 min-w-0 flex-1 overflow-hidden">
+                <button
+                  onClick={() => setTab("ALL")}
+                  className={`min-w-0 flex-1 px-2 text-xs font-semibold transition ${
+                    tab === "ALL" ? "bg-emerald-300 text-black" : "rn-text-primary hover:bg-white/10"
+                  }`}
+                >
+                  {tr("all")}
+                </button>
+                <button
+                  onClick={() => setTab("LIVE")}
+                  className={`min-w-0 flex-1 px-2 text-xs font-semibold transition ${
+                    tab === "LIVE" ? "bg-red-500 text-white" : "rn-text-primary hover:bg-white/10"
+                  }`}
+                >
+                  {tr("live")}
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="rn-header-card flex min-w-0 flex-1 items-center justify-between px-3 py-2">
+              <div className="min-w-0">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] rn-text-muted">{tr("today")}</div>
+                <div className="truncate text-sm font-extrabold rn-text-primary">
+                  {mounted && now ? formatTodayTZ(now, timeZone) : ""}
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] rn-text-muted">{tr("time")}</div>
+                <div className="text-sm font-extrabold tabular-nums rn-text-primary">
+                  {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
+                  <span className="ml-1 text-[11px] font-black rn-text-muted">
+                    {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1">
+              {themeOptions.map((option) => {
+                const active = theme === option.value;
+                const activeClass =
+                  option.value === "rugby"
+                    ? "bg-emerald-300 text-black shadow-sm"
+                    : option.value === "light"
+                      ? "bg-amber-200 text-slate-900 shadow-sm"
+                      : "bg-slate-900 text-white shadow-sm";
+
+                return (
+                  <button
+                    key={`mobile-${option.value}`}
+                    onClick={() => setThemeEverywhere(option.value)}
+                    className={`rn-header-pill flex h-9 w-9 items-center justify-center px-0 text-sm transition ${
+                      active ? activeClass : "rn-text-primary hover:bg-white/10"
+                    }`}
+                    title={option.label}
+                    aria-label={option.label}
+                  >
+                    <span aria-hidden="true">
+                      <ThemeGlyph theme={option.value} />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 hidden flex-col gap-3 md:flex md:flex-row md:items-center">
           <div className="relative flex h-9 w-full flex-nowrap items-center gap-2 overflow-x-auto pr-16 [-webkit-overflow-scrolling:touch]">
             <div className="rn-header-pill inline-flex h-9 shrink-0 items-center gap-2 px-2">
               <span className="text-[10px] font-black uppercase tracking-[0.18em] rn-text-muted" aria-hidden="true">
@@ -176,18 +352,11 @@ export default function AppHeader({
                 className="h-9 cursor-pointer bg-transparent text-xs font-semibold rn-text-primary outline-none sm:text-sm"
                 aria-label={tr("language")}
               >
-                <option className="text-black" value="en">
-                  EN
-                </option>
-                <option className="text-black" value="es">
-                  ES
-                </option>
-                <option className="text-black" value="fr">
-                  FR
-                </option>
-                <option className="text-black" value="it">
-                  IT
-                </option>
+                {languageOptions.map((option) => (
+                  <option key={option.value} className="text-black" value={option.value}>
+                    {option.short}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -197,24 +366,11 @@ export default function AppHeader({
               className="rn-header-pill h-9 w-[140px] shrink-0 px-2 text-xs sm:w-auto sm:text-sm"
               title={tr("timezoneTitle")}
             >
-              <option className="text-black" value="America/New_York">
-                New York (ET)
-              </option>
-              <option className="text-black" value="America/Chicago">
-                Chicago (CT)
-              </option>
-              <option className="text-black" value="America/Denver">
-                Denver (MT)
-              </option>
-              <option className="text-black" value="America/Los_Angeles">
-                Los Angeles (PT)
-              </option>
-              <option className="text-black" value="America/Argentina/Buenos_Aires">
-                Argentina (ART)
-              </option>
-              <option className="text-black" value="Europe/London">
-                London (GMT)
-              </option>
+              {timeZoneOptions.map((option) => (
+                <option key={option.value} className="text-black" value={option.value}>
+                  {option.long}
+                </option>
+              ))}
             </select>
 
             {showTabs && tab && setTab ? (
@@ -286,15 +442,6 @@ export default function AppHeader({
             </div>
           </div>
 
-          <div className="text-xs rn-text-primary md:hidden">
-            {mounted && now ? (
-              <span className="font-semibold">
-                {formatTodayTZ(now, timeZone)} | {formatClockTZ(now, timeZone)}:{formatSecondsTZ(now, timeZone)}
-              </span>
-            ) : (
-              <span />
-            )}
-          </div>
         </div>
 
         {title ? (

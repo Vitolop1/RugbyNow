@@ -498,7 +498,7 @@ export default function HomeClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className="fixed left-4 top-[148px] z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-black/35"
+          className="fixed left-4 top-[172px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition hover:bg-black/35 sm:top-[148px] sm:h-12 sm:w-12 sm:justify-center sm:rounded-2xl sm:px-0"
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
         >
           <span className="flex flex-col gap-1.5">
@@ -506,6 +506,7 @@ export default function HomeClient() {
             <span className="block h-0.5 w-6 rounded-full bg-white" />
             <span className="block h-0.5 w-6 rounded-full bg-white" />
           </span>
+          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/90 sm:hidden">{tr("leagues")}</span>
         </button>
 
         <main

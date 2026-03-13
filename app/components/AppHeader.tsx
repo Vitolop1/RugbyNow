@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import { t } from "@/lib/i18n";
 import { usePrefs, type Lang, type ThemeMode } from "@/lib/usePrefs";
@@ -125,8 +125,6 @@ export default function AppHeader({
   const { mounted, timeZone, setTZEverywhere, lang, setLangEverywhere, theme, setThemeEverywhere } = usePrefs();
   const [nowTick, setNowTick] = useState<number | null>(null);
   const [logoOk, setLogoOk] = useState(true);
-  const mobileLangMenuRef = useRef<HTMLDetailsElement | null>(null);
-  const desktopLangMenuRef = useRef<HTMLDetailsElement | null>(null);
 
   const now = useMemo(() => (nowTick != null ? new Date(nowTick) : null), [nowTick]);
   const effectiveLang = langProp ?? lang;
@@ -225,36 +223,21 @@ export default function AppHeader({
 
         <div className="mt-3 space-y-2 md:hidden">
           <div className="flex min-w-0 items-center gap-2">
-            <details ref={mobileLangMenuRef} className="relative shrink-0">
-              <summary className="rn-header-pill flex h-9 min-w-[62px] cursor-pointer list-none items-center justify-center gap-1.5 px-2 text-xs font-semibold rn-text-primary [&::-webkit-details-marker]:hidden">
-                <LanguageChip option={currentLanguage} compact />
-                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5 opacity-70" fill="currentColor">
-                  <path d="M5.6 7.2a1 1 0 0 1 1.4 0L10 10.2l3-3a1 1 0 1 1 1.4 1.4l-3.7 3.7a1 1 0 0 1-1.4 0L5.6 8.6a1 1 0 0 1 0-1.4Z" />
-                </svg>
-              </summary>
-              <div className="rn-header-card absolute left-0 top-full z-30 mt-2 grid min-w-[178px] grid-cols-2 gap-2 p-2">
+            <div className="rn-header-pill inline-flex h-9 min-w-[72px] shrink-0 items-center gap-1.5 px-2">
+              <LanguageChip option={currentLanguage} compact />
+              <select
+                value={effectiveLang}
+                onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
+                className="h-9 min-w-[36px] cursor-pointer bg-transparent pr-1 text-xs font-semibold rn-text-primary outline-none"
+                aria-label={tr("language")}
+              >
                 {languageOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      setLanguageEverywhere(option.value);
-                      mobileLangMenuRef.current?.removeAttribute("open");
-                    }}
-                    className={`flex h-10 items-center justify-center gap-2 rounded-xl border px-2 text-xs font-semibold transition ${
-                      effectiveLang === option.value
-                        ? "border-emerald-300/40 bg-emerald-300/20 text-white"
-                        : "border-white/15 bg-black/20 text-white/85 hover:bg-black/30"
-                    }`}
-                    aria-label={option.label}
-                    title={option.label}
-                  >
-                    <LanguageChip option={option} compact />
-                    <span>{option.short}</span>
-                  </button>
+                  <option key={option.value} className="text-black" value={option.value}>
+                    {option.short}
+                  </option>
                 ))}
-              </div>
-            </details>
+              </select>
+            </div>
 
             <select
               value={timeZone}
@@ -343,36 +326,21 @@ export default function AppHeader({
 
         <div className="mt-3 hidden flex-col gap-3 md:flex md:flex-row md:items-center">
           <div className="relative flex h-9 w-full flex-nowrap items-center gap-2 overflow-x-auto pr-16 [-webkit-overflow-scrolling:touch]">
-            <details ref={desktopLangMenuRef} className="relative shrink-0">
-              <summary className="rn-header-pill flex h-9 cursor-pointer list-none items-center gap-2 px-3 text-xs font-semibold rn-text-primary [&::-webkit-details-marker]:hidden">
-                <LanguageChip option={currentLanguage} />
-                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5 opacity-70" fill="currentColor">
-                  <path d="M5.6 7.2a1 1 0 0 1 1.4 0L10 10.2l3-3a1 1 0 1 1 1.4 1.4l-3.7 3.7a1 1 0 0 1-1.4 0L5.6 8.6a1 1 0 0 1 0-1.4Z" />
-                </svg>
-              </summary>
-              <div className="rn-header-card absolute left-0 top-full z-30 mt-2 flex min-w-[228px] items-center gap-2 p-2">
+            <div className="rn-header-pill inline-flex h-9 shrink-0 items-center gap-2 px-3">
+              <LanguageChip option={currentLanguage} />
+              <select
+                value={effectiveLang}
+                onChange={(e) => setLanguageEverywhere(e.target.value as Lang)}
+                className="h-9 cursor-pointer bg-transparent text-xs font-semibold rn-text-primary outline-none sm:text-sm"
+                aria-label={tr("language")}
+              >
                 {languageOptions.map((option) => (
-                  <button
-                    key={`desktop-${option.value}`}
-                    type="button"
-                    onClick={() => {
-                      setLanguageEverywhere(option.value);
-                      desktopLangMenuRef.current?.removeAttribute("open");
-                    }}
-                    className={`flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border px-2 text-xs font-semibold transition ${
-                      effectiveLang === option.value
-                        ? "border-emerald-300/40 bg-emerald-300/20 text-white"
-                        : "border-white/15 bg-black/20 text-white/85 hover:bg-black/30"
-                    }`}
-                    aria-label={option.label}
-                    title={option.label}
-                  >
-                    <LanguageChip option={option} compact />
-                    <span>{option.short}</span>
-                  </button>
+                  <option key={option.value} className="text-black" value={option.value}>
+                    {option.short}
+                  </option>
                 ))}
-              </div>
-            </details>
+              </select>
+            </div>
 
             <select
               value={timeZone}

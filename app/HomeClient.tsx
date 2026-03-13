@@ -498,7 +498,9 @@ export default function HomeClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className="fixed left-4 top-[172px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition hover:bg-black/35 sm:top-[148px] sm:h-12 sm:w-12 sm:justify-center sm:rounded-2xl sm:px-0"
+          className={`fixed left-4 top-[184px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:top-[148px] sm:h-12 sm:w-12 sm:justify-center sm:rounded-2xl sm:px-0 ${
+            sidebarOpen ? "pointer-events-none opacity-0 sm:pointer-events-auto sm:opacity-100" : "opacity-100"
+          }`}
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
         >
           <span className="flex flex-col gap-1.5">
@@ -520,7 +522,17 @@ export default function HomeClient() {
             } transition-all duration-300`}
           >
             <div>
-              <div className="mb-2 text-sm font-semibold text-white/90">{tr("leagues")}</div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="text-sm font-semibold text-white/90">{tr("leagues")}</div>
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(false)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/25 text-lg text-white/85 transition hover:bg-black/35 sm:hidden"
+                  aria-label="Cerrar panel de ligas"
+                >
+                  ×
+                </button>
+              </div>
 
               {compLoading ? (
                 <div className="text-xs text-white/70">{tr("loadingLeagues")}</div>

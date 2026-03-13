@@ -540,7 +540,9 @@ export default function LeagueClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className="fixed left-4 top-[172px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition hover:bg-black/35 sm:top-[148px] sm:h-12 sm:w-12 sm:justify-center sm:rounded-2xl sm:px-0"
+          className={`fixed left-4 top-[184px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:top-[148px] sm:h-12 sm:w-12 sm:justify-center sm:rounded-2xl sm:px-0 ${
+            sidebarOpen ? "pointer-events-none opacity-0 sm:pointer-events-auto sm:opacity-100" : "opacity-100"
+          }`}
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
         >
           <span className="flex flex-col gap-1.5">
@@ -561,6 +563,18 @@ export default function LeagueClient() {
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
             } transition-all duration-300`}
           >
+            <div className="flex items-center justify-between gap-3 sm:hidden">
+              <div className="text-sm font-semibold text-white/90">{tr("leagues")}</div>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/25 text-lg text-white/85 transition hover:bg-black/35"
+                aria-label="Cerrar panel de ligas"
+              >
+                ×
+              </button>
+            </div>
+
             {data?.competition ? (
               <div className="rounded-xl border border-white/15 bg-white/10 p-4">
                 <div className="text-sm font-semibold text-white/85">{tr("league")}</div>
@@ -577,7 +591,7 @@ export default function LeagueClient() {
             ) : null}
 
             <div>
-              <div className="mb-2 text-sm font-semibold text-white/90">{tr("leagues")}</div>
+              <div className="mb-2 hidden text-sm font-semibold text-white/90 sm:block">{tr("leagues")}</div>
               <div className="space-y-3">
                 {navigationSections.map((section) => {
                   const open = sidebarGroups[section.key] ?? false;

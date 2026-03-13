@@ -166,7 +166,7 @@ export default function AppHeader({
     <header className="rn-header-shell sticky top-0 z-50 backdrop-blur">
       <div className="mx-auto max-w-[1280px] px-4 py-3 sm:px-6">
         <div className="relative flex items-center">
-          <Link href="/" className="flex shrink-0 items-center gap-3">
+          <Link href="/" className="hidden shrink-0 items-center gap-3 sm:flex" aria-label="RugbyNow home">
             <div className="rn-header-pill flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl shadow sm:h-[54px] sm:w-[54px]">
               {logoOk ? (
                 <Image
@@ -184,14 +184,14 @@ export default function AppHeader({
             </div>
           </Link>
 
-          <div className="absolute left-1/2 max-w-[70%] -translate-x-1/2 sm:max-w-[80%]">
-            <Link href="/" className="flex items-center justify-center">
+          <div className="absolute left-1/2 max-w-[74%] -translate-x-1/2 sm:max-w-[80%]">
+            <Link href="/" className="flex items-center justify-center" aria-label="RugbyNow home">
               <BrandWordmark
                 key={`header-brand-${theme}`}
                 theme={theme}
                 width={312}
                 height={62}
-                className="h-auto w-[215px] object-contain sm:w-[288px]"
+                className="h-auto w-[196px] object-contain sm:w-[288px]"
                 fallbackClassName="whitespace-nowrap text-[22px] font-extrabold leading-none tracking-tight rn-text-primary sm:text-[26px]"
                 priority
               />

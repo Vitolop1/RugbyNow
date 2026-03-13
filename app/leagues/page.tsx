@@ -3,13 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
+import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import { getLeagueLogo } from "@/lib/assets";
-import { getCompetitionEmoji, getCompetitionGroupEmoji, getCompetitionGroupIconPath } from "@/lib/competitionMeta";
 import {
-  getCompetitionGroupKey,
-  getCompetitionGroupPriority,
-  getCompetitionSortPriority,
-  getDisplayGroupName,
+  buildCompetitionNavigationSections,
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
@@ -46,38 +43,28 @@ function LeagueLogo({ slug, alt, size = 22 }: { slug?: string | null; alt: strin
   );
 }
 
-function GroupBadge({ groupKey, alt }: { groupKey: string; alt: string }) {
-  const src = getCompetitionGroupIconPath(groupKey);
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={alt}
-        width={20}
-        height={20}
-        className="h-5 w-5 shrink-0 rounded-sm bg-white/5 object-contain"
-        onError={(e) => {
-          e.currentTarget.onerror = null;
-          e.currentTarget.style.display = "none";
-        }}
-      />
-    );
-  }
-
-  return <span className="text-lg">{getCompetitionGroupEmoji(groupKey)}</span>;
-}
-
 export default function LeaguesPage() {
   const { lang } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const featuredGroupLabel = tr("groupsFeatured");
+  const franchisesGroupLabel = tr("groupsFranchises");
+  const selectionsGroupLabel = tr("groupsSelections");
   const argentinaGroupLabel = tr("groupsArgentina");
-  const europeGroupLabel = tr("groupsEurope");
-  const sevenGroupLabel = tr("groupsSeven");
-  const southAmericaGroupLabel = tr("groupsSouthAmerica");
-  const internationalSelectionsGroupLabel = tr("groupsInternationalSelections");
-  const internationalClubsGroupLabel = tr("groupsInternationalClubs");
+  const englandGroupLabel = tr("groupsEngland");
+  const franceGroupLabel = tr("groupsFrance");
+  const italyGroupLabel = tr("groupsItaly");
+  const spainGroupLabel = tr("groupsSpain");
+  const germanyGroupLabel = tr("groupsGermany");
+  const portugalGroupLabel = tr("groupsPortugal");
+  const brazilGroupLabel = tr("groupsBrazil");
+  const uruguayGroupLabel = tr("groupsUruguay");
+  const paraguayGroupLabel = tr("groupsParaguay");
+  const colombiaGroupLabel = tr("groupsColombia");
+  const chileGroupLabel = tr("groupsChile");
+  const mexicoGroupLabel = tr("groupsMexico");
   const usaGroupLabel = tr("groupsUSA");
+  const sevenGroupLabel = tr("groupsSeven");
   const [leagues, setLeagues] = useState<League[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,53 +102,52 @@ export default function LeaguesPage() {
     return map;
   }, [seasons]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, League[]>();
-
-    for (const league of leagues) {
-      const group = getDisplayGroupName(league, {
-        argentina: argentinaGroupLabel,
-        other: otherGroupLabel,
-        europe: europeGroupLabel,
+  const sections = useMemo(
+    () =>
+      buildCompetitionNavigationSections(leagues, {
+        featured: featuredGroupLabel,
+        franchises: franchisesGroupLabel,
+        selections: selectionsGroupLabel,
         seven: sevenGroupLabel,
-        southAmerica: southAmericaGroupLabel,
-        internationalSelections: internationalSelectionsGroupLabel,
-        internationalClubs: internationalClubsGroupLabel,
+        other: otherGroupLabel,
+        argentina: argentinaGroupLabel,
+        england: englandGroupLabel,
+        france: franceGroupLabel,
+        italy: italyGroupLabel,
+        spain: spainGroupLabel,
+        germany: germanyGroupLabel,
+        portugal: portugalGroupLabel,
+        brazil: brazilGroupLabel,
+        uruguay: uruguayGroupLabel,
+        paraguay: paraguayGroupLabel,
+        colombia: colombiaGroupLabel,
+        chile: chileGroupLabel,
+        mexico: mexicoGroupLabel,
         usa: usaGroupLabel,
-      });
-      if (!map.has(group)) map.set(group, []);
-      map.get(group)!.push(league);
-    }
-
-    const entries = Array.from(map.entries());
-    entries.sort((a, b) => {
-      const aPriority = getCompetitionGroupPriority(a[1][0]);
-      const bPriority = getCompetitionGroupPriority(b[1][0]);
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      return a[0].localeCompare(b[0]);
-    });
-
-    for (const [, items] of entries) {
-      items.sort((a, b) => {
-        const aSort = getCompetitionSortPriority(a);
-        const bSort = getCompetitionSortPriority(b);
-        if (aSort !== bSort) return aSort - bSort;
-        return a.name.localeCompare(b.name);
-      });
-    }
-
-    return entries;
-  }, [
-    leagues,
-    argentinaGroupLabel,
-    otherGroupLabel,
-    europeGroupLabel,
-    sevenGroupLabel,
-    southAmericaGroupLabel,
-    internationalSelectionsGroupLabel,
-    internationalClubsGroupLabel,
-    usaGroupLabel,
-  ]);
+      }),
+    [
+      argentinaGroupLabel,
+      brazilGroupLabel,
+      chileGroupLabel,
+      colombiaGroupLabel,
+      englandGroupLabel,
+      featuredGroupLabel,
+      franchisesGroupLabel,
+      franceGroupLabel,
+      germanyGroupLabel,
+      italyGroupLabel,
+      leagues,
+      mexicoGroupLabel,
+      otherGroupLabel,
+      paraguayGroupLabel,
+      portugalGroupLabel,
+      selectionsGroupLabel,
+      sevenGroupLabel,
+      spainGroupLabel,
+      uruguayGroupLabel,
+      usaGroupLabel,
+    ]
+  );
 
   return (
     <div className="rn-app-bg relative min-h-screen overflow-hidden">
@@ -180,18 +166,18 @@ export default function LeaguesPage() {
           <div className="mt-6 text-white/80">{tr("loading")}</div>
         ) : (
           <div className="mt-6 space-y-6">
-            {grouped.map(([groupName, items]) => (
-              <section key={groupName}>
+            {sections.map((section) => (
+              <section key={section.key}>
                 <div className="mb-3 flex items-center gap-2">
-                  <GroupBadge groupKey={getCompetitionGroupKey(items[0])} alt={groupName} />
-                  <h2 className="text-lg font-bold">{groupName}</h2>
+                  <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={20} />
+                  <h2 className="text-lg font-bold">{section.label}</h2>
                   <span className="text-xs text-white/60">
-                    {items.length} {tr("leagues").toLowerCase()}
+                    {section.competitions.length} {tr("leagues").toLowerCase()}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {items.map((league) => {
+                  {section.competitions.map((league) => {
                     const season = latestSeasonByCompetition.get(league.id);
 
                     return (
@@ -205,9 +191,7 @@ export default function LeaguesPage() {
                             <LeagueLogo slug={league.slug} alt={league.name} />
                             <div className="min-w-0">
                               <div className="truncate font-semibold">{league.name}</div>
-                              <div className="mt-1 text-xs text-white/75">
-                                {getCompetitionEmoji(league.slug, league.group_name, league.country_code)} {league.region || "-"}
-                              </div>
+                              <div className="mt-1 text-xs text-white/75">{league.region || "-"}</div>
                             </div>
                           </div>
 

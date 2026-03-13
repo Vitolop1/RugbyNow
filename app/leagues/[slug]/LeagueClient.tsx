@@ -7,11 +7,10 @@ import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
+import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import { getCompetitionEmoji } from "@/lib/competitionMeta";
 import {
-  getCompetitionGroupPriority,
-  getCompetitionSortPriority,
-  getDisplayGroupName,
+  buildCompetitionNavigationSections,
   readSlugList,
   toggleSlug,
   writeSlugList,
@@ -264,32 +263,6 @@ function niceDate(iso: string) {
   });
 }
 
-function groupCompetitions(competitions: Competition[], otherLabel: string) {
-  const groups = new Map<string, Competition[]>();
-  for (const competition of competitions) {
-    const group = (competition.group_name ?? "").trim() || otherLabel;
-    if (!groups.has(group)) groups.set(group, []);
-    groups.get(group)!.push(competition);
-  }
-  return Array.from(groups.entries())
-    .sort((a, b) => {
-      const aPriority = getCompetitionGroupPriority(a[1][0]);
-      const bPriority = getCompetitionGroupPriority(b[1][0]);
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      return a[0].localeCompare(b[0]);
-    })
-    .map(([groupName, comps]) => [
-      groupName,
-      comps.sort((a, b) => {
-        if (!!a.is_featured !== !!b.is_featured) return a.is_featured ? -1 : 1;
-        const aSort = getCompetitionSortPriority(a);
-        const bSort = getCompetitionSortPriority(b);
-        if (aSort !== bSort) return aSort - bSort;
-        return a.name.localeCompare(b.name);
-      }),
-    ] as const);
-}
-
 export default function LeagueClient() {
   const params = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
@@ -297,13 +270,24 @@ export default function LeagueClient() {
   const { lang, mounted, timeZone, theme } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
+  const featuredGroupLabel = tr("groupsFeatured");
+  const franchisesGroupLabel = tr("groupsFranchises");
+  const selectionsGroupLabel = tr("groupsSelections");
   const argentinaGroupLabel = tr("groupsArgentina");
-  const europeGroupLabel = tr("groupsEurope");
-  const sevenGroupLabel = tr("groupsSeven");
-  const southAmericaGroupLabel = tr("groupsSouthAmerica");
-  const internationalSelectionsGroupLabel = tr("groupsInternationalSelections");
-  const internationalClubsGroupLabel = tr("groupsInternationalClubs");
+  const englandGroupLabel = tr("groupsEngland");
+  const franceGroupLabel = tr("groupsFrance");
+  const italyGroupLabel = tr("groupsItaly");
+  const spainGroupLabel = tr("groupsSpain");
+  const germanyGroupLabel = tr("groupsGermany");
+  const portugalGroupLabel = tr("groupsPortugal");
+  const brazilGroupLabel = tr("groupsBrazil");
+  const uruguayGroupLabel = tr("groupsUruguay");
+  const paraguayGroupLabel = tr("groupsParaguay");
+  const colombiaGroupLabel = tr("groupsColombia");
+  const chileGroupLabel = tr("groupsChile");
+  const mexicoGroupLabel = tr("groupsMexico");
   const usaGroupLabel = tr("groupsUSA");
+  const sevenGroupLabel = tr("groupsSeven");
 
   const slug = params.slug;
   const refISO = searchParams.get("date") || toISODateLocal(new Date());
@@ -391,36 +375,53 @@ export default function LeagueClient() {
     };
   }, [slug, refISO, roundFromUrl]);
 
-  const groupedCompetitions = useMemo(
+  const navigationSections = useMemo(
     () =>
-      groupCompetitions(
-        (data?.competitions || [])
-          .filter((competition) => !hiddenSlugs.includes(competition.slug))
-          .map((competition) => ({
-            ...competition,
-            group_name: getDisplayGroupName(competition, {
-              argentina: argentinaGroupLabel,
-              other: otherGroupLabel,
-              europe: europeGroupLabel,
-              seven: sevenGroupLabel,
-              southAmerica: southAmericaGroupLabel,
-              internationalSelections: internationalSelectionsGroupLabel,
-              internationalClubs: internationalClubsGroupLabel,
-              usa: usaGroupLabel,
-            }),
-          })),
-        otherGroupLabel
+      buildCompetitionNavigationSections(
+        (data?.competitions || []).filter((competition) => !hiddenSlugs.includes(competition.slug)),
+        {
+          featured: featuredGroupLabel,
+          franchises: franchisesGroupLabel,
+          selections: selectionsGroupLabel,
+          seven: sevenGroupLabel,
+          other: otherGroupLabel,
+          argentina: argentinaGroupLabel,
+          england: englandGroupLabel,
+          france: franceGroupLabel,
+          italy: italyGroupLabel,
+          spain: spainGroupLabel,
+          germany: germanyGroupLabel,
+          portugal: portugalGroupLabel,
+          brazil: brazilGroupLabel,
+          uruguay: uruguayGroupLabel,
+          paraguay: paraguayGroupLabel,
+          colombia: colombiaGroupLabel,
+          chile: chileGroupLabel,
+          mexico: mexicoGroupLabel,
+          usa: usaGroupLabel,
+        }
       ),
     [
-      data?.competitions,
-      hiddenSlugs,
       argentinaGroupLabel,
+      brazilGroupLabel,
+      chileGroupLabel,
+      colombiaGroupLabel,
+      data?.competitions,
+      englandGroupLabel,
+      featuredGroupLabel,
+      franchisesGroupLabel,
+      franceGroupLabel,
+      germanyGroupLabel,
+      hiddenSlugs,
+      italyGroupLabel,
+      mexicoGroupLabel,
       otherGroupLabel,
-      europeGroupLabel,
+      paraguayGroupLabel,
+      portugalGroupLabel,
+      selectionsGroupLabel,
       sevenGroupLabel,
-      southAmericaGroupLabel,
-      internationalSelectionsGroupLabel,
-      internationalClubsGroupLabel,
+      spainGroupLabel,
+      uruguayGroupLabel,
       usaGroupLabel,
     ]
   );
@@ -594,7 +595,6 @@ export default function LeagueClient() {
                           className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
                         >
                           <Link href={`/leagues/${competition.slug}?date=${refISO}`} className="flex min-w-0 flex-1 items-center gap-2">
-                            <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
                             <LeagueLogo slug={competition.slug} alt={competition.name} />
                             <span className="truncate text-sm font-medium text-white">{competition.name}</span>
                           </Link>
@@ -613,36 +613,23 @@ export default function LeagueClient() {
                   </div>
                 ) : null}
 
-                {groupedCompetitions.map(([groupName, comps]) => {
-                  const open = sidebarGroups[groupName] ?? true;
-                  const featuredCount = comps.filter((competition) => competition.is_featured).length;
+                {navigationSections.map((section) => {
+                  const open = sidebarGroups[section.key] ?? section.key !== "featured";
+                  const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
 
-                  return (
-                    <div key={groupName} className="overflow-hidden rounded-xl border border-white/15 bg-white/10">
-                      <button
-                        onClick={() => setSidebarGroups((prev) => ({ ...prev, [groupName]: !open }))}
-                        className="flex w-full items-center justify-between px-3 py-2 text-left"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 truncate text-sm font-extrabold text-white">
-                            <span>{getCompetitionEmoji(undefined, groupName, comps[0]?.country_code ?? null)}</span>
-                            <span>{groupName}</span>
-                          </div>
-                          <div className="text-[11px] text-white/70">
-                            {comps.length} {tr("leagues").toLowerCase()}
-                            {featuredCount ? ` | ${featuredCount} ${tr("featured")}` : ""}
-                          </div>
+                  if (section.key === "featured") {
+                    return (
+                      <div key={section.key} className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3">
+                        <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-50/85">
+                          <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
+                          <span>{section.label}</span>
                         </div>
-                        <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
-                      </button>
-
-                      {open ? (
-                        <div className="space-y-2 px-2 pb-2">
-                          {comps.map((competition) => {
+                        <div className="space-y-2">
+                          {section.competitions.map((competition) => {
                             const active = competition.slug === slug;
                             return (
                               <Link
-                                key={`${competition.slug}-${competition.id}`}
+                                key={`${section.key}-${competition.slug}-${competition.id}`}
                                 href={`/leagues/${competition.slug}?date=${refISO}`}
                                 className={`block rounded-xl border px-3 py-2 transition ${
                                   active
@@ -652,7 +639,81 @@ export default function LeagueClient() {
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex min-w-0 items-center gap-2">
-                                    <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
+                                    <LeagueLogo slug={competition.slug} alt={competition.name} />
+                                    <div className="truncate text-sm font-medium text-white">{competition.name}</div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        toggleFavoriteLeague(competition.slug);
+                                      }}
+                                      className={`shrink-0 text-base ${
+                                        favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"
+                                      }`}
+                                      title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
+                                      aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
+                                    >
+                                      {favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        toggleHiddenLeague(competition.slug);
+                                      }}
+                                      className="shrink-0 text-sm text-white/70"
+                                      title={tr("hideLeague")}
+                                      aria-label={tr("hideLeague")}
+                                    >
+                                      {"\u{1F441}"}
+                                    </button>
+                                  </div>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={section.key} className="overflow-hidden rounded-xl border border-white/15 bg-white/10">
+                      <button
+                        onClick={() => setSidebarGroups((prev) => ({ ...prev, [section.key]: !open }))}
+                        className="flex w-full items-center justify-between px-3 py-2 text-left"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 truncate text-sm font-extrabold text-white">
+                            <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={18} />
+                            <span>{section.label}</span>
+                          </div>
+                          <div className="text-[11px] text-white/70">
+                            {section.competitions.length} {tr("leagues").toLowerCase()}
+                            {pinnedCount ? ` | ${pinnedCount} ${tr("featured")}` : ""}
+                          </div>
+                        </div>
+                        <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
+                      </button>
+
+                      {open ? (
+                        <div className="space-y-2 px-2 pb-2">
+                          {section.competitions.map((competition) => {
+                            const active = competition.slug === slug;
+                            return (
+                              <Link
+                                key={`${section.key}-${competition.slug}-${competition.id}`}
+                                href={`/leagues/${competition.slug}?date=${refISO}`}
+                                className={`block rounded-xl border px-3 py-2 transition ${
+                                  active
+                                    ? "border-emerald-300/35 bg-emerald-300/15"
+                                    : "border-white/15 bg-black/20 hover:bg-black/30"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex min-w-0 items-center gap-2">
                                     <LeagueLogo slug={competition.slug} alt={competition.name} />
                                     <div className="truncate text-sm font-medium text-white">{competition.name}</div>
                                   </div>
@@ -709,7 +770,6 @@ export default function LeagueClient() {
                           key={`hidden-${competition.slug}`}
                           className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
                         >
-                          <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
                           <LeagueLogo slug={competition.slug} alt={competition.name} />
                           <span className="min-w-0 flex-1 truncate text-sm text-white/85">{competition.name}</span>
                           <button

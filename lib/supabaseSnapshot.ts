@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 
 type SnapshotCompetition = {
   id: number;
@@ -127,21 +128,16 @@ function hasUsableStandingCacheRows(rows: SnapshotStandingCache[]) {
 }
 
 function dedupeLeagueMatches(rows: SnapshotMatch[]) {
-  const seen = new Set<string>();
-  return rows.filter((row) => {
-    const key = [
-      row.match_date,
-      String(row.kickoff_time || ""),
-      row.home_team_id ?? 0,
-      row.away_team_id ?? 0,
-      row.status,
-      row.home_score ?? "",
-      row.away_score ?? "",
-    ].join("|");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  return dedupeLogicalMatches(rows, (row) => ({
+    id: row.id,
+    matchDate: row.match_date,
+    kickoffTime: row.kickoff_time,
+    status: row.status,
+    homeScore: row.home_score,
+    awayScore: row.away_score,
+    homeTeamId: row.home_team_id,
+    awayTeamId: row.away_team_id,
+  }));
 }
 
 type RoundMeta = {
@@ -512,7 +508,18 @@ function buildStandingsCache(snapshot: SnapshotPayload, seasonId: number, matche
       return (b.points ?? 0) - (a.points ?? 0);
     });
 
-  if (!rows.length || !hasUsableStandingCacheRows(rows)) return null;
+  if (
+    !rows.length ||
+    !hasUsableStandingCacheRows(rows) ||
+    !hasConsistentStandingsCache(rows, (row) => ({
+      played: row.played,
+      won: row.won,
+      drawn: row.drawn,
+      lost: row.lost,
+    }))
+  ) {
+    return null;
+  }
 
   const recentForm = buildRecentForm(snapshot, matches);
 
@@ -566,7 +573,7 @@ export function getSnapshotSeasons() {
 export function getSnapshotMatchesByDate(date: string) {
   const snapshot = loadSnapshot();
   if (!snapshot) return null;
-  return snapshot.matches
+  return dedupeLeagueMatches(snapshot.matches)
     .filter((match) => match.match_date === date)
     .sort((a, b) => String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")))
     .map((match) => hydrateHomeMatch(snapshot, match))
@@ -583,7 +590,7 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   const season = pickSeasonForReference(snapshot, competition.id, refISO);
   if (!season) return null;
 
-  const seasonMatches = snapshot.matches.filter((match) => match.season_id === season.id);
+  const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((match) => match.season_id === season.id));
   const roundMeta = attachKnockoutPhaseMeta(buildRoundMeta(seasonMatches));
   const roundAssignment = buildRoundAssignment(seasonMatches);
   const autoSelectedRound = pickAutoRound(roundMeta, refISO);

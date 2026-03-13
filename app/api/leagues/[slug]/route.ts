@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
 import { getSnapshotLeagueData } from "@/lib/supabaseSnapshot";
@@ -333,7 +334,16 @@ export async function GET(
 
     if (seasonMatchesError) throw seasonMatchesError;
 
-    const detailedMatches = (seasonMatches || []) as MatchRow[];
+    const detailedMatches = dedupeLogicalMatches((seasonMatches || []) as MatchRow[], (row) => ({
+      id: row.id,
+      matchDate: row.match_date,
+      kickoffTime: row.kickoff_time,
+      status: row.status,
+      homeScore: row.home_score,
+      awayScore: row.away_score,
+      homeTeamId: Array.isArray(row.home_team) ? row.home_team[0]?.id ?? null : row.home_team?.id ?? null,
+      awayTeamId: Array.isArray(row.away_team) ? row.away_team[0]?.id ?? null : row.away_team?.id ?? null,
+    }));
     const derived = deriveRoundMeta(detailedMatches);
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
@@ -379,7 +389,14 @@ export async function GET(
 
     if (standingsCacheError) throw standingsCacheError;
 
-    const useStandingsCache = hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]);
+    const useStandingsCache =
+      hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]) &&
+      hasConsistentStandingsCache((standingsCache || []) as StandingCacheRow[], (row) => ({
+        played: row.played,
+        won: row.won,
+        drawn: row.drawn,
+        lost: row.lost,
+      }));
 
     const standings =
       useStandingsCache

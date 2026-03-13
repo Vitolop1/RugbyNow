@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
 import { getTeamProfile } from "@/lib/teamProfiles";
 
 type SnapshotCompetition = {
@@ -55,15 +56,6 @@ function loadSnapshot() {
   return JSON.parse(raw) as SnapshotPayload;
 }
 
-function dedupeByMatchId<T extends { id: number }>(rows: T[]) {
-  const seen = new Set<number>();
-  return rows.filter((row) => {
-    if (seen.has(row.id)) return false;
-    seen.add(row.id);
-    return true;
-  });
-}
-
 export async function GET(_: Request, context: { params: Promise<{ slug: string }> }) {
   const { slug } = await context.params;
 
@@ -78,9 +70,18 @@ export async function GET(_: Request, context: { params: Promise<{ slug: string 
     const seasonsById = new Map(snapshot.seasons.map((season) => [season.id, season]));
     const competitionsById = new Map(snapshot.competitions.map((competition) => [competition.id, competition]));
 
-    const allMatches = dedupeByMatchId(
+    const allMatches = dedupeLogicalMatches(
       snapshot.matches.filter((match) => match.home_team_id === team.id || match.away_team_id === team.id)
-    ).sort(
+    , (match) => ({
+      id: match.id,
+      matchDate: match.match_date,
+      kickoffTime: match.kickoff_time,
+      status: match.status,
+      homeScore: match.home_score,
+      awayScore: match.away_score,
+      homeTeamId: match.home_team_id,
+      awayTeamId: match.away_team_id,
+    })).sort(
       (a, b) =>
         b.match_date.localeCompare(a.match_date) ||
         String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))

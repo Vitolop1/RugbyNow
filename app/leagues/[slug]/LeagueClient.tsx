@@ -227,7 +227,8 @@ function toISODateLocal(d: Date) {
 }
 
 function getInitialLeagueSidebarOpen() {
-  return false;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(min-width: 1024px)").matches;
 }
 
 function formatRoundDate(iso?: string | null) {
@@ -293,23 +294,20 @@ export default function LeagueClient() {
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
+    const desktopSidebar = window.matchMedia("(min-width: 1024px)");
+    const syncSidebar = () => setSidebarOpen(desktopSidebar.matches);
     const id = window.requestAnimationFrame(() => {
-      if (!window.matchMedia("(min-width: 640px)").matches) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
-      }
+      syncSidebar();
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
       setHiddenSlugs(readSlugList("rn:hidden-leagues"));
       setPrefsLoaded(true);
     });
-    return () => window.cancelAnimationFrame(id);
+    desktopSidebar.addEventListener("change", syncSidebar);
+    return () => {
+      window.cancelAnimationFrame(id);
+      desktopSidebar.removeEventListener("change", syncSidebar);
+    };
   }, [mounted]);
-
-  useEffect(() => {
-    if (!mounted || typeof window === "undefined") return;
-    window.localStorage.setItem("rn:league-sidebar-open", sidebarOpen ? "1" : "0");
-  }, [mounted, sidebarOpen]);
 
   useEffect(() => {
     if (!mounted || !prefsLoaded) return;

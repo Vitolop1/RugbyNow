@@ -1099,6 +1099,76 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures" | "live
 }
 
 async function scrapeStandingsPage(page: Page) {
+  function tryBuildStandingWindow(nums: number[], start: number) {
+    if (start < 0 || start + 6 >= nums.length) return null;
+
+    const played = nums[start] ?? null;
+    const won = nums[start + 1] ?? null;
+    const drawn = nums[start + 2] ?? null;
+    const lost = nums[start + 3] ?? null;
+    const pointsFor = nums[start + 4] ?? null;
+    const pointsAgainst = nums[start + 5] ?? null;
+    const points = nums[nums.length - 1] ?? null;
+
+    if (
+      played == null ||
+      won == null ||
+      drawn == null ||
+      lost == null ||
+      pointsFor == null ||
+      pointsAgainst == null ||
+      points == null
+    ) {
+      return null;
+    }
+
+    if (played !== won + drawn + lost) return null;
+
+    return {
+      played,
+      won,
+      drawn,
+      lost,
+      pointsFor,
+      pointsAgainst,
+      points,
+    };
+  }
+
+  function extractStandingStats(raw: string, nums: number[]) {
+    const compact = raw.replace(/\s+/g, " ").trim();
+    const structured =
+      compact.match(/^\s*\d+\.\s+(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+):(\d+)\s+(-?\d+)\b/) ||
+      compact.match(/^\s*(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+):(\d+)\s+(-?\d+)\b/);
+
+    if (structured) {
+      const parsed = {
+        played: Number.parseInt(structured[2], 10),
+        won: Number.parseInt(structured[3], 10),
+        drawn: Number.parseInt(structured[4], 10),
+        lost: Number.parseInt(structured[5], 10),
+        pointsFor: Number.parseInt(structured[6], 10),
+        pointsAgainst: Number.parseInt(structured[7], 10),
+        points: Number.parseInt(structured[8], 10),
+      };
+
+      if (parsed.played === parsed.won + parsed.drawn + parsed.lost) {
+        return parsed;
+      }
+    }
+
+    for (let start = 0; start <= nums.length - 7; start += 1) {
+      const candidate = tryBuildStandingWindow(nums, start);
+      if (candidate) return candidate;
+    }
+
+    if (nums.length >= 7) {
+      return tryBuildStandingWindow(nums, 0);
+    }
+
+    return null;
+  }
+
   const js = `
 (() => {
   const txt = (el) => {
@@ -1179,27 +1249,15 @@ async function scrapeStandingsPage(page: Page) {
     let pointsAgainst: number | null = null;
     let points: number | null = null;
 
-    const compact = r.raw.replace(/\s+/g, " ").trim();
-    const structured =
-      compact.match(/^\s*\d+\.\s+(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+):(\d+)\s+(-?\d+)\b/) ||
-      compact.match(/^\s*(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+):(\d+)\s+(-?\d+)\b/);
-
-    if (structured) {
-      played = Number.parseInt(structured[2], 10);
-      won = Number.parseInt(structured[3], 10);
-      drawn = Number.parseInt(structured[4], 10);
-      lost = Number.parseInt(structured[5], 10);
-      pointsFor = Number.parseInt(structured[6], 10);
-      pointsAgainst = Number.parseInt(structured[7], 10);
-      points = Number.parseInt(structured[8], 10);
-    } else if (r.nums.length >= 7) {
-      played = r.nums[0] ?? null;
-      won = r.nums[1] ?? null;
-      drawn = r.nums[2] ?? null;
-      lost = r.nums[3] ?? null;
-      pointsFor = r.nums[4] ?? null;
-      pointsAgainst = r.nums[5] ?? null;
-      points = r.nums[r.nums.length - 1] ?? null;
+    const parsed = extractStandingStats(r.raw, r.nums);
+    if (parsed) {
+      played = parsed.played;
+      won = parsed.won;
+      drawn = parsed.drawn;
+      lost = parsed.lost;
+      pointsFor = parsed.pointsFor;
+      pointsAgainst = parsed.pointsAgainst;
+      points = parsed.points;
     }
 
     cleaned.push({
@@ -1396,7 +1454,6 @@ async function cleanupPlaceholderMidnightDuplicates(seasonId: number) {
     .from("matches")
     .select("id,season_id,match_date,kickoff_time,status,minute,home_team_id,away_team_id,home_score,away_score,round,source_event_key")
     .eq("season_id", seasonId)
-    .neq("status", "FT")
     .order("match_date", { ascending: true })
     .order("kickoff_time", { ascending: true });
 
@@ -1420,9 +1477,12 @@ async function cleanupPlaceholderMidnightDuplicates(seasonId: number) {
 
       const replacement = pairRows.find((candidate) => {
         if (candidate.id === row.id) return false;
-        if (candidate.status === "FT") return false;
         if (isPlaceholderKickoffTime(candidate.kickoff_time)) return false;
         if (dateDistanceDays(candidate.match_date, row.match_date) > 1) return false;
+        if (row.status === "FT" || candidate.status === "FT") {
+          if (row.status !== candidate.status) return false;
+          if (row.home_score !== candidate.home_score || row.away_score !== candidate.away_score) return false;
+        }
 
         return (
           minutesBetweenMatchSlots(candidate.match_date, candidate.kickoff_time, row.match_date, row.kickoff_time) <=

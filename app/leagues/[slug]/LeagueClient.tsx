@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
@@ -313,6 +313,7 @@ export default function LeagueClient() {
   const [sidebarGroups, setSidebarGroups] = useState<Record<string, boolean>>({});
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
+  const roundStripRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<LeagueTab>("overview");
   const [data, setData] = useState<LeaguePayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -509,6 +510,24 @@ export default function LeagueClient() {
     const next = rounds[index + dir];
     if (next != null) setRound(next);
   };
+
+  useEffect(() => {
+    if (!roundStripRef.current || selectedRound == null) return;
+
+    const activeButton = roundStripRef.current.querySelector<HTMLButtonElement>(
+      `[data-round="${selectedRound}"]`
+    );
+
+    if (!activeButton) return;
+
+    requestAnimationFrame(() => {
+      activeButton.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    });
+  }, [selectedRound, roundMeta.length]);
 
   const seasonName = data?.season?.name || "-";
   const toggleFavoriteLeague = (nextSlug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, nextSlug));
@@ -781,10 +800,11 @@ export default function LeagueClient() {
                       </div>
 
                       {roundMeta.length > 0 ? (
-                        <div className="mt-4 flex items-center gap-3">
+                        <div className="mt-4 flex items-center gap-3 overflow-hidden">
                           <button
                             onClick={() => moveRound(-1)}
                             disabled={!canGoPrevRound}
+                            aria-label={tr("previous")}
                             className={`flex h-10 w-10 items-center justify-center rounded-2xl border text-xl font-black transition ${
                               canGoPrevRound
                                 ? "border-emerald-300/30 bg-emerald-400/25 text-white hover:bg-emerald-400/35"
@@ -794,14 +814,17 @@ export default function LeagueClient() {
                             &lt;
                           </button>
 
-                          <div className="min-w-0 flex-1">
-                            <div className="flex justify-center">
-                              <div className="flex min-w-max max-w-full gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
+                          <div className="min-w-0 flex-1 overflow-hidden">
+                            <div
+                              ref={roundStripRef}
+                              className="flex w-full gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]"
+                            >
                                 {roundMeta.map((item) => {
                                   const active = item.round === selectedRound;
                                   return (
                                     <button
                                       key={item.round}
+                                      data-round={item.round}
                                       onClick={() => setRound(item.round)}
                                       className={`shrink-0 rounded-2xl border px-4 py-2 text-center transition ${
                                         active
@@ -819,13 +842,13 @@ export default function LeagueClient() {
                                     </button>
                                   );
                                 })}
-                              </div>
                             </div>
                           </div>
 
                           <button
                             onClick={() => moveRound(1)}
                             disabled={!canGoNextRound}
+                            aria-label={tr("next")}
                             className={`flex h-10 w-10 items-center justify-center rounded-2xl border text-xl font-black transition ${
                               canGoNextRound
                                 ? "border-emerald-300/30 bg-emerald-400/25 text-white hover:bg-emerald-400/35"

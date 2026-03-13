@@ -44,6 +44,30 @@ const TEAM_PROFILES: Record<string, TeamProfile> = {
     history: "Penarol Rugby es uno de los proyectos mas competitivos del rugby profesional sudamericano reciente.",
     colors: ["Amarillo", "Negro"],
   },
+  lions: {
+    slug: "lions",
+    displayName: "Lions",
+    country: "South Africa",
+    city: "Johannesburg",
+    venue: "Emirates Airline Park",
+    founded: "1889",
+    summary: "Franquicia profesional sudafricana de Johannesburgo que compite en el United Rugby Championship.",
+    history:
+      "Lions representa al ecosistema del Golden Lions Rugby Union. Despues de su etapa en Super Rugby, paso a competir en el United Rugby Championship y sigue siendo uno de los nombres fuertes del rugby sudafricano.",
+    colors: ["Rojo", "Blanco"],
+  },
+  "old-lions-rc": {
+    slug: "old-lions-rc",
+    displayName: "Old Lions RC",
+    country: "Argentina",
+    city: "Santiago del Estero",
+    venue: "Santiago del Estero",
+    founded: "Club historico",
+    summary: "Club del rugby argentino del NOA y participante de la Liga Norte Grande.",
+    history:
+      "Old Lions RC es una institucion tradicional de Santiago del Estero. No tiene relacion con la franquicia sudafricana Lions del URC, y en RugbyNow queda tratado como un equipo totalmente distinto.",
+    colors: ["Rojo", "Blanco"],
+  },
   selknam: {
     slug: "selknam",
     displayName: "Selknam",

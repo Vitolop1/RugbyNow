@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { getWatchOptions } from "@/lib/broadcasts";
 import { t } from "@/lib/i18n";
 import type { Lang } from "@/lib/usePrefs";
@@ -15,7 +16,14 @@ type Props = {
 
 export default function SuggestedWatchButton({ competitionSlug, home, away, lang, className }: Props) {
   const [open, setOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number }>({
+    top: 0,
+    left: 0,
+    width: 288,
+  });
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const options = getWatchOptions({ competitionSlug, home, away });
   const tr = (key: string) => t(lang, key);
 
@@ -23,7 +31,8 @@ export default function SuggestedWatchButton({ competitionSlug, home, away, lang
     if (!open) return;
 
     const onPointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (!rootRef.current?.contains(target) && !menuRef.current?.contains(target)) {
         setOpen(false);
       }
     };
@@ -42,52 +51,92 @@ export default function SuggestedWatchButton({ competitionSlug, home, away, lang
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const updatePosition = () => {
+      const button = buttonRef.current;
+      if (!button) return;
+
+      const rect = button.getBoundingClientRect();
+      const menuWidth = Math.min(320, Math.max(260, window.innerWidth - 16));
+      const measuredHeight = menuRef.current?.offsetHeight ?? 0;
+      const left = Math.max(8, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 8));
+      const belowTop = rect.bottom + 8;
+      const top =
+        measuredHeight > 0 && belowTop + measuredHeight > window.innerHeight - 8 && rect.top - measuredHeight - 8 >= 8
+          ? rect.top - measuredHeight - 8
+          : belowTop;
+
+      setMenuStyle({ top, left, width: menuWidth });
+    };
+
+    updatePosition();
+    const rafId = window.requestAnimationFrame(updatePosition);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open, options.length]);
+
   if (!options.length) return null;
 
   return (
-    <div ref={rootRef} className={`relative ${className ?? ""}`}>
+    <div ref={rootRef} className={className ?? ""}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className="inline-flex items-center rounded-full border border-sky-200/30 bg-sky-300/20 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-sky-300/30"
         aria-expanded={open}
         aria-haspopup="dialog"
       >
-        {tr("watchAlternatives")}
+        {tr("watchMatch")}
       </button>
 
-      {open ? (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-40 w-72 rounded-2xl border border-white/15 bg-[#062f22]/95 p-3 shadow-2xl backdrop-blur">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <div className="text-[11px] font-black uppercase tracking-[0.16em] text-white/60">
-              {tr("watchAlternatives")}
-            </div>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-black/20 text-xs font-bold text-white/80 transition hover:bg-black/30"
-              aria-label={tr("close")}
+      {open && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              ref={menuRef}
+              className="fixed z-[120] rounded-2xl border border-white/15 bg-[#062f22]/95 p-3 shadow-2xl backdrop-blur"
+              style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
             >
-              x
-            </button>
-          </div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="text-[11px] font-black uppercase tracking-[0.16em] text-white/60">
+                  {tr("watchAlternatives")}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-black/20 text-xs font-bold text-white/80 transition hover:bg-black/30"
+                  aria-label={tr("close")}
+                >
+                  x
+                </button>
+              </div>
 
-          <div className="space-y-2">
-            {options.map((option) => (
-              <a
-                key={`${option.label}-${option.href}`}
-                href={option.href}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 transition hover:bg-white/10"
-              >
-                <span>{option.label === "Google" ? tr("searchWhereToWatch") : option.label}</span>
-                <span className="text-white/45">{"->"}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      ) : null}
+              <div className="space-y-2">
+                {options.map((option) => (
+                  <a
+                    key={`${option.label}-${option.href}`}
+                    href={option.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 transition hover:bg-white/10"
+                  >
+                    <span>{option.label === "Google" ? tr("searchWhereToWatch") : option.label}</span>
+                    <span className="text-white/45">{"->"}</span>
+                  </a>
+                ))}
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }

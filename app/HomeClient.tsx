@@ -8,6 +8,7 @@ import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
+import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import {
@@ -878,16 +879,26 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                   : tr("upcoming")}
                             </div>
                               </div>
-                          {broadcasts.length ? (
-                            <div className="flex flex-wrap items-center gap-2 pl-0 sm:pl-32">
-                              <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
-                                {tr("watchOn")}
-                              </span>
-                              {broadcasts.map((provider) => (
-                                <BroadcastPill key={`${block.slug}-${provider.id}`} provider={provider} compact />
-                              ))}
+                          <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
+                            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                              {broadcasts.length ? (
+                                <>
+                                  <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
+                                    {tr("watchOn")}
+                                  </span>
+                                  {broadcasts.map((provider) => (
+                                    <BroadcastPill key={`${block.slug}-${provider.id}`} provider={provider} compact />
+                                  ))}
+                                </>
+                              ) : null}
                             </div>
-                          ) : null}
+                            <SuggestedWatchButton
+                              competitionSlug={block.slug}
+                              home={match.home}
+                              away={match.away}
+                              lang={lang}
+                            />
+                          </div>
                             </div>
                           );
                         })}

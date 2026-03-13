@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
+import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
@@ -294,6 +295,14 @@ export default function TeamClient({ slug }: { slug: string }) {
                               {match.away_team?.name || tr("teamAwayFallback")}
                             </Link>
                           </div>
+                          <div className="mt-3 flex justify-end">
+                            <SuggestedWatchButton
+                              competitionSlug={match.competition?.slug}
+                              home={match.home_team?.name}
+                              away={match.away_team?.name}
+                              lang={lang}
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -322,6 +331,14 @@ export default function TeamClient({ slug }: { slug: string }) {
                                 {match.competition.name}
                               </Link>
                             ) : null}
+                            <div className="mt-3 flex justify-end">
+                              <SuggestedWatchButton
+                                competitionSlug={match.competition?.slug}
+                                home={match.home_team?.name}
+                                away={match.away_team?.name}
+                                lang={lang}
+                              />
+                            </div>
                           </div>
                         ))
                       )}

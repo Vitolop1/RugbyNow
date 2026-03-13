@@ -14,6 +14,11 @@ export type BroadcastProvider = {
   href?: string;
 };
 
+export type SuggestedWatchLink = {
+  label: string;
+  href: string;
+};
+
 const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
   "disney-plus": {
     id: "disney-plus",
@@ -76,6 +81,17 @@ const BROADCASTS_BY_COMPETITION: Partial<Record<string, BroadcastProviderId[]>> 
   "us-mlr": ["disney-plus", "espn-plus"],
 };
 
+const SUGGESTED_PROVIDER_PRIORITY: BroadcastProviderId[] = [
+  "espn",
+  "espn-plus",
+  "disney-plus",
+  "rugbypass-tv",
+  "youtube",
+  "rai-sport",
+  "the-rugby-channel",
+  "urc-tv",
+];
+
 export function getBroadcastLogo(id: BroadcastProviderId) {
   return `/broadcast-logos/${id}.png`;
 }
@@ -96,4 +112,43 @@ export function getBroadcastsForCompetition(slug?: string | null): BroadcastProv
 
     return provider;
   });
+}
+
+function buildWatchSearchLink(home?: string | null, away?: string | null): SuggestedWatchLink | null {
+  const teams = [home, away].map((value) => value?.trim()).filter(Boolean);
+  if (!teams.length) return null;
+
+  const query = encodeURIComponent(`${teams.join(" vs ")} rugby where to watch`);
+  return {
+    label: "Google",
+    href: `https://www.google.com/search?q=${query}`,
+  };
+}
+
+export function getSuggestedWatchLink(params: {
+  competitionSlug?: string | null;
+  home?: string | null;
+  away?: string | null;
+}): SuggestedWatchLink | null {
+  const providers = getBroadcastsForCompetition(params.competitionSlug);
+
+  for (const providerId of SUGGESTED_PROVIDER_PRIORITY) {
+    const provider = providers.find((item) => item.id === providerId && item.href);
+    if (provider?.href) {
+      return {
+        label: provider.label,
+        href: provider.href,
+      };
+    }
+  }
+
+  const firstProvider = providers.find((item) => item.href);
+  if (firstProvider?.href) {
+    return {
+      label: firstProvider.label,
+      href: firstProvider.href,
+    };
+  }
+
+  return buildWatchSearchLink(params.home, params.away);
 }

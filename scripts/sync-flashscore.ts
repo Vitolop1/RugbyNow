@@ -765,10 +765,84 @@ function buildSourceEventKey(params: {
   kickoffTime: string | null;
   homeName: string;
   awayName: string;
+  detailUrl?: string | null;
 }) {
+  const flashscoreEventId = extractFlashscoreEventId(params.detailUrl ?? null);
+  if (flashscoreEventId) {
+    return slugify(`${params.compSlug}|flashscore|${flashscoreEventId}`);
+  }
+
   return slugify(
     `${params.compSlug}|${params.seasonName}|${params.matchDate}|${params.kickoffTime || ""}|${params.homeName}|${params.awayName}`
   );
+}
+
+function extractFlashscoreEventId(detailUrl: string | null) {
+  if (!detailUrl) return null;
+
+  try {
+    const url = new URL(detailUrl, "https://www.flashscore.com");
+    return url.searchParams.get("mid") || null;
+  } catch {
+    const match = detailUrl.match(/[?&]mid=([^&#]+)/i);
+    return match?.[1] ?? null;
+  }
+}
+
+function isPlaceholderKickoffTime(kickoffTime?: string | null) {
+  return !kickoffTime || kickoffTime === "00:00:00" || kickoffTime === "00:00";
+}
+
+function minutesBetweenMatchSlots(
+  leftDate: string,
+  leftKickoff: string | null,
+  rightDate: string,
+  rightKickoff: string | null
+) {
+  const left = parseMatchDateTime(leftDate, leftKickoff);
+  const right = parseMatchDateTime(rightDate, rightKickoff);
+  if (!left || !right) return Number.POSITIVE_INFINITY;
+  return Math.abs(left.getTime() - right.getTime()) / 60000;
+}
+
+function findNearbyDirectionalCandidate(
+  possible: DbMatchRow[],
+  homeTeamId: number,
+  awayTeamId: number,
+  matchDate: string,
+  kickoffTime: string | null
+) {
+  const sameDirection = possible.filter(
+    (candidate) => candidate.home_team_id === homeTeamId && candidate.away_team_id === awayTeamId
+  );
+
+  if (!sameDirection.length) return null;
+
+  const sameDate = sameDirection.filter((candidate) => candidate.match_date === matchDate);
+  if (sameDate.length) {
+    return pickBestCandidate(sameDate, matchDate, kickoffTime);
+  }
+
+  const nearby = sameDirection.filter((candidate) => {
+    if (candidate.status === "FT") return false;
+    if (dateDistanceDays(candidate.match_date, matchDate) > 1) return false;
+
+    const minutesApart = minutesBetweenMatchSlots(
+      candidate.match_date,
+      candidate.kickoff_time,
+      matchDate,
+      kickoffTime
+    );
+
+    return (
+      minutesApart <= 360 ||
+      isPlaceholderKickoffTime(candidate.kickoff_time) ||
+      isPlaceholderKickoffTime(kickoffTime)
+    );
+  });
+
+  if (!nearby.length) return null;
+  return pickBestCandidate(nearby, matchDate, kickoffTime);
 }
 
 function dateDistanceDays(isoDate: string, referenceIsoDate?: string | null) {
@@ -1315,6 +1389,62 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   return "inserted";
 }
 
+async function cleanupPlaceholderMidnightDuplicates(seasonId: number) {
+  if (DRY_RUN) return 0;
+
+  const { data, error } = await ensureSupabase()
+    .from("matches")
+    .select("id,season_id,match_date,kickoff_time,status,minute,home_team_id,away_team_id,home_score,away_score,round,source_event_key")
+    .eq("season_id", seasonId)
+    .neq("status", "FT")
+    .order("match_date", { ascending: true })
+    .order("kickoff_time", { ascending: true });
+
+  if (error) throw error;
+
+  const rows = (data || []) as DbMatchRow[];
+  const byDirectionalPair = new Map<string, DbMatchRow[]>();
+
+  for (const row of rows) {
+    const key = `${row.home_team_id}__${row.away_team_id}`;
+    const bucket = byDirectionalPair.get(key) || [];
+    bucket.push(row);
+    byDirectionalPair.set(key, bucket);
+  }
+
+  const idsToDelete = new Set<number>();
+
+  for (const pairRows of byDirectionalPair.values()) {
+    for (const row of pairRows) {
+      if (!isPlaceholderKickoffTime(row.kickoff_time)) continue;
+
+      const replacement = pairRows.find((candidate) => {
+        if (candidate.id === row.id) return false;
+        if (candidate.status === "FT") return false;
+        if (isPlaceholderKickoffTime(candidate.kickoff_time)) return false;
+        if (dateDistanceDays(candidate.match_date, row.match_date) > 1) return false;
+
+        return (
+          minutesBetweenMatchSlots(candidate.match_date, candidate.kickoff_time, row.match_date, row.kickoff_time) <=
+          360
+        );
+      });
+
+      if (replacement) {
+        idsToDelete.add(row.id);
+      }
+    }
+  }
+
+  const ids = Array.from(idsToDelete);
+  if (!ids.length) return 0;
+
+  const { error: deleteError } = await ensureSupabase().from("matches").delete().in("id", ids);
+  if (deleteError) throw deleteError;
+
+  return ids.length;
+}
+
 async function upsertStandingsCache(
   seasonId: number,
   teamsMap: Map<string, number>,
@@ -1580,6 +1710,7 @@ async function main() {
           kickoffTime,
           homeName: row.home,
           awayName: row.away,
+          detailUrl: row.detailUrl,
         });
 
         if (bySourceKey.has(sourceKey)) {
@@ -1589,6 +1720,7 @@ async function main() {
         if (!target) {
           const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
           const possible = (byTeams.get(pairKey) || []).filter((candidate) => {
+            if (candidate.home_team_id !== homeId || candidate.away_team_id !== awayId) return false;
             if (candidate.match_date !== matchDate) return false;
             if (!kickoffTime || !candidate.kickoff_time) return true;
             return candidate.kickoff_time.slice(0, 5) === kickoffTime.slice(0, 5);
@@ -1597,6 +1729,11 @@ async function main() {
           if (possible.length > 0) {
             target = pickBestCandidate(possible, matchDate, kickoffTime);
           }
+        }
+
+        if (!target) {
+          const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+          target = findNearbyDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId, matchDate, kickoffTime);
         }
 
         if (target?.status === "FT" && effectiveParsed.status === "NS") {
@@ -1687,6 +1824,13 @@ async function main() {
         }
         } catch (e: unknown) {
           console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+        }
+      }
+
+      if (!LIVE_ONLY) {
+        const cleanedHere = await cleanupPlaceholderMidnightDuplicates(seasonMeta.seasonId);
+        if (cleanedHere > 0) {
+          console.log(`Cleaned placeholder midnight duplicates in ${compSlug}: ${cleanedHere}`);
         }
       }
 

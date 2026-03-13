@@ -8,6 +8,7 @@ import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
+import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import {
   buildCompetitionNavigationSections,
   readSlugList,
@@ -1004,18 +1005,26 @@ export default function LeagueClient() {
                                 </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center justify-between gap-2 pl-0 sm:pl-32">
+                                <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
                                   <span className="text-xs text-white/70">{niceDate(match.match_date)}</span>
-                                  {broadcasts.length ? (
-                                    <div className="flex flex-wrap items-center justify-end gap-2">
-                                      <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
-                                        {tr("watchOn")}
-                                      </span>
-                                      {broadcasts.map((provider) => (
-                                        <BroadcastPill key={`${match.id}-${provider.id}`} provider={provider} compact />
-                                      ))}
-                                    </div>
-                                  ) : null}
+                                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
+                                    {broadcasts.length ? (
+                                      <div className="flex flex-wrap items-center justify-end gap-2">
+                                        <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
+                                          {tr("watchOn")}
+                                        </span>
+                                        {broadcasts.map((provider) => (
+                                          <BroadcastPill key={`${match.id}-${provider.id}`} provider={provider} compact />
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                    <SuggestedWatchButton
+                                      competitionSlug={data.competition.slug}
+                                      home={match.home_team?.name}
+                                      away={match.away_team?.name}
+                                      lang={lang}
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             );

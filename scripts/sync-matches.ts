@@ -1,3 +1,5 @@
+export {};
+
 process.env.MATCHES_ONLY = "1";
 
 async function main() {

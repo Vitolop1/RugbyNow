@@ -1,5 +1,6 @@
 "use client";
 
+import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import type { Lang } from "@/lib/usePrefs";
 
@@ -25,10 +26,10 @@ export function estimateLiveMinute(matchDate: string, kickoffTime?: string | nul
   return null;
 }
 
-export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
+export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string, lang: Lang) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(getDateLocale(lang), {
     hour: "2-digit",
     minute: "2-digit",
     timeZone,
@@ -49,7 +50,7 @@ export function getMatchClockLabel(input: MatchClockInput) {
     return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
   }
 
-  return formatKickoffTZ(input.matchDate, input.kickoffTime ?? null, input.timeZone) ?? t(input.lang, "tbd");
+  return formatKickoffTZ(input.matchDate, input.kickoffTime ?? null, input.timeZone, input.lang) ?? t(input.lang, "tbd");
 }
 
 export function getMatchContextLabel(input: MatchClockInput) {

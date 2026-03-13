@@ -33,6 +33,7 @@ export default function SuggestedWatchButton({
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const tr = (key: string) => t(lang, key);
+  const isDisabledCompetition = competitionSlug === "ar-liga-norte-grande";
   const title = home?.trim() && away?.trim() ? `${home.trim()} vs ${away.trim()}` : competitionName?.trim() || competitionSlug || "Rugby";
 
   useEffect(() => {
@@ -90,6 +91,10 @@ export default function SuggestedWatchButton({
       window.removeEventListener("scroll", updatePosition, true);
     };
   }, [open]);
+
+  if (isDisabledCompetition) {
+    return null;
+  }
 
   return (
     <div ref={rootRef} className={className ?? ""}>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import BrandWordmark from "@/app/components/BrandWordmark";
+import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import { usePrefs, type Lang, type ThemeMode } from "@/lib/usePrefs";
 
@@ -31,8 +32,8 @@ type TimeZoneOption = {
   long: string;
 };
 
-function formatTodayTZ(now: Date, timeZone: string) {
-  return new Intl.DateTimeFormat(undefined, {
+function formatTodayTZ(now: Date, timeZone: string, lang: Lang) {
+  return new Intl.DateTimeFormat(getDateLocale(lang), {
     weekday: "short",
     month: "short",
     day: "2-digit",
@@ -41,16 +42,16 @@ function formatTodayTZ(now: Date, timeZone: string) {
   }).format(now);
 }
 
-function formatClockTZ(now: Date, timeZone: string) {
-  return new Intl.DateTimeFormat(undefined, {
+function formatClockTZ(now: Date, timeZone: string, lang: Lang) {
+  return new Intl.DateTimeFormat(getDateLocale(lang), {
     hour: "2-digit",
     minute: "2-digit",
     timeZone,
   }).format(now);
 }
 
-function formatSecondsTZ(now: Date, timeZone: string) {
-  return new Intl.DateTimeFormat(undefined, { second: "2-digit", timeZone }).format(now);
+function formatSecondsTZ(now: Date, timeZone: string, lang: Lang) {
+  return new Intl.DateTimeFormat(getDateLocale(lang), { second: "2-digit", timeZone }).format(now);
 }
 
 function ThemeGlyph({ theme }: { theme: ThemeMode }) {
@@ -280,15 +281,15 @@ export default function AppHeader({
               <div className="min-w-0">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] rn-text-muted">{tr("today")}</div>
                 <div className="truncate text-sm font-extrabold rn-text-primary">
-                  {mounted && now ? formatTodayTZ(now, timeZone) : ""}
+                  {mounted && now ? formatTodayTZ(now, timeZone, effectiveLang) : ""}
                 </div>
               </div>
               <div className="shrink-0 text-right">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] rn-text-muted">{tr("time")}</div>
                 <div className="text-sm font-extrabold tabular-nums rn-text-primary">
-                  {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
+                  {mounted && now ? formatClockTZ(now, timeZone, effectiveLang) : "--:--"}
                   <span className="ml-1 text-[11px] font-black rn-text-muted">
-                    {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
+                    {mounted && now ? formatSecondsTZ(now, timeZone, effectiveLang) : "--"}
                   </span>
                 </div>
               </div>
@@ -409,16 +410,16 @@ export default function AppHeader({
             <div className="rn-header-card flex h-[56px] w-[190px] flex-col justify-center px-4 py-2">
               <div className="text-[11px] font-semibold rn-text-muted">{tr("today")}</div>
               <div className="mt-1 truncate text-base font-extrabold leading-tight">
-                {mounted && now ? formatTodayTZ(now, timeZone) : ""}
+                {mounted && now ? formatTodayTZ(now, timeZone, effectiveLang) : ""}
               </div>
             </div>
 
             <div className="rn-header-card flex h-[56px] w-[190px] flex-col justify-center px-4 py-2">
               <div className="text-[11px] font-semibold rn-text-muted">{tr("time")}</div>
               <div className="mt-1 text-base font-extrabold leading-tight tabular-nums">
-                {mounted && now ? formatClockTZ(now, timeZone) : "--:--"}
+                {mounted && now ? formatClockTZ(now, timeZone, effectiveLang) : "--:--"}
                 <span className="ml-1 text-sm font-black rn-text-muted">
-                  {mounted && now ? formatSecondsTZ(now, timeZone) : "--"}
+                  {mounted && now ? formatSecondsTZ(now, timeZone, effectiveLang) : "--"}
                 </span>
               </div>
             </div>

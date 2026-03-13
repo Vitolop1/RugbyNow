@@ -15,6 +15,7 @@ import {
   toggleSlug,
   writeSlugList,
 } from "@/lib/competitionPrefs";
+import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
@@ -235,8 +236,8 @@ function formatRoundDate(iso?: string | null) {
   return `${d.getDate()}/${d.getMonth() + 1}`;
 }
 
-function niceDate(iso: string) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, {
+function niceDate(iso: string, lang: "en" | "es" | "fr" | "it") {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(getDateLocale(lang), {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -436,6 +437,9 @@ export default function LeagueClient() {
   );
 
   const selectedRound = data?.selectedRound ?? null;
+  const defaultSidebarGroupOpen = Boolean(
+    mounted && typeof window !== "undefined" && window.matchMedia("(min-width: 640px)").matches
+  );
   const roundMeta = data?.roundMeta || [];
   const selectedRoundMeta = roundMeta.find((item) => item.round === selectedRound) ?? null;
   const canGoPrevRound = selectedRound != null && roundMeta.some((item) => item.round < selectedRound);
@@ -611,9 +615,9 @@ export default function LeagueClient() {
 
             <div>
               <div className="mb-2 hidden text-sm font-semibold text-white/90 sm:block">{tr("leagues")}</div>
-              <div className="space-y-3">
-                {navigationSections.map((section) => {
-                  const open = sidebarGroups[section.key] ?? false;
+                <div className="space-y-3">
+                  {navigationSections.map((section) => {
+                  const open = sidebarGroups[section.key] ?? defaultSidebarGroupOpen;
                   const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
 
                   if (section.key === "featured") {
@@ -1006,7 +1010,7 @@ export default function LeagueClient() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
-                                  <span className="text-xs text-white/70">{niceDate(match.match_date)}</span>
+                                  <span className="text-xs text-white/70">{niceDate(match.match_date, lang)}</span>
                                   <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
                                     {broadcasts.length ? (
                                       <div className="flex flex-wrap items-center justify-end gap-2">

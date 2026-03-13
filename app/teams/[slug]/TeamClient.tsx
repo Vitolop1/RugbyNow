@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
+import { getDateLocale } from "@/lib/dateLocale";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
@@ -94,8 +95,8 @@ function FormPill({ value, lang }: { value: "W" | "D" | "L"; lang: "en" | "es" |
   return <span className={`inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-black ${cls}`}>{label}</span>;
 }
 
-function niceDate(iso: string) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, {
+function niceDate(iso: string, lang: "en" | "es" | "fr" | "it") {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(getDateLocale(lang), {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -103,10 +104,15 @@ function niceDate(iso: string) {
   });
 }
 
-function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string) {
+function formatKickoffTZ(
+  matchDate: string,
+  kickoffTime: string | null,
+  timeZone: string,
+  lang: "en" | "es" | "fr" | "it"
+) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", timeZone }).format(
+  return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone }).format(
     new Date(`${matchDate}T${normalized}`)
   );
 }
@@ -281,7 +287,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                               />
                               <span className="truncate">{match.competition?.name || "League"}</span>
                             </Link>
-                            <span className="shrink-0 text-xs text-white/60">{niceDate(match.match_date)}</span>
+                            <span className="shrink-0 text-xs text-white/60">{niceDate(match.match_date, lang)}</span>
                           </div>
 
                           <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
@@ -322,7 +328,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                         data.upcomingMatches.map((match) => (
                           <div key={match.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
                             <div className="text-xs text-white/60">
-                              {niceDate(match.match_date)} | {formatKickoffTZ(match.match_date, match.kickoff_time, timeZone) || tr("tbd")}
+                              {niceDate(match.match_date, lang)} | {formatKickoffTZ(match.match_date, match.kickoff_time, timeZone, lang) || tr("tbd")}
                             </div>
                             <div className="mt-2 text-sm font-semibold text-white">
                               {match.home_team?.name || tr("teamHomeFallback")} vs {match.away_team?.name || tr("teamAwayFallback")}

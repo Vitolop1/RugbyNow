@@ -11,6 +11,7 @@ import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
+import { getDateLocale } from "@/lib/dateLocale";
 import {
   buildCompetitionNavigationSections,
   readSlugList,
@@ -171,8 +172,8 @@ function addDays(d: Date, delta: number) {
   return next;
 }
 
-function niceDate(d: Date) {
-  return d.toLocaleDateString(undefined, {
+function niceDate(d: Date, lang: "en" | "es" | "fr" | "it") {
+  return d.toLocaleDateString(getDateLocale(lang), {
     weekday: "short",
     year: "numeric",
     month: "short",
@@ -233,6 +234,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const datePickerRef = useRef<HTMLInputElement | null>(null);
   const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
   const todayLocal = mounted ? new Date() : null;
+  const previousDate = useMemo(() => addDays(selectedDate, -1), [selectedDate]);
   const dateQuery = `?date=${selectedISO}`;
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
@@ -481,7 +483,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const hasHomeEditorialContent = !loading && filteredBlocks.some((block) => block.matches.length > 0);
 
   const isTodaySelected = Boolean(mounted && todayLocal && isSameDay(selectedDate, todayLocal));
-  const dateHeroLabel = isTodaySelected ? tr("today").toUpperCase() : niceDate(selectedDate);
+  const dateHeroLabel = isTodaySelected ? tr("today").toUpperCase() : niceDate(selectedDate, lang);
+  const defaultSidebarGroupOpen = Boolean(
+    mounted && typeof window !== "undefined" && window.matchMedia("(min-width: 640px)").matches
+  );
+  const previousDateLabel =
+    todayLocal && isSameDay(previousDate, todayLocal) ? tr("today") : tr("previousDay");
+  const nextDateLabel = tr("nextDay");
 
   const toggleFavoriteLeague = (slug: string) =>
     setFavoriteSlugs((prev) => {
@@ -561,7 +569,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
               ) : (
                 <div className="space-y-3">
                   {navigationSections.map((section) => {
-                    const open = openGroups[section.key] ?? false;
+                    const open = openGroups[section.key] ?? defaultSidebarGroupOpen;
                     const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
 
                     if (section.key === "featured") {
@@ -731,7 +739,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                       <span className="text-3xl font-black text-white">&lt;</span>
                       <span className="hidden flex-col text-left lg:flex">
                         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">{tr("goTo")}</span>
-                        <span className="text-lg font-extrabold text-white">{tr("yesterday")}</span>
+                        <span className="text-lg font-extrabold text-white">{previousDateLabel}</span>
                       </span>
                     </button>
 
@@ -764,7 +772,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                     >
                       <span className="hidden flex-col text-right lg:flex">
                         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/60">{tr("goTo")}</span>
-                        <span className="text-lg font-extrabold text-white">{tr("tomorrow")}</span>
+                        <span className="text-lg font-extrabold text-white">{nextDateLabel}</span>
                       </span>
                       <span className="text-3xl font-black text-white">&gt;</span>
                     </button>
@@ -794,7 +802,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                 <div>
                   <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                   <p className="text-sm text-white/80">
-                    {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate)}</span>  | {" "}
+                    {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate, lang)}</span>  | {" "}
                     {tab === "LIVE" ? tr("liveOnly") : tr("allMatches")}  |  {tr("tz")}:{" "}
                     <span className="font-semibold text-white">{timeZone}</span>
                   </p>

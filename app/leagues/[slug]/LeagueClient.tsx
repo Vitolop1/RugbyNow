@@ -565,39 +565,17 @@ export default function LeagueClient() {
             <div>
               <div className="mb-2 text-sm font-semibold text-white/90">{tr("leagues")}</div>
               <div className="space-y-3">
-                {favoriteCompetitions.length ? (
-                  <div className="rounded-xl border border-amber-200/20 bg-amber-300/10 p-3">
-                    <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-amber-100/80">{tr("favorites")}</div>
-                    <div className="space-y-2">
-                      {favoriteCompetitions.map((competition) => (
-                        <div
-                          key={`favorite-${competition.slug}`}
-                          className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
-                        >
-                          <Link href={`/leagues/${competition.slug}?date=${refISO}`} className="flex min-w-0 flex-1 items-center gap-2">
-                            <LeagueLogo slug={competition.slug} alt={competition.name} />
-                            <span className="truncate text-sm font-medium text-white">{competition.name}</span>
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => toggleFavoriteLeague(competition.slug)}
-                            className="shrink-0 text-base text-amber-300"
-                            title={tr("removeFavorite")}
-                            aria-label={tr("removeFavorite")}
-                          >
-                            {"\u2605"}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
                 {navigationSections.map((section) => {
-                  const open = sidebarGroups[section.key] ?? section.key !== "featured";
+                  const open = sidebarGroups[section.key] ?? false;
                   const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
 
                   if (section.key === "featured") {
+                    const highlightedCompetitions = favoriteCompetitions.length ? favoriteCompetitions : section.competitions;
+
+                    if (!highlightedCompetitions.length) {
+                      return null;
+                    }
+
                     return (
                       <div key={section.key} className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3">
                         <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-50/85">
@@ -605,7 +583,7 @@ export default function LeagueClient() {
                           <span>{section.label}</span>
                         </div>
                         <div className="space-y-2">
-                          {section.competitions.map((competition) => {
+                          {highlightedCompetitions.map((competition) => {
                             const active = competition.slug === slug;
                             return (
                               <Link
@@ -629,13 +607,15 @@ export default function LeagueClient() {
                                         event.preventDefault();
                                         toggleFavoriteLeague(competition.slug);
                                       }}
-                                      className={`shrink-0 text-base ${
-                                        favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"
+                                      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition ${
+                                        favoriteSlugs.includes(competition.slug)
+                                          ? "border-amber-300/40 bg-amber-300/20 text-amber-300"
+                                          : "border-white/15 bg-black/25 text-white/60 hover:bg-black/35"
                                       }`}
                                       title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                       aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                     >
-                                      {favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}
+                                      <span className="text-sm leading-none">{favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}</span>
                                     </button>
                                     <button
                                       type="button"
@@ -643,7 +623,7 @@ export default function LeagueClient() {
                                         event.preventDefault();
                                         toggleHiddenLeague(competition.slug);
                                       }}
-                                      className="shrink-0 text-sm text-white/70"
+                                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/25 text-sm text-white/70 transition hover:bg-black/35"
                                       title={tr("hideLeague")}
                                       aria-label={tr("hideLeague")}
                                     >
@@ -704,13 +684,15 @@ export default function LeagueClient() {
                                         event.preventDefault();
                                         toggleFavoriteLeague(competition.slug);
                                       }}
-                                      className={`shrink-0 text-base ${
-                                        favoriteSlugs.includes(competition.slug) ? "text-amber-300" : "text-white/60"
+                                      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition ${
+                                        favoriteSlugs.includes(competition.slug)
+                                          ? "border-amber-300/40 bg-amber-300/20 text-amber-300"
+                                          : "border-white/15 bg-black/25 text-white/60 hover:bg-black/35"
                                       }`}
                                       title={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                       aria-label={favoriteSlugs.includes(competition.slug) ? tr("removeFavorite") : tr("addFavorite")}
                                     >
-                                      {favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}
+                                      <span className="text-sm leading-none">{favoriteSlugs.includes(competition.slug) ? "\u2605" : "\u2606"}</span>
                                     </button>
                                     <button
                                       type="button"
@@ -718,7 +700,7 @@ export default function LeagueClient() {
                                         event.preventDefault();
                                         toggleHiddenLeague(competition.slug);
                                       }}
-                                      className="shrink-0 text-sm text-white/70"
+                                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/25 text-sm text-white/70 transition hover:bg-black/35"
                                       title={tr("hideLeague")}
                                       aria-label={tr("hideLeague")}
                                     >
@@ -755,7 +737,7 @@ export default function LeagueClient() {
                           <button
                             type="button"
                             onClick={() => toggleHiddenLeague(competition.slug)}
-                            className="shrink-0 text-sm text-white"
+                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/25 text-sm text-white transition hover:bg-black/35"
                             title={tr("showLeague")}
                             aria-label={tr("showLeague")}
                           >

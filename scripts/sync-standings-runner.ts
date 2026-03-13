@@ -1,4 +1,10 @@
 process.env.STANDINGS_ONLY = "1";
 
-export {};
-await import("./sync-flashscore");
+async function main() {
+  await import("./sync-flashscore");
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -125,30 +125,42 @@ function buildWatchSearchLink(home?: string | null, away?: string | null): Sugge
   };
 }
 
+export function getWatchOptions(params: {
+  competitionSlug?: string | null;
+  home?: string | null;
+  away?: string | null;
+}): SuggestedWatchLink[] {
+  const providers = getBroadcastsForCompetition(params.competitionSlug);
+  const options: SuggestedWatchLink[] = [];
+  const seen = new Set<string>();
+
+  const pushOption = (option: SuggestedWatchLink | null) => {
+    if (!option) return;
+    const key = `${option.label}|${option.href}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    options.push(option);
+  };
+
+  for (const providerId of SUGGESTED_PROVIDER_PRIORITY) {
+    const provider = providers.find((item) => item.id === providerId && item.href);
+    if (provider?.href) {
+      pushOption({
+        label: provider.label,
+        href: provider.href,
+      });
+    }
+  }
+
+  pushOption(buildWatchSearchLink(params.home, params.away));
+
+  return options;
+}
+
 export function getSuggestedWatchLink(params: {
   competitionSlug?: string | null;
   home?: string | null;
   away?: string | null;
 }): SuggestedWatchLink | null {
-  const providers = getBroadcastsForCompetition(params.competitionSlug);
-
-  for (const providerId of SUGGESTED_PROVIDER_PRIORITY) {
-    const provider = providers.find((item) => item.id === providerId && item.href);
-    if (provider?.href) {
-      return {
-        label: provider.label,
-        href: provider.href,
-      };
-    }
-  }
-
-  const firstProvider = providers.find((item) => item.href);
-  if (firstProvider?.href) {
-    return {
-      label: firstProvider.label,
-      href: firstProvider.href,
-    };
-  }
-
-  return buildWatchSearchLink(params.home, params.away);
+  return getWatchOptions(params)[0] ?? null;
 }

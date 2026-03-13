@@ -161,6 +161,8 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formLossLabel: "Loss",
     watchOn: "Watch on",
     suggestedLink: "View suggested link",
+    watchAlternatives: "View alternative options",
+    searchWhereToWatch: "Search where to watch",
   },
   es: {
     leagues: "Ligas",
@@ -322,6 +324,8 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formLossLabel: "Perdido",
     watchOn: "Lo pasan por",
     suggestedLink: "Ver link sugerido",
+    watchAlternatives: "Ver opciones alternativas",
+    searchWhereToWatch: "Buscar donde verlo",
   },
   fr: {
     leagues: "Ligues",
@@ -483,6 +487,8 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formLossLabel: "Perdu",
     watchOn: "Diffusion",
     suggestedLink: "Voir lien suggere",
+    watchAlternatives: "Voir options alternatives",
+    searchWhereToWatch: "Chercher ou voir",
   },
   it: {
     leagues: "Leghe",
@@ -644,6 +650,8 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formLossLabel: "Persa",
     watchOn: "In onda su",
     suggestedLink: "Vedi link suggerito",
+    watchAlternatives: "Vedi opzioni alternative",
+    searchWhereToWatch: "Cerca dove vederlo",
   },
 };
 

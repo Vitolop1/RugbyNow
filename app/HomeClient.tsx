@@ -202,24 +202,17 @@ function dedupeBlock(block: LeagueBlock) {
   return { ...block, matches };
 }
 
-function getInitialSelectedISO() {
-  if (typeof window === "undefined") return toISODateLocal(new Date());
-  const params = new URLSearchParams(window.location.search);
-  const date = params.get("date");
-  return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : toISODateLocal(new Date());
-}
-
 function getInitialHomeSidebarOpen() {
-  if (typeof window === "undefined") return true;
-  if (!window.matchMedia("(min-width: 640px)").matches) return false;
-  return window.localStorage.getItem("rn:home-sidebar-open") !== "0";
+  return false;
 }
 
-export default function HomeClient() {
+export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const router = useRouter();
   const { timeZone, mounted, lang, theme } = usePrefs();
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-  const [selectedISO, setSelectedISO] = useState<string>(getInitialSelectedISO);
+  const [selectedISO, setSelectedISO] = useState<string>(() =>
+    initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) ? initialDate : toISODateLocal(new Date())
+  );
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
   const [compError, setCompError] = useState("");
@@ -238,7 +231,7 @@ export default function HomeClient() {
   const lastPushedISO = useRef<string>("");
   const datePickerRef = useRef<HTMLInputElement | null>(null);
   const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
-  const todayLocal = new Date();
+  const todayLocal = mounted ? new Date() : null;
   const dateQuery = `?date=${selectedISO}`;
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
@@ -486,7 +479,8 @@ export default function HomeClient() {
   }, [blocks, tab, hiddenSlugs]);
   const hasHomeEditorialContent = !loading && filteredBlocks.some((block) => block.matches.length > 0);
 
-  const dateHeroLabel = isSameDay(selectedDate, todayLocal) ? tr("today").toUpperCase() : niceDate(selectedDate);
+  const isTodaySelected = Boolean(mounted && todayLocal && isSameDay(selectedDate, todayLocal));
+  const dateHeroLabel = isTodaySelected ? tr("today").toUpperCase() : niceDate(selectedDate);
 
   const toggleFavoriteLeague = (slug: string) =>
     setFavoriteSlugs((prev) => {
@@ -508,7 +502,7 @@ export default function HomeClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className={`fixed left-4 top-[184px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:top-[148px] sm:h-12 sm:px-5 ${
+          className={`fixed left-4 top-[158px] z-40 hidden h-12 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:flex ${
             sidebarOpen ? "pointer-events-none opacity-0 sm:pointer-events-auto sm:opacity-100" : "opacity-100"
           }`}
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
@@ -523,9 +517,24 @@ export default function HomeClient() {
 
         <main
           className={`w-full overflow-x-clip px-4 py-6 sm:px-6 xl:pr-[348px] ${
-            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[132px]"
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[172px]"
           }`}
         >
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className={`sticky top-[160px] z-20 mb-4 flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:hidden ${
+              sidebarOpen ? "pointer-events-none opacity-0" : "opacity-100"
+            }`}
+            aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
+          >
+            <span className="flex flex-col gap-1.5">
+              <span className="block h-0.5 w-6 rounded-full bg-white" />
+              <span className="block h-0.5 w-6 rounded-full bg-white" />
+              <span className="block h-0.5 w-6 rounded-full bg-white" />
+            </span>
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/90">{tr("leagues")}</span>
+          </button>
+
           <aside
             className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[calc(100vw-2rem)] max-w-[380px] space-y-4 overflow-x-hidden overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
@@ -540,7 +549,7 @@ export default function HomeClient() {
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/25 text-lg text-white/85 transition hover:bg-black/35 sm:hidden"
                   aria-label="Cerrar panel de ligas"
                 >
-                  ×
+                  {"\u00D7"}
                 </button>
               </div>
 
@@ -735,13 +744,13 @@ export default function HomeClient() {
                         datePickerRef.current?.click();
                       }}
                       className={`flex min-h-[72px] min-w-0 flex-col items-center justify-center rounded-2xl border px-3 py-3 transition lg:px-4 ${
-                        isSameDay(selectedDate, todayLocal)
+                          todayLocal && isSameDay(selectedDate, todayLocal)
                           ? "border-emerald-300/35 bg-emerald-400/20 text-white"
                           : "border-white/15 bg-white/10 text-white hover:bg-white/15"
                       }`}
                     >
                       <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/55">
-                        {isSameDay(selectedDate, todayLocal) ? tr("weAreOn") : tr("standingOn")}
+                        {isTodaySelected ? tr("weAreOn") : tr("standingOn")}
                       </span>
                       <span className="mt-1 line-clamp-2 text-center text-xl font-black leading-tight sm:text-2xl lg:text-3xl">
                         {dateHeroLabel}
@@ -769,7 +778,7 @@ export default function HomeClient() {
                     tabIndex={-1}
                   />
 
-                  {!isSameDay(selectedDate, todayLocal) ? (
+                  {todayLocal && !isSameDay(selectedDate, todayLocal) ? (
                     <div className="mt-3 flex justify-center">
                       <button
                         onClick={() => setSelectedISO(toISODateLocal(new Date()))}
@@ -924,7 +933,7 @@ export default function HomeClient() {
           </div>
         ) : null}
 
-        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[132px]"}`}>
+        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[172px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <BrandWordmark

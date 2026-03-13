@@ -225,9 +225,7 @@ function toISODateLocal(d: Date) {
 }
 
 function getInitialLeagueSidebarOpen() {
-  if (typeof window === "undefined") return true;
-  if (!window.matchMedia("(min-width: 640px)").matches) return false;
-  return window.localStorage.getItem("rn:league-sidebar-open") !== "0";
+  return false;
 }
 
 function formatRoundDate(iso?: string | null) {
@@ -545,7 +543,7 @@ export default function LeagueClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className={`fixed left-4 top-[184px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:top-[148px] sm:h-12 sm:px-5 ${
+          className={`fixed left-4 top-[158px] z-40 hidden h-12 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:flex ${
             sidebarOpen ? "pointer-events-none opacity-0 sm:pointer-events-auto sm:opacity-100" : "opacity-100"
           }`}
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
@@ -560,9 +558,24 @@ export default function LeagueClient() {
 
         <main
           className={`w-full overflow-x-clip px-4 py-6 sm:px-6 xl:pr-[348px] ${
-            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[132px]"
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[156px]"
           }`}
         >
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className={`sticky top-[160px] z-20 mb-4 flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:hidden ${
+              sidebarOpen ? "pointer-events-none opacity-0" : "opacity-100"
+            }`}
+            aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
+          >
+            <span className="flex flex-col gap-1.5">
+              <span className="block h-0.5 w-6 rounded-full bg-white" />
+              <span className="block h-0.5 w-6 rounded-full bg-white" />
+              <span className="block h-0.5 w-6 rounded-full bg-white" />
+            </span>
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/90">{tr("leagues")}</span>
+          </button>
+
           <aside
             className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[calc(100vw-2rem)] max-w-[380px] space-y-4 overflow-x-hidden overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
@@ -576,7 +589,7 @@ export default function LeagueClient() {
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/25 text-lg text-white/85 transition hover:bg-black/35"
                 aria-label="Cerrar panel de ligas"
               >
-                ×
+                {"\u00D7"}
               </button>
             </div>
 
@@ -1200,7 +1213,7 @@ export default function LeagueClient() {
           </div>
         ) : null}
 
-        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[132px]"}`}>
+        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[156px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <BrandWordmark

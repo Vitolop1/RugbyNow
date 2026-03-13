@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 export type Lang = "en" | "es" | "fr" | "it";
 export type ThemeMode = "rugby" | "light" | "dark";
@@ -32,16 +32,14 @@ function applyTheme(theme: ThemeMode) {
 }
 
 export function usePrefs() {
+  const [mounted, setMounted] = useState(false);
   const [timeZone, setTimeZone] = useState<string>(DEFAULT_TZ);
   const [lang, setLang] = useState<Lang>(DEFAULT_LANG);
   const [theme, setTheme] = useState<ThemeMode>(DEFAULT_THEME);
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
 
   useEffect(() => {
+    const mountId = window.requestAnimationFrame(() => setMounted(true));
+
     const syncPrefs = () => {
       const nextTZ = readTZ();
       const nextLang = readLang();
@@ -79,6 +77,7 @@ export function usePrefs() {
     window.addEventListener("theme-change", onTheme);
 
     return () => {
+      window.cancelAnimationFrame(mountId);
       window.clearTimeout(syncId);
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("tz-change", onTZ);

@@ -508,7 +508,7 @@ export default function HomeClient() {
 
         <button
           onClick={() => setSidebarOpen((prev) => !prev)}
-          className={`fixed left-4 top-[184px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:top-[148px] sm:h-12 sm:w-12 sm:justify-center sm:rounded-2xl sm:px-0 ${
+          className={`fixed left-4 top-[184px] z-40 flex h-11 items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:top-[148px] sm:h-12 sm:px-5 ${
             sidebarOpen ? "pointer-events-none opacity-0 sm:pointer-events-auto sm:opacity-100" : "opacity-100"
           }`}
           aria-label={sidebarOpen ? "Ocultar barra lateral" : "Mostrar barra lateral"}
@@ -518,12 +518,12 @@ export default function HomeClient() {
             <span className="block h-0.5 w-6 rounded-full bg-white" />
             <span className="block h-0.5 w-6 rounded-full bg-white" />
           </span>
-          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/90 sm:hidden">{tr("leagues")}</span>
+          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/90">{tr("leagues")}</span>
         </button>
 
         <main
           className={`w-full overflow-x-clip px-4 py-6 sm:px-6 xl:pr-[348px] ${
-            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"
+            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[132px]"
           }`}
         >
           <aside
@@ -924,7 +924,7 @@ export default function HomeClient() {
           </div>
         ) : null}
 
-        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[92px]"}`}>
+        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[132px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <BrandWordmark

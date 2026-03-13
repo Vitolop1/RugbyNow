@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-13T12:03:37.982Z",
+  "generatedAt": "2026-03-13T12:14:42.696Z",
   "competitions": [
     {
       "id": 29,
@@ -8531,34 +8531,6 @@
       "away_team_id": 162
     },
     {
-      "id": 14500,
-      "season_id": 38,
-      "match_date": "2025-07-04",
-      "kickoff_time": "04:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 4,
-      "venue": null,
-      "home_team_id": 154,
-      "away_team_id": 3
-    },
-    {
-      "id": 14511,
-      "season_id": 38,
-      "match_date": "2025-07-11",
-      "kickoff_time": "16:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 11,
-      "venue": null,
-      "home_team_id": 168,
-      "away_team_id": 6
-    },
-    {
       "id": 14512,
       "season_id": 38,
       "match_date": "2025-07-18",
@@ -8573,7 +8545,7 @@
       "away_team_id": 4
     },
     {
-      "id": 14514,
+      "id": 14513,
       "season_id": 38,
       "match_date": "2025-07-18",
       "kickoff_time": "04:00:00",
@@ -8583,8 +8555,8 @@
       "away_score": null,
       "round": 18,
       "venue": null,
-      "home_team_id": 157,
-      "away_team_id": 3
+      "home_team_id": 160,
+      "away_team_id": 2
     },
     {
       "id": 14470,
@@ -8598,20 +8570,6 @@
       "round": 3,
       "venue": null,
       "home_team_id": 161,
-      "away_team_id": 4
-    },
-    {
-      "id": 14501,
-      "season_id": 38,
-      "match_date": "2025-07-04",
-      "kickoff_time": "04:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 4,
-      "venue": null,
-      "home_team_id": 160,
       "away_team_id": 4
     },
     {
@@ -8741,7 +8699,21 @@
       "away_team_id": 1
     },
     {
-      "id": 14513,
+      "id": 14511,
+      "season_id": 38,
+      "match_date": "2025-07-11",
+      "kickoff_time": "16:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 11,
+      "venue": null,
+      "home_team_id": 168,
+      "away_team_id": 6
+    },
+    {
+      "id": 14514,
       "season_id": 38,
       "match_date": "2025-07-18",
       "kickoff_time": "04:00:00",
@@ -8751,8 +8723,106 @@
       "away_score": null,
       "round": 18,
       "venue": null,
+      "home_team_id": 157,
+      "away_team_id": 3
+    },
+    {
+      "id": 14500,
+      "season_id": 38,
+      "match_date": "2025-07-04",
+      "kickoff_time": "04:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 4,
+      "venue": null,
+      "home_team_id": 154,
+      "away_team_id": 3
+    },
+    {
+      "id": 14501,
+      "season_id": 38,
+      "match_date": "2025-07-04",
+      "kickoff_time": "04:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 4,
+      "venue": null,
       "home_team_id": 160,
-      "away_team_id": 2
+      "away_team_id": 4
+    },
+    {
+      "id": 14527,
+      "season_id": 38,
+      "match_date": "2025-11-13",
+      "kickoff_time": "13:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 13,
+      "venue": null,
+      "home_team_id": 5,
+      "away_team_id": 154
+    },
+    {
+      "id": 14529,
+      "season_id": 38,
+      "match_date": "2025-11-14",
+      "kickoff_time": "16:40:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 14,
+      "venue": null,
+      "home_team_id": 1,
+      "away_team_id": 160
+    },
+    {
+      "id": 14531,
+      "season_id": 38,
+      "match_date": "2025-11-21",
+      "kickoff_time": "13:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 21,
+      "venue": null,
+      "home_team_id": 3,
+      "away_team_id": 161
+    },
+    {
+      "id": 14533,
+      "season_id": 38,
+      "match_date": "2025-11-21",
+      "kickoff_time": "13:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 21,
+      "venue": null,
+      "home_team_id": 5,
+      "away_team_id": 160
+    },
+    {
+      "id": 14535,
+      "season_id": 38,
+      "match_date": "2025-11-21",
+      "kickoff_time": "14:10:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 21,
+      "venue": null,
+      "home_team_id": 1,
+      "away_team_id": 157
     },
     {
       "id": 14515,
@@ -8839,90 +8909,6 @@
       "away_team_id": 165
     },
     {
-      "id": 14527,
-      "season_id": 38,
-      "match_date": "2025-11-13",
-      "kickoff_time": "13:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 13,
-      "venue": null,
-      "home_team_id": 5,
-      "away_team_id": 154
-    },
-    {
-      "id": 14529,
-      "season_id": 38,
-      "match_date": "2025-11-14",
-      "kickoff_time": "16:40:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 14,
-      "venue": null,
-      "home_team_id": 1,
-      "away_team_id": 160
-    },
-    {
-      "id": 14531,
-      "season_id": 38,
-      "match_date": "2025-11-21",
-      "kickoff_time": "13:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 21,
-      "venue": null,
-      "home_team_id": 3,
-      "away_team_id": 161
-    },
-    {
-      "id": 14533,
-      "season_id": 38,
-      "match_date": "2025-11-21",
-      "kickoff_time": "13:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 21,
-      "venue": null,
-      "home_team_id": 5,
-      "away_team_id": 160
-    },
-    {
-      "id": 14535,
-      "season_id": 38,
-      "match_date": "2025-11-21",
-      "kickoff_time": "14:10:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 21,
-      "venue": null,
-      "home_team_id": 1,
-      "away_team_id": 157
-    },
-    {
-      "id": 14536,
-      "season_id": 39,
-      "match_date": "2026-03-07",
-      "kickoff_time": "08:35:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 31,
-      "away_score": 34,
-      "round": 7,
-      "venue": null,
-      "home_team_id": 171,
-      "away_team_id": 180
-    },
-    {
       "id": 14538,
       "season_id": 39,
       "match_date": "2026-03-07",
@@ -8965,18 +8951,18 @@
       "away_team_id": 179
     },
     {
-      "id": 14516,
-      "season_id": 38,
-      "match_date": "2025-07-18",
-      "kickoff_time": "13:10:00",
-      "status": "NS",
+      "id": 14541,
+      "season_id": 39,
+      "match_date": "2026-02-28",
+      "kickoff_time": "08:35:00",
+      "status": "FT",
       "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 18,
+      "home_score": 30,
+      "away_score": 27,
+      "round": 28,
       "venue": null,
-      "home_team_id": 165,
-      "away_team_id": 5
+      "home_team_id": 171,
+      "away_team_id": 173
     },
     {
       "id": 14518,
@@ -8993,18 +8979,18 @@
       "away_team_id": 165
     },
     {
-      "id": 14526,
+      "id": 14520,
       "season_id": 38,
-      "match_date": "2025-11-13",
+      "match_date": "2025-11-06",
       "kickoff_time": "13:00:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 13,
+      "round": 6,
       "venue": null,
       "home_team_id": 4,
-      "away_team_id": 168
+      "away_team_id": 161
     },
     {
       "id": 14528,
@@ -9063,7 +9049,21 @@
       "away_team_id": 154
     },
     {
-      "id": 14520,
+      "id": 14536,
+      "season_id": 39,
+      "match_date": "2026-03-07",
+      "kickoff_time": "08:35:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 31,
+      "away_score": 34,
+      "round": 7,
+      "venue": null,
+      "home_team_id": 171,
+      "away_team_id": 180
+    },
+    {
+      "id": 14522,
       "season_id": 38,
       "match_date": "2025-11-06",
       "kickoff_time": "13:00:00",
@@ -9073,22 +9073,8 @@
       "away_score": null,
       "round": 6,
       "venue": null,
-      "home_team_id": 4,
-      "away_team_id": 161
-    },
-    {
-      "id": 14548,
-      "season_id": 39,
-      "match_date": "2026-02-21",
-      "kickoff_time": "06:05:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 23,
-      "away_score": 26,
-      "round": 21,
-      "venue": null,
-      "home_team_id": 174,
-      "away_team_id": 175
+      "home_team_id": 6,
+      "away_team_id": 160
     },
     {
       "id": 14549,
@@ -9175,18 +9161,18 @@
       "away_team_id": 180
     },
     {
-      "id": 14522,
+      "id": 14516,
       "season_id": 38,
-      "match_date": "2025-11-06",
-      "kickoff_time": "13:00:00",
+      "match_date": "2025-07-18",
+      "kickoff_time": "13:10:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 6,
+      "round": 18,
       "venue": null,
-      "home_team_id": 6,
-      "away_team_id": 160
+      "home_team_id": 165,
+      "away_team_id": 5
     },
     {
       "id": 14524,
@@ -9203,18 +9189,18 @@
       "away_team_id": 161
     },
     {
-      "id": 14541,
-      "season_id": 39,
-      "match_date": "2026-02-28",
-      "kickoff_time": "08:35:00",
-      "status": "FT",
+      "id": 14526,
+      "season_id": 38,
+      "match_date": "2025-11-13",
+      "kickoff_time": "13:00:00",
+      "status": "NS",
       "minute": null,
-      "home_score": 30,
-      "away_score": 27,
-      "round": 28,
+      "home_score": null,
+      "away_score": null,
+      "round": 13,
       "venue": null,
-      "home_team_id": 171,
-      "away_team_id": 173
+      "home_team_id": 4,
+      "away_team_id": 168
     },
     {
       "id": 14542,
@@ -9301,32 +9287,18 @@
       "away_team_id": 173
     },
     {
-      "id": 14555,
+      "id": 14548,
       "season_id": 39,
-      "match_date": "2026-02-13",
+      "match_date": "2026-02-21",
       "kickoff_time": "06:05:00",
       "status": "FT",
       "minute": null,
-      "home_score": 25,
-      "away_score": 23,
-      "round": 13,
+      "home_score": 23,
+      "away_score": 26,
+      "round": 21,
       "venue": null,
       "home_team_id": 174,
-      "away_team_id": 170
-    },
-    {
-      "id": 14581,
-      "season_id": 39,
-      "match_date": "2026-04-18",
-      "kickoff_time": "07:05:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 18,
-      "venue": null,
-      "home_team_id": 175,
-      "away_team_id": 178
+      "away_team_id": 175
     },
     {
       "id": 14583,
@@ -9539,32 +9511,18 @@
       "away_team_id": 173
     },
     {
-      "id": 14557,
+      "id": 14555,
       "season_id": 39,
-      "match_date": "2026-03-14",
-      "kickoff_time": "03:35:00",
-      "status": "NS",
+      "match_date": "2026-02-13",
+      "kickoff_time": "06:05:00",
+      "status": "FT",
       "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 14,
+      "home_score": 25,
+      "away_score": 23,
+      "round": 13,
       "venue": null,
-      "home_team_id": 177,
-      "away_team_id": 171
-    },
-    {
-      "id": 14559,
-      "season_id": 39,
-      "match_date": "2026-03-14",
-      "kickoff_time": "08:35:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 14,
-      "venue": null,
-      "home_team_id": 180,
-      "away_team_id": 176
+      "home_team_id": 174,
+      "away_team_id": 170
     },
     {
       "id": 14561,
@@ -9707,18 +9665,46 @@
       "away_team_id": 174
     },
     {
-      "id": 14578,
+      "id": 14581,
       "season_id": 39,
-      "match_date": "2026-04-11",
-      "kickoff_time": "09:35:00",
+      "match_date": "2026-04-18",
+      "kickoff_time": "07:05:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 11,
+      "round": 18,
+      "venue": null,
+      "home_team_id": 175,
+      "away_team_id": 178
+    },
+    {
+      "id": 14557,
+      "season_id": 39,
+      "match_date": "2026-03-14",
+      "kickoff_time": "03:35:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 14,
+      "venue": null,
+      "home_team_id": 177,
+      "away_team_id": 171
+    },
+    {
+      "id": 14559,
+      "season_id": 39,
+      "match_date": "2026-03-14",
+      "kickoff_time": "08:35:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 14,
       "venue": null,
       "home_team_id": 180,
-      "away_team_id": 170
+      "away_team_id": 176
     },
     {
       "id": 14580,
@@ -9945,20 +9931,6 @@
       "away_team_id": 176
     },
     {
-      "id": 14558,
-      "season_id": 39,
-      "match_date": "2026-03-14",
-      "kickoff_time": "06:05:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 14,
-      "venue": null,
-      "home_team_id": 170,
-      "away_team_id": 174
-    },
-    {
       "id": 14560,
       "season_id": 39,
       "match_date": "2026-03-15",
@@ -10085,6 +10057,34 @@
       "away_team_id": 172
     },
     {
+      "id": 14578,
+      "season_id": 39,
+      "match_date": "2026-04-11",
+      "kickoff_time": "09:35:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 11,
+      "venue": null,
+      "home_team_id": 180,
+      "away_team_id": 170
+    },
+    {
+      "id": 14558,
+      "season_id": 39,
+      "match_date": "2026-03-14",
+      "kickoff_time": "06:05:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 14,
+      "venue": null,
+      "home_team_id": 170,
+      "away_team_id": 174
+    },
+    {
       "id": 14613,
       "season_id": 24,
       "match_date": "2026-03-14",
@@ -10113,7 +10113,7 @@
       "away_team_id": 90
     },
     {
-      "id": 14637,
+      "id": 14639,
       "season_id": 24,
       "match_date": "2026-04-11",
       "kickoff_time": "18:30:00",
@@ -10123,22 +10123,8 @@
       "away_score": null,
       "round": 11,
       "venue": null,
-      "home_team_id": 88,
-      "away_team_id": 93
-    },
-    {
-      "id": 14643,
-      "season_id": 24,
-      "match_date": "2026-04-18",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 18,
-      "venue": null,
-      "home_team_id": 89,
-      "away_team_id": 99
+      "home_team_id": 97,
+      "away_team_id": 95
     },
     {
       "id": 14645,
@@ -10519,7 +10505,7 @@
       "away_team_id": 91
     },
     {
-      "id": 14639,
+      "id": 14637,
       "season_id": 24,
       "match_date": "2026-04-11",
       "kickoff_time": "18:30:00",
@@ -10529,8 +10515,8 @@
       "away_score": null,
       "round": 11,
       "venue": null,
-      "home_team_id": 97,
-      "away_team_id": 95
+      "home_team_id": 88,
+      "away_team_id": 93
     },
     {
       "id": 14641,
@@ -10547,21 +10533,7 @@
       "away_team_id": 97
     },
     {
-      "id": 14638,
-      "season_id": 24,
-      "match_date": "2026-04-11",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 11,
-      "venue": null,
-      "home_team_id": 92,
-      "away_team_id": 94
-    },
-    {
-      "id": 14644,
+      "id": 14643,
       "season_id": 24,
       "match_date": "2026-04-18",
       "kickoff_time": "18:30:00",
@@ -10571,8 +10543,22 @@
       "away_score": null,
       "round": 18,
       "venue": null,
-      "home_team_id": 91,
-      "away_team_id": 100
+      "home_team_id": 89,
+      "away_team_id": 99
+    },
+    {
+      "id": 14640,
+      "season_id": 24,
+      "match_date": "2026-04-11",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 11,
+      "venue": null,
+      "home_team_id": 99,
+      "away_team_id": 87
     },
     {
       "id": 14646,
@@ -10953,7 +10939,7 @@
       "away_team_id": 96
     },
     {
-      "id": 14640,
+      "id": 14638,
       "season_id": 24,
       "match_date": "2026-04-11",
       "kickoff_time": "18:30:00",
@@ -10963,8 +10949,8 @@
       "away_score": null,
       "round": 11,
       "venue": null,
-      "home_team_id": 99,
-      "away_team_id": 87
+      "home_team_id": 92,
+      "away_team_id": 94
     },
     {
       "id": 14642,
@@ -10981,7 +10967,21 @@
       "away_team_id": 90
     },
     {
-      "id": 14701,
+      "id": 14644,
+      "season_id": 24,
+      "match_date": "2026-04-18",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 18,
+      "venue": null,
+      "home_team_id": 91,
+      "away_team_id": 100
+    },
+    {
+      "id": 14703,
       "season_id": 24,
       "match_date": "2026-06-27",
       "kickoff_time": "18:30:00",
@@ -10991,22 +10991,8 @@
       "away_score": null,
       "round": 27,
       "venue": null,
-      "home_team_id": 95,
-      "away_team_id": 100
-    },
-    {
-      "id": 14707,
-      "season_id": 24,
-      "match_date": "2026-07-04",
-      "kickoff_time": "17:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 4,
-      "venue": null,
-      "home_team_id": 90,
-      "away_team_id": 89
+      "home_team_id": 96,
+      "away_team_id": 93
     },
     {
       "id": 14709,
@@ -11387,7 +11373,7 @@
       "away_team_id": 87
     },
     {
-      "id": 14703,
+      "id": 14701,
       "season_id": 24,
       "match_date": "2026-06-27",
       "kickoff_time": "18:30:00",
@@ -11397,8 +11383,8 @@
       "away_score": null,
       "round": 27,
       "venue": null,
-      "home_team_id": 96,
-      "away_team_id": 93
+      "home_team_id": 95,
+      "away_team_id": 100
     },
     {
       "id": 14705,
@@ -11415,7 +11401,7 @@
       "away_team_id": 99
     },
     {
-      "id": 14704,
+      "id": 14707,
       "season_id": 24,
       "match_date": "2026-07-04",
       "kickoff_time": "17:00:00",
@@ -11425,8 +11411,8 @@
       "away_score": null,
       "round": 4,
       "venue": null,
-      "home_team_id": 94,
-      "away_team_id": 93
+      "home_team_id": 90,
+      "away_team_id": 89
     },
     {
       "id": 14706,
@@ -11443,7 +11429,7 @@
       "away_team_id": 97
     },
     {
-      "id": 14710,
+      "id": 14708,
       "season_id": 24,
       "match_date": "2026-07-04",
       "kickoff_time": "17:00:00",
@@ -11453,8 +11439,8 @@
       "away_score": null,
       "round": 4,
       "venue": null,
-      "home_team_id": 96,
-      "away_team_id": 95
+      "home_team_id": 88,
+      "away_team_id": 87
     },
     {
       "id": 14712,
@@ -11835,7 +11821,7 @@
       "away_team_id": 89
     },
     {
-      "id": 14708,
+      "id": 14704,
       "season_id": 24,
       "match_date": "2026-07-04",
       "kickoff_time": "17:00:00",
@@ -11845,25 +11831,25 @@
       "away_score": null,
       "round": 4,
       "venue": null,
-      "home_team_id": 88,
-      "away_team_id": 87
+      "home_team_id": 94,
+      "away_team_id": 93
     },
     {
-      "id": 14765,
+      "id": 14710,
       "season_id": 24,
-      "match_date": "2026-09-12",
-      "kickoff_time": "18:30:00",
+      "match_date": "2026-07-04",
+      "kickoff_time": "17:00:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 12,
+      "round": 4,
       "venue": null,
-      "home_team_id": 97,
-      "away_team_id": 96
+      "home_team_id": 96,
+      "away_team_id": 95
     },
     {
-      "id": 14773,
+      "id": 14771,
       "season_id": 24,
       "match_date": "2026-09-26",
       "kickoff_time": "18:30:00",
@@ -11873,8 +11859,8 @@
       "away_score": null,
       "round": 26,
       "venue": null,
-      "home_team_id": 96,
-      "away_team_id": 87
+      "home_team_id": 95,
+      "away_team_id": 91
     },
     {
       "id": 14779,
@@ -11889,20 +11875,6 @@
       "venue": null,
       "home_team_id": 97,
       "away_team_id": 92
-    },
-    {
-      "id": 14781,
-      "season_id": 24,
-      "match_date": "2026-10-10",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 10,
-      "venue": null,
-      "home_team_id": 94,
-      "away_team_id": 89
     },
     {
       "id": 14787,
@@ -11931,20 +11903,6 @@
       "venue": null,
       "home_team_id": 100,
       "away_team_id": 95
-    },
-    {
-      "id": 14791,
-      "season_id": 24,
-      "match_date": "2026-10-17",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 17,
-      "venue": null,
-      "home_team_id": 91,
-      "away_team_id": 94
     },
     {
       "id": 14793,
@@ -12031,7 +11989,7 @@
       "away_team_id": 91
     },
     {
-      "id": 14753,
+      "id": 14755,
       "season_id": 24,
       "match_date": "2026-09-05",
       "kickoff_time": "18:30:00",
@@ -12041,8 +11999,8 @@
       "away_score": null,
       "round": 5,
       "venue": null,
-      "home_team_id": 94,
-      "away_team_id": 100
+      "home_team_id": 91,
+      "away_team_id": 87
     },
     {
       "id": 14757,
@@ -12087,6 +12045,34 @@
       "away_team_id": 92
     },
     {
+      "id": 14763,
+      "season_id": 24,
+      "match_date": "2026-09-12",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 12,
+      "venue": null,
+      "home_team_id": 89,
+      "away_team_id": 91
+    },
+    {
+      "id": 14765,
+      "season_id": 24,
+      "match_date": "2026-09-12",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 12,
+      "venue": null,
+      "home_team_id": 97,
+      "away_team_id": 96
+    },
+    {
       "id": 14767,
       "season_id": 24,
       "match_date": "2026-09-26",
@@ -12101,7 +12087,7 @@
       "away_team_id": 97
     },
     {
-      "id": 14769,
+      "id": 14773,
       "season_id": 24,
       "match_date": "2026-09-26",
       "kickoff_time": "18:30:00",
@@ -12111,8 +12097,8 @@
       "away_score": null,
       "round": 26,
       "venue": null,
-      "home_team_id": 88,
-      "away_team_id": 98
+      "home_team_id": 96,
+      "away_team_id": 87
     },
     {
       "id": 14775,
@@ -12129,18 +12115,18 @@
       "away_team_id": 88
     },
     {
-      "id": 14777,
+      "id": 14781,
       "season_id": 24,
-      "match_date": "2026-10-03",
+      "match_date": "2026-10-10",
       "kickoff_time": "18:30:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 3,
+      "round": 10,
       "venue": null,
-      "home_team_id": 89,
-      "away_team_id": 96
+      "home_team_id": 94,
+      "away_team_id": 89
     },
     {
       "id": 14783,
@@ -12157,6 +12143,62 @@
       "away_team_id": 97
     },
     {
+      "id": 14791,
+      "season_id": 24,
+      "match_date": "2026-10-17",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 17,
+      "venue": null,
+      "home_team_id": 91,
+      "away_team_id": 94
+    },
+    {
+      "id": 14753,
+      "season_id": 24,
+      "match_date": "2026-09-05",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 5,
+      "venue": null,
+      "home_team_id": 94,
+      "away_team_id": 100
+    },
+    {
+      "id": 14769,
+      "season_id": 24,
+      "match_date": "2026-09-26",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 26,
+      "venue": null,
+      "home_team_id": 88,
+      "away_team_id": 98
+    },
+    {
+      "id": 14777,
+      "season_id": 24,
+      "match_date": "2026-10-03",
+      "kickoff_time": "18:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 3,
+      "venue": null,
+      "home_team_id": 89,
+      "away_team_id": 96
+    },
+    {
       "id": 14785,
       "season_id": 24,
       "match_date": "2026-10-10",
@@ -12171,7 +12213,7 @@
       "away_team_id": 93
     },
     {
-      "id": 14755,
+      "id": 14756,
       "season_id": 24,
       "match_date": "2026-09-05",
       "kickoff_time": "18:30:00",
@@ -12181,64 +12223,8 @@
       "away_score": null,
       "round": 5,
       "venue": null,
-      "home_team_id": 91,
-      "away_team_id": 87
-    },
-    {
-      "id": 14763,
-      "season_id": 24,
-      "match_date": "2026-09-12",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 12,
-      "venue": null,
-      "home_team_id": 89,
-      "away_team_id": 91
-    },
-    {
-      "id": 14771,
-      "season_id": 24,
-      "match_date": "2026-09-26",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 26,
-      "venue": null,
-      "home_team_id": 95,
-      "away_team_id": 91
-    },
-    {
-      "id": 14754,
-      "season_id": 24,
-      "match_date": "2026-09-05",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 5,
-      "venue": null,
-      "home_team_id": 90,
-      "away_team_id": 88
-    },
-    {
-      "id": 14774,
-      "season_id": 24,
-      "match_date": "2026-10-03",
-      "kickoff_time": "18:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 3,
-      "venue": null,
-      "home_team_id": 87,
-      "away_team_id": 94
+      "home_team_id": 93,
+      "away_team_id": 97
     },
     {
       "id": 14776,
@@ -12521,7 +12507,7 @@
       "away_team_id": 93
     },
     {
-      "id": 14756,
+      "id": 14754,
       "season_id": 24,
       "match_date": "2026-09-05",
       "kickoff_time": "18:30:00",
@@ -12531,8 +12517,8 @@
       "away_score": null,
       "round": 5,
       "venue": null,
-      "home_team_id": 93,
-      "away_team_id": 97
+      "home_team_id": 90,
+      "away_team_id": 88
     },
     {
       "id": 14758,
@@ -12647,74 +12633,18 @@
       "away_team_id": 99
     },
     {
-      "id": 14810,
-      "season_id": 40,
-      "match_date": "2026-05-09",
-      "kickoff_time": "20:00:00",
+      "id": 14774,
+      "season_id": 24,
+      "match_date": "2026-10-03",
+      "kickoff_time": "18:30:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 9,
+      "round": 3,
       "venue": null,
-      "home_team_id": 189,
-      "away_team_id": 184
-    },
-    {
-      "id": 14812,
-      "season_id": 40,
-      "match_date": "2026-05-11",
-      "kickoff_time": "00:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 11,
-      "venue": null,
-      "home_team_id": 188,
-      "away_team_id": 185
-    },
-    {
-      "id": 14814,
-      "season_id": 40,
-      "match_date": "2026-05-17",
-      "kickoff_time": "20:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 17,
-      "venue": null,
-      "home_team_id": 186,
-      "away_team_id": 185
-    },
-    {
-      "id": 14816,
-      "season_id": 40,
-      "match_date": "2026-05-23",
-      "kickoff_time": "20:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 23,
-      "venue": null,
-      "home_team_id": 185,
-      "away_team_id": 189
-    },
-    {
-      "id": 14818,
-      "season_id": 40,
-      "match_date": "2026-05-25",
-      "kickoff_time": "00:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 25,
-      "venue": null,
-      "home_team_id": 184,
-      "away_team_id": 187
+      "home_team_id": 87,
+      "away_team_id": 94
     },
     {
       "id": 14820,
@@ -12815,18 +12745,74 @@
       "away_team_id": 186
     },
     {
-      "id": 14805,
+      "id": 14810,
       "season_id": 40,
-      "match_date": "2026-04-25",
-      "kickoff_time": "02:00:00",
+      "match_date": "2026-05-09",
+      "kickoff_time": "20:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 9,
+      "venue": null,
+      "home_team_id": 189,
+      "away_team_id": 184
+    },
+    {
+      "id": 14812,
+      "season_id": 40,
+      "match_date": "2026-05-11",
+      "kickoff_time": "00:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 11,
+      "venue": null,
+      "home_team_id": 188,
+      "away_team_id": 185
+    },
+    {
+      "id": 14814,
+      "season_id": 40,
+      "match_date": "2026-05-17",
+      "kickoff_time": "20:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 17,
+      "venue": null,
+      "home_team_id": 186,
+      "away_team_id": 185
+    },
+    {
+      "id": 14816,
+      "season_id": 40,
+      "match_date": "2026-05-23",
+      "kickoff_time": "20:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 23,
+      "venue": null,
+      "home_team_id": 185,
+      "away_team_id": 189
+    },
+    {
+      "id": 14818,
+      "season_id": 40,
+      "match_date": "2026-05-25",
+      "kickoff_time": "00:00:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
       "round": 25,
       "venue": null,
-      "home_team_id": 186,
-      "away_team_id": 188
+      "home_team_id": 184,
+      "away_team_id": 187
     },
     {
       "id": 14807,
@@ -12955,20 +12941,6 @@
       "away_team_id": 188
     },
     {
-      "id": 14837,
-      "season_id": 44,
-      "match_date": "2026-01-31",
-      "kickoff_time": "15:00:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 36,
-      "away_score": 24,
-      "round": 31,
-      "venue": null,
-      "home_team_id": 147,
-      "away_team_id": 146
-    },
-    {
       "id": 14838,
       "season_id": 44,
       "match_date": "2026-01-31",
@@ -13025,18 +12997,18 @@
       "away_team_id": 189
     },
     {
-      "id": 14827,
-      "season_id": 44,
-      "match_date": "2026-02-28",
-      "kickoff_time": "17:30:00",
-      "status": "FT",
+      "id": 14805,
+      "season_id": 40,
+      "match_date": "2026-04-25",
+      "kickoff_time": "02:00:00",
+      "status": "NS",
       "minute": null,
-      "home_score": 21,
-      "away_score": 7,
-      "round": 28,
+      "home_score": null,
+      "away_score": null,
+      "round": 25,
       "venue": null,
-      "home_team_id": 144,
-      "away_team_id": 207
+      "home_team_id": 186,
+      "away_team_id": 188
     },
     {
       "id": 14828,
@@ -13165,6 +13137,34 @@
       "away_team_id": 148
     },
     {
+      "id": 14837,
+      "season_id": 44,
+      "match_date": "2026-01-31",
+      "kickoff_time": "15:00:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 36,
+      "away_score": 24,
+      "round": 31,
+      "venue": null,
+      "home_team_id": 147,
+      "away_team_id": 146
+    },
+    {
+      "id": 14827,
+      "season_id": 44,
+      "match_date": "2026-02-28",
+      "kickoff_time": "17:30:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 21,
+      "away_score": 7,
+      "round": 28,
+      "venue": null,
+      "home_team_id": 144,
+      "away_team_id": 207
+    },
+    {
       "id": 14825,
       "season_id": 44,
       "match_date": "2026-02-28",
@@ -13193,32 +13193,18 @@
       "away_team_id": 206
     },
     {
-      "id": 14866,
+      "id": 14868,
       "season_id": 44,
       "match_date": "2025-12-20",
-      "kickoff_time": "16:00:00",
+      "kickoff_time": "14:00:00",
       "status": "FT",
       "minute": null,
       "home_score": 21,
-      "away_score": 12,
+      "away_score": 15,
       "round": 20,
       "venue": null,
-      "home_team_id": 147,
-      "away_team_id": 149
-    },
-    {
-      "id": 14870,
-      "season_id": 44,
-      "match_date": "2025-12-19",
-      "kickoff_time": "19:45:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 17,
-      "away_score": 21,
-      "round": 19,
-      "venue": null,
-      "home_team_id": 209,
-      "away_team_id": 143
+      "home_team_id": 206,
+      "away_team_id": 207
     },
     {
       "id": 14872,
@@ -13557,46 +13543,46 @@
       "away_team_id": 208
     },
     {
-      "id": 14868,
+      "id": 14866,
       "season_id": 44,
       "match_date": "2025-12-20",
-      "kickoff_time": "14:00:00",
+      "kickoff_time": "16:00:00",
       "status": "FT",
       "minute": null,
       "home_score": 21,
-      "away_score": 15,
-      "round": 20,
-      "venue": null,
-      "home_team_id": 206,
-      "away_team_id": 207
-    },
-    {
-      "id": 14867,
-      "season_id": 44,
-      "match_date": "2025-12-20",
-      "kickoff_time": "15:00:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 24,
       "away_score": 12,
       "round": 20,
       "venue": null,
-      "home_team_id": 142,
-      "away_team_id": 148
+      "home_team_id": 147,
+      "away_team_id": 149
     },
     {
-      "id": 14871,
+      "id": 14870,
       "season_id": 44,
       "match_date": "2025-12-19",
       "kickoff_time": "19:45:00",
       "status": "FT",
       "minute": null,
-      "home_score": 24,
-      "away_score": 20,
+      "home_score": 17,
+      "away_score": 21,
       "round": 19,
       "venue": null,
-      "home_team_id": 145,
-      "away_team_id": 204
+      "home_team_id": 209,
+      "away_team_id": 143
+    },
+    {
+      "id": 14869,
+      "season_id": 44,
+      "match_date": "2025-12-20",
+      "kickoff_time": "13:30:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 34,
+      "away_score": 27,
+      "round": 20,
+      "venue": null,
+      "home_team_id": 146,
+      "away_team_id": 200
     },
     {
       "id": 14873,
@@ -13935,32 +13921,32 @@
       "away_team_id": 144
     },
     {
-      "id": 14869,
+      "id": 14867,
       "season_id": 44,
       "match_date": "2025-12-20",
-      "kickoff_time": "13:30:00",
+      "kickoff_time": "15:00:00",
       "status": "FT",
       "minute": null,
-      "home_score": 34,
-      "away_score": 27,
+      "home_score": 24,
+      "away_score": 12,
       "round": 20,
       "venue": null,
-      "home_team_id": 146,
-      "away_team_id": 200
+      "home_team_id": 142,
+      "away_team_id": 148
     },
     {
-      "id": 14900,
+      "id": 14871,
       "season_id": 44,
-      "match_date": "2025-10-11",
-      "kickoff_time": "14:00:00",
+      "match_date": "2025-12-19",
+      "kickoff_time": "19:45:00",
       "status": "FT",
       "minute": null,
-      "home_score": 41,
-      "away_score": 15,
-      "round": 11,
+      "home_score": 24,
+      "away_score": 20,
+      "round": 19,
       "venue": null,
-      "home_team_id": 206,
-      "away_team_id": 200
+      "home_team_id": 145,
+      "away_team_id": 204
     },
     {
       "id": 14902,
@@ -14061,20 +14047,6 @@
       "away_team_id": 205
     },
     {
-      "id": 14942,
-      "season_id": 44,
-      "match_date": "2026-04-18",
-      "kickoff_time": "16:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 18,
-      "venue": null,
-      "home_team_id": 143,
-      "away_team_id": 209
-    },
-    {
       "id": 14944,
       "season_id": 44,
       "match_date": "2026-04-18",
@@ -14159,18 +14131,18 @@
       "away_team_id": 205
     },
     {
-      "id": 14922,
+      "id": 14900,
       "season_id": 44,
-      "match_date": "2026-03-20",
-      "kickoff_time": "19:45:00",
-      "status": "NS",
+      "match_date": "2025-10-11",
+      "kickoff_time": "14:00:00",
+      "status": "FT",
       "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 20,
+      "home_score": 41,
+      "away_score": 15,
+      "round": 11,
       "venue": null,
-      "home_team_id": 143,
-      "away_team_id": 207
+      "home_team_id": 206,
+      "away_team_id": 200
     },
     {
       "id": 14924,
@@ -14299,6 +14271,34 @@
       "away_team_id": 208
     },
     {
+      "id": 14942,
+      "season_id": 44,
+      "match_date": "2026-04-18",
+      "kickoff_time": "16:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 18,
+      "venue": null,
+      "home_team_id": 143,
+      "away_team_id": 209
+    },
+    {
+      "id": 14922,
+      "season_id": 44,
+      "match_date": "2026-03-20",
+      "kickoff_time": "19:45:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 20,
+      "venue": null,
+      "home_team_id": 143,
+      "away_team_id": 207
+    },
+    {
       "id": 14918,
       "season_id": 44,
       "match_date": "2026-03-13",
@@ -14325,20 +14325,6 @@
       "venue": null,
       "home_team_id": 149,
       "away_team_id": 146
-    },
-    {
-      "id": 14925,
-      "season_id": 44,
-      "match_date": "2026-03-21",
-      "kickoff_time": "15:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 21,
-      "venue": null,
-      "home_team_id": 206,
-      "away_team_id": 203
     },
     {
       "id": 14927,
@@ -14705,46 +14691,18 @@
       "away_team_id": 208
     },
     {
-      "id": 14954,
+      "id": 14925,
       "season_id": 44,
-      "match_date": "2026-05-08",
-      "kickoff_time": "18:45:00",
+      "match_date": "2026-03-21",
+      "kickoff_time": "15:00:00",
       "status": "NS",
       "minute": null,
       "home_score": null,
       "away_score": null,
-      "round": 8,
+      "round": 21,
       "venue": null,
-      "home_team_id": 204,
-      "away_team_id": 146
-    },
-    {
-      "id": 14956,
-      "season_id": 44,
-      "match_date": "2026-05-09",
-      "kickoff_time": "14:00:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 9,
-      "venue": null,
-      "home_team_id": 147,
-      "away_team_id": 206
-    },
-    {
-      "id": 14958,
-      "season_id": 44,
-      "match_date": "2026-05-09",
-      "kickoff_time": "16:30:00",
-      "status": "NS",
-      "minute": null,
-      "home_score": null,
-      "away_score": null,
-      "round": 9,
-      "venue": null,
-      "home_team_id": 203,
-      "away_team_id": 143
+      "home_team_id": 206,
+      "away_team_id": 203
     },
     {
       "id": 14960,
@@ -14817,18 +14775,46 @@
       "away_team_id": 200
     },
     {
-      "id": 14977,
-      "season_id": 45,
-      "match_date": "2026-02-07",
-      "kickoff_time": "11:36:00",
-      "status": "FT",
+      "id": 14954,
+      "season_id": 44,
+      "match_date": "2026-05-08",
+      "kickoff_time": "18:45:00",
+      "status": "NS",
       "minute": null,
-      "home_score": 24,
-      "away_score": 21,
-      "round": 7,
+      "home_score": null,
+      "away_score": null,
+      "round": 8,
       "venue": null,
-      "home_team_id": 154,
-      "away_team_id": 214
+      "home_team_id": 204,
+      "away_team_id": 146
+    },
+    {
+      "id": 14956,
+      "season_id": 44,
+      "match_date": "2026-05-09",
+      "kickoff_time": "14:00:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 9,
+      "venue": null,
+      "home_team_id": 147,
+      "away_team_id": 206
+    },
+    {
+      "id": 14958,
+      "season_id": 44,
+      "match_date": "2026-05-09",
+      "kickoff_time": "16:30:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 9,
+      "venue": null,
+      "home_team_id": 203,
+      "away_team_id": 143
     },
     {
       "id": 14978,
@@ -14887,20 +14873,6 @@
       "away_team_id": 154
     },
     {
-      "id": 14969,
-      "season_id": 45,
-      "match_date": "2026-02-08",
-      "kickoff_time": "09:04:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 19,
-      "away_score": 21,
-      "round": 8,
-      "venue": null,
-      "home_team_id": 210,
-      "away_team_id": 211
-    },
-    {
       "id": 14982,
       "season_id": 45,
       "match_date": "2026-02-07",
@@ -14913,6 +14885,20 @@
       "venue": null,
       "home_team_id": 212,
       "away_team_id": 214
+    },
+    {
+      "id": 14969,
+      "season_id": 45,
+      "match_date": "2026-02-08",
+      "kickoff_time": "09:04:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 19,
+      "away_score": 21,
+      "round": 8,
+      "venue": null,
+      "home_team_id": 210,
+      "away_team_id": 211
     },
     {
       "id": 14983,
@@ -15053,6 +15039,20 @@
       "venue": null,
       "home_team_id": 161,
       "away_team_id": 157
+    },
+    {
+      "id": 14993,
+      "season_id": 46,
+      "match_date": "2026-03-14",
+      "kickoff_time": "16:56:00",
+      "status": "NS",
+      "minute": null,
+      "home_score": null,
+      "away_score": null,
+      "round": 14,
+      "venue": null,
+      "home_team_id": 165,
+      "away_team_id": 216
     }
   ],
   "standings_cache": [

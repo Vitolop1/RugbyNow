@@ -160,7 +160,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formDrawLabel: "Draw",
     formLossLabel: "Loss",
     watchOn: "Watch on",
-    suggestedLink: "Suggested link",
+    suggestedLink: "View suggested link",
   },
   es: {
     leagues: "Ligas",
@@ -321,7 +321,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formDrawLabel: "Empatado",
     formLossLabel: "Perdido",
     watchOn: "Lo pasan por",
-    suggestedLink: "Link sugerido",
+    suggestedLink: "Ver link sugerido",
   },
   fr: {
     leagues: "Ligues",
@@ -482,7 +482,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formDrawLabel: "Nul",
     formLossLabel: "Perdu",
     watchOn: "Diffusion",
-    suggestedLink: "Lien suggere",
+    suggestedLink: "Voir lien suggere",
   },
   it: {
     leagues: "Leghe",
@@ -643,7 +643,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     formDrawLabel: "Pareggio",
     formLossLabel: "Persa",
     watchOn: "In onda su",
-    suggestedLink: "Link suggerito",
+    suggestedLink: "Vedi link suggerito",
   },
 };
 

@@ -51,6 +51,8 @@ export default function LeaguesPage() {
   const franchisesGroupLabel = tr("groupsFranchises");
   const selectionsGroupLabel = tr("groupsSelections");
   const argentinaGroupLabel = tr("groupsArgentina");
+  const southAmericaGroupLabel = tr("groupsSouthAmerica");
+  const europeGroupLabel = tr("groupsEurope");
   const englandGroupLabel = tr("groupsEngland");
   const franceGroupLabel = tr("groupsFrance");
   const italyGroupLabel = tr("groupsItaly");
@@ -106,6 +108,8 @@ export default function LeaguesPage() {
     () =>
       buildCompetitionNavigationSections(leagues, {
         featured: featuredGroupLabel,
+        southamerica: southAmericaGroupLabel,
+        europe: europeGroupLabel,
         franchises: franchisesGroupLabel,
         selections: selectionsGroupLabel,
         seven: sevenGroupLabel,
@@ -130,6 +134,7 @@ export default function LeaguesPage() {
       brazilGroupLabel,
       chileGroupLabel,
       colombiaGroupLabel,
+      europeGroupLabel,
       englandGroupLabel,
       featuredGroupLabel,
       franchisesGroupLabel,
@@ -143,6 +148,7 @@ export default function LeaguesPage() {
       portugalGroupLabel,
       selectionsGroupLabel,
       sevenGroupLabel,
+      southAmericaGroupLabel,
       spainGroupLabel,
       uruguayGroupLabel,
       usaGroupLabel,

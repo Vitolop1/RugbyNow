@@ -30,6 +30,8 @@ type CompetitionLike = {
 
 export type CompetitionCountryKey =
   | "argentina"
+  | "southamerica"
+  | "europe"
   | "england"
   | "france"
   | "italy"
@@ -55,6 +57,8 @@ export type CompetitionNavigationSection<T extends CompetitionLike> = {
 
 export type CompetitionNavigationLabels = {
   featured: string;
+  southamerica: string;
+  europe: string;
   franchises: string;
   selections: string;
   seven: string;
@@ -83,14 +87,19 @@ const FEATURED_COMPETITION_SLUGS = new Set([
   "sra",
 ]);
 
-const FRANCHISE_COMPETITION_SLUGS = new Set([
-  "sra",
-  "int-super-rugby-pacific",
+const EUROPE_COMPETITION_SLUGS = new Set([
+  "eu-champions-cup",
   "int-united-rugby-championship",
+]);
+
+const FRANCHISE_COMPETITION_SLUGS = new Set([
+  "int-super-rugby-pacific",
 ]);
 
 const COUNTRY_ORDER: CompetitionCountryKey[] = [
   "argentina",
+  "southamerica",
+  "europe",
   "england",
   "spain",
   "italy",
@@ -150,6 +159,10 @@ export function isFranchiseCompetition(competition: CompetitionLike) {
   return FRANCHISE_COMPETITION_SLUGS.has(competition.slug.toLowerCase());
 }
 
+export function isEuropeSectionCompetition(competition: CompetitionLike) {
+  return EUROPE_COMPETITION_SLUGS.has(competition.slug.toLowerCase());
+}
+
 export function getCompetitionCountryKey(competition: CompetitionLike): CompetitionCountryKey | null {
   const slug = competition.slug.toLowerCase();
   const region = normalizeText(competition.region);
@@ -186,9 +199,9 @@ export function buildCompetitionNavigationSections<T extends CompetitionLike>(
 ) {
   const featured: T[] = [];
   const byCountry = new Map<CompetitionCountryKey, T[]>();
-  const franchises: T[] = [];
   const selections: T[] = [];
   const seven: T[] = [];
+  const franchises: T[] = [];
   const other: T[] = [];
 
   const sorted = [...competitions].sort((a, b) => {
@@ -211,6 +224,18 @@ export function buildCompetitionNavigationSections<T extends CompetitionLike>(
       continue;
     }
 
+    if (isSouthAmericaCompetition(competition.slug.toLowerCase())) {
+      if (!byCountry.has("southamerica")) byCountry.set("southamerica", []);
+      byCountry.get("southamerica")!.push(competition);
+      continue;
+    }
+
+    if (isEuropeSectionCompetition(competition)) {
+      if (!byCountry.has("europe")) byCountry.set("europe", []);
+      byCountry.get("europe")!.push(competition);
+      continue;
+    }
+
     if (isFranchiseCompetition(competition)) {
       franchises.push(competition);
       continue;
@@ -228,6 +253,8 @@ export function buildCompetitionNavigationSections<T extends CompetitionLike>(
 
   const countryLabels: Record<CompetitionCountryKey, string> = {
     argentina: labels.argentina,
+    southamerica: labels.southamerica,
+    europe: labels.europe,
     england: labels.england,
     france: labels.france,
     italy: labels.italy,
@@ -314,6 +341,7 @@ export function getCompetitionGroupKey(competition: { slug: string; group_name?:
   if (isSouthAmericaCompetition(slug) || rawGroup === "south america" || rawGroup === "sudamerica" || rawRegion === "south america") {
     return "southAmerica";
   }
+  if (isEuropeSectionCompetition({ slug })) return "europe";
   if (isEuropeCompetition(slug) || rawGroup === "europe" || rawGroup === "europa") return "europe";
   if (isInternationalSelectionsCompetition(slug)) return "internationalSelections";
   if (isInternationalClubsCompetition(slug)) return "internationalClubs";

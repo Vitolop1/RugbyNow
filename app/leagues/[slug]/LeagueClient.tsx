@@ -255,6 +255,8 @@ export default function LeagueClient() {
   const franchisesGroupLabel = tr("groupsFranchises");
   const selectionsGroupLabel = tr("groupsSelections");
   const argentinaGroupLabel = tr("groupsArgentina");
+  const southAmericaGroupLabel = tr("groupsSouthAmerica");
+  const europeGroupLabel = tr("groupsEurope");
   const englandGroupLabel = tr("groupsEngland");
   const franceGroupLabel = tr("groupsFrance");
   const italyGroupLabel = tr("groupsItaly");
@@ -276,6 +278,7 @@ export default function LeagueClient() {
 
   const [sidebarOpen, setSidebarOpen] = useState(getInitialLeagueSidebarOpen);
   const [sidebarGroups, setSidebarGroups] = useState<Record<string, boolean>>({});
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
   const roundStripRef = useRef<HTMLDivElement | null>(null);
@@ -293,6 +296,7 @@ export default function LeagueClient() {
       setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
       setHiddenSlugs(readSlugList("rn:hidden-leagues"));
+      setPrefsLoaded(true);
     });
     return () => window.cancelAnimationFrame(id);
   }, [mounted]);
@@ -303,14 +307,14 @@ export default function LeagueClient() {
   }, [mounted, sidebarOpen]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !prefsLoaded) return;
     writeSlugList("rn:favorite-leagues", favoriteSlugs);
-  }, [favoriteSlugs, mounted]);
+  }, [favoriteSlugs, mounted, prefsLoaded]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !prefsLoaded) return;
     writeSlugList("rn:hidden-leagues", hiddenSlugs);
-  }, [hiddenSlugs, mounted]);
+  }, [hiddenSlugs, mounted, prefsLoaded]);
 
   useEffect(() => {
     const id = window.setInterval(() => setClockTick(Date.now()), 30000);
@@ -362,6 +366,8 @@ export default function LeagueClient() {
         (data?.competitions || []).filter((competition) => !hiddenSlugs.includes(competition.slug)),
         {
           featured: featuredGroupLabel,
+          southamerica: southAmericaGroupLabel,
+          europe: europeGroupLabel,
           franchises: franchisesGroupLabel,
           selections: selectionsGroupLabel,
           seven: sevenGroupLabel,
@@ -389,6 +395,7 @@ export default function LeagueClient() {
       colombiaGroupLabel,
       data?.competitions,
       englandGroupLabel,
+      europeGroupLabel,
       featuredGroupLabel,
       franchisesGroupLabel,
       franceGroupLabel,
@@ -401,6 +408,7 @@ export default function LeagueClient() {
       portugalGroupLabel,
       selectionsGroupLabel,
       sevenGroupLabel,
+      southAmericaGroupLabel,
       spainGroupLabel,
       uruguayGroupLabel,
       usaGroupLabel,
@@ -512,7 +520,12 @@ export default function LeagueClient() {
   }, [selectedRound, roundMeta.length]);
 
   const seasonName = data?.season?.name || "-";
-  const toggleFavoriteLeague = (nextSlug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, nextSlug));
+  const toggleFavoriteLeague = (nextSlug: string) =>
+    setFavoriteSlugs((prev) => {
+      const next = toggleSlug(prev, nextSlug);
+      if (prefsLoaded) writeSlugList("rn:favorite-leagues", next);
+      return next;
+    });
   const toggleHiddenLeague = (nextSlug: string) => setHiddenSlugs((prev) => toggleSlug(prev, nextSlug));
 
   return (

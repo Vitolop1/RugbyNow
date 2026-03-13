@@ -222,6 +222,7 @@ export default function HomeClient() {
   const [loadError, setLoadError] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
   const [, setClockTick] = useState(0);
@@ -242,6 +243,7 @@ export default function HomeClient() {
   const englandGroupLabel = tr("groupsEngland");
   const franceGroupLabel = tr("groupsFrance");
   const italyGroupLabel = tr("groupsItaly");
+  const europeGroupLabel = tr("groupsEurope");
   const spainGroupLabel = tr("groupsSpain");
   const germanyGroupLabel = tr("groupsGermany");
   const portugalGroupLabel = tr("groupsPortugal");
@@ -250,6 +252,7 @@ export default function HomeClient() {
   const paraguayGroupLabel = tr("groupsParaguay");
   const colombiaGroupLabel = tr("groupsColombia");
   const chileGroupLabel = tr("groupsChile");
+  const southAmericaGroupLabel = tr("groupsSouthAmerica");
   const mexicoGroupLabel = tr("groupsMexico");
   const usaGroupLabel = tr("groupsUSA");
   const sevenGroupLabel = tr("groupsSeven");
@@ -260,6 +263,7 @@ export default function HomeClient() {
       setSidebarOpen(window.localStorage.getItem("rn:home-sidebar-open") !== "0");
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
       setHiddenSlugs(readSlugList("rn:hidden-leagues"));
+      setPrefsLoaded(true);
     });
     return () => window.cancelAnimationFrame(id);
   }, [mounted]);
@@ -270,14 +274,14 @@ export default function HomeClient() {
   }, [mounted, sidebarOpen]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !prefsLoaded) return;
     writeSlugList("rn:favorite-leagues", favoriteSlugs);
-  }, [favoriteSlugs, mounted]);
+  }, [favoriteSlugs, mounted, prefsLoaded]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !prefsLoaded) return;
     writeSlugList("rn:hidden-leagues", hiddenSlugs);
-  }, [hiddenSlugs, mounted]);
+  }, [hiddenSlugs, mounted, prefsLoaded]);
 
   useEffect(() => {
     const id = window.setInterval(() => setClockTick(Date.now()), 30000);
@@ -401,6 +405,8 @@ export default function HomeClient() {
         dedupedCompetitions.filter((item) => !hiddenSlugs.includes(item.slug)),
         {
           featured: featuredGroupLabel,
+          southamerica: southAmericaGroupLabel,
+          europe: europeGroupLabel,
           franchises: franchisesGroupLabel,
           selections: selectionsGroupLabel,
           seven: sevenGroupLabel,
@@ -428,6 +434,7 @@ export default function HomeClient() {
       colombiaGroupLabel,
       dedupedCompetitions,
       englandGroupLabel,
+      europeGroupLabel,
       featuredGroupLabel,
       franchisesGroupLabel,
       franceGroupLabel,
@@ -440,6 +447,7 @@ export default function HomeClient() {
       portugalGroupLabel,
       selectionsGroupLabel,
       sevenGroupLabel,
+      southAmericaGroupLabel,
       spainGroupLabel,
       uruguayGroupLabel,
       usaGroupLabel,
@@ -470,7 +478,12 @@ export default function HomeClient() {
 
   const dateHeroLabel = isSameDay(selectedDate, todayLocal) ? tr("today").toUpperCase() : niceDate(selectedDate);
 
-  const toggleFavoriteLeague = (slug: string) => setFavoriteSlugs((prev) => toggleSlug(prev, slug));
+  const toggleFavoriteLeague = (slug: string) =>
+    setFavoriteSlugs((prev) => {
+      const next = toggleSlug(prev, slug);
+      if (prefsLoaded) writeSlugList("rn:favorite-leagues", next);
+      return next;
+    });
   const toggleHiddenLeague = (slug: string) => setHiddenSlugs((prev) => toggleSlug(prev, slug));
 
   return (

@@ -8,7 +8,6 @@ import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
-import { getCompetitionEmoji } from "@/lib/competitionMeta";
 import {
   buildCompetitionNavigationSections,
   readSlugList,
@@ -118,24 +117,6 @@ function FormPill({ value, lang }: { value: "W" | "D" | "L"; lang: "en" | "es" |
     >
       {label}
     </span>
-  );
-}
-
-function countryCodeToFlag(code?: string | null) {
-  if (!code || code.length !== 2) return null;
-  return code
-    .toUpperCase()
-    .split("")
-    .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
-    .join("");
-}
-
-function competitionFlag(competition?: Competition | null) {
-  if (!competition) return "R";
-  return (
-    getCompetitionEmoji(competition.slug, competition.group_name, competition.country_code) ||
-    countryCodeToFlag(competition.country_code) ||
-    "R"
   );
 }
 
@@ -570,7 +551,6 @@ export default function LeagueClient() {
               <div className="rounded-xl border border-white/15 bg-white/10 p-4">
                 <div className="text-sm font-semibold text-white/85">{tr("league")}</div>
                 <div className="mt-3 flex items-center gap-3">
-                  <span className="text-xl">{competitionFlag(data.competition)}</span>
                   <LeagueLogo slug={data.competition.slug} alt={data.competition.name} size={28} />
                   <div className="min-w-0">
                     <div className="truncate text-lg font-extrabold text-white">{data.competition.name}</div>
@@ -938,7 +918,6 @@ export default function LeagueClient() {
                       <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
                         <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
                           <div className="flex min-w-0 items-center gap-2">
-                            <span className="shrink-0 text-base">{competitionFlag(data.competition)}</span>
                             <LeagueLogo slug={data.competition.slug} alt={data.competition.name} />
                             <div className="truncate font-semibold text-white">{data.competition.name}</div>
                           </div>

@@ -10,7 +10,6 @@ import BroadcastPill from "@/app/components/BroadcastPill";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
-import { getCompetitionEmoji } from "@/lib/competitionMeta";
 import {
   buildCompetitionNavigationSections,
   readSlugList,
@@ -208,23 +207,6 @@ function getInitialSelectedISO() {
   const params = new URLSearchParams(window.location.search);
   const date = params.get("date");
   return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : toISODateLocal(new Date());
-}
-
-function countryCodeToFlag(code?: string | null) {
-  if (!code || code.length !== 2) return null;
-  return code
-    .toUpperCase()
-    .split("")
-    .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
-    .join("");
-}
-
-function competitionFlag(competition: Competition) {
-  return (
-    getCompetitionEmoji(competition.slug, competition.group_name, competition.country_code) ||
-    countryCodeToFlag(competition.country_code) ||
-    "R"
-  );
 }
 
 export default function HomeClient() {
@@ -542,7 +524,6 @@ export default function HomeClient() {
                             className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
                           >
                             <Link href={`/leagues/${competition.slug}${dateQuery}`} className="flex min-w-0 flex-1 items-center gap-2">
-                              <span className="shrink-0 text-base">{competitionFlag(competition)}</span>
                               <LeagueLogo slug={competition.slug} alt={competition.name} />
                               <span className="truncate text-sm font-medium text-white">{competition.name}</span>
                             </Link>
@@ -814,16 +795,6 @@ export default function HomeClient() {
                     <div key={block.slug} className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
                       <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
                         <div className="flex min-w-0 items-center gap-2">
-                          <span className="shrink-0 text-base">
-                            {competitionFlag(
-                              competitions.find((competition) => competition.slug === block.slug) ?? {
-                                id: 0,
-                                name: "",
-                                slug: "",
-                                region: null,
-                              }
-                            )}
-                          </span>
                           <LeagueLogo slug={block.slug} alt={block.league} />
                           <div className="truncate font-semibold text-white">{block.league}</div>
                         </div>

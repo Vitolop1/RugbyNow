@@ -5,12 +5,12 @@ import { useMemo } from "react";
 const COUNTRY_META: Record<string, { sources: string[]; fallback: string }> = {
   argentina: { sources: ["/flags/Flag_of_Argentina.png", "/country-flags/argentina.png"], fallback: "AR" },
   ar: { sources: ["/flags/Flag_of_Argentina.png", "/country-flags/argentina.png"], fallback: "AR" },
-  england: { sources: ["/country-flags/england.png"], fallback: "EN" },
-  en: { sources: ["/country-flags/england.png"], fallback: "EN" },
+  england: { sources: ["/flags/Flag_of_England.png", "/country-flags/england.png"], fallback: "EN" },
+  en: { sources: ["/flags/Flag_of_England.png", "/country-flags/england.png"], fallback: "EN" },
   france: { sources: ["/flags/Flag_of_France.png", "/country-flags/france.png"], fallback: "FR" },
   fr: { sources: ["/flags/Flag_of_France.png", "/country-flags/france.png"], fallback: "FR" },
-  italy: { sources: ["/country-flags/italy.png"], fallback: "IT" },
-  it: { sources: ["/country-flags/italy.png"], fallback: "IT" },
+  italy: { sources: ["/flags/Flag_of_Italy.png", "/flags/Flag_of_Italy.svg.webp", "/country-flags/italy.png"], fallback: "IT" },
+  it: { sources: ["/flags/Flag_of_Italy.png", "/flags/Flag_of_Italy.svg.webp", "/country-flags/italy.png"], fallback: "IT" },
   spain: { sources: ["/country-flags/spain.png"], fallback: "ES" },
   es: { sources: ["/country-flags/spain.png"], fallback: "ES" },
   germany: { sources: ["/country-flags/germany.png"], fallback: "DE" },
@@ -29,8 +29,12 @@ const COUNTRY_META: Record<string, { sources: string[]; fallback: string }> = {
   cl: { sources: ["/flags/Flag_of_Chile.png", "/country-flags/chile.png"], fallback: "CL" },
   mexico: { sources: ["/country-flags/mexico.png"], fallback: "MX" },
   mx: { sources: ["/country-flags/mexico.png"], fallback: "MX" },
-  usa: { sources: ["/country-flags/usa.png"], fallback: "US" },
-  us: { sources: ["/country-flags/usa.png"], fallback: "US" },
+  usa: { sources: ["/flags/Flag_of_the_United_States.png", "/country-flags/usa.png"], fallback: "US" },
+  us: { sources: ["/flags/Flag_of_the_United_States.png", "/country-flags/usa.png"], fallback: "US" },
+  europe: { sources: ["/flags/European_flag.png"], fallback: "EU" },
+  eu: { sources: ["/flags/European_flag.png"], fallback: "EU" },
+  southamerica: { sources: ["/flags/southamerica.png"], fallback: "SA" },
+  sudamerica: { sources: ["/flags/southamerica.png"], fallback: "SA" },
 };
 
 type CountryFlagProps = {

@@ -209,6 +209,12 @@ function getInitialSelectedISO() {
   return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : toISODateLocal(new Date());
 }
 
+function getInitialHomeSidebarOpen() {
+  if (typeof window === "undefined") return true;
+  if (!window.matchMedia("(min-width: 640px)").matches) return false;
+  return window.localStorage.getItem("rn:home-sidebar-open") !== "0";
+}
+
 export default function HomeClient() {
   const router = useRouter();
   const { timeZone, mounted, lang, theme } = usePrefs();
@@ -221,7 +227,7 @@ export default function HomeClient() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(getInitialHomeSidebarOpen);
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
@@ -260,7 +266,11 @@ export default function HomeClient() {
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
     const id = window.requestAnimationFrame(() => {
-      setSidebarOpen(window.localStorage.getItem("rn:home-sidebar-open") !== "0");
+      if (!window.matchMedia("(min-width: 640px)").matches) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(window.localStorage.getItem("rn:home-sidebar-open") !== "0");
+      }
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
       setHiddenSlugs(readSlugList("rn:hidden-leagues"));
       setPrefsLoaded(true);
@@ -697,7 +707,7 @@ export default function HomeClient() {
             </div>
           </aside>
 
-          <div className="min-w-0 space-y-6">
+          <div className="mt-10 min-w-0 space-y-6 sm:mt-0">
             <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
               <section className="min-w-0 flex-1 space-y-4">
                 <div className="rounded-2xl border border-white/15 bg-black/20 p-4 backdrop-blur">

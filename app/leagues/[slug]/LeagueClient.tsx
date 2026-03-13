@@ -226,6 +226,7 @@ function toISODateLocal(d: Date) {
 
 function getInitialLeagueSidebarOpen() {
   if (typeof window === "undefined") return true;
+  if (!window.matchMedia("(min-width: 640px)").matches) return false;
   return window.localStorage.getItem("rn:league-sidebar-open") !== "0";
 }
 
@@ -293,7 +294,11 @@ export default function LeagueClient() {
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
     const id = window.requestAnimationFrame(() => {
-      setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
+      if (!window.matchMedia("(min-width: 640px)").matches) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(window.localStorage.getItem("rn:league-sidebar-open") !== "0");
+      }
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
       setHiddenSlugs(readSlugList("rn:hidden-leagues"));
       setPrefsLoaded(true);
@@ -780,7 +785,7 @@ export default function LeagueClient() {
             </div>
           </aside>
 
-          <div className="space-y-6">
+          <div className="mt-10 space-y-6 sm:mt-0">
             {loading ? (
               <div className="rounded-2xl border border-white/15 bg-black/20 p-8 text-center text-white/80 backdrop-blur">
                 {tr("loadingLeague")}

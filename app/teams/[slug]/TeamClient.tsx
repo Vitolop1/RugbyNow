@@ -298,6 +298,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                           <div className="mt-3 flex justify-end">
                             <SuggestedWatchButton
                               competitionSlug={match.competition?.slug}
+                              competitionName={match.competition?.name}
                               home={match.home_team?.name}
                               away={match.away_team?.name}
                               lang={lang}
@@ -334,6 +335,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                             <div className="mt-3 flex justify-end">
                               <SuggestedWatchButton
                                 competitionSlug={match.competition?.slug}
+                                competitionName={match.competition?.name}
                                 home={match.home_team?.name}
                                 away={match.away_team?.name}
                                 lang={lang}

@@ -894,6 +894,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             </div>
                             <SuggestedWatchButton
                               competitionSlug={block.slug}
+                              competitionName={block.league}
                               home={match.home}
                               away={match.away}
                               lang={lang}

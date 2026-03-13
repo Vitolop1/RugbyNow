@@ -1020,6 +1020,7 @@ export default function LeagueClient() {
                                     ) : null}
                                     <SuggestedWatchButton
                                       competitionSlug={data.competition.slug}
+                                      competitionName={data.competition.name}
                                       home={match.home_team?.name}
                                       away={match.away_team?.name}
                                       lang={lang}

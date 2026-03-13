@@ -135,25 +135,16 @@ export default function SuggestedWatchButton({
 
               <div className="space-y-2">
                 {WATCH_PLACEHOLDER_OPTIONS.map((option) => (
-                  <div
+                  <a
                     key={option.id}
-                    className="rounded-xl border border-white/10 bg-white/5 p-3"
+                    href={option.placeholderHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                   >
-                    <div className="text-sm font-bold text-white">{option.name}</div>
-                    <div className="mt-2 break-all rounded-lg border border-dashed border-white/15 bg-black/20 px-3 py-2 font-mono text-[11px] text-white/75">
-                      {option.placeholderHref}
-                    </div>
-                    <div className="mt-2 flex justify-end">
-                      <a
-                        href={option.placeholderHref}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center rounded-full border border-sky-200/30 bg-sky-300/20 px-3 py-1.5 text-[11px] font-extrabold text-white transition hover:bg-sky-300/30"
-                      >
-                        {tr("watchPlaceholderLink")}
-                      </a>
-                    </div>
-                  </div>
+                    <span>{option.name}</span>
+                    <span className="text-white/45">{"->"}</span>
+                  </a>
                 ))}
               </div>
             </div>,

@@ -1236,6 +1236,8 @@ export default function LeagueClient() {
                               lang,
                             });
                             const broadcasts = getBroadcastsForCompetition(data.competition.slug);
+                            const hideLiveMeta =
+                              data.competition.slug === "ar-liga-norte-grande" && isActiveMatchStatus(match.status);
 
                             return (
                               <div
@@ -1249,7 +1251,9 @@ export default function LeagueClient() {
                                   <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
                                   <div className="mt-1 flex items-center gap-2">
                                     <StatusBadge status={match.status} lang={lang} resultPending={resultPending} />
-                                    <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
+                                    {!hideLiveMeta ? (
+                                      <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
+                                    ) : null}
                                   </div>
                                 </div>
 

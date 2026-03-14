@@ -779,6 +779,38 @@ async function getMatchesBySeason(seasonId: number) {
   return (data || []) as DbMatchRow[];
 }
 
+async function pickSeasonWithExistingMatches(
+  seasons: SeasonRow[],
+  preferredSeasonId: number
+): Promise<{ seasonId: number; seasonName: string; matches: DbMatchRow[] }> {
+  const ordered = [
+    ...seasons.filter((season) => season.id === preferredSeasonId),
+    ...seasons.filter((season) => season.id !== preferredSeasonId),
+  ];
+
+  let bestSeason = ordered[0];
+  let bestMatches = await getMatchesBySeason(bestSeason.id);
+
+  for (const season of ordered.slice(1)) {
+    const matches = await getMatchesBySeason(season.id);
+
+    if (matches.length > bestMatches.length) {
+      bestSeason = season;
+      bestMatches = matches;
+    }
+
+    if (bestMatches.length > 0 && bestSeason.name.toLowerCase() === "current") {
+      break;
+    }
+  }
+
+  return {
+    seasonId: bestSeason.id,
+    seasonName: bestSeason.name,
+    matches: bestMatches,
+  };
+}
+
 function buildSourceEventKey(params: {
   compSlug: string;
   seasonName: string;
@@ -1721,10 +1753,25 @@ async function main() {
       const scraped = dedupeScrapedRows(scrapedAll);
       console.log("Scraped rows total (deduped):", scraped.length);
 
-      const seasonMeta = DRY_RUN
+      let seasonMeta = DRY_RUN
         ? { seasonId: 0, seasonName: `dry-run-${new Date().getUTCFullYear()}` }
         : pickSeasonForScrapedRows(seasonCandidates, scraped);
-      const existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
+      let existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
+
+      if (!DRY_RUN && LIVE_ONLY && existingMatches.length === 0 && seasonCandidates.length > 1) {
+        const fallbackSeason = await pickSeasonWithExistingMatches(seasonCandidates, seasonMeta.seasonId);
+        if (fallbackSeason.matches.length > 0) {
+          console.log(
+            `LIVE season fallback for ${compSlug}: ${seasonMeta.seasonName} -> ${fallbackSeason.seasonName} (${fallbackSeason.matches.length} matches)`
+          );
+          seasonMeta = {
+            seasonId: fallbackSeason.seasonId,
+            seasonName: fallbackSeason.seasonName,
+          };
+          existingMatches = fallbackSeason.matches;
+        }
+      }
+
       const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
 
       console.log(`\n== ${compSlug} (${seasonMeta.seasonName}) ==`);

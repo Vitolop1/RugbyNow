@@ -24,11 +24,18 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      - name: Run strict live clock sync
+      - name: Run strict live clock sync burst
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
           npm run ensure:flashscore-competitions
-          npm run sync:live:clock
+          for pass in 1 2; do
+            echo "Live clock pass ${pass}/2"
+            npm run sync:live:clock
+            if [ "$pass" -lt 2 ]; then
+              echo "Sleeping 90s before the next live clock pass"
+              sleep 90
+            fi
+          done

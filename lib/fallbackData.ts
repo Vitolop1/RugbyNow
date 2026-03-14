@@ -140,10 +140,10 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
     { round: 1, home: "Gimnasia y Tiro", away: "Jockey Club de Salta", home_score: 19, away_score: 22, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-07" },
     { round: 1, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: 27, away_score: 23, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-07" },
 
-    { round: 2, home: "Universitario de Salta", away: "Tiro Federal de Salta", home_score: 9, away_score: 14, status: "LIVE", kickoff_time: "19:30:00", match_date: "2026-03-14" },
+    { round: 2, home: "Universitario de Salta", away: "Tiro Federal de Salta", home_score: 19, away_score: 9, status: "LIVE", kickoff_time: "19:30:00", match_date: "2026-03-14" },
     { round: 2, home: "Santiago Lawn Tennis Club", away: "Tigres RC", home_score: 16, away_score: 14, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-14" },
     { round: 2, home: "Gimnasia y Tiro", away: "Jockey Club de Salta", home_score: 22, away_score: 21, status: "LIVE", kickoff_time: "19:30:00", match_date: "2026-03-14" },
-    { round: 2, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: 0, away_score: 5, status: "LIVE", kickoff_time: "19:30:00", match_date: "2026-03-14" },
+    { round: 2, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: 3, away_score: 5, status: "LIVE", kickoff_time: "19:30:00", match_date: "2026-03-14" },
 
     { round: 3, home: "Old Lions RC", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
     { round: 3, home: "Jockey Club de Salta", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },

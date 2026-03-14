@@ -6,7 +6,6 @@ import {
   getEffectiveMatchState,
   isActiveMatchStatus,
   parseKickoffDateTime,
-  shouldAutoFinalizeMatch,
   type MatchStatus,
 } from "@/lib/matchStatus";
 import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
@@ -268,19 +267,11 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
       row.season?.competition?.slug,
       row.updated_at
     );
-    const autoFinalized = shouldAutoFinalizeMatch(
-      row.status,
-      row.match_date,
-      row.kickoff_time,
-      row.home_score,
-      row.away_score,
-      row.season?.competition?.slug
-    );
     const normalizedRow: MatchRow = {
       ...row,
       match_date: localDate,
-      status: autoFinalized ? "FT" : effective.status,
-      minute: autoFinalized ? null : effective.minute,
+      status: effective.status,
+      minute: effective.minute,
     };
     const manualOverride = getManualStatusOverride({
       competitionSlug: row.season?.competition?.slug,

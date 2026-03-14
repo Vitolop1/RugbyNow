@@ -3,7 +3,7 @@ import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { getCompetitionProfile } from "@/lib/competitionProfiles";
 import { getCompetitionNoticeKey, getManualStatusOverride } from "@/lib/competitionMessaging";
 import { getCountryProfile } from "@/lib/countryProfiles";
-import { getEffectiveMatchState, isActiveMatchStatus, shouldAutoFinalizeMatch, type MatchStatus } from "@/lib/matchStatus";
+import { getEffectiveMatchState, isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
@@ -362,18 +362,10 @@ function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | n
     competitionSlug,
     row.updated_at
   );
-  const autoFinalized = shouldAutoFinalizeMatch(
-    row.status,
-    row.match_date,
-    row.kickoff_time,
-    row.home_score,
-    row.away_score,
-    competitionSlug
-  );
   const normalized = {
     ...row,
-    status: autoFinalized ? "FT" : effective.status,
-    minute: autoFinalized ? null : effective.minute,
+    status: effective.status,
+    minute: effective.minute,
   };
   const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
   const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;

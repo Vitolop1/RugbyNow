@@ -63,6 +63,10 @@ function estimateMinuteFromScrapeTimestamp(
   return clamp(minute + elapsedMinutes, 1, halfCap);
 }
 
+function getMaxDisplayMinute(competitionSlug?: string | null) {
+  return competitionSlug && isSevenCompetition(competitionSlug.toLowerCase()) ? 14 : 80;
+}
+
 export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string, lang: Lang) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
@@ -131,6 +135,10 @@ export function getMatchClockLabel(input: MatchClockInput) {
         ? estimateMinuteFromScrapeTimestamp(estimatedMinute, input.updatedAt, input.competitionSlug)
         : null;
     const phase = getLivePhase(input.lang, effective.status, minute, input.competitionSlug);
+    const maxMinute = getMaxDisplayMinute(input.competitionSlug);
+    if (minute != null && minute >= maxMinute) {
+      return [t(input.lang, "statusLive"), phase, `MIN ${maxMinute}`].filter(Boolean).join(" ");
+    }
     return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
   }
 

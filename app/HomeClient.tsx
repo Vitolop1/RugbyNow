@@ -1057,6 +1057,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                       <div className="divide-y divide-white/10">
                         {block.matches.map((match, index) => {
                           const clockLabel = getMatchClockLabel({
+                            competitionSlug: block.slug,
                             status: match.status,
                             minute: match.minute,
                             matchDate: match.matchDate,
@@ -1065,6 +1066,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             lang,
                           });
                           const contextLabel = getMatchContextLabel({
+                            competitionSlug: block.slug,
                             status: match.status,
                             minute: match.minute,
                             matchDate: match.matchDate,

@@ -1,30 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-
-function sanitizeRuntimeEnv(name: string, rawValue: string) {
-  let value = rawValue.trim();
-  if (!value) return undefined;
-
-  const prefixed = `${name}=`;
-  if (value.startsWith(prefixed)) {
-    value = value.slice(prefixed.length).trim();
-  }
-
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    value = value.slice(1, -1).trim();
-  }
-
-  return value || undefined;
-}
+import { readRuntimeEnv as readProcessRuntimeEnv, sanitizeRuntimeEnv } from "@/lib/runtimeEnv";
 
 function readRuntimeEnv(name: string) {
-  const processValue = process.env[name];
-  if (typeof processValue === "string" && processValue.length > 0) {
-    return sanitizeRuntimeEnv(name, processValue);
-  }
+  const processValue = readProcessRuntimeEnv(name);
+  if (processValue) return processValue;
 
   try {
     const { env } = getCloudflareContext();

@@ -250,7 +250,13 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
 
   for (const row of rows) {
     const localDate = getLocalMatchDate(row.match_date, row.kickoff_time, timeZone);
-    const effective = getEffectiveMatchState(row.status, row.match_date, row.kickoff_time, row.minute);
+    const effective = getEffectiveMatchState(
+      row.status,
+      row.match_date,
+      row.kickoff_time,
+      row.minute,
+      row.season?.competition?.slug
+    );
     const normalizedRow: MatchRow = {
       ...row,
       match_date: localDate,

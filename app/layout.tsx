@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import GoogleAnalyticsPageview from "@/app/components/GoogleAnalyticsPageview";
 import { getSiteUrl } from "@/lib/site";
+import { readRuntimeEnv } from "@/lib/runtimeEnv";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl = getSiteUrl();
-const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;
-const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID;
+const googleSiteVerification = readRuntimeEnv("GOOGLE_SITE_VERIFICATION");
+const googleAnalyticsId = readRuntimeEnv("NEXT_PUBLIC_GA_ID");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

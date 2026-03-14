@@ -1164,6 +1164,7 @@ export default function LeagueClient() {
                         <div className="divide-y divide-white/10">
                           {visibleMatches.map((match) => {
                             const clockLabel = getMatchClockLabel({
+                              competitionSlug: data.competition.slug,
                               status: match.status,
                               minute: match.minute,
                               matchDate: match.match_date,
@@ -1172,6 +1173,7 @@ export default function LeagueClient() {
                               lang,
                             });
                             const contextLabel = getMatchContextLabel({
+                              competitionSlug: data.competition.slug,
                               status: match.status,
                               minute: match.minute,
                               matchDate: match.match_date,

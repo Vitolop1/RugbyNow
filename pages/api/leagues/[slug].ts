@@ -238,8 +238,14 @@ function shouldPreferMoreCompleteRound(primaryMatches: MatchRow[], fallbackMatch
   return fallbackHasScores && !primaryHasScores;
 }
 
-function normalizeRuntimeMatchStatus(row: MatchRow): MatchRow {
-  const effective = getEffectiveMatchState(row.status, row.match_date, row.kickoff_time, row.minute);
+function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | null): MatchRow {
+  const effective = getEffectiveMatchState(
+    row.status,
+    row.match_date,
+    row.kickoff_time,
+    row.minute,
+    competitionSlug
+  );
   return {
     ...row,
     status: effective.status,
@@ -406,9 +412,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
     const selectedRound = roundOverride ?? autoSelectedRound;
-    const roundMatches = selectedRound == null ? [] : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound)).map(normalizeRuntimeMatchStatus);
+    const roundMatches =
+      selectedRound == null
+        ? []
+        : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound)).map((row) =>
+            normalizeRuntimeMatchStatus(row, slug)
+          );
     const fallbackSelectedRound = fallback?.selectedRound ?? null;
-    const fallbackMatches = fallbackSelectedRound == null ? [] : dedupeMatches((fallback?.matches || []) as MatchRow[]).map(normalizeRuntimeMatchStatus);
+    const fallbackMatches =
+      fallbackSelectedRound == null
+        ? []
+        : dedupeMatches((fallback?.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug));
     const useFallbackStructure = Boolean(
       fallback &&
         (
@@ -419,7 +433,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
-    const matches = mergeLeagueMatches(roundMatches, fallbackMatches).map(normalizeRuntimeMatchStatus);
+    const matches = mergeLeagueMatches(roundMatches, fallbackMatches).map((row) => normalizeRuntimeMatchStatus(row, slug));
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
     for (const row of detailedMatches.filter((item) => item.status === "FT")) {
@@ -497,7 +511,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ...basePayload,
         profile: competitionProfile,
         regionProfile,
-        matches: ((basePayload.matches || []) as MatchRow[]).map(normalizeRuntimeMatchStatus),
+        matches: ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug)),
         source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: error instanceof Error ? error.message : String(error),
       });
@@ -516,7 +530,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ...fallback,
       profile: competitionProfile,
       regionProfile,
-      matches: ((fallback.matches || []) as MatchRow[]).map(normalizeRuntimeMatchStatus),
+      matches: ((fallback.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug)),
       source: "fallback",
       warning: error instanceof Error ? error.message : String(error),
     });

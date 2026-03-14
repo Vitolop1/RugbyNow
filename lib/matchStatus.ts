@@ -1,9 +1,39 @@
+import { isSevenCompetition } from "@/lib/competitionPrefs";
+
 export type MatchStatus = "NS" | "LIVE" | "HT" | "FT";
 
-export const FIRST_HALF_MINUTES = 40;
-export const HALFTIME_MINUTES = 20;
-export const SECOND_HALF_MINUTES = 40;
-export const TOTAL_LIVE_WINDOW_MINUTES = FIRST_HALF_MINUTES + HALFTIME_MINUTES + SECOND_HALF_MINUTES;
+type MatchTimingRules = {
+  firstHalfMinutes: number;
+  halftimeMinutes: number;
+  secondHalfMinutes: number;
+  maxDisplayMinute: number;
+};
+
+const FIFTEENS_RULES: MatchTimingRules = {
+  firstHalfMinutes: 40,
+  halftimeMinutes: 20,
+  secondHalfMinutes: 40,
+  maxDisplayMinute: 80,
+};
+
+const SEVENS_RULES: MatchTimingRules = {
+  firstHalfMinutes: 7,
+  halftimeMinutes: 2,
+  secondHalfMinutes: 7,
+  maxDisplayMinute: 14,
+};
+
+function getMatchTimingRules(competitionSlug?: string | null): MatchTimingRules {
+  if (competitionSlug && isSevenCompetition(competitionSlug.toLowerCase())) {
+    return SEVENS_RULES;
+  }
+
+  return FIFTEENS_RULES;
+}
+
+function getTotalLiveWindowMinutes(rules: MatchTimingRules) {
+  return rules.firstHalfMinutes + rules.halftimeMinutes + rules.secondHalfMinutes;
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -26,8 +56,14 @@ export function getEffectiveMatchState(
   matchDate: string,
   kickoffTime?: string | null,
   explicitMinute?: number | null,
+  competitionSlug?: string | null,
   now = new Date()
 ) {
+  const rules = getMatchTimingRules(competitionSlug);
+  const halftimeStart = rules.firstHalfMinutes;
+  const secondHalfStart = rules.firstHalfMinutes + rules.halftimeMinutes;
+  const totalLiveWindowMinutes = getTotalLiveWindowMinutes(rules);
+
   if (status === "FT") {
     return { status: "FT" as const, minute: null as number | null };
   }
@@ -41,43 +77,50 @@ export function getEffectiveMatchState(
 
   if (status === "LIVE") {
     if (explicitMinute != null && explicitMinute > 0) {
-      return { status: "LIVE" as const, minute: clamp(explicitMinute, 1, 80) };
+      return { status: "LIVE" as const, minute: clamp(explicitMinute, 1, rules.maxDisplayMinute) };
     }
 
     if (diffMinutes == null) {
       return { status: "LIVE" as const, minute: null as number | null };
     }
 
-    if (diffMinutes >= FIRST_HALF_MINUTES && diffMinutes < FIRST_HALF_MINUTES + HALFTIME_MINUTES) {
+    if (diffMinutes >= halftimeStart && diffMinutes < secondHalfStart) {
       return { status: "HT" as const, minute: null as number | null };
     }
 
-    if (diffMinutes < 0 || diffMinutes > TOTAL_LIVE_WINDOW_MINUTES) {
+    if (diffMinutes < 0 || diffMinutes > totalLiveWindowMinutes) {
       return { status: "LIVE" as const, minute: null as number | null };
     }
 
-    if (diffMinutes < FIRST_HALF_MINUTES) {
-      return { status: "LIVE" as const, minute: clamp(diffMinutes + 1, 1, 40) };
+    if (diffMinutes < rules.firstHalfMinutes) {
+      return { status: "LIVE" as const, minute: clamp(diffMinutes + 1, 1, rules.firstHalfMinutes) };
     }
 
     return {
       status: "LIVE" as const,
-      minute: clamp(diffMinutes - HALFTIME_MINUTES + 1, 41, 80),
+      minute: clamp(
+        diffMinutes - rules.halftimeMinutes + 1,
+        rules.firstHalfMinutes + 1,
+        rules.maxDisplayMinute
+      ),
     };
   }
 
-  if (diffMinutes == null || diffMinutes < 0 || diffMinutes > TOTAL_LIVE_WINDOW_MINUTES) {
+  if (diffMinutes == null || diffMinutes < 0 || diffMinutes > totalLiveWindowMinutes) {
     return { status: "NS" as const, minute: explicitMinute ?? null };
   }
 
-  if (diffMinutes < FIRST_HALF_MINUTES) {
+  if (diffMinutes < rules.firstHalfMinutes) {
     return {
       status: "LIVE" as const,
-      minute: explicitMinute != null && explicitMinute > 0 ? clamp(explicitMinute, 1, 40) : clamp(diffMinutes + 1, 1, 40),
+      minute:
+        explicitMinute != null && explicitMinute > 0
+          ? clamp(explicitMinute, 1, rules.firstHalfMinutes)
+          : clamp(diffMinutes + 1, 1, rules.firstHalfMinutes),
     };
   }
 
-  if (diffMinutes < FIRST_HALF_MINUTES + HALFTIME_MINUTES) {
+  if (diffMinutes < secondHalfStart) {
     return { status: "HT" as const, minute: null as number | null };
   }
 
@@ -85,7 +128,7 @@ export function getEffectiveMatchState(
     status: "LIVE" as const,
     minute:
       explicitMinute != null && explicitMinute > 0
-        ? clamp(explicitMinute, 41, 80)
-        : clamp(diffMinutes - HALFTIME_MINUTES + 1, 41, 80),
+        ? clamp(explicitMinute, rules.firstHalfMinutes + 1, rules.maxDisplayMinute)
+        : clamp(diffMinutes - rules.halftimeMinutes + 1, rules.firstHalfMinutes + 1, rules.maxDisplayMinute),
   };
 }

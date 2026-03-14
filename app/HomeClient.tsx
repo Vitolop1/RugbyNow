@@ -204,9 +204,18 @@ function dedupeBlock(block: LeagueBlock) {
   return { ...block, matches };
 }
 
+const HOME_SIDEBAR_KEY = "rn:home-sidebar-open";
+
 function getInitialHomeSidebarOpen() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(min-width: 1024px)").matches;
+  return false;
+}
+
+function readSidebarPreference(storageKey: string) {
+  if (typeof window === "undefined") return null;
+  const saved = window.localStorage.getItem(storageKey);
+  if (saved === "true") return true;
+  if (saved === "false") return false;
+  return null;
 }
 
 export default function HomeClient({ initialDate }: { initialDate?: string }) {
@@ -263,7 +272,10 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
     const desktopSidebar = window.matchMedia("(min-width: 1024px)");
-    const syncSidebar = () => setSidebarOpen(desktopSidebar.matches);
+    const syncSidebar = () => {
+      const saved = readSidebarPreference(HOME_SIDEBAR_KEY);
+      setSidebarOpen(desktopSidebar.matches ? (saved ?? true) : false);
+    };
     const id = window.requestAnimationFrame(() => {
       syncSidebar();
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
@@ -276,6 +288,15 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       desktopSidebar.removeEventListener("change", syncSidebar);
     };
   }, [mounted]);
+
+  const toggleSidebarOpen = () =>
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+        window.localStorage.setItem(HOME_SIDEBAR_KEY, String(next));
+      }
+      return next;
+    });
 
   useEffect(() => {
     if (!mounted || !prefsLoaded) return;
@@ -508,7 +529,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
         <AppHeader showTabs tab={tab} setTab={setTab} />
 
         <button
-          onClick={() => setSidebarOpen((prev) => !prev)}
+          onClick={toggleSidebarOpen}
           className={`fixed left-4 top-[158px] z-40 hidden h-12 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:flex ${
             sidebarOpen ? "pointer-events-none opacity-0 sm:pointer-events-auto sm:opacity-100" : "opacity-100"
           }`}
@@ -528,7 +549,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
           }`}
         >
           <button
-            onClick={() => setSidebarOpen((prev) => !prev)}
+            onClick={toggleSidebarOpen}
             className={`sticky top-[160px] z-20 mb-4 flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-black/25 px-4 text-white backdrop-blur transition-all duration-200 hover:bg-black/35 sm:hidden ${
               sidebarOpen ? "pointer-events-none opacity-0" : "opacity-100"
             }`}
@@ -550,12 +571,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
                 <div className="text-sm font-semibold text-white/90">{tr("leagues")}</div>
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(false)}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/25 text-lg text-white/85 transition hover:bg-black/35 sm:hidden"
-                  aria-label="Cerrar panel de ligas"
-                >
+                      <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/25 text-lg text-white/85 transition hover:bg-black/35 sm:hidden"
+                        aria-label="Cerrar panel de ligas"
+                      >
                   {"\u00D7"}
                 </button>
               </div>

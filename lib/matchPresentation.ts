@@ -161,6 +161,10 @@ export function getMatchContextLabel(input: MatchClockInput) {
   if (effective.status === "HT") return t(input.lang, "halftime");
 
   if (effective.status === "LIVE") {
+    if (shouldHideLiveClockDetails(input.competitionSlug)) {
+      return t(input.lang, "liveAction");
+    }
+
     const estimatedMinute = estimateLiveMinute(
       effective.status,
       input.matchDate,

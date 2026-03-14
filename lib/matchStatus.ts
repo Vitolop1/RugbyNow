@@ -23,6 +23,8 @@ const SEVENS_RULES: MatchTimingRules = {
   maxDisplayMinute: 14,
 };
 
+const LIVE_INFERENCE_DELAY_MINUTES = 2;
+
 function getMatchTimingRules(competitionSlug?: string | null): MatchTimingRules {
   if (competitionSlug && isSevenCompetition(competitionSlug.toLowerCase())) {
     return SEVENS_RULES;
@@ -82,53 +84,58 @@ export function getEffectiveMatchState(
 
   const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
   const diffMinutes = kickoff ? Math.floor((now.getTime() - kickoff.getTime()) / 60000) : null;
+  const inferredLiveMinutes =
+    diffMinutes == null ? null : diffMinutes - LIVE_INFERENCE_DELAY_MINUTES;
 
   if (status === "LIVE") {
     if (explicitMinute != null && explicitMinute > 0) {
       return { status: "LIVE" as const, minute: clamp(explicitMinute, 1, rules.maxDisplayMinute) };
     }
 
-    if (diffMinutes == null) {
+    if (inferredLiveMinutes == null) {
       return { status: "LIVE" as const, minute: null as number | null };
     }
 
-    if (diffMinutes >= halftimeStart && diffMinutes < secondHalfStart) {
+    if (inferredLiveMinutes >= halftimeStart && inferredLiveMinutes < secondHalfStart) {
       return { status: "HT" as const, minute: null as number | null };
     }
 
-    if (diffMinutes < 0 || diffMinutes > totalLiveWindowMinutes) {
+    if (inferredLiveMinutes < 0 || inferredLiveMinutes > totalLiveWindowMinutes) {
       return { status: "LIVE" as const, minute: null as number | null };
     }
 
-    if (diffMinutes < rules.firstHalfMinutes) {
-      return { status: "LIVE" as const, minute: clamp(diffMinutes + 1, 1, rules.firstHalfMinutes) };
+    if (inferredLiveMinutes < rules.firstHalfMinutes) {
+      return {
+        status: "LIVE" as const,
+        minute: clamp(inferredLiveMinutes + 1, 1, rules.firstHalfMinutes),
+      };
     }
 
     return {
       status: "LIVE" as const,
       minute: clamp(
-        diffMinutes - rules.halftimeMinutes + 1,
+        inferredLiveMinutes - rules.halftimeMinutes + 1,
         rules.firstHalfMinutes + 1,
         rules.maxDisplayMinute
       ),
     };
   }
 
-  if (diffMinutes == null || diffMinutes < 0 || diffMinutes > totalLiveWindowMinutes) {
+  if (inferredLiveMinutes == null || inferredLiveMinutes < 0 || inferredLiveMinutes > totalLiveWindowMinutes) {
     return { status: "NS" as const, minute: explicitMinute ?? null };
   }
 
-  if (diffMinutes < rules.firstHalfMinutes) {
+  if (inferredLiveMinutes < rules.firstHalfMinutes) {
     return {
       status: "LIVE" as const,
       minute:
         explicitMinute != null && explicitMinute > 0
           ? clamp(explicitMinute, 1, rules.firstHalfMinutes)
-          : clamp(diffMinutes + 1, 1, rules.firstHalfMinutes),
+          : clamp(inferredLiveMinutes + 1, 1, rules.firstHalfMinutes),
     };
   }
 
-  if (diffMinutes < secondHalfStart) {
+  if (inferredLiveMinutes < secondHalfStart) {
     return { status: "HT" as const, minute: null as number | null };
   }
 
@@ -137,6 +144,10 @@ export function getEffectiveMatchState(
     minute:
       explicitMinute != null && explicitMinute > 0
         ? clamp(explicitMinute, rules.firstHalfMinutes + 1, rules.maxDisplayMinute)
-        : clamp(diffMinutes - rules.halftimeMinutes + 1, rules.firstHalfMinutes + 1, rules.maxDisplayMinute),
+        : clamp(
+            inferredLiveMinutes - rules.halftimeMinutes + 1,
+            rules.firstHalfMinutes + 1,
+            rules.maxDisplayMinute
+          ),
   };
 }

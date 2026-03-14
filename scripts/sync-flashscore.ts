@@ -161,6 +161,19 @@ function detectStatusAndMinute(
   sourcePage: "results" | "fixtures" | "live"
 ) {
   const s = (raw || "").toUpperCase().trim();
+  const halfMinuteMatch =
+    s.match(
+      /(?:1ST HALF|FIRST HALF|2ND HALF|SECOND HALF|LIVE)\s*(\d{1,3})\b|\b(\d{1,3})\s*(?:1ST HALF|FIRST HALF|2ND HALF|SECOND HALF|LIVE)\b/
+    ) ??
+    (sourcePage === "live" ? s.match(/^\s*(\d{1,3})\s*$/) : null);
+
+  if (halfMinuteMatch) {
+    const minuteText = halfMinuteMatch[1] || halfMinuteMatch[2] || halfMinuteMatch[3];
+    const minute = Number.parseInt(minuteText, 10);
+    if (Number.isFinite(minute) && minute > 0 && minute <= 130) {
+      return { status: "LIVE" as MatchStatus, minute };
+    }
+  }
 
   if (/(POSTP|CANC|CANCEL|ABAND|ABD|AWD|WO)/.test(s)) {
     return { status: "CANC" as MatchStatus, minute: null as number | null };

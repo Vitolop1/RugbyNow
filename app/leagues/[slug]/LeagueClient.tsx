@@ -710,11 +710,7 @@ export default function LeagueClient() {
                   const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
 
                   if (section.key === "featured") {
-                    const highlightedCompetitions = favoriteCompetitions.length ? favoriteCompetitions : section.competitions;
-
-                    if (!highlightedCompetitions.length) {
-                      return null;
-                    }
+                    const highlightedCompetitions = favoriteCompetitions;
 
                     return (
                       <div
@@ -739,13 +735,19 @@ export default function LeagueClient() {
                             <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
                             <span>{section.label}</span>
                           </div>
-                          <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Top</span>
+                          <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">
+                            {tr("featuredPriorityBadge")}
+                          </span>
                         </div>
-                        <p className="mb-3 text-[11px] font-semibold text-white/70">
+                        <p className="hidden mb-3 text-[11px] font-semibold text-white/70">
                           {favoriteSlugs.length
                             ? "Usa Subir y Bajar para decidir qué liga querés ver primero."
                             : "Marcá una liga con estrella y después ordenala con Subir y Bajar."}
                         </p>
+                        <p className="mb-3 text-[11px] font-semibold text-white/70">
+                          {favoriteSlugs.length ? tr("featuredPriorityHintActive") : tr("featuredPriorityHintEmpty")}
+                        </p>
+                        {highlightedCompetitions.length ? (
                         <div className="space-y-2">
                           {highlightedCompetitions.map((competition) => {
                             const active = competition.slug === slug;
@@ -784,8 +786,8 @@ export default function LeagueClient() {
                                           ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
                                       }`}
-                                      title="Mover arriba"
-                                      aria-label={`Mover ${competition.name} arriba`}
+                                      title={tr("moveUp")}
+                                      aria-label={`${tr("moveUp")}: ${competition.name}`}
                                     >
                                       ⬆️
                                     </button>
@@ -801,8 +803,8 @@ export default function LeagueClient() {
                                           ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
                                       }`}
-                                      title="Mover abajo"
-                                      aria-label={`Mover ${competition.name} abajo`}
+                                      title={tr("moveDown")}
+                                      aria-label={`${tr("moveDown")}: ${competition.name}`}
                                     >
                                       ⬇️
                                     </button>
@@ -840,6 +842,11 @@ export default function LeagueClient() {
                             );
                           })}
                         </div>
+                        ) : (
+                          <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-4 text-sm text-white/65">
+                            {tr("featuredPriorityEmpty")}
+                          </div>
+                        )}
                       </div>
                     );
                   }

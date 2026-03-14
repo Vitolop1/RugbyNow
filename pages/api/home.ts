@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
+import { getManualStatusOverride } from "@/lib/competitionMessaging";
 import {
   getEffectiveMatchState,
   isActiveMatchStatus,
@@ -281,6 +282,19 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
       status: autoFinalized ? "FT" : effective.status,
       minute: autoFinalized ? null : effective.minute,
     };
+    const manualOverride = getManualStatusOverride({
+      competitionSlug: row.season?.competition?.slug,
+      matchDate: row.match_date,
+      status: normalizedRow.status,
+      homeTeamSlug: row.home_team?.slug,
+      awayTeamSlug: row.away_team?.slug,
+      homeScore: row.home_score,
+      awayScore: row.away_score,
+    });
+    if (manualOverride) {
+      normalizedRow.status = manualOverride.status;
+      normalizedRow.minute = manualOverride.minute;
+    }
 
     if (!(normalizedRow.match_date === selectedDate || (selectedDate === todayInZone && isActiveMatchStatus(normalizedRow.status)))) {
       continue;

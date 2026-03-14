@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { getCompetitionProfile } from "@/lib/competitionProfiles";
+import { getCompetitionNoticeKey, getManualStatusOverride } from "@/lib/competitionMessaging";
 import { getCountryProfile } from "@/lib/countryProfiles";
 import { getEffectiveMatchState, isActiveMatchStatus, shouldAutoFinalizeMatch, type MatchStatus } from "@/lib/matchStatus";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
@@ -254,11 +255,27 @@ function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | n
     row.away_score,
     competitionSlug
   );
-  return {
+  const normalized = {
     ...row,
     status: autoFinalized ? "FT" : effective.status,
     minute: autoFinalized ? null : effective.minute,
   };
+  const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
+  const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
+  const manualOverride = getManualStatusOverride({
+    competitionSlug,
+    matchDate: row.match_date,
+    status: normalized.status,
+    homeTeamSlug: home?.slug,
+    awayTeamSlug: away?.slug,
+    homeScore: row.home_score,
+    awayScore: row.away_score,
+  });
+  if (manualOverride) {
+    normalized.status = manualOverride.status;
+    normalized.minute = manualOverride.minute;
+  }
+  return normalized;
 }
 
 function hasUsableStandingCache(rows: StandingCacheRow[]) {
@@ -546,6 +563,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }).filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>) : computedStandings;
     return res.status(200).json({
       competition: mergedCompetition,
+      noticeKey: getCompetitionNoticeKey(mergedCompetition.slug),
       profile: competitionProfile,
       regionProfile,
       season,
@@ -574,6 +592,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const regionProfile = getCountryProfile(competitionProfile.country ?? basePayload.competition.region);
       return res.status(200).json({
         ...basePayload,
+        noticeKey: getCompetitionNoticeKey(basePayload.competition.slug),
         profile: competitionProfile,
         regionProfile,
         matches: ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug)),
@@ -593,6 +612,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const regionProfile = getCountryProfile(competitionProfile.country ?? fallback.competition.region);
     return res.status(200).json({
       ...fallback,
+      noticeKey: getCompetitionNoticeKey(fallback.competition.slug),
       profile: competitionProfile,
       regionProfile,
       matches: ((fallback.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug)),

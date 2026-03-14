@@ -105,6 +105,7 @@ type LeaguePayload = {
   standings: StandingRow[];
   standingsSource?: "cache" | "computed";
   source?: string;
+  noticeKey?: string | null;
   warning?: string;
 };
 
@@ -1178,6 +1179,13 @@ export default function LeagueClient() {
                         </div>
 
                         <div className="divide-y divide-white/10">
+                          {data.noticeKey ? (
+                            <div className="px-4 py-3">
+                              <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-50">
+                                {tr(data.noticeKey)}
+                              </div>
+                            </div>
+                          ) : null}
                           {visibleMatches.map((match) => {
                             const clockLabel = getMatchClockLabel({
                               competitionSlug: data.competition.slug,

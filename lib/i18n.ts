@@ -206,6 +206,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     watchAlternatives: "View alternative options",
     searchWhereToWatch: "Search where to watch",
     watchPlaceholderLink: "Placeholder link",
+    resultsAtFinalNotice: "Results are posted at the end of the match for this competition.",
   },
   es: {
     leagues: "Ligas",
@@ -412,6 +413,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     watchAlternatives: "Ver opciones alternativas",
     searchWhereToWatch: "Buscar donde verlo",
     watchPlaceholderLink: "Link placeholder",
+    resultsAtFinalNotice: "Los resultados se cargan al final del partido para esta competencia.",
   },
   fr: {
     leagues: "Ligues",
@@ -618,6 +620,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     watchAlternatives: "Voir options alternatives",
     searchWhereToWatch: "Chercher ou voir",
     watchPlaceholderLink: "Lien placeholder",
+    resultsAtFinalNotice: "Les resultats se cargent a la fin du match pour cette competition.",
   },
   it: {
     leagues: "Leghe",
@@ -824,6 +827,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     watchAlternatives: "Vedi opzioni alternative",
     searchWhereToWatch: "Cerca dove vederlo",
     watchPlaceholderLink: "Link placeholder",
+    resultsAtFinalNotice: "I risultati vengono caricati a fine partita per questa competizione.",
   },
 };
 

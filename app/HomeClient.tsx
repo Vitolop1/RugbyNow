@@ -11,6 +11,7 @@ import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
+import { getCompetitionNoticeKey } from "@/lib/competitionMessaging";
 import { getDateLocale } from "@/lib/dateLocale";
 import {
   applyNavigationSectionOrder,
@@ -1088,6 +1089,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                       </div>
 
                       <div className="divide-y divide-white/10">
+                        {getCompetitionNoticeKey(block.slug) ? (
+                          <div className="px-4 py-3 text-xs font-semibold text-amber-50">
+                            <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2">
+                              {tr(getCompetitionNoticeKey(block.slug)!)}
+                            </div>
+                          </div>
+                        ) : null}
                         {block.matches.map((match, index) => {
                           const clockLabel = getMatchClockLabel({
                             competitionSlug: block.slug,

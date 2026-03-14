@@ -268,6 +268,62 @@ function collapseLeagueMatches(rows: MatchRow[]) {
   );
 }
 
+function finalizeLeagueMatches(rows: MatchRow[]) {
+  const deduped = new Map<string, MatchRow>();
+
+  const updatedAtValue = (row: MatchRow) => {
+    if (!row.updated_at) return Number.NEGATIVE_INFINITY;
+    const parsed = new Date(row.updated_at);
+    return Number.isNaN(parsed.getTime()) ? Number.NEGATIVE_INFINITY : parsed.getTime();
+  };
+
+  const qualityFor = (row: MatchRow) => {
+    let score = 0;
+    if (row.home_score != null && row.away_score != null) score += 20;
+    if (row.status === "FT") score += 15;
+    else if (isActiveMatchStatus(row.status)) score += 10;
+    else if (row.status === "CANC") score += 6;
+    else if (row.status === "NS") score += 5;
+    if (row.updated_at) score += 3;
+    if (row.id >= 1000) score += 2;
+    return score;
+  };
+
+  for (const row of rows) {
+    const home = unwrapTeam(row.home_team);
+    const away = unwrapTeam(row.away_team);
+    const key = `${row.match_date}|${home?.slug ?? home?.name ?? "x"}|${away?.slug ?? away?.name ?? "x"}`;
+    const current = deduped.get(key);
+
+    if (!current) {
+      deduped.set(key, row);
+      continue;
+    }
+
+    const qualityDelta = qualityFor(row) - qualityFor(current);
+    if (qualityDelta > 0) {
+      deduped.set(key, row);
+      continue;
+    }
+
+    if (qualityDelta === 0 && updatedAtValue(row) > updatedAtValue(current)) {
+      deduped.set(key, row);
+      continue;
+    }
+
+    if (qualityDelta === 0 && updatedAtValue(row) === updatedAtValue(current) && row.id > current.id) {
+      deduped.set(key, row);
+    }
+  }
+
+  return Array.from(deduped.values()).sort(
+    (a, b) =>
+      a.match_date.localeCompare(b.match_date) ||
+      String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
+      (unwrapTeam(a.home_team)?.name || "").localeCompare(unwrapTeam(b.home_team)?.name || "")
+  );
+}
+
 function dedupeMatches(rows: MatchRow[]) {
   return dedupeLogicalMatches(rows, (row) => {
     const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
@@ -552,8 +608,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const baseMatches = useSnapshotStructure ? mergeLeagueMatches(roundMatches, snapshotMatches) : roundMatches;
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || baseRoundMeta : baseRoundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : baseSelectedRound;
-    const matches = collapseLeagueMatches(
+    const matches = finalizeLeagueMatches(
+      collapseLeagueMatches(
       mergeLeagueMatches(baseMatches, fallbackMatches).map((row) => normalizeRuntimeMatchStatus(row, slug))
+      )
     );
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
@@ -656,8 +714,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         noticeKey: getCompetitionNoticeKey(basePayload.competition.slug),
         profile: competitionProfile,
         regionProfile,
-        matches: collapseLeagueMatches(
-          ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
+        matches: finalizeLeagueMatches(
+          collapseLeagueMatches(
+            ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
+          )
         ),
         source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: describeError(error),
@@ -678,8 +738,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       noticeKey: getCompetitionNoticeKey(fallback.competition.slug),
       profile: competitionProfile,
       regionProfile,
-      matches: collapseLeagueMatches(
-        ((fallback.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
+      matches: finalizeLeagueMatches(
+        collapseLeagueMatches(
+          ((fallback.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
+        )
       ),
       source: "fallback",
       warning: describeError(error),

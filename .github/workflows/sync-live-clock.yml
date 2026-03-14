@@ -31,10 +31,10 @@ jobs:
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
           npm run ensure:flashscore-competitions
-          for pass in 1 2; do
-            echo "Live clock pass ${pass}/2"
+          for pass in 1 2 3 4; do
+            echo "Live clock pass ${pass}/4"
             npm run sync:live:clock
-            if [ "$pass" -lt 2 ]; then
+            if [ "$pass" -lt 4 ]; then
               echo "Sleeping 90s before the next live clock pass"
               sleep 90
             fi

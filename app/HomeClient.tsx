@@ -729,8 +729,14 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 key={`${section.key}-${competition.slug}-${competition.id}`}
                                 className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
                               >
-                                <div className="inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-200/20 bg-emerald-300/15 px-2 text-sm font-black text-white">
-                                  {favoriteIndex !== -1 ? favoriteIndex + 1 : "•"}
+                                <div
+                                  className={`inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl border px-2 text-sm font-black ${
+                                    favoriteIndex !== -1
+                                      ? "border-emerald-200/20 bg-emerald-300/15 text-white"
+                                      : "border-white/10 bg-black/20 text-white/35"
+                                  }`}
+                                >
+                                  {favoriteIndex !== -1 ? favoriteIndex + 1 : ""}
                                 </div>
                                 <Link href={`/leagues/${competition.slug}${dateQuery}`} className="flex min-w-0 flex-1 items-center gap-2">
                                   <LeagueLogo slug={competition.slug} alt={competition.name} />

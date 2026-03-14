@@ -23,6 +23,7 @@ type StandingsAccumulator = {
 };
 
 type StandingCacheRow = {
+  team_id: number | null;
   position: number | null;
   played: number | null;
   won: number | null;
@@ -31,10 +32,6 @@ type StandingCacheRow = {
   points_for: number | null;
   points_against: number | null;
   points: number | null;
-  team:
-    | { id: number; name: string; slug: string | null }
-    | { id: number; name: string; slug: string | null }[]
-    | null;
 };
 
 type SeasonRow = {
@@ -372,6 +369,24 @@ function buildRecentForm(rows: MatchRow[]) {
   return formMap;
 }
 
+function describeError(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object") {
+    const candidate = error as { message?: unknown; details?: unknown; code?: unknown };
+    const parts = [candidate.message, candidate.details, candidate.code]
+      .filter((value) => typeof value === "string" && value.trim().length > 0)
+      .map((value) => String(value).trim());
+    if (parts.length) return parts.join(" | ");
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+  return String(error);
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -477,19 +492,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (row.home_score > row.away_score) { h.w += 1; h.pts += 4; a.l += 1; } else if (row.away_score > row.home_score) { a.w += 1; a.pts += 4; h.l += 1; } else { h.d += 1; a.d += 1; h.pts += 2; a.pts += 2; }
     }
     const computedStandings = Array.from(table.values()).sort((a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team)).map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
-    const { data: standingsCache, error: standingsCacheError } = await serverSupabase.from("standings_cache").select(`
-        position, played, won, drawn, lost, points_for, points_against, points,
-        team:team_id ( id, name, slug )
-      `).eq("season_id", season.id).eq("source", "flashscore").order("position", { ascending: true });
-    if (standingsCacheError) throw standingsCacheError;
-    const useStandingsCache = hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]) && hasConsistentStandingsCache((standingsCache || []) as StandingCacheRow[], (row) => ({
+    const { data: standingsCache, error: standingsCacheError } = await serverSupabase
+      .from("standings_cache")
+      .select("team_id, position, played, won, drawn, lost, points_for, points_against, points")
+      .eq("season_id", season.id)
+      .eq("source", "flashscore")
+      .order("position", { ascending: true });
+    if (standingsCacheError) {
+      console.warn("standings_cache query failed, using computed standings:", describeError(standingsCacheError));
+    }
+    const safeStandingsCache = (standingsCacheError ? [] : standingsCache || []) as StandingCacheRow[];
+    const standingsTeamIds = Array.from(
+      new Set(safeStandingsCache.map((row) => row.team_id).filter((value): value is number => Number.isInteger(value)))
+    );
+    const teamsById = new Map<number, { id: number; name: string; slug: string | null }>();
+    if (standingsTeamIds.length > 0) {
+      const { data: standingsTeams, error: standingsTeamsError } = await serverSupabase
+        .from("teams")
+        .select("id,name,slug")
+        .in("id", standingsTeamIds);
+      if (standingsTeamsError) {
+        console.warn("standings teams lookup failed, using computed standings:", describeError(standingsTeamsError));
+      } else {
+        for (const team of standingsTeams || []) {
+          teamsById.set(team.id, team);
+        }
+      }
+    }
+    const useStandingsCache = hasUsableStandingCache(safeStandingsCache) && hasConsistentStandingsCache(safeStandingsCache, (row) => ({
       played: row.played,
       won: row.won,
       drawn: row.drawn,
       lost: row.lost,
     }));
-    const standings = useStandingsCache ? ((standingsCache as StandingCacheRow[]).map((row, index) => {
-      const team = Array.isArray(row.team) ? row.team[0] : row.team;
+    const standings = useStandingsCache ? (safeStandingsCache.map((row, index) => {
+      const team = row.team_id ? teamsById.get(row.team_id) ?? null : null;
       if (!team) return null;
       return {
         position: row.position ?? index + 1,
@@ -541,7 +578,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         regionProfile,
         matches: ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug)),
         source: preferFallback ? "snapshot+fallback" : "snapshot",
-        warning: error instanceof Error ? error.message : String(error),
+        warning: describeError(error),
       });
     }
     const fallback = getFallbackLeagueData(slug, refISO);
@@ -560,7 +597,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       regionProfile,
       matches: ((fallback.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug)),
       source: "fallback",
-      warning: error instanceof Error ? error.message : String(error),
+      warning: describeError(error),
     });
   }
 }

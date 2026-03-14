@@ -80,6 +80,10 @@ export function getLivePhase(lang: Lang, status: MatchStatus, minute?: number | 
   return minute <= firstHalfLimit ? t(lang, "liveFirstHalf") : t(lang, "liveSecondHalf");
 }
 
+function shouldHideLiveClockDetails(competitionSlug?: string | null) {
+  return competitionSlug === "ar-liga-norte-grande";
+}
+
 export function getMatchClockLabel(input: MatchClockInput) {
   if (
     isResultPendingMatch(
@@ -107,6 +111,10 @@ export function getMatchClockLabel(input: MatchClockInput) {
   if (effective.status === "HT") return t(input.lang, "statusHt");
 
   if (effective.status === "LIVE") {
+    if (shouldHideLiveClockDetails(input.competitionSlug)) {
+      return t(input.lang, "statusLive");
+    }
+
     const estimatedMinute = estimateLiveMinute(
       effective.status,
       input.matchDate,

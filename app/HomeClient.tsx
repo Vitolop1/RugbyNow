@@ -1097,10 +1097,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                   filteredBlocks.map((block) => (
                     <div key={block.slug} className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
                       <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
-                        <div className="flex min-w-0 items-center gap-2">
+                        <Link
+                          href={`/leagues/${block.slug}${dateQuery}`}
+                          className="flex min-w-0 items-center gap-2 transition hover:text-emerald-200"
+                        >
                           <LeagueLogo slug={block.slug} alt={block.league} />
                           <div className="truncate font-semibold text-white">{block.league}</div>
-                        </div>
+                        </Link>
                         <div className="text-sm text-white/70">{block.region}</div>
                       </div>
 

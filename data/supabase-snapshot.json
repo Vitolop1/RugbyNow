@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-14T21:00:11.765Z",
+  "generatedAt": "2026-03-14T21:02:49.351Z",
   "competitions": [
     {
       "id": 29,
@@ -1174,7 +1174,7 @@
       "status": "FT",
       "minute": null,
       "home_score": 13,
-      "away_score": 33,
+      "away_score": 36,
       "round": 18,
       "venue": null,
       "home_team_id": 35,
@@ -1313,7 +1313,7 @@
       "kickoff_time": "13:30:00",
       "status": "FT",
       "minute": null,
-      "home_score": 52,
+      "home_score": 45,
       "away_score": 41,
       "round": 26,
       "venue": null,
@@ -2273,6 +2273,20 @@
       "away_team_id": 39
     },
     {
+      "id": 1481,
+      "season_id": 43,
+      "match_date": "2026-03-14",
+      "kickoff_time": "19:30:00",
+      "status": "LIVE",
+      "minute": null,
+      "home_score": 52,
+      "away_score": 12,
+      "round": 2,
+      "venue": null,
+      "home_team_id": 197,
+      "away_team_id": 195
+    },
+    {
       "id": 15109,
       "season_id": 26,
       "match_date": "2025-12-27",
@@ -2495,20 +2509,6 @@
       "venue": null,
       "home_team_id": 45,
       "away_team_id": 46
-    },
-    {
-      "id": 1481,
-      "season_id": 43,
-      "match_date": "2026-03-14",
-      "kickoff_time": "19:30:00",
-      "status": "LIVE",
-      "minute": null,
-      "home_score": 45,
-      "away_score": 12,
-      "round": 2,
-      "venue": null,
-      "home_team_id": 197,
-      "away_team_id": 195
     },
     {
       "id": 15108,
@@ -4499,34 +4499,6 @@
       "away_team_id": 33
     },
     {
-      "id": 1490,
-      "season_id": 43,
-      "match_date": "2026-03-14",
-      "kickoff_time": "19:30:00",
-      "status": "LIVE",
-      "minute": null,
-      "home_score": 28,
-      "away_score": 33,
-      "round": 2,
-      "venue": null,
-      "home_team_id": 201,
-      "away_team_id": 198
-    },
-    {
-      "id": 15338,
-      "season_id": 13,
-      "match_date": "2026-03-06",
-      "kickoff_time": "15:10:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 27,
-      "away_score": 17,
-      "round": 6,
-      "venue": null,
-      "home_team_id": 3,
-      "away_team_id": 6
-    },
-    {
       "id": 15320,
       "season_id": 17,
       "match_date": "2026-04-04",
@@ -4609,20 +4581,6 @@
       "venue": null,
       "home_team_id": 36,
       "away_team_id": 32
-    },
-    {
-      "id": 15339,
-      "season_id": 13,
-      "match_date": "2026-02-22",
-      "kickoff_time": "10:10:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 33,
-      "away_score": 8,
-      "round": 22,
-      "venue": null,
-      "home_team_id": 2,
-      "away_team_id": 4
     },
     {
       "id": 15311,
@@ -4793,18 +4751,32 @@
       "away_team_id": 38
     },
     {
-      "id": 15340,
+      "id": 15338,
       "season_id": 13,
-      "match_date": "2026-02-21",
-      "kickoff_time": "11:40:00",
+      "match_date": "2026-03-06",
+      "kickoff_time": "15:10:00",
       "status": "FT",
       "minute": null,
-      "home_score": 23,
-      "away_score": 26,
-      "round": 21,
+      "home_score": 27,
+      "away_score": 17,
+      "round": 6,
       "venue": null,
-      "home_team_id": 6,
-      "away_team_id": 5
+      "home_team_id": 3,
+      "away_team_id": 6
+    },
+    {
+      "id": 1490,
+      "season_id": 43,
+      "match_date": "2026-03-14",
+      "kickoff_time": "19:30:00",
+      "status": "LIVE",
+      "minute": null,
+      "home_score": 28,
+      "away_score": 33,
+      "round": 2,
+      "venue": null,
+      "home_team_id": 201,
+      "away_team_id": 198
     },
     {
       "id": 15314,
@@ -4947,6 +4919,34 @@
       "away_team_id": 38
     },
     {
+      "id": 15339,
+      "season_id": 13,
+      "match_date": "2026-02-22",
+      "kickoff_time": "10:10:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 33,
+      "away_score": 8,
+      "round": 22,
+      "venue": null,
+      "home_team_id": 2,
+      "away_team_id": 4
+    },
+    {
+      "id": 15340,
+      "season_id": 13,
+      "match_date": "2026-02-21",
+      "kickoff_time": "11:40:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 23,
+      "away_score": 26,
+      "round": 21,
+      "venue": null,
+      "home_team_id": 6,
+      "away_team_id": 5
+    },
+    {
       "id": 1491,
       "season_id": 43,
       "match_date": "2026-05-02",
@@ -5015,34 +5015,6 @@
       "venue": null,
       "home_team_id": 7,
       "away_team_id": 9
-    },
-    {
-      "id": 15348,
-      "season_id": 13,
-      "match_date": "2026-03-14",
-      "kickoff_time": "10:10:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 43,
-      "away_score": 21,
-      "round": 14,
-      "venue": null,
-      "home_team_id": 3,
-      "away_team_id": 5
-    },
-    {
-      "id": 15343,
-      "season_id": 13,
-      "match_date": "2026-02-14",
-      "kickoff_time": "11:40:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 31,
-      "away_score": 20,
-      "round": 14,
-      "venue": null,
-      "home_team_id": 5,
-      "away_team_id": 1
     },
     {
       "id": 15354,
@@ -5199,20 +5171,6 @@
       "away_team_id": 8
     },
     {
-      "id": 15344,
-      "season_id": 13,
-      "match_date": "2026-02-14",
-      "kickoff_time": "09:10:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 20,
-      "away_score": 13,
-      "round": 14,
-      "venue": null,
-      "home_team_id": 3,
-      "away_team_id": 4
-    },
-    {
       "id": 15365,
       "season_id": 3,
       "match_date": "2026-03-14",
@@ -5297,34 +5255,6 @@
       "away_team_id": 11
     },
     {
-      "id": 15345,
-      "season_id": 13,
-      "match_date": "2026-02-07",
-      "kickoff_time": "11:40:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 48,
-      "away_score": 7,
-      "round": 7,
-      "venue": null,
-      "home_team_id": 1,
-      "away_team_id": 6
-    },
-    {
-      "id": 15346,
-      "season_id": 13,
-      "match_date": "2026-02-07",
-      "kickoff_time": "09:10:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 18,
-      "away_score": 15,
-      "round": 7,
-      "venue": null,
-      "home_team_id": 4,
-      "away_team_id": 5
-    },
-    {
       "id": 15393,
       "season_id": 3,
       "match_date": "2026-05-10",
@@ -5353,31 +5283,45 @@
       "away_team_id": 13
     },
     {
-      "id": 15347,
+      "id": 15348,
       "season_id": 13,
-      "match_date": "2026-02-05",
-      "kickoff_time": "15:10:00",
+      "match_date": "2026-03-14",
+      "kickoff_time": "10:10:00",
       "status": "FT",
       "minute": null,
-      "home_score": 36,
-      "away_score": 14,
-      "round": 5,
+      "home_score": 43,
+      "away_score": 21,
+      "round": 14,
       "venue": null,
-      "home_team_id": 2,
-      "away_team_id": 3
+      "home_team_id": 3,
+      "away_team_id": 5
     },
     {
       "id": 15350,
       "season_id": 13,
       "match_date": "2026-03-14",
       "kickoff_time": "20:10:00",
-      "status": "LIVE",
-      "minute": 40,
-      "home_score": 17,
+      "status": "HT",
+      "minute": null,
+      "home_score": 24,
       "away_score": 27,
-      "round": 40,
+      "round": 24,
       "venue": null,
       "home_team_id": 2,
+      "away_team_id": 1
+    },
+    {
+      "id": 15343,
+      "season_id": 13,
+      "match_date": "2026-02-14",
+      "kickoff_time": "11:40:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 31,
+      "away_score": 20,
+      "round": 14,
+      "venue": null,
+      "home_team_id": 5,
       "away_team_id": 1
     },
     {
@@ -5393,6 +5337,34 @@
       "venue": null,
       "home_team_id": 201,
       "away_team_id": 199
+    },
+    {
+      "id": 15344,
+      "season_id": 13,
+      "match_date": "2026-02-14",
+      "kickoff_time": "09:10:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 20,
+      "away_score": 13,
+      "round": 14,
+      "venue": null,
+      "home_team_id": 3,
+      "away_team_id": 4
+    },
+    {
+      "id": 15345,
+      "season_id": 13,
+      "match_date": "2026-02-07",
+      "kickoff_time": "11:40:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 48,
+      "away_score": 7,
+      "round": 7,
+      "venue": null,
+      "home_team_id": 1,
+      "away_team_id": 6
     },
     {
       "id": 15368,
@@ -5435,6 +5407,34 @@
       "venue": null,
       "home_team_id": 10,
       "away_team_id": 13
+    },
+    {
+      "id": 15346,
+      "season_id": 13,
+      "match_date": "2026-02-07",
+      "kickoff_time": "09:10:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 18,
+      "away_score": 15,
+      "round": 7,
+      "venue": null,
+      "home_team_id": 4,
+      "away_team_id": 5
+    },
+    {
+      "id": 15347,
+      "season_id": 13,
+      "match_date": "2026-02-05",
+      "kickoff_time": "15:10:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 36,
+      "away_score": 14,
+      "round": 5,
+      "venue": null,
+      "home_team_id": 2,
+      "away_team_id": 3
     },
     {
       "id": 1495,
@@ -15027,24 +15027,10 @@
       "away_team_id": 162
     },
     {
-      "id": 15341,
-      "season_id": 13,
-      "match_date": "2026-02-21",
-      "kickoff_time": "09:10:00",
-      "status": "FT",
-      "minute": null,
-      "home_score": 21,
-      "away_score": 42,
-      "round": 21,
-      "venue": null,
-      "home_team_id": 1,
-      "away_team_id": 3
-    },
-    {
       "id": 16089,
       "season_id": 46,
       "match_date": "2026-03-14",
-      "kickoff_time": "14:02:00",
+      "kickoff_time": "18:02:00",
       "status": "FT",
       "minute": null,
       "home_score": 12,
@@ -15053,6 +15039,20 @@
       "venue": null,
       "home_team_id": 161,
       "away_team_id": 2
+    },
+    {
+      "id": 15142,
+      "season_id": 26,
+      "match_date": "2025-10-26",
+      "kickoff_time": "20:05:00",
+      "status": "FT",
+      "minute": null,
+      "home_score": 59,
+      "away_score": 24,
+      "round": 26,
+      "venue": null,
+      "home_team_id": 41,
+      "away_team_id": 46
     }
   ],
   "standings_cache": [
@@ -15743,76 +15743,6 @@
       "updated_at": "2026-03-14T20:59:37.108+00:00"
     },
     {
-      "season_id": 40,
-      "team_id": 186,
-      "position": 1,
-      "played": 0,
-      "won": 0,
-      "drawn": 0,
-      "lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "points": 0,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:12.189+00:00"
-    },
-    {
-      "season_id": 40,
-      "team_id": 189,
-      "position": 2,
-      "played": 0,
-      "won": 0,
-      "drawn": 0,
-      "lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "points": 0,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:12.189+00:00"
-    },
-    {
-      "season_id": 40,
-      "team_id": 187,
-      "position": 3,
-      "played": 0,
-      "won": 0,
-      "drawn": 0,
-      "lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "points": 0,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:12.189+00:00"
-    },
-    {
-      "season_id": 40,
-      "team_id": 188,
-      "position": 4,
-      "played": 0,
-      "won": 0,
-      "drawn": 0,
-      "lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "points": 0,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:12.189+00:00"
-    },
-    {
-      "season_id": 40,
-      "team_id": 185,
-      "position": 5,
-      "played": 0,
-      "won": 0,
-      "drawn": 0,
-      "lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "points": 0,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:12.189+00:00"
-    },
-    {
       "season_id": 39,
       "team_id": 178,
       "position": 1,
@@ -15824,7 +15754,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 39,
@@ -15838,7 +15768,77 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
+    },
+    {
+      "season_id": 40,
+      "team_id": 186,
+      "position": 1,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "points_for": 0,
+      "points_against": 0,
+      "points": 0,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:33.36+00:00"
+    },
+    {
+      "season_id": 40,
+      "team_id": 189,
+      "position": 2,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "points_for": 0,
+      "points_against": 0,
+      "points": 0,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:33.36+00:00"
+    },
+    {
+      "season_id": 40,
+      "team_id": 187,
+      "position": 3,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "points_for": 0,
+      "points_against": 0,
+      "points": 0,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:33.36+00:00"
+    },
+    {
+      "season_id": 40,
+      "team_id": 188,
+      "position": 4,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "points_for": 0,
+      "points_against": 0,
+      "points": 0,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:33.36+00:00"
+    },
+    {
+      "season_id": 40,
+      "team_id": 185,
+      "position": 5,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "points_for": 0,
+      "points_against": 0,
+      "points": 0,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:33.36+00:00"
     },
     {
       "season_id": 39,
@@ -15852,7 +15852,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 39,
@@ -15866,7 +15866,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 39,
@@ -15880,7 +15880,35 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
+    },
+    {
+      "season_id": 39,
+      "team_id": 176,
+      "position": 6,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
+    },
+    {
+      "season_id": 39,
+      "team_id": 174,
+      "position": 7,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 25,
@@ -15912,34 +15940,6 @@
     },
     {
       "season_id": 39,
-      "team_id": 176,
-      "position": 6,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
-    },
-    {
-      "season_id": 39,
-      "team_id": 174,
-      "position": 7,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
-    },
-    {
-      "season_id": 39,
       "team_id": 170,
       "position": 8,
       "played": null,
@@ -15950,7 +15950,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 39,
@@ -15964,7 +15964,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 39,
@@ -15978,7 +15978,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
       "season_id": 39,
@@ -15992,11 +15992,11 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:05.489+00:00"
+      "updated_at": "2026-03-14T21:02:27.888+00:00"
     },
     {
-      "season_id": 46,
-      "team_id": 157,
+      "season_id": 45,
+      "team_id": 213,
       "position": 3,
       "played": null,
       "won": null,
@@ -16006,11 +16006,11 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.664+00:00"
+      "updated_at": "2026-03-14T21:02:39.068+00:00"
     },
     {
-      "season_id": 46,
-      "team_id": 2,
+      "season_id": 45,
+      "team_id": 168,
       "position": 4,
       "played": null,
       "won": null,
@@ -16020,63 +16020,35 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.665+00:00"
+      "updated_at": "2026-03-14T21:02:39.069+00:00"
     },
     {
-      "season_id": 27,
-      "team_id": 3,
+      "season_id": 45,
+      "team_id": 154,
       "position": 1,
-      "played": 5,
-      "won": 4,
-      "drawn": 0,
-      "lost": 1,
-      "points_for": 146,
-      "points_against": 108,
-      "points": 19,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:31.857+00:00"
+      "updated_at": "2026-03-14T21:02:39.069+00:00"
     },
     {
-      "season_id": 27,
-      "team_id": 2,
+      "season_id": 45,
+      "team_id": 212,
       "position": 2,
-      "played": 4,
-      "won": 3,
-      "drawn": 0,
-      "lost": 1,
-      "points_for": 163,
-      "points_against": 84,
-      "points": 16,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:31.857+00:00"
-    },
-    {
-      "season_id": 27,
-      "team_id": 5,
-      "position": 3,
-      "played": 5,
-      "won": 3,
-      "drawn": 0,
-      "lost": 2,
-      "points_for": 143,
-      "points_against": 144,
-      "points": 16,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:31.857+00:00"
-    },
-    {
-      "season_id": 27,
-      "team_id": 4,
-      "position": 4,
-      "played": 5,
-      "won": 2,
-      "drawn": 0,
-      "lost": 3,
-      "points_for": 79,
-      "points_against": 117,
-      "points": 9,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:31.857+00:00"
+      "updated_at": "2026-03-14T21:02:39.069+00:00"
     },
     {
       "season_id": 47,
@@ -16093,8 +16065,8 @@
       "updated_at": "2026-03-14T19:40:48.572+00:00"
     },
     {
-      "season_id": 45,
-      "team_id": 213,
+      "season_id": 46,
+      "team_id": 157,
       "position": 3,
       "played": null,
       "won": null,
@@ -16104,21 +16076,21 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
+      "updated_at": "2026-03-14T21:02:42.051+00:00"
     },
     {
-      "season_id": 15,
-      "team_id": 31,
+      "season_id": 27,
+      "team_id": 3,
       "position": 1,
-      "played": 12,
-      "won": 10,
+      "played": 5,
+      "won": 4,
       "drawn": 0,
-      "lost": 2,
-      "points_for": 400,
-      "points_against": 172,
-      "points": 49,
+      "lost": 1,
+      "points_for": 146,
+      "points_against": 108,
+      "points": 19,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.24+00:00"
+      "updated_at": "2026-03-14T21:02:10.734+00:00"
     },
     {
       "season_id": 14,
@@ -16132,35 +16104,105 @@
       "points_against": 477,
       "points": 55,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
-      "season_id": 15,
-      "team_id": 33,
-      "position": 2,
-      "played": 11,
+      "season_id": 14,
+      "team_id": 44,
+      "position": 3,
+      "played": 18,
+      "won": 10,
+      "drawn": 1,
+      "lost": 7,
+      "points_for": 561,
+      "points_against": 390,
+      "points": 53,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
+    },
+    {
+      "season_id": 14,
+      "team_id": 48,
+      "position": 4,
+      "played": 18,
+      "won": 11,
+      "drawn": 0,
+      "lost": 7,
+      "points_for": 596,
+      "points_against": 467,
+      "points": 51,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
+    },
+    {
+      "season_id": 14,
+      "team_id": 43,
+      "position": 5,
+      "played": 18,
       "won": 10,
       "drawn": 0,
-      "lost": 1,
-      "points_for": 433,
-      "points_against": 119,
-      "points": 47,
+      "lost": 8,
+      "points_for": 591,
+      "points_against": 483,
+      "points": 50,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 15,
-      "team_id": 32,
-      "position": 3,
+      "team_id": 31,
+      "position": 1,
       "played": 12,
-      "won": 9,
-      "drawn": 1,
+      "won": 10,
+      "drawn": 0,
       "lost": 2,
-      "points_for": 419,
-      "points_against": 167,
-      "points": 47,
+      "points_for": 400,
+      "points_against": 172,
+      "points": 49,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
+    },
+    {
+      "season_id": 27,
+      "team_id": 2,
+      "position": 2,
+      "played": 4,
+      "won": 3,
+      "drawn": 0,
+      "lost": 1,
+      "points_for": 163,
+      "points_against": 84,
+      "points": 16,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:10.734+00:00"
+    },
+    {
+      "season_id": 27,
+      "team_id": 5,
+      "position": 3,
+      "played": 5,
+      "won": 3,
+      "drawn": 0,
+      "lost": 2,
+      "points_for": 143,
+      "points_against": 144,
+      "points": 16,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:10.734+00:00"
+    },
+    {
+      "season_id": 46,
+      "team_id": 2,
+      "position": 4,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:42.051+00:00"
     },
     {
       "season_id": 46,
@@ -16174,39 +16216,11 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.665+00:00"
+      "updated_at": "2026-03-14T21:02:42.051+00:00"
     },
     {
-      "season_id": 45,
-      "team_id": 168,
-      "position": 4,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
-    },
-    {
-      "season_id": 45,
-      "team_id": 154,
-      "position": 1,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
-    },
-    {
-      "season_id": 45,
-      "team_id": 212,
+      "season_id": 46,
+      "team_id": 166,
       "position": 2,
       "played": null,
       "won": null,
@@ -16216,7 +16230,7 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
+      "updated_at": "2026-03-14T21:02:42.052+00:00"
     },
     {
       "season_id": 3,
@@ -16247,32 +16261,32 @@
       "updated_at": "2026-03-14T20:59:34.364+00:00"
     },
     {
-      "season_id": 15,
-      "team_id": 36,
+      "season_id": 27,
+      "team_id": 4,
       "position": 4,
-      "played": 12,
-      "won": 9,
+      "played": 5,
+      "won": 2,
       "drawn": 0,
       "lost": 3,
-      "points_for": 386,
-      "points_against": 215,
-      "points": 44,
+      "points_for": 79,
+      "points_against": 117,
+      "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:10.734+00:00"
     },
     {
-      "season_id": 14,
-      "team_id": 44,
-      "position": 3,
-      "played": 18,
+      "season_id": 15,
+      "team_id": 33,
+      "position": 2,
+      "played": 11,
       "won": 10,
-      "drawn": 1,
-      "lost": 7,
-      "points_for": 561,
-      "points_against": 390,
-      "points": 53,
+      "drawn": 0,
+      "lost": 1,
+      "points_for": 433,
+      "points_against": 119,
+      "points": 47,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
     },
     {
       "season_id": 3,
@@ -16303,9 +16317,9 @@
       "updated_at": "2026-03-14T20:59:34.364+00:00"
     },
     {
-      "season_id": 45,
-      "team_id": 210,
-      "position": 1,
+      "season_id": 46,
+      "team_id": 165,
+      "position": 3,
       "played": null,
       "won": null,
       "drawn": null,
@@ -16314,26 +16328,12 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
-    },
-    {
-      "season_id": 45,
-      "team_id": 211,
-      "position": 2,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
+      "updated_at": "2026-03-14T21:02:42.052+00:00"
     },
     {
       "season_id": 46,
-      "team_id": 166,
-      "position": 2,
+      "team_id": 216,
+      "position": 4,
       "played": null,
       "won": null,
       "drawn": null,
@@ -16342,35 +16342,35 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.665+00:00"
+      "updated_at": "2026-03-14T21:02:42.052+00:00"
     },
     {
-      "season_id": 14,
-      "team_id": 48,
+      "season_id": 15,
+      "team_id": 32,
+      "position": 3,
+      "played": 12,
+      "won": 9,
+      "drawn": 1,
+      "lost": 2,
+      "points_for": 419,
+      "points_against": 167,
+      "points": 47,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
+    },
+    {
+      "season_id": 15,
+      "team_id": 36,
       "position": 4,
-      "played": 18,
-      "won": 11,
+      "played": 12,
+      "won": 9,
       "drawn": 0,
-      "lost": 7,
-      "points_for": 596,
-      "points_against": 467,
-      "points": 51,
+      "lost": 3,
+      "points_for": 386,
+      "points_against": 215,
+      "points": 44,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
-    },
-    {
-      "season_id": 14,
-      "team_id": 43,
-      "position": 5,
-      "played": 18,
-      "won": 10,
-      "drawn": 0,
-      "lost": 8,
-      "points_for": 591,
-      "points_against": 483,
-      "points": 50,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
     },
     {
       "season_id": 47,
@@ -16385,20 +16385,6 @@
       "points": null,
       "source": "flashscore",
       "updated_at": "2026-03-14T19:40:48.572+00:00"
-    },
-    {
-      "season_id": 46,
-      "team_id": 165,
-      "position": 3,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.665+00:00"
     },
     {
       "season_id": 47,
@@ -16429,46 +16415,46 @@
       "updated_at": "2026-03-14T19:40:48.573+00:00"
     },
     {
-      "season_id": 27,
-      "team_id": 1,
+      "season_id": 45,
+      "team_id": 215,
+      "position": 3,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:39.069+00:00"
+    },
+    {
+      "season_id": 45,
+      "team_id": 214,
+      "position": 4,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:39.069+00:00"
+    },
+    {
+      "season_id": 15,
+      "team_id": 39,
       "position": 5,
-      "played": 4,
-      "won": 1,
-      "drawn": 0,
-      "lost": 3,
-      "points_for": 107,
-      "points_against": 103,
-      "points": 6,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:31.857+00:00"
-    },
-    {
-      "season_id": 27,
-      "team_id": 6,
-      "position": 6,
-      "played": 5,
-      "won": 1,
-      "drawn": 0,
-      "lost": 4,
-      "points_for": 90,
-      "points_against": 172,
-      "points": 6,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:31.857+00:00"
-    },
-    {
-      "season_id": 14,
-      "team_id": 45,
-      "position": 6,
-      "played": 18,
-      "won": 9,
+      "played": 12,
+      "won": 7,
       "drawn": 1,
-      "lost": 8,
-      "points_for": 513,
-      "points_against": 448,
-      "points": 49,
+      "lost": 4,
+      "points_for": 415,
+      "points_against": 295,
+      "points": 38,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
     },
     {
       "season_id": 47,
@@ -16499,32 +16485,46 @@
       "updated_at": "2026-03-14T19:40:48.573+00:00"
     },
     {
-      "season_id": 15,
-      "team_id": 39,
+      "season_id": 27,
+      "team_id": 1,
       "position": 5,
-      "played": 12,
-      "won": 7,
-      "drawn": 1,
-      "lost": 4,
-      "points_for": 415,
-      "points_against": 295,
-      "points": 38,
+      "played": 4,
+      "won": 1,
+      "drawn": 0,
+      "lost": 3,
+      "points_for": 107,
+      "points_against": 103,
+      "points": 6,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:10.734+00:00"
     },
     {
-      "season_id": 46,
-      "team_id": 216,
-      "position": 4,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
+      "season_id": 14,
+      "team_id": 41,
+      "position": 1,
+      "played": 18,
+      "won": 14,
+      "drawn": 0,
+      "lost": 4,
+      "points_for": 730,
+      "points_against": 365,
+      "points": 67,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.665+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
+    },
+    {
+      "season_id": 14,
+      "team_id": 45,
+      "position": 6,
+      "played": 18,
+      "won": 9,
+      "drawn": 1,
+      "lost": 8,
+      "points_for": 513,
+      "points_against": 448,
+      "points": 49,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 44,
@@ -16541,20 +16541,6 @@
       "updated_at": "2026-03-14T20:46:15.393+00:00"
     },
     {
-      "season_id": 15,
-      "team_id": 35,
-      "position": 6,
-      "played": 11,
-      "won": 4,
-      "drawn": 0,
-      "lost": 7,
-      "points_for": 225,
-      "points_against": 276,
-      "points": 21,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
-    },
-    {
       "season_id": 14,
       "team_id": 46,
       "position": 7,
@@ -16566,7 +16552,63 @@
       "points_against": 536,
       "points": 45,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
+    },
+    {
+      "season_id": 27,
+      "team_id": 6,
+      "position": 6,
+      "played": 5,
+      "won": 1,
+      "drawn": 0,
+      "lost": 4,
+      "points_for": 90,
+      "points_against": 172,
+      "points": 6,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:10.734+00:00"
+    },
+    {
+      "season_id": 15,
+      "team_id": 35,
+      "position": 6,
+      "played": 11,
+      "won": 4,
+      "drawn": 0,
+      "lost": 7,
+      "points_for": 225,
+      "points_against": 276,
+      "points": 21,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
+    },
+    {
+      "season_id": 45,
+      "team_id": 210,
+      "position": 1,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:39.068+00:00"
+    },
+    {
+      "season_id": 45,
+      "team_id": 211,
+      "position": 2,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:39.068+00:00"
     },
     {
       "season_id": 15,
@@ -16580,7 +16622,7 @@
       "points_against": 354,
       "points": 19,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
     },
     {
       "season_id": 15,
@@ -16594,7 +16636,7 @@
       "points_against": 446,
       "points": 14,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
     },
     {
       "season_id": 14,
@@ -16608,21 +16650,7 @@
       "points_against": 558,
       "points": 45,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
-    },
-    {
-      "season_id": 14,
-      "team_id": 47,
-      "position": 9,
-      "played": 18,
-      "won": 9,
-      "drawn": 0,
-      "lost": 9,
-      "points_for": 431,
-      "points_against": 501,
-      "points": 42,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 47,
@@ -16653,32 +16681,32 @@
       "updated_at": "2026-03-14T19:40:48.573+00:00"
     },
     {
-      "season_id": 45,
-      "team_id": 215,
-      "position": 3,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
+      "season_id": 14,
+      "team_id": 47,
+      "position": 9,
+      "played": 18,
+      "won": 9,
+      "drawn": 0,
+      "lost": 9,
+      "points_for": 431,
+      "points_against": 501,
+      "points": 42,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
-      "season_id": 45,
-      "team_id": 214,
-      "position": 4,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
+      "season_id": 14,
+      "team_id": 50,
+      "position": 10,
+      "played": 18,
+      "won": 8,
+      "drawn": 0,
+      "lost": 10,
+      "points_for": 551,
+      "points_against": 487,
+      "points": 41,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:01.502+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 3,
@@ -16709,20 +16737,6 @@
       "updated_at": "2026-03-14T20:59:34.364+00:00"
     },
     {
-      "season_id": 14,
-      "team_id": 41,
-      "position": 1,
-      "played": 18,
-      "won": 14,
-      "drawn": 0,
-      "lost": 4,
-      "points_for": 730,
-      "points_against": 365,
-      "points": 67,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
-    },
-    {
       "season_id": 15,
       "team_id": 83,
       "position": 9,
@@ -16734,7 +16748,21 @@
       "points_against": 530,
       "points": 12,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
+    },
+    {
+      "season_id": 46,
+      "team_id": 154,
+      "position": 1,
+      "played": null,
+      "won": null,
+      "drawn": null,
+      "lost": null,
+      "points_for": null,
+      "points_against": null,
+      "points": null,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:42.051+00:00"
     },
     {
       "season_id": 47,
@@ -16765,34 +16793,6 @@
       "updated_at": "2026-03-14T19:40:48.572+00:00"
     },
     {
-      "season_id": 15,
-      "team_id": 40,
-      "position": 10,
-      "played": 11,
-      "won": 1,
-      "drawn": 0,
-      "lost": 10,
-      "points_for": 163,
-      "points_against": 468,
-      "points": 7,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:29.241+00:00"
-    },
-    {
-      "season_id": 46,
-      "team_id": 154,
-      "position": 1,
-      "played": null,
-      "won": null,
-      "drawn": null,
-      "lost": null,
-      "points_for": null,
-      "points_against": null,
-      "points": null,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.664+00:00"
-    },
-    {
       "season_id": 46,
       "team_id": 161,
       "position": 2,
@@ -16804,21 +16804,21 @@
       "points_against": null,
       "points": null,
       "source": "flashscore",
-      "updated_at": "2026-03-14T21:00:04.664+00:00"
+      "updated_at": "2026-03-14T21:02:42.051+00:00"
     },
     {
-      "season_id": 14,
-      "team_id": 50,
+      "season_id": 15,
+      "team_id": 40,
       "position": 10,
-      "played": 18,
-      "won": 8,
+      "played": 11,
+      "won": 1,
       "drawn": 0,
       "lost": 10,
-      "points_for": 551,
-      "points_against": 487,
-      "points": 41,
+      "points_for": 163,
+      "points_against": 468,
+      "points": 7,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:06.851+00:00"
     },
     {
       "season_id": 14,
@@ -16832,7 +16832,7 @@
       "points_against": 502,
       "points": 39,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 14,
@@ -16846,7 +16846,7 @@
       "points_against": 595,
       "points": 36,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 47,
@@ -16888,7 +16888,7 @@
       "points_against": 511,
       "points": 18,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
     },
     {
       "season_id": 29,
@@ -17395,20 +17395,6 @@
       "updated_at": "2026-03-14T20:46:15.393+00:00"
     },
     {
-      "season_id": 14,
-      "team_id": 54,
-      "position": 14,
-      "played": 18,
-      "won": 1,
-      "drawn": 1,
-      "lost": 16,
-      "points_for": 338,
-      "points_against": 860,
-      "points": 7,
-      "source": "flashscore",
-      "updated_at": "2026-03-14T20:59:26.308+00:00"
-    },
-    {
       "season_id": 48,
       "team_id": 166,
       "position": 3,
@@ -17885,6 +17871,20 @@
       "updated_at": "2026-03-14T20:59:46.665+00:00"
     },
     {
+      "season_id": 14,
+      "team_id": 54,
+      "position": 14,
+      "played": 18,
+      "won": 1,
+      "drawn": 1,
+      "lost": 16,
+      "points_for": 338,
+      "points_against": 860,
+      "points": 7,
+      "source": "flashscore",
+      "updated_at": "2026-03-14T21:02:04.392+00:00"
+    },
+    {
       "season_id": 40,
       "team_id": 184,
       "position": 6,
@@ -17896,7 +17896,7 @@
       "points_against": 0,
       "points": 0,
       "source": "flashscore",
-      "updated_at": "2026-03-14T20:46:12.189+00:00"
+      "updated_at": "2026-03-14T21:02:33.36+00:00"
     },
     {
       "season_id": 44,

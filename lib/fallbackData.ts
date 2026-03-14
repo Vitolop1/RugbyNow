@@ -171,6 +171,29 @@ function norm(s: string) {
     .trim();
 }
 
+function canonicalTeamToken(s: string) {
+  const value = norm(s);
+
+  switch (value) {
+    case "penarol rugby":
+      return "penarol";
+    case "cobras brasil rugby":
+      return "cobras";
+    case "capibaras xv":
+      return "capibaras";
+    case "atletico del rosario":
+    case "atl. del rosario":
+      return "atl del rosario";
+    case "rugby lyons":
+    case "lyons piacenza":
+      return "lyons";
+    case "petrarca padova":
+      return "petrarca";
+    default:
+      return value;
+  }
+}
+
 function slugify(s: string) {
   return norm(s).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -391,7 +414,8 @@ function loadJsonlRowsByCompetition() {
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => JSON.parse(line) as JsonlRow);
-      out.set(competition, dedupeJsonlRows(rows));
+      const existing = out.get(competition) ?? [];
+      out.set(competition, dedupeJsonlRows([...existing, ...rows]));
     } catch {
       if (!out.has(competition)) out.set(competition, []);
     }
@@ -414,11 +438,8 @@ function compareJsonlPreference(a: JsonlRow, b: JsonlRow) {
 }
 
 function canonicalJsonlKey(row: JsonlRow) {
-  if (row.source_event_key) return row.source_event_key;
-
-  const teams = [norm(row.home), norm(row.away)].sort().join("|");
-  const kickoff = row.kickoff_time ?? "";
-  return `${row.match_date}|${kickoff}|${teams}`;
+  const teams = [canonicalTeamToken(row.home), canonicalTeamToken(row.away)].sort().join("|");
+  return `${row.match_date}|${teams}`;
 }
 
 function dedupeJsonlRows(rows: JsonlRow[]) {
@@ -521,8 +542,13 @@ function compareLeagueRows(a: LeagueMatchRow, b: LeagueMatchRow) {
 }
 
 function canonicalLeagueRowKey(row: LeagueMatchRow) {
-  const teams = [norm(row.home_team?.name ?? ""), norm(row.away_team?.name ?? "")].sort().join("|");
-  return `${row.match_date}|${row.kickoff_time ?? ""}|${teams}`;
+  const teams = [
+    canonicalTeamToken(row.home_team?.name ?? ""),
+    canonicalTeamToken(row.away_team?.name ?? ""),
+  ]
+    .sort()
+    .join("|");
+  return `${row.match_date}|${teams}`;
 }
 
 function dedupeLeagueRows(rows: LeagueMatchRow[]) {

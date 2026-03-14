@@ -1141,7 +1141,7 @@ export default function LeagueClient() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
-                                  <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[15px] font-black text-white/90 sm:text-base">
+                                  <span className="rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-base font-black text-white/95 sm:text-lg">
                                     {niceDate(match.match_date, lang)}
                                   </span>
                                   <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">

@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
-import { attachHighlightsToMatches } from "@/lib/matchHighlights";
-import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
-import { getMatchLocalISODate, isEffectivelyLive } from "@/lib/matchPresentation";
 import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
-import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 
 type MatchRow = {
   id: number;
@@ -26,9 +22,6 @@ type MatchRow = {
         } | null;
       }
     | null;
-  highlight_url?: string | null;
-  highlight_title?: string | null;
-  highlight_published?: string | null;
 };
 
 type RawMatchRow = Omit<MatchRow, "home_team" | "away_team" | "season"> & {
@@ -76,8 +69,6 @@ function normalizeTeamName(value?: string | null) {
     "dogos xv": "dogos xv",
     yacare: "yacare xv",
     "yacare xv": "yacare xv",
-    capibaras: "capibaras xv",
-    "capibaras xv": "capibaras xv",
     "atletico del rosario": "atletico del rosario",
     "atl. del rosario": "atletico del rosario",
     "atletico del rosario ": "atletico del rosario",
@@ -137,132 +128,12 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
   );
 }
 
-function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
-  const normalized = kickoffTime && kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime || "00:00:00";
-  const parsed = new Date(`${matchDate}T${normalized}Z`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
-function collapseAdjacentVariants(rows: MatchRow[]) {
-  const qualityFor = (row: MatchRow) => {
-    let score = 0;
-    if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
-    if (row.home_score != null && row.away_score != null) score += 20;
-    if (row.status === "FT") score += 15;
-    else if (row.status === "LIVE") score += 10;
-    else if (row.status === "NS") score += 5;
-    return score;
-  };
-
-  const sameLogicalMatch = (left: MatchRow, right: MatchRow) => {
-    const leftCompetition = left.season?.competition?.slug ?? "";
-    const rightCompetition = right.season?.competition?.slug ?? "";
-    if (leftCompetition !== rightCompetition) return false;
-
-    const sameTeams =
-      normalizeTeamName(left.home_team?.name) === normalizeTeamName(right.home_team?.name) &&
-      normalizeTeamName(left.away_team?.name) === normalizeTeamName(right.away_team?.name);
-    if (!sameTeams) return false;
-
-    if (
-      left.home_score != null &&
-      left.away_score != null &&
-      right.home_score != null &&
-      right.away_score != null &&
-      (left.home_score !== right.home_score || left.away_score !== right.away_score)
-    ) {
-      return false;
-    }
-
-    const leftDate = parseMatchDateTime(left.match_date, left.kickoff_time);
-    const rightDate = parseMatchDateTime(right.match_date, right.kickoff_time);
-    const placeholder =
-      !left.kickoff_time ||
-      !right.kickoff_time ||
-      left.kickoff_time === "00:00:00" ||
-      right.kickoff_time === "00:00:00" ||
-      left.kickoff_time === "00:00" ||
-      right.kickoff_time === "00:00";
-
-    if (placeholder) {
-      const dayDelta = Math.abs(
-        (new Date(`${left.match_date}T00:00:00Z`).getTime() - new Date(`${right.match_date}T00:00:00Z`).getTime()) /
-          86400000
-      );
-      return dayDelta <= 1;
-    }
-
-    if (!leftDate || !rightDate) return false;
-    return Math.abs(leftDate.getTime() - rightDate.getTime()) <= 360 * 60000;
-  };
-
-  const selected: MatchRow[] = [];
-  for (const row of rows.slice().sort((a, b) => qualityFor(b) - qualityFor(a) || b.id - a.id)) {
-    if (selected.some((existing) => sameLogicalMatch(existing, row))) continue;
-    selected.push(row);
-  }
-
-  return selected.sort(
-    (a, b) =>
-      (a.status === "LIVE" ? -1 : 0) - (b.status === "LIVE" ? -1 : 0) ||
-      a.match_date.localeCompare(b.match_date) ||
-      String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
-      String(a.season?.competition?.name || "").localeCompare(String(b.season?.competition?.name || ""))
-  );
-}
-
-function addDaysISO(iso: string, delta: number) {
-  const parsed = new Date(`${iso}T00:00:00Z`);
-  parsed.setUTCDate(parsed.getUTCDate() + delta);
-  return parsed.toISOString().slice(0, 10);
-}
-
-function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZone: string) {
-  const todayInZone = getISODateInTimeZone(new Date(), timeZone);
-
-  const deduped = collapseAdjacentVariants(
-    dedupeLogicalMatches(rows, (row) => ({
-      id: row.id,
-      matchDate: row.match_date,
-      kickoffTime: row.kickoff_time,
-      status: row.status,
-      homeScore: row.home_score,
-      awayScore: row.away_score,
-      homeTeamId: row.home_team?.id ?? null,
-      awayTeamId: row.away_team?.id ?? null,
-    }))
-  );
-
-  return deduped
-    .map((row) => {
-      const localDate = getMatchLocalISODate(row.match_date, row.kickoff_time, timeZone);
-      const effectiveLive = isEffectivelyLive(row.status, row.match_date, row.kickoff_time);
-
-      return {
-        ...row,
-        match_date: localDate,
-        status: row.status === "NS" && effectiveLive ? ("LIVE" as const) : row.status,
-      };
-    })
-    .filter((row) => row.match_date === selectedDate || (selectedDate === todayInZone && row.status === "LIVE"))
-    .sort(
-      (a, b) =>
-        (a.status === "LIVE" ? -1 : 0) - (b.status === "LIVE" ? -1 : 0) ||
-        a.match_date.localeCompare(b.match_date) ||
-        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
-        String(a.season?.competition?.name || "").localeCompare(String(b.season?.competition?.name || ""))
-    );
-}
-
 export async function GET(request: NextRequest) {
   const date = request.nextUrl.searchParams.get("date");
-  const timeZone = request.nextUrl.searchParams.get("tz") || "America/New_York";
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return NextResponse.json({ error: "Invalid or missing date" }, { status: 400 });
   }
-
-  const candidateDates = [addDaysISO(date, -1), date, addDaysISO(date, 1)];
 
   try {
     const { data, error } = await serverSupabase
@@ -281,42 +152,29 @@ export async function GET(request: NextRequest) {
           competition:competition_id ( name, slug, region )
         )
       `)
-      .in("match_date", candidateDates)
+      .eq("match_date", date)
       .order("kickoff_time", { ascending: true })
       .limit(2000);
 
     if (error) throw error;
 
-    const mergedMatches = mergeMatches(
-      (data || []) as unknown as RawMatchRow[],
-      candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
-    );
-
     return NextResponse.json({
-      matches: await attachHighlightsToMatches(normalizeMatchesForDate(mergedMatches, date, timeZone)),
+      matches: mergeMatches((data || []) as unknown as RawMatchRow[], getFallbackMatchesByDate(date) as unknown as RawMatchRow[]),
       source: "supabase",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
+    const snapshotMatches = getSnapshotMatchesByDate(date);
     if (snapshotMatches) {
-      const mergedMatches = mergeMatches(
-        snapshotMatches as unknown as RawMatchRow[],
-        candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
-      );
       return NextResponse.json({
-        matches: await attachHighlightsToMatches(normalizeMatchesForDate(mergedMatches, date, timeZone)),
+        matches: mergeMatches(snapshotMatches as unknown as RawMatchRow[], getFallbackMatchesByDate(date) as unknown as RawMatchRow[]),
         source: "snapshot",
         warning: message,
       });
     }
 
-    const fallbackMatches = mergeMatches(
-      candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[],
-      []
-    );
     return NextResponse.json({
-      matches: await attachHighlightsToMatches(normalizeMatchesForDate(fallbackMatches, date, timeZone)),
+      matches: mergeMatches(getFallbackMatchesByDate(date) as unknown as RawMatchRow[], []),
       source: "fallback",
       warning: message,
     });

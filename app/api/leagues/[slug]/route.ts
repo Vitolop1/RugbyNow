@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
-import { attachHighlightsToMatches } from "@/lib/matchHighlights";
-import { getMatchLocalISODate, isEffectivelyLive } from "@/lib/matchPresentation";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
 import { getSnapshotLeagueData } from "@/lib/supabaseSnapshot";
@@ -62,9 +60,6 @@ type MatchRow = {
   venue?: string | null;
   home_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
   away_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
-  highlight_url?: string | null;
-  highlight_title?: string | null;
-  highlight_published?: string | null;
 };
 
 type CompetitionRow = {
@@ -147,169 +142,6 @@ function dedupeMatches(rows: MatchRow[]) {
       awayTeamId: away?.id ?? null,
     };
   });
-}
-
-function normalizeTeamKey(value?: string | null) {
-  const normalized = (value ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ");
-
-  const aliases: Record<string, string> = {
-    penarol: "penarol rugby",
-    "penarol rugby": "penarol rugby",
-    cobras: "cobras brasil rugby",
-    "cobras brasil rugby": "cobras brasil rugby",
-    pampas: "pampas xv",
-    "pampas xv": "pampas xv",
-    dogos: "dogos xv",
-    "dogos xv": "dogos xv",
-    yacare: "yacare xv",
-    "yacare xv": "yacare xv",
-    capibaras: "capibaras xv",
-    "capibaras xv": "capibaras xv",
-    "atletico del rosario": "atletico del rosario",
-    "atl. del rosario": "atletico del rosario",
-    petrarca: "petrarca",
-    "petrarca padova": "petrarca",
-    lyons: "lyons piacenza",
-    "rugby lyons": "lyons piacenza",
-    "lyons piacenza": "lyons piacenza",
-  };
-
-  return aliases[normalized] ?? normalized;
-}
-
-function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
-  const normalized = kickoffTime && kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime || "00:00:00";
-  const parsed = new Date(`${matchDate}T${normalized}Z`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
-function collapseAdjacentLeagueVariants(rows: MatchRow[]) {
-  const qualityFor = (row: MatchRow) => {
-    let score = 0;
-    if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
-    if (row.home_score != null && row.away_score != null) score += 20;
-    if (row.status === "FT") score += 15;
-    else if (row.status === "LIVE") score += 10;
-    else if (row.status === "NS") score += 5;
-    return score;
-  };
-
-  const sameLogicalMatch = (left: MatchRow, right: MatchRow) => {
-    const leftHome = unwrapTeam(left.home_team);
-    const leftAway = unwrapTeam(left.away_team);
-    const rightHome = unwrapTeam(right.home_team);
-    const rightAway = unwrapTeam(right.away_team);
-
-    if (
-      normalizeTeamKey(leftHome?.name) !== normalizeTeamKey(rightHome?.name) ||
-      normalizeTeamKey(leftAway?.name) !== normalizeTeamKey(rightAway?.name)
-    ) {
-      return false;
-    }
-
-    if (
-      left.home_score != null &&
-      left.away_score != null &&
-      right.home_score != null &&
-      right.away_score != null &&
-      (left.home_score !== right.home_score || left.away_score !== right.away_score)
-    ) {
-      return false;
-    }
-
-    const leftDate = parseMatchDateTime(left.match_date, left.kickoff_time);
-    const rightDate = parseMatchDateTime(right.match_date, right.kickoff_time);
-    const placeholder =
-      !left.kickoff_time ||
-      !right.kickoff_time ||
-      left.kickoff_time === "00:00:00" ||
-      right.kickoff_time === "00:00:00" ||
-      left.kickoff_time === "00:00" ||
-      right.kickoff_time === "00:00";
-
-    if (placeholder) {
-      const dayDelta = Math.abs(
-        (new Date(`${left.match_date}T00:00:00Z`).getTime() - new Date(`${right.match_date}T00:00:00Z`).getTime()) /
-          86400000
-      );
-      return dayDelta <= 1;
-    }
-
-    if (!leftDate || !rightDate) return false;
-    return Math.abs(leftDate.getTime() - rightDate.getTime()) <= 360 * 60000;
-  };
-
-  const selected: MatchRow[] = [];
-  for (const row of rows.slice().sort((a, b) => qualityFor(b) - qualityFor(a) || b.id - a.id)) {
-    if (selected.some((existing) => sameLogicalMatch(existing, row))) continue;
-    selected.push(row);
-  }
-
-  return selected.sort(
-    (a, b) =>
-      a.match_date.localeCompare(b.match_date) ||
-      String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
-  );
-}
-
-function normalizeLeagueMatchDates(rows: MatchRow[], timeZone: string) {
-  const deduped = collapseAdjacentLeagueVariants(dedupeLogicalMatches(rows, (row) => {
-    const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
-    const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
-    return {
-      id: row.id,
-      matchDate: row.match_date,
-      kickoffTime: row.kickoff_time,
-      status: row.status,
-      homeScore: row.home_score,
-      awayScore: row.away_score,
-      homeTeamId: home?.id ?? null,
-      awayTeamId: away?.id ?? null,
-    };
-  }));
-
-  return deduped.map((row) => ({
-    ...row,
-    match_date: getMatchLocalISODate(row.match_date, row.kickoff_time, timeZone),
-    status: row.status === "NS" && isEffectivelyLive(row.status, row.match_date, row.kickoff_time) ? ("LIVE" as const) : row.status,
-  }));
-}
-
-function buildTeamKey(row: MatchRow) {
-  const home = unwrapTeam(row.home_team);
-  const away = unwrapTeam(row.away_team);
-  return `${normalizeTeamKey(home?.name)}|${normalizeTeamKey(away?.name)}`;
-}
-
-function shouldPreferFallbackPayload(
-  primaryRoundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>,
-  primaryMatches: MatchRow[],
-  fallbackRoundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>,
-  fallbackMatches: MatchRow[]
-) {
-  if (!fallbackRoundMeta.length || !fallbackMatches.length) return false;
-  if (!primaryRoundMeta.length || !primaryMatches.length) return true;
-
-  const primaryFt = primaryMatches.filter((item) => item.status === "FT").length;
-  const fallbackFt = fallbackMatches.filter((item) => item.status === "FT").length;
-
-  if (fallbackMatches.length > primaryMatches.length) return true;
-  if (fallbackFt > primaryFt) return true;
-
-  const primaryHasScores = primaryMatches.some((item) => item.home_score != null && item.away_score != null);
-  const fallbackHasScores = fallbackMatches.some((item) => item.home_score != null && item.away_score != null);
-  if (fallbackHasScores && !primaryHasScores) return true;
-
-  const primaryTeams = new Set(primaryMatches.map(buildTeamKey));
-  const missingFallbackTeams = fallbackMatches.some((item) => !primaryTeams.has(buildTeamKey(item)));
-  if (missingFallbackTeams && (fallbackFt > 0 || fallbackMatches.length >= primaryMatches.length)) return true;
-
-  return false;
 }
 
 function hasUsableStandingCache(rows: StandingCacheRow[]) {
@@ -510,7 +342,6 @@ export async function GET(
   const roundOverrideRaw = request.nextUrl.searchParams.get("round");
   const roundOverride =
     roundOverrideRaw && /^\d+$/.test(roundOverrideRaw) ? Number.parseInt(roundOverrideRaw, 10) : null;
-  const timeZone = request.nextUrl.searchParams.get("tz") || "America/New_York";
 
   try {
     const { data: competition, error: competitionError } = await serverSupabase
@@ -600,18 +431,10 @@ export async function GET(
       fallbackSelectedRound == null
         ? []
         : dedupeMatches((fallback?.matches || []) as MatchRow[]);
-    const preferFallbackRound = shouldPreferFallbackPayload(
-      roundMeta,
-      roundMatches,
-      fallback?.roundMeta || [],
-      fallbackMatches
-    );
-    const effectiveRoundMeta = preferFallbackRound ? fallback?.roundMeta || roundMeta : roundMeta;
-    const effectiveSelectedRound = preferFallbackRound ? fallbackSelectedRound : selectedRound;
-    const matches = normalizeLeagueMatchDates(
-      mergeLeagueMatches(preferFallbackRound ? fallbackMatches : roundMatches, preferFallbackRound ? roundMatches : fallbackMatches),
-      timeZone
-    );
+    const useFallbackStructure = Boolean(fallback && roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0);
+    const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
+    const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
+    const matches = mergeLeagueMatches(roundMatches, fallbackMatches);
 
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
@@ -682,63 +505,28 @@ export async function GET(
             .filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>)
         : computedStandings;
 
-    const matchesWithHighlights = await attachHighlightsToMatches(matches || [], slug);
-
     return NextResponse.json({
       competition: mergedCompetition,
       season,
       competitions: mergedCompetitions,
       roundMeta: effectiveRoundMeta,
       selectedRound: effectiveSelectedRound,
-      matches: matchesWithHighlights,
+      matches: matches || [],
       standings,
       standingsSource: useStandingsCache ? "cache" : "computed",
       source: "supabase",
     });
   } catch (error) {
     const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
-    const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
-
     if (snapshot) {
-      const snapshotMatches = dedupeMatches((snapshot.matches || []) as MatchRow[]);
-      const fallbackMatches = dedupeMatches((fallback?.matches || []) as MatchRow[]);
-      const preferFallback = shouldPreferFallbackPayload(
-        (snapshot.roundMeta || []) as Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>,
-        snapshotMatches,
-        (fallback?.roundMeta || []) as Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>,
-        fallbackMatches
-      );
-
-      const mergedMatches = normalizeLeagueMatchDates(
-        mergeLeagueMatches(preferFallback ? fallbackMatches : snapshotMatches, preferFallback ? snapshotMatches : fallbackMatches),
-        timeZone
-      );
-      const matchesWithHighlights = await attachHighlightsToMatches(
-        mergedMatches,
-        slug
-      );
-
-      const preferredCompetition = preferFallback ? fallback?.competition : snapshot.competition;
-      const preferredSeason = preferFallback ? fallback?.season : snapshot.season;
-      const preferredCompetitions = preferFallback ? fallback?.competitions : snapshot.competitions;
-      const preferredRoundMeta = preferFallback ? fallback?.roundMeta : snapshot.roundMeta;
-      const preferredSelectedRound = preferFallback ? fallback?.selectedRound : snapshot.selectedRound;
-      const preferredStandings = preferFallback ? fallback?.standings : snapshot.standings;
-
       return NextResponse.json({
         ...snapshot,
-        competition: preferredCompetition,
-        season: preferredSeason,
-        competitions: preferredCompetitions,
-        roundMeta: preferredRoundMeta,
-        selectedRound: preferredSelectedRound,
-        matches: matchesWithHighlights,
-        standings: preferredStandings,
-        source: preferFallback ? "snapshot+fallback" : "snapshot",
+        source: "snapshot",
         warning: error instanceof Error ? error.message : String(error),
       });
     }
 
+    const fallback = getFallbackLeagueData(slug, refISO);
     if (!fallback) {
       return NextResponse.json(
         { error: error instanceof Error ? error.message : `No competition found for slug: ${slug}` },
@@ -746,14 +534,8 @@ export async function GET(
       );
     }
 
-    const matchesWithHighlights = await attachHighlightsToMatches(
-      normalizeLeagueMatchDates(fallback.matches || [], timeZone),
-      slug
-    );
-
     return NextResponse.json({
       ...fallback,
-      matches: matchesWithHighlights,
       source: "fallback",
       warning: error instanceof Error ? error.message : String(error),
     });

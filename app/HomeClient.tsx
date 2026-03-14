@@ -8,7 +8,6 @@ import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
-import HighlightButton from "@/app/components/HighlightButton";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
@@ -42,9 +41,6 @@ type Match = {
   hs: number | null;
   as: number | null;
   status: MatchStatus;
-  highlightUrl?: string | null;
-  highlightTitle?: string | null;
-  highlightPublished?: string | null;
 };
 
 type LeagueBlock = {
@@ -85,9 +81,6 @@ type DbMatchRow = {
         } | null;
       }
     | null;
-  highlight_url?: string | null;
-  highlight_title?: string | null;
-  highlight_published?: string | null;
 };
 
 function TeamLogo({ slug, alt, size = 22 }: { slug?: string | null; alt: string; size?: number }) {
@@ -208,7 +201,6 @@ function dedupeBlock(block: LeagueBlock) {
     if (match.status === "FT") score += 15;
     else if (match.status === "LIVE") score += 10;
     else if (match.status === "NS") score += 5;
-    if (match.highlightUrl) score += 3;
     return score;
   };
 
@@ -395,7 +387,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       setLoading(true);
       setLoadError("");
 
-      const response = await fetch(`/api/home?date=${selectedISO}&tz=${encodeURIComponent(timeZone)}`, { cache: "no-store" });
+      const response = await fetch(`/api/home?date=${selectedISO}`, { cache: "no-store" });
       const payload = await response.json();
 
       if (cancelled) return;
@@ -430,9 +422,6 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
           hs: row.status === "NS" ? null : row.home_score,
           as: row.status === "NS" ? null : row.away_score,
           status: row.status,
-          highlightUrl: row.highlight_url ?? null,
-          highlightTitle: row.highlight_title ?? null,
-          highlightPublished: row.highlight_published ?? null,
         };
 
         if (!byLeague.has(leagueSlug)) {
@@ -1104,18 +1093,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 </>
                               ) : null}
                             </div>
-                            <div className="flex flex-wrap items-center justify-end gap-2">
-                              {match.status === "FT" && match.highlightUrl ? (
-                                <HighlightButton href={match.highlightUrl} title={match.highlightTitle} lang={lang} />
-                              ) : null}
-                              <SuggestedWatchButton
-                                competitionSlug={block.slug}
-                                competitionName={block.league}
-                                home={match.home}
-                                away={match.away}
-                                lang={lang}
-                              />
-                            </div>
+                            <SuggestedWatchButton
+                              competitionSlug={block.slug}
+                              competitionName={block.league}
+                              home={match.home}
+                              away={match.away}
+                              lang={lang}
+                            />
                           </div>
                             </div>
                           );

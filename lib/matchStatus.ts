@@ -87,12 +87,6 @@ export function getEffectiveMatchState(
   const diffMinutes = kickoff ? Math.floor((now.getTime() - kickoff.getTime()) / 60000) : null;
   const inferredLiveMinutes =
     diffMinutes == null ? null : diffMinutes - LIVE_INFERENCE_DELAY_MINUTES;
-  const scrapedAt = updatedAt ? new Date(updatedAt) : null;
-  const hasExplicitNsSignal =
-    status === "NS" &&
-    scrapedAt &&
-    !Number.isNaN(scrapedAt.getTime());
-
   if (status === "LIVE") {
     if (explicitMinute != null && explicitMinute > 0) {
       return { status: "LIVE" as const, minute: clamp(explicitMinute, 1, rules.maxDisplayMinute) };
@@ -125,10 +119,6 @@ export function getEffectiveMatchState(
         rules.maxDisplayMinute
       ),
     };
-  }
-
-  if (hasExplicitNsSignal) {
-    return { status: "NS" as const, minute: explicitMinute ?? null };
   }
 
   if (inferredLiveMinutes == null || inferredLiveMinutes < 0 || inferredLiveMinutes > totalLiveWindowMinutes) {

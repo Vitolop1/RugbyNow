@@ -363,31 +363,38 @@ export default function LeagueClient() {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const load = async () => {
-      setLoading(true);
-      setError("");
+      try {
+        setLoading(true);
+        setError("");
 
-      const qs = new URLSearchParams();
-      if (refISO) qs.set("date", refISO);
-      if (roundFromUrl) qs.set("round", roundFromUrl);
+        const qs = new URLSearchParams();
+        if (refISO) qs.set("date", refISO);
+        if (roundFromUrl) qs.set("round", roundFromUrl);
 
-      qs.set("tz", timeZone);
-      const response = await fetch(`/api/leagues/${slug}?${qs.toString()}`, { cache: "no-store" });
-      const payload = await response.json();
+        qs.set("tz", timeZone);
+        const response = await fetch(`/api/leagues/${slug}?${qs.toString()}`, { cache: "no-store" });
+        const payload = await response.json();
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (!response.ok) {
+        if (!response.ok) {
+          setData(null);
+          setError(payload.error ?? tr("unknownLeagueError"));
+        } else {
+          setData(payload as LeaguePayload);
+          if (payload.warning) setError(payload.warning);
+        }
+
+        const hasLive = (payload.matches || []).some((match: LeagueMatch) => match.status === "LIVE");
+        timer = setTimeout(load, hasLive ? 30000 : 180000);
+      } catch (error) {
+        if (cancelled) return;
         setData(null);
-        setError(payload.error ?? tr("unknownLeagueError"));
-      } else {
-        setData(payload as LeaguePayload);
-        if (payload.warning) setError(payload.warning);
+        setError(error instanceof Error ? error.message : tr("unknownLeagueError"));
+        timer = setTimeout(load, 60000);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-
-      setLoading(false);
-
-      const hasLive = (payload.matches || []).some((match: LeagueMatch) => match.status === "LIVE");
-      timer = setTimeout(load, hasLive ? 30000 : 180000);
     };
 
     load();
@@ -396,7 +403,7 @@ export default function LeagueClient() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [slug, refISO, roundFromUrl]);
+  }, [slug, refISO, roundFromUrl, timeZone, tr]);
 
   const navigationSections = useMemo(
     () =>

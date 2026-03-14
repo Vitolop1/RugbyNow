@@ -2,8 +2,11 @@ export type BroadcastProviderId =
   | "disney-plus"
   | "espn"
   | "espn-plus"
+  | "noa-sports-go"
+  | "quiero-deporte"
   | "rai-sport"
   | "rugbypass-tv"
+  | "tercer-tiempo-salta"
   | "the-rugby-channel"
   | "urc-tv"
   | "youtube";
@@ -35,6 +38,16 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
     label: "ESPN+",
     href: "https://plus.espn.com",
   },
+  "noa-sports-go": {
+    id: "noa-sports-go",
+    label: "Noa Sports Go",
+    href: "https://www.youtube.com/@NoaSportsGo",
+  },
+  "quiero-deporte": {
+    id: "quiero-deporte",
+    label: "Quiero Deporte",
+    href: "https://www.youtube.com/@QuieroDeporte",
+  },
   "rai-sport": {
     id: "rai-sport",
     label: "Rai Sport",
@@ -44,6 +57,11 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
     id: "rugbypass-tv",
     label: "RugbyPass TV",
     href: "https://rugbypass.tv",
+  },
+  "tercer-tiempo-salta": {
+    id: "tercer-tiempo-salta",
+    label: "Tercer Tiempo Salta",
+    href: "https://www.youtube.com/@tercertiemposalta",
   },
   "the-rugby-channel": {
     id: "the-rugby-channel",
@@ -63,7 +81,7 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
 };
 
 const BROADCASTS_BY_COMPETITION: Partial<Record<string, BroadcastProviderId[]>> = {
-  "ar-liga-norte-grande": ["youtube"],
+  "ar-liga-norte-grande": ["tercer-tiempo-salta", "noa-sports-go", "quiero-deporte"],
   "ar-urba-top14": ["disney-plus", "espn"],
   "en-premiership-rugby": ["disney-plus", "espn"],
   "eu-champions-cup": ["disney-plus", "espn"],
@@ -86,6 +104,9 @@ const SUGGESTED_PROVIDER_PRIORITY: BroadcastProviderId[] = [
   "espn-plus",
   "disney-plus",
   "rugbypass-tv",
+  "tercer-tiempo-salta",
+  "noa-sports-go",
+  "quiero-deporte",
   "youtube",
   "rai-sport",
   "the-rugby-channel",
@@ -93,6 +114,9 @@ const SUGGESTED_PROVIDER_PRIORITY: BroadcastProviderId[] = [
 ];
 
 export function getBroadcastLogo(id: BroadcastProviderId) {
+  if (id === "tercer-tiempo-salta" || id === "noa-sports-go" || id === "quiero-deporte") {
+    return "/broadcast-logos/youtube.png";
+  }
   return `/broadcast-logos/${id}.png`;
 }
 
@@ -102,13 +126,6 @@ export function getBroadcastsForCompetition(slug?: string | null): BroadcastProv
   const ids = BROADCASTS_BY_COMPETITION[slug] || [];
   return ids.map((id) => {
     const provider = PROVIDERS[id];
-
-    if (slug === "ar-liga-norte-grande" && id === "youtube") {
-      return {
-        ...provider,
-        href: "https://www.youtube.com/@tercertiemposalta",
-      };
-    }
 
     return provider;
   });

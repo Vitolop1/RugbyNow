@@ -1,0 +1,52 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+\fs24
+\b RugbyNow - 10 comandos utiles\b0\par
+\par
+1. npm run sync:live:clock\par
+Para refrescar rapido marcadores y minutos de partidos en vivo de Flashscore.\par
+\par
+2. npm run sync:live\par
+Para detectar ligas con partidos en vivo y actualizarlas en bloque.\par
+\par
+3. npm run sync:live:finish\par
+Para buscar resultados finales de partidos que estan terminando o ya terminaron.\par
+\par
+4. npm run sync:flashscore\par
+Para hacer un scrape grande general de Flashscore: fixtures, resultados y datos amplios.\par
+\par
+5. npm run sync:standings\par
+Para actualizar tablas y posiciones.\par
+\par
+6. npm run ensure:flashscore-competitions\par
+Para asegurar que las ligas de Flashscore esten bien mapeadas antes del scrape.\par
+\par
+7. npm run check:supabase\par
+Para verificar si Supabase esta respondiendo bien.\par
+\par
+8. npm run export:supabase-snapshot\par
+Para exportar el snapshot local desde Supabase y dejar actualizado el fallback.\par
+\par
+9. npm run build\par
+Para comprobar que la app compila bien para produccion.\par
+\par
+10. npm run deploy\par
+Para desplegar cambios a Cloudflare.\par
+\par
+\b Flujo rapido recomendado\b0\par
+\par
+Si queres refrescar partidos en vivo:\par
+npm run sync:live:clock\par
+\par
+Si queres refrescar vivos y cierres:\par
+npm run sync:live\par
+npm run sync:live:clock\par
+npm run sync:live:finish\par
+\par
+Si queres actualizar resultados generales y tabla:\par
+npm run sync:flashscore\par
+npm run sync:standings\par
+\par
+Ruta del proyecto:\par
+cd C:\\Users\\PC\\rugbynow\\RugbyNOW\par
+}

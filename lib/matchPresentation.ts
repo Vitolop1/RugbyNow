@@ -1,3 +1,5 @@
+"use client";
+
 import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";

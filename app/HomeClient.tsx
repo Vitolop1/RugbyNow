@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
@@ -123,7 +123,7 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
 }
 
 function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
-  const tr = useCallback((key: string) => t(lang, key), [lang]);
+  const tr = (key: string) => t(lang, key);
   if (status === "LIVE") {
     return (
       <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">

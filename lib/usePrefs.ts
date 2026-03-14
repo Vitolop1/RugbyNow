@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DEFAULT_TZ, detectBrowserTimeZone, isValidTimeZone } from "@/lib/timeZones";
 
 export type Lang = "en" | "es" | "fr" | "it";
 export type ThemeMode = "rugby" | "light" | "dark";
 
-const DEFAULT_TZ = "America/New_York";
 const DEFAULT_LANG: Lang = "en";
 const DEFAULT_THEME: ThemeMode = "rugby";
 
@@ -16,7 +16,8 @@ function readLang(): Lang {
 
 function readTZ(): string {
   const v = localStorage.getItem("tz");
-  return v && v.trim() ? v : DEFAULT_TZ;
+  if (isValidTimeZone(v)) return v as string;
+  return detectBrowserTimeZone() ?? DEFAULT_TZ;
 }
 
 function readTheme(): ThemeMode {
@@ -44,6 +45,11 @@ export function usePrefs() {
       const nextTZ = readTZ();
       const nextLang = readLang();
       const nextTheme = readTheme();
+      const savedTZ = localStorage.getItem("tz");
+
+      if (!isValidTimeZone(savedTZ) && isValidTimeZone(nextTZ)) {
+        localStorage.setItem("tz", nextTZ);
+      }
 
       setTimeZone(nextTZ);
       setLang(nextLang);
@@ -87,8 +93,9 @@ export function usePrefs() {
   }, []);
 
   const setTZEverywhere = (tz: string) => {
-    localStorage.setItem("tz", tz);
-    setTimeZone(tz);
+    const nextTZ = isValidTimeZone(tz) ? tz : detectBrowserTimeZone() ?? DEFAULT_TZ;
+    localStorage.setItem("tz", nextTZ);
+    setTimeZone(nextTZ);
     window.dispatchEvent(new Event("tz-change"));
   };
 

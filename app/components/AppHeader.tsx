@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
+import { buildTimeZoneOptions } from "@/lib/timeZones";
 import { usePrefs, type Lang, type ThemeMode } from "@/lib/usePrefs";
 
 type Props = {
@@ -24,12 +25,6 @@ type LanguageOption = {
   short: string;
   src?: string;
   emoji?: string;
-};
-
-type TimeZoneOption = {
-  value: string;
-  short: string;
-  long: string;
 };
 
 function formatTodayTZ(now: Date, timeZone: string, lang: Lang) {
@@ -136,14 +131,7 @@ export default function AppHeader({
     { value: "fr", label: "Francais", short: "FR", src: "/flags/Flag_of_France.png" },
     { value: "it", label: "Italiano", short: "IT", src: "/flags/Flag_of_Italy.png" },
   ];
-  const timeZoneOptions: TimeZoneOption[] = [
-    { value: "America/New_York", short: "NY (ET)", long: "New York (ET)" },
-    { value: "America/Chicago", short: "CHI (CT)", long: "Chicago (CT)" },
-    { value: "America/Denver", short: "DEN (MT)", long: "Denver (MT)" },
-    { value: "America/Los_Angeles", short: "LA (PT)", long: "Los Angeles (PT)" },
-    { value: "America/Argentina/Buenos_Aires", short: "ARG", long: "Argentina (ART)" },
-    { value: "Europe/London", short: "LON", long: "London (GMT)" },
-  ];
+  const timeZoneOptions = useMemo(() => buildTimeZoneOptions(timeZone), [timeZone]);
   const currentLanguage = languageOptions.find((option) => option.value === effectiveLang) ?? languageOptions[0];
   const themeOptions: Array<{ value: ThemeMode; label: string }> = [
     { value: "rugby", label: tr("themeRugby") },

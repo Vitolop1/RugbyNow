@@ -48,6 +48,7 @@ type LeagueMatch = {
   kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
+  updated_at?: string | null;
   home_score: number | null;
   away_score: number | null;
   round?: number | null;
@@ -1182,6 +1183,7 @@ export default function LeagueClient() {
                               competitionSlug: data.competition.slug,
                               status: match.status,
                               minute: match.minute,
+                              updatedAt: match.updated_at,
                               matchDate: match.match_date,
                               kickoffTime: match.kickoff_time,
                               timeZone,
@@ -1191,6 +1193,7 @@ export default function LeagueClient() {
                               competitionSlug: data.competition.slug,
                               status: match.status,
                               minute: match.minute,
+                              updatedAt: match.updated_at,
                               matchDate: match.match_date,
                               kickoffTime: match.kickoff_time,
                               timeZone,

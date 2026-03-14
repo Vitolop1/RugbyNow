@@ -38,6 +38,7 @@ type Match = {
   homeSlug?: string | null;
   awaySlug?: string | null;
   minute: number | null;
+  updatedAt?: string | null;
   hs: number | null;
   as: number | null;
   status: MatchStatus;
@@ -68,6 +69,7 @@ type DbMatchRow = {
   kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
+  updated_at?: string | null;
   home_score: number | null;
   away_score: number | null;
   home_team: { id: number; name: string; slug: string } | null;
@@ -460,6 +462,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
           homeSlug: row.home_team?.slug ?? null,
           awaySlug: row.away_team?.slug ?? null,
           minute: row.minute,
+          updatedAt: row.updated_at ?? null,
           hs: isScheduledMatchStatus(row.status) ? null : row.home_score,
           as: isScheduledMatchStatus(row.status) ? null : row.away_score,
           status: row.status,
@@ -1090,6 +1093,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             competitionSlug: block.slug,
                             status: match.status,
                             minute: match.minute,
+                            updatedAt: match.updatedAt,
                             matchDate: match.matchDate,
                             kickoffTime: match.kickoffTime,
                             timeZone,
@@ -1099,6 +1103,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             competitionSlug: block.slug,
                             status: match.status,
                             minute: match.minute,
+                            updatedAt: match.updatedAt,
                             matchDate: match.matchDate,
                             kickoffTime: match.kickoffTime,
                             timeZone,

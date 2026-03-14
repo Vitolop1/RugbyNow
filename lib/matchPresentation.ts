@@ -10,6 +10,7 @@ type MatchClockInput = {
   competitionSlug?: string | null;
   status: MatchStatus;
   minute?: number | null;
+  updatedAt?: string | null;
   matchDate: string;
   kickoffTime?: string | null;
   timeZone: string;
@@ -35,6 +36,24 @@ export function estimateLiveMinute(
     return clamp(effective.minute, 1, maxMinute);
   }
   return null;
+}
+
+function estimateMinuteFromScrapeTimestamp(
+  minute: number,
+  updatedAt?: string | null,
+  competitionSlug?: string | null,
+  now = new Date()
+) {
+  if (!updatedAt) return minute;
+
+  const parsedUpdatedAt = new Date(updatedAt);
+  if (Number.isNaN(parsedUpdatedAt.getTime())) return minute;
+
+  const elapsedMinutes = Math.floor((now.getTime() - parsedUpdatedAt.getTime()) / 60000);
+  if (elapsedMinutes <= 0) return minute;
+
+  const maxMinute = competitionSlug && isSevenCompetition(competitionSlug.toLowerCase()) ? 14 : 80;
+  return clamp(minute + elapsedMinutes, 1, maxMinute);
 }
 
 export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string, lang: Lang) {
@@ -67,13 +86,17 @@ export function getMatchClockLabel(input: MatchClockInput) {
   if (effective.status === "HT") return t(input.lang, "statusHt");
 
   if (effective.status === "LIVE") {
-    const minute = estimateLiveMinute(
+    const estimatedMinute = estimateLiveMinute(
       effective.status,
       input.matchDate,
       input.kickoffTime,
       effective.minute,
       input.competitionSlug
     );
+    const minute =
+      estimatedMinute != null
+        ? estimateMinuteFromScrapeTimestamp(estimatedMinute, input.updatedAt, input.competitionSlug)
+        : null;
     const phase = getLivePhase(input.lang, effective.status, minute, input.competitionSlug);
     return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
   }
@@ -94,13 +117,17 @@ export function getMatchContextLabel(input: MatchClockInput) {
   if (effective.status === "HT") return t(input.lang, "halftime");
 
   if (effective.status === "LIVE") {
-    const minute = estimateLiveMinute(
+    const estimatedMinute = estimateLiveMinute(
       effective.status,
       input.matchDate,
       input.kickoffTime,
       effective.minute,
       input.competitionSlug
     );
+    const minute =
+      estimatedMinute != null
+        ? estimateMinuteFromScrapeTimestamp(estimatedMinute, input.updatedAt, input.competitionSlug)
+        : null;
     return getLivePhase(input.lang, effective.status, minute, input.competitionSlug) ?? t(input.lang, "liveAction");
   }
 

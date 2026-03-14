@@ -57,6 +57,7 @@ type MatchRow = {
   kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
+  updated_at?: string | null;
   home_score: number | null;
   away_score: number | null;
   round: number | null;
@@ -395,7 +396,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (competitionsError) throw competitionsError;
     const mergedCompetitions = mergeCompetitionCatalog<CompetitionRow>((competitions || []) as CompetitionRow[], fallback ? (fallback.competitions as CompetitionRow[]) : []);
     const { data: seasonMatches, error: seasonMatchesError } = await serverSupabase.from("matches").select(`
-        id, match_date, kickoff_time, status, minute, home_score, away_score, round, venue,
+        id, match_date, kickoff_time, status, minute, updated_at, home_score, away_score, round, venue,
         home_team:home_team_id ( id, name, slug ),
         away_team:away_team_id ( id, name, slug )
       `).eq("season_id", season.id).order("match_date", { ascending: true });

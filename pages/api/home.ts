@@ -11,6 +11,7 @@ type MatchRow = {
   kickoff_time: string | null;
   status: MatchStatus;
   minute: number | null;
+  updated_at?: string | null;
   home_score: number | null;
   away_score: number | null;
   home_team: { id: number; name: string; slug: string } | null;
@@ -316,6 +317,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         kickoff_time,
         status,
         minute,
+        updated_at,
         home_score,
         away_score,
         home_team:home_team_id ( id, name, slug ),

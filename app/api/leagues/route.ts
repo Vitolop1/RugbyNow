@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackCompetitions, getFallbackSeasons } from "@/lib/fallbackData";
 import { getSnapshotCompetitions, getSnapshotSeasons } from "@/lib/supabaseSnapshot";
+import { getSeasonSortKey, mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 
 type CompetitionRow = {
   id: number;
@@ -20,27 +21,18 @@ type SeasonRow = {
   competition_id: number;
 };
 
-function mergeCompetitions(base: CompetitionRow[], extra: CompetitionRow[]) {
-  const bySlug = new Map<string, CompetitionRow>();
-  for (const item of [...base, ...extra]) {
-    if (!item?.slug) continue;
-    if (!bySlug.has(item.slug)) bySlug.set(item.slug, item);
-  }
-  return Array.from(bySlug.values()).sort(
-    (a, b) =>
-      String(a.group_name || "").localeCompare(String(b.group_name || "")) ||
-      (a.sort_order ?? 9999) - (b.sort_order ?? 9999) ||
-      String(a.name || "").localeCompare(String(b.name || ""))
-  );
-}
-
 function mergeSeasons(base: SeasonRow[], extra: SeasonRow[]) {
   const out = new Map<string, SeasonRow>();
   for (const item of [...base, ...extra]) {
     const key = `${item.competition_id}:${item.name}`;
     if (!out.has(key)) out.set(key, item);
   }
-  return Array.from(out.values());
+  return Array.from(out.values()).sort(
+    (a, b) =>
+      a.competition_id - b.competition_id ||
+      getSeasonSortKey(b.name) - getSeasonSortKey(a.name) ||
+      b.name.localeCompare(a.name)
+  );
 }
 
 export async function GET() {
@@ -63,7 +55,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      competitions: competitions || [],
+      competitions: mergeCompetitionCatalog((competitions || []) as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
       seasons: seasons || [],
       source: "supabase",
     });
@@ -74,7 +66,7 @@ export async function GET() {
     if (competitions && seasons) {
       return NextResponse.json(
         {
-          competitions: mergeCompetitions(competitions, getFallbackCompetitions()),
+          competitions: mergeCompetitionCatalog(competitions as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
           seasons: mergeSeasons(seasons, getFallbackSeasons()),
           source: "snapshot",
           warning: message,
@@ -85,7 +77,7 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        competitions: mergeCompetitions(getFallbackCompetitions(), []),
+        competitions: mergeCompetitionCatalog(getFallbackCompetitions() as CompetitionRow[], []),
         seasons: mergeSeasons(getFallbackSeasons(), []),
         source: "fallback",
         warning: message,

@@ -7,6 +7,7 @@ import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import { getLeagueLogo } from "@/lib/assets";
 import {
   buildCompetitionNavigationSections,
+  getSeasonSortKey,
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
@@ -98,7 +99,13 @@ export default function LeaguesPage() {
 
     for (const season of seasons) {
       const previous = map.get(season.competition_id);
-      if (!previous || String(season.name) > String(previous.name)) map.set(season.competition_id, season);
+      if (
+        !previous ||
+        getSeasonSortKey(season.name) > getSeasonSortKey(previous.name) ||
+        (getSeasonSortKey(season.name) === getSeasonSortKey(previous.name) && season.name.localeCompare(previous.name) > 0)
+      ) {
+        map.set(season.competition_id, season);
+      }
     }
 
     return map;

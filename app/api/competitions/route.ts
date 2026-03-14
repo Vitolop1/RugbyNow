@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackCompetitions } from "@/lib/fallbackData";
 import { getSnapshotCompetitions } from "@/lib/supabaseSnapshot";
+import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 
 type CompetitionRow = {
   id: number;
@@ -15,21 +16,6 @@ type CompetitionRow = {
   is_featured?: boolean | null;
 };
 
-function mergeCompetitions(base: CompetitionRow[], extra: CompetitionRow[]) {
-  const bySlug = new Map<string, CompetitionRow>();
-  for (const item of [...base, ...extra]) {
-    if (!item?.slug) continue;
-    if (!bySlug.has(item.slug)) bySlug.set(item.slug, item);
-  }
-  return Array.from(bySlug.values()).sort(
-    (a, b) =>
-      Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)) ||
-      String(a.group_name || "").localeCompare(String(b.group_name || "")) ||
-      (a.sort_order ?? 9999) - (b.sort_order ?? 9999) ||
-      String(a.name || "").localeCompare(String(b.name || ""))
-  );
-}
-
 export async function GET() {
   try {
     const { data, error } = await serverSupabase
@@ -41,20 +27,23 @@ export async function GET() {
       .order("name", { ascending: true });
 
     if (error) throw error;
-    return NextResponse.json({ competitions: data || [], source: "supabase" });
+    return NextResponse.json({
+      competitions: mergeCompetitionCatalog((data || []) as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
+      source: "supabase",
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const snapshot = getSnapshotCompetitions();
     if (snapshot) {
       return NextResponse.json({
-        competitions: mergeCompetitions(snapshot, getFallbackCompetitions()),
+        competitions: mergeCompetitionCatalog(snapshot as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
         source: "snapshot",
         warning: message,
       });
     }
 
     return NextResponse.json({
-      competitions: mergeCompetitions(getFallbackCompetitions(), []),
+      competitions: mergeCompetitionCatalog(getFallbackCompetitions() as CompetitionRow[], []),
       source: "fallback",
       warning: message,
     });

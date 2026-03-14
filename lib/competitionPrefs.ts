@@ -14,6 +14,23 @@ export function writeSlugList(key: string, values: string[]) {
   window.localStorage.setItem(key, JSON.stringify(Array.from(new Set(values)).sort()));
 }
 
+export function readOrderedKeys(key: string) {
+  if (typeof window === "undefined") return [] as string[];
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function writeOrderedKeys(key: string, values: string[]) {
+  if (typeof window === "undefined") return;
+  const deduped = Array.from(new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0)));
+  window.localStorage.setItem(key, JSON.stringify(deduped));
+}
+
 export function toggleSlug(values: string[], slug: string) {
   return values.includes(slug) ? values.filter((value) => value !== slug) : [...values, slug];
 }
@@ -26,6 +43,11 @@ type CompetitionLike = {
   group_name?: string | null;
   sort_order?: number | null;
   is_featured?: boolean | null;
+};
+
+type CompetitionIdentity = CompetitionLike & {
+  id?: number | null;
+  category?: string | null;
 };
 
 export type CompetitionCountryKey =
@@ -125,6 +147,106 @@ function normalizeText(value?: string | null) {
 
 function matchesAny(value: string, candidates: string[]) {
   return candidates.some((candidate) => value.includes(candidate));
+}
+
+export function getSeasonSortKey(name: string) {
+  const value = (name || "").trim();
+  const rangeMatch = value.match(/\b(\d{4})\s*\/\s*(\d{2,4})\b/);
+  if (rangeMatch) {
+    const firstYear = Number.parseInt(rangeMatch[1], 10);
+    const secondChunk = rangeMatch[2];
+    const secondYear =
+      secondChunk.length === 2
+        ? Number.parseInt(`${rangeMatch[1].slice(0, 2)}${secondChunk}`, 10)
+        : Number.parseInt(secondChunk, 10);
+    return Math.max(firstYear, secondYear);
+  }
+
+  const yearMatch = value.match(/\b(19\d{2}|20\d{2})\b/);
+  if (yearMatch) return Number.parseInt(yearMatch[1], 10);
+  return 0;
+}
+
+export function mergeCompetitionCatalog<T extends CompetitionIdentity>(base: T[], extra: T[]) {
+  const bySlug = new Map<string, T>();
+
+  for (const item of base) {
+    if (!item?.slug) continue;
+    bySlug.set(item.slug.trim().toLowerCase(), { ...item });
+  }
+
+  for (const item of extra) {
+    if (!item?.slug) continue;
+    const key = item.slug.trim().toLowerCase();
+    const current = bySlug.get(key);
+
+    if (!current) {
+      bySlug.set(key, { ...item });
+      continue;
+    }
+
+    bySlug.set(key, {
+      ...current,
+      region: item.region ?? current.region ?? null,
+      country_code: item.country_code ?? current.country_code ?? null,
+      category: item.category ?? current.category ?? null,
+      group_name: item.group_name ?? current.group_name ?? null,
+      sort_order: item.sort_order ?? current.sort_order ?? null,
+      is_featured: item.is_featured ?? current.is_featured ?? null,
+    });
+  }
+
+  return Array.from(bySlug.values()).sort(
+    (a, b) =>
+      Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)) ||
+      String(a.group_name || "").localeCompare(String(b.group_name || "")) ||
+      (a.sort_order ?? 9999) - (b.sort_order ?? 9999) ||
+      String(a.name || "").localeCompare(String(b.name || ""))
+  );
+}
+
+export function applyNavigationSectionOrder<T extends CompetitionLike>(
+  sections: CompetitionNavigationSection<T>[],
+  orderedKeys: string[]
+) {
+  if (!orderedKeys.length) return sections;
+
+  const ranked = new Map<string, number>();
+  orderedKeys.forEach((key, index) => ranked.set(key, index));
+
+  return [...sections].sort((a, b) => {
+    const aRank = ranked.get(a.key);
+    const bRank = ranked.get(b.key);
+    if (aRank == null && bRank == null) return 0;
+    if (aRank == null) return 1;
+    if (bRank == null) return -1;
+    return aRank - bRank;
+  });
+}
+
+export function moveNavigationSectionKey(
+  keys: string[],
+  key: string,
+  direction: -1 | 1,
+  availableKeys: string[]
+) {
+  const normalized = Array.from(
+    new Set([
+      ...keys.filter((value) => availableKeys.includes(value)),
+      ...availableKeys.filter((value) => !keys.includes(value)),
+    ])
+  );
+
+  const currentIndex = normalized.indexOf(key);
+  if (currentIndex === -1) return normalized;
+
+  const nextIndex = currentIndex + direction;
+  if (nextIndex < 0 || nextIndex >= normalized.length) return normalized;
+
+  const next = normalized.slice();
+  const [moved] = next.splice(currentIndex, 1);
+  next.splice(nextIndex, 0, moved);
+  return next;
 }
 
 export function isArgentinaCompetition(slug: string) {

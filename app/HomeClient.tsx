@@ -13,9 +13,13 @@ import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import { getDateLocale } from "@/lib/dateLocale";
 import {
+  applyNavigationSectionOrder,
   buildCompetitionNavigationSections,
+  moveNavigationSectionKey,
+  readOrderedKeys,
   readSlugList,
   toggleSlug,
+  writeOrderedKeys,
   writeSlugList,
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
@@ -205,6 +209,7 @@ function dedupeBlock(block: LeagueBlock) {
 }
 
 const HOME_SIDEBAR_KEY = "rn:home-sidebar-open";
+const SIDEBAR_SECTION_ORDER_KEY = "rn:league-section-order";
 
 function getInitialHomeSidebarOpen() {
   return false;
@@ -236,6 +241,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
+  const [sectionOrder, setSectionOrder] = useState<string[]>([]);
   const [, setClockTick] = useState(0);
   const homeBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_BANNER;
   const homeRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_RAIL;
@@ -280,6 +286,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       syncSidebar();
       setFavoriteSlugs(readSlugList("rn:favorite-leagues"));
       setHiddenSlugs(readSlugList("rn:hidden-leagues"));
+      setSectionOrder(readOrderedKeys(SIDEBAR_SECTION_ORDER_KEY));
       setPrefsLoaded(true);
     });
     desktopSidebar.addEventListener("change", syncSidebar);
@@ -307,6 +314,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     if (!mounted || !prefsLoaded) return;
     writeSlugList("rn:hidden-leagues", hiddenSlugs);
   }, [hiddenSlugs, mounted, prefsLoaded]);
+
+  useEffect(() => {
+    if (!mounted || !prefsLoaded) return;
+    writeOrderedKeys(SIDEBAR_SECTION_ORDER_KEY, sectionOrder);
+  }, [mounted, prefsLoaded, sectionOrder]);
 
   useEffect(() => {
     const id = window.setInterval(() => setClockTick(Date.now()), 30000);
@@ -479,6 +491,15 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     ]
   );
 
+  const orderedNavigationSections = useMemo(
+    () => applyNavigationSectionOrder(navigationSections, sectionOrder),
+    [navigationSections, sectionOrder]
+  );
+  const navigationSectionKeys = useMemo(
+    () => orderedNavigationSections.map((section) => section.key),
+    [orderedNavigationSections]
+  );
+
   const favoriteCompetitions = useMemo(
     () =>
       dedupedCompetitions
@@ -517,6 +538,10 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       return next;
     });
   const toggleHiddenLeague = (slug: string) => setHiddenSlugs((prev) => toggleSlug(prev, slug));
+  const moveSection = (sectionKey: string, direction: -1 | 1) =>
+    setSectionOrder((prev) =>
+      moveNavigationSectionKey(prev, sectionKey, direction, navigationSections.map((section) => section.key))
+    );
 
   return (
     <div className="rn-app-bg relative min-h-screen overflow-hidden">
@@ -587,9 +612,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                 <div className="text-xs text-red-200">{compError}</div>
               ) : (
                 <div className="space-y-3">
-                  {navigationSections.map((section) => {
+                  {orderedNavigationSections.map((section, index) => {
                     const open = openGroups[section.key] ?? defaultSidebarGroupOpen;
                     const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
+                    const canMoveUp = index > 0;
+                    const canMoveDown = index < navigationSectionKeys.length - 1;
 
                     if (section.key === "featured") {
                       const highlightedCompetitions = favoriteCompetitions.length ? favoriteCompetitions : section.competitions;
@@ -600,9 +627,31 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
                       return (
                         <div key={section.key} className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3">
-                          <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-50/85">
-                            <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
-                            <span>{section.label}</span>
+                          <div className="mb-2 flex items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-50/85">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
+                              <span>{section.label}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => moveSection(section.key, -1)}
+                                disabled={!canMoveUp}
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
+                                aria-label={`Mover ${section.label} hacia arriba`}
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveSection(section.key, 1)}
+                                disabled={!canMoveDown}
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
+                                aria-label={`Mover ${section.label} hacia abajo`}
+                              >
+                                ↓
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-2">
                             {highlightedCompetitions.map((competition) => (
@@ -645,23 +694,45 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
                     return (
                       <div key={section.key} className="overflow-hidden rounded-xl border border-white/15 bg-white/10">
-                        <button
-                          onClick={() => setOpenGroups((prev) => ({ ...prev, [section.key]: !open }))}
-                          className="flex w-full items-center justify-between px-3 py-2 text-left"
-                          aria-label={`Toggle group ${section.label}`}
-                        >
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 truncate text-sm font-extrabold text-white">
-                              <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={18} />
-                              <span>{section.label}</span>
+                        <div className="flex items-center gap-2 px-3 py-2">
+                          <button
+                            onClick={() => setOpenGroups((prev) => ({ ...prev, [section.key]: !open }))}
+                            className="flex min-w-0 flex-1 items-center justify-between text-left"
+                            aria-label={`Toggle group ${section.label}`}
+                          >
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 truncate text-sm font-extrabold text-white">
+                                <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={18} />
+                                <span>{section.label}</span>
+                              </div>
+                              <div className="text-[11px] text-white/70">
+                                {section.competitions.length} {tr("leagues").toLowerCase()}
+                                {pinnedCount ? ` | ${pinnedCount} ${tr("featured")}` : ""}
+                              </div>
                             </div>
-                            <div className="text-[11px] text-white/70">
-                              {section.competitions.length} {tr("leagues").toLowerCase()}
-                              {pinnedCount ? ` | ${pinnedCount} ${tr("featured")}` : ""}
-                            </div>
+                            <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
+                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveSection(section.key, -1)}
+                              disabled={!canMoveUp}
+                              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
+                              aria-label={`Mover ${section.label} hacia arriba`}
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveSection(section.key, 1)}
+                              disabled={!canMoveDown}
+                              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
+                              aria-label={`Mover ${section.label} hacia abajo`}
+                            >
+                              ↓
+                            </button>
                           </div>
-                          <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
-                        </button>
+                        </div>
 
                         {open ? (
                           <div className="space-y-2 px-2 pb-2">

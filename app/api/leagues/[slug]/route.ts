@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
@@ -59,6 +60,18 @@ type MatchRow = {
   venue?: string | null;
   home_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
   away_team: { id: number; name: string; slug: string | null } | { id: number; name: string; slug: string | null }[] | null;
+};
+
+type CompetitionRow = {
+  id: number;
+  name: string;
+  slug: string;
+  region: string | null;
+  country_code?: string | null;
+  category?: string | null;
+  group_name?: string | null;
+  sort_order?: number | null;
+  is_featured?: boolean | null;
 };
 
 function dedupeMatches(rows: MatchRow[]) {
@@ -288,6 +301,11 @@ export async function GET(
       .maybeSingle();
 
     if (competitionError || !competition) throw new Error(`No competition found for slug: ${slug}`);
+    const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
+    const mergedCompetition = mergeCompetitionCatalog<CompetitionRow>(
+      [competition as CompetitionRow],
+      fallback ? [fallback.competition as CompetitionRow] : []
+    )[0] ?? (competition as CompetitionRow);
 
     const { data: seasons, error: seasonsError } = await serverSupabase
       .from("seasons")
@@ -321,6 +339,10 @@ export async function GET(
       .order("name", { ascending: true });
 
     if (competitionsError) throw competitionsError;
+    const mergedCompetitions = mergeCompetitionCatalog<CompetitionRow>(
+      (competitions || []) as CompetitionRow[],
+      fallback ? (fallback.competitions as CompetitionRow[]) : []
+    );
 
     const { data: seasonMatches, error: seasonMatchesError } = await serverSupabase
       .from("matches")
@@ -349,10 +371,27 @@ export async function GET(
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
     const selectedRound = roundOverride ?? autoSelectedRound;
 
-    const matches =
+    const roundMatches =
       selectedRound == null
         ? []
         : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound));
+
+    const fallbackSelectedRound = fallback?.selectedRound ?? null;
+    const fallbackMatches =
+      fallbackSelectedRound == null
+        ? []
+        : dedupeMatches((fallback?.matches || []) as MatchRow[]);
+    const shouldPreferFallbackFixtures = Boolean(
+      fallback &&
+        (
+          fallbackMatches.length > roundMatches.length ||
+          (roundMatches.length === 0 && fallbackMatches.length > 0) ||
+          ((fallback.roundMeta?.length || 0) > roundMeta.length && fallbackMatches.length > 0)
+        )
+    );
+    const effectiveRoundMeta = shouldPreferFallbackFixtures ? fallback?.roundMeta || roundMeta : roundMeta;
+    const effectiveSelectedRound = shouldPreferFallbackFixtures ? fallbackSelectedRound : selectedRound;
+    const matches = shouldPreferFallbackFixtures ? fallbackMatches : roundMatches;
 
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
@@ -424,11 +463,11 @@ export async function GET(
         : computedStandings;
 
     return NextResponse.json({
-      competition,
+      competition: mergedCompetition,
       season,
-      competitions: competitions || [],
-      roundMeta,
-      selectedRound,
+      competitions: mergedCompetitions,
+      roundMeta: effectiveRoundMeta,
+      selectedRound: effectiveSelectedRound,
       matches: matches || [],
       standings,
       standingsSource: useStandingsCache ? "cache" : "computed",

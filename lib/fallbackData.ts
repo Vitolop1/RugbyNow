@@ -830,7 +830,7 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
     .map((row, index) => ({ ...row, position: index + 1, badge: null }));
 }
 
-export function getFallbackLeagueData(compSlug: string, refISO: string) {
+export function getFallbackLeagueData(compSlug: string, refISO: string, roundOverride?: number | null) {
   const competition = COMPETITIONS.find((item) => item.slug === compSlug) ?? null;
   if (!competition) return null;
 
@@ -842,7 +842,7 @@ export function getFallbackLeagueData(compSlug: string, refISO: string) {
 
   const allMatches = getFallbackLeagueMatches(compSlug, refISO);
   const roundMeta = getFallbackRoundMeta(allMatches);
-  const selectedRound = pickAutoRound(roundMeta, refISO);
+  const selectedRound = roundOverride ?? pickAutoRound(roundMeta, refISO);
   const matches = selectedRound == null ? [] : allMatches.filter((row) => row.round === selectedRound);
   const standings = getFallbackStandings(compSlug, allMatches);
 

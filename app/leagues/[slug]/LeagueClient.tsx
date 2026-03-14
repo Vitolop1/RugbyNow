@@ -608,7 +608,7 @@ export default function LeagueClient() {
 
         <main
           className={`w-full overflow-x-clip px-4 py-6 sm:px-6 xl:pr-[348px] ${
-            sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[156px]"
+            sidebarOpen ? "xl:pl-[452px]" : "xl:pl-[156px]"
           }`}
         >
           <button
@@ -627,7 +627,7 @@ export default function LeagueClient() {
           </button>
 
           <aside
-            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[calc(100vw-2rem)] max-w-[380px] space-y-4 overflow-x-hidden overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            className={`fixed left-4 top-[212px] z-30 h-[calc(100vh-244px)] w-[calc(100vw-2rem)] max-w-[420px] space-y-4 overflow-x-hidden overflow-y-auto rounded-2xl border border-white/15 bg-[#0a4b31]/90 p-4 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               sidebarOpen ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-[120%] opacity-0"
             } transition-all duration-300`}
           >
@@ -1360,7 +1360,7 @@ export default function LeagueClient() {
           </div>
         ) : null}
 
-        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[412px]" : "xl:pl-[156px]"}`}>
+        <footer className={`w-full px-4 py-8 text-xs text-white/70 sm:px-6 xl:pr-[348px] ${sidebarOpen ? "xl:pl-[452px]" : "xl:pl-[156px]"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <BrandWordmark

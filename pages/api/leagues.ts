@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { serverSupabase } from "@/lib/serverSupabase";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackCompetitions, getFallbackSeasons } from "@/lib/fallbackData";
 import { getSnapshotCompetitions, getSnapshotSeasons } from "@/lib/supabaseSnapshot";
 import { getSeasonSortKey, mergeCompetitionCatalog } from "@/lib/competitionPrefs";
@@ -35,8 +35,14 @@ function mergeSeasons(base: SeasonRow[], extra: SeasonRow[]) {
   );
 }
 
-export async function GET() {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
+    const serverSupabase = getServerSupabase();
     const [{ data: competitions, error: competitionsError }, { data: seasons, error: seasonsError }] =
       await Promise.all([
         serverSupabase
@@ -49,12 +55,10 @@ export async function GET() {
       ]);
 
     if (competitionsError || seasonsError) {
-      throw new Error(
-        competitionsError?.message || seasonsError?.message || "Failed to load leagues"
-      );
+      throw new Error(competitionsError?.message || seasonsError?.message || "Failed to load leagues");
     }
 
-    return NextResponse.json({
+    return res.status(200).json({
       competitions: mergeCompetitionCatalog((competitions || []) as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
       seasons: seasons || [],
       source: "supabase",
@@ -64,25 +68,19 @@ export async function GET() {
     const competitions = getSnapshotCompetitions();
     const seasons = getSnapshotSeasons();
     if (competitions && seasons) {
-      return NextResponse.json(
-        {
-          competitions: mergeCompetitionCatalog(competitions as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
-          seasons: mergeSeasons(seasons, getFallbackSeasons()),
-          source: "snapshot",
-          warning: message,
-        },
-        { status: 200 }
-      );
+      return res.status(200).json({
+        competitions: mergeCompetitionCatalog(competitions as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
+        seasons: mergeSeasons(seasons, getFallbackSeasons()),
+        source: "snapshot",
+        warning: message,
+      });
     }
 
-    return NextResponse.json(
-      {
-        competitions: mergeCompetitionCatalog(getFallbackCompetitions() as CompetitionRow[], []),
-        seasons: mergeSeasons(getFallbackSeasons(), []),
-        source: "fallback",
-        warning: message,
-      },
-      { status: 200 }
-    );
+    return res.status(200).json({
+      competitions: mergeCompetitionCatalog(getFallbackCompetitions() as CompetitionRow[], []),
+      seasons: mergeSeasons(getFallbackSeasons(), []),
+      source: "fallback",
+      warning: message,
+    });
   }
 }

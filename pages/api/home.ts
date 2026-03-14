@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { serverSupabase } from "@/lib/serverSupabase";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
 import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
@@ -33,6 +33,11 @@ type RawMatchRow = Omit<MatchRow, "home_team" | "away_team" | "season"> & {
     | (MatchRow["season"] extends infer T ? T[] : never)
     | null;
 };
+
+function firstString(value: string | string[] | undefined, fallback?: string) {
+  if (Array.isArray(value)) return value[0] ?? fallback ?? "";
+  return value ?? fallback ?? "";
+}
 
 function unwrapFirst<T>(value: T | T[] | null | undefined) {
   if (Array.isArray(value)) return value[0] ?? null;
@@ -206,17 +211,24 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
   );
 }
 
-export async function GET(request: NextRequest) {
-  const date = request.nextUrl.searchParams.get("date");
-  const timeZone = request.nextUrl.searchParams.get("tz") || "America/New_York";
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const date = firstString(req.query.date);
+  const timeZone = firstString(req.query.tz, "America/New_York");
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return NextResponse.json({ error: "Invalid or missing date" }, { status: 400 });
+    return res.status(400).json({ error: "Invalid or missing date" });
   }
 
   const candidateDates = [addDaysISO(date, -1), date, addDaysISO(date, 1)];
+  res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120");
 
   try {
+    const serverSupabase = getServerSupabase();
     const { data, error } = await serverSupabase
       .from("matches")
       .select(`
@@ -239,64 +251,43 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json(
-      {
+    return res.status(200).json({
+      matches: normalizeMatchesForDate(
+        mergeMatches(
+          (data || []) as unknown as RawMatchRow[],
+          candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
+        ),
+        date,
+        timeZone
+      ),
+      source: "supabase",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
+    if (snapshotMatches) {
+      return res.status(200).json({
         matches: normalizeMatchesForDate(
           mergeMatches(
-            (data || []) as unknown as RawMatchRow[],
+            snapshotMatches as unknown as RawMatchRow[],
             candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
           ),
           date,
           timeZone
         ),
-        source: "supabase",
-      },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
-        },
-      }
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
-    if (snapshotMatches) {
-      return NextResponse.json(
-        {
-          matches: normalizeMatchesForDate(
-            mergeMatches(
-              snapshotMatches as unknown as RawMatchRow[],
-              candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
-            ),
-            date,
-            timeZone
-          ),
-          source: "snapshot",
-          warning: message,
-        },
-        {
-          headers: {
-            "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
-          },
-        }
-      );
+        source: "snapshot",
+        warning: message,
+      });
     }
 
-    return NextResponse.json(
-      {
-        matches: normalizeMatchesForDate(
-          mergeMatches(candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[], []),
-          date,
-          timeZone
-        ),
-        source: "fallback",
-        warning: message,
-      },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
-        },
-      }
-    );
+    return res.status(200).json({
+      matches: normalizeMatchesForDate(
+        mergeMatches(candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[], []),
+        date,
+        timeZone
+      ),
+      source: "fallback",
+      warning: message,
+    });
   }
 }

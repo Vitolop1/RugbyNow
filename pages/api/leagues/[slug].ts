@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
-import { serverSupabase } from "@/lib/serverSupabase";
+import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
 import { getSnapshotLeagueData } from "@/lib/supabaseSnapshot";
 
@@ -74,6 +74,11 @@ type CompetitionRow = {
   is_featured?: boolean | null;
 };
 
+function firstString(value: string | string[] | undefined, fallback?: string) {
+  if (Array.isArray(value)) return value[0] ?? fallback ?? "";
+  return value ?? fallback ?? "";
+}
+
 function unwrapTeam(
   value:
     | { id: number; name: string; slug: string | null }
@@ -86,13 +91,11 @@ function unwrapTeam(
 
 function mergeLeagueMatches(primary: MatchRow[], secondary: MatchRow[]) {
   const byLogicalKey = new Map<string, MatchRow>();
-
   const keyFor = (row: MatchRow) => {
     const home = unwrapTeam(row.home_team);
     const away = unwrapTeam(row.away_team);
     return `${row.match_date}|${home?.id ?? "x"}|${away?.id ?? "x"}`;
   };
-
   const qualityFor = (row: MatchRow) => {
     let score = 0;
     if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
@@ -102,44 +105,26 @@ function mergeLeagueMatches(primary: MatchRow[], secondary: MatchRow[]) {
     else if (row.status === "NS") score += 5;
     return score;
   };
-
-  for (const row of primary) {
-    byLogicalKey.set(keyFor(row), row);
-  }
-
+  for (const row of primary) byLogicalKey.set(keyFor(row), row);
   for (const row of secondary) {
     const key = keyFor(row);
     const current = byLogicalKey.get(key);
-    if (!current) {
-      byLogicalKey.set(key, row);
-      continue;
-    }
-
-    if (qualityFor(row) > qualityFor(current)) {
-      byLogicalKey.set(key, row);
-    }
+    if (!current || qualityFor(row) > qualityFor(current)) byLogicalKey.set(key, row);
   }
-
   return Array.from(byLogicalKey.values()).sort(
-    (a, b) =>
-      a.match_date.localeCompare(b.match_date) ||
-      String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
+    (a, b) => a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
   );
 }
 
 function shouldPreferFallbackRound(primaryMatches: MatchRow[], fallbackMatches: MatchRow[]) {
   if (!fallbackMatches.length) return false;
   if (!primaryMatches.length) return true;
-
   const primaryFt = primaryMatches.filter((item) => item.status === "FT").length;
   const fallbackFt = fallbackMatches.filter((item) => item.status === "FT").length;
-
   if (fallbackMatches.length > primaryMatches.length) return true;
   if (fallbackFt > primaryFt) return true;
-
   const primaryHasScores = primaryMatches.some((item) => item.home_score != null && item.away_score != null);
   const fallbackHasScores = fallbackMatches.some((item) => item.home_score != null && item.away_score != null);
-
   return fallbackHasScores && !primaryHasScores;
 }
 
@@ -161,16 +146,7 @@ function dedupeMatches(rows: MatchRow[]) {
 }
 
 function hasUsableStandingCache(rows: StandingCacheRow[]) {
-  return rows.some(
-    (row) =>
-      row.played != null ||
-      row.won != null ||
-      row.drawn != null ||
-      row.lost != null ||
-      row.points_for != null ||
-      row.points_against != null ||
-      row.points != null
-  );
+  return rows.some((row) => row.played != null || row.won != null || row.drawn != null || row.lost != null || row.points_for != null || row.points_against != null || row.points != null);
 }
 
 function seasonSortKey(name: string) {
@@ -179,10 +155,7 @@ function seasonSortKey(name: string) {
   if (mRange) {
     const a = Number.parseInt(mRange[1], 10);
     const bRaw = mRange[2];
-    const b =
-      bRaw.length === 2
-        ? Number.parseInt(`${mRange[1].slice(0, 2)}${bRaw}`, 10)
-        : Number.parseInt(bRaw, 10);
+    const b = bRaw.length === 2 ? Number.parseInt(`${mRange[1].slice(0, 2)}${bRaw}`, 10) : Number.parseInt(bRaw, 10);
     return Math.max(a, b);
   }
   const mYear = s.match(/\b(19\d{2}|20\d{2})\b/);
@@ -200,64 +173,32 @@ function rangeDistanceDays(refISO: string, firstISO: string, lastISO: string) {
 }
 
 function pickSeasonForReference(seasons: SeasonRow[], matches: MatchMetaRow[], refISO: string) {
-  const summaries = seasons
-    .map((season) => {
-      const seasonMatches = matches.filter((row) => row.season_id === season.id);
-      if (!seasonMatches.length) return { season, count: 0, distance: Number.POSITIVE_INFINITY, first: "", last: "" };
-      const dates = seasonMatches.map((row) => row.match_date).sort();
-      const first = dates[0];
-      const last = dates[dates.length - 1];
-      return {
-        season,
-        count: seasonMatches.length,
-        distance: rangeDistanceDays(refISO, first, last),
-        first,
-        last,
-      };
-    })
-    .sort((a, b) => {
-      if (!!a.count !== !!b.count) return a.count ? -1 : 1;
-      if (a.distance !== b.distance) return a.distance - b.distance;
-      if (a.last !== b.last) return b.last.localeCompare(a.last);
-      return seasonSortKey(b.season.name) - seasonSortKey(a.season.name);
-    });
-
+  const summaries = seasons.map((season) => {
+    const seasonMatches = matches.filter((row) => row.season_id === season.id);
+    if (!seasonMatches.length) return { season, count: 0, distance: Number.POSITIVE_INFINITY, first: "", last: "" };
+    const dates = seasonMatches.map((row) => row.match_date).sort();
+    return { season, count: seasonMatches.length, distance: rangeDistanceDays(refISO, dates[0], dates[dates.length - 1]), first: dates[0], last: dates[dates.length - 1] };
+  }).sort((a, b) => {
+    if (!!a.count !== !!b.count) return a.count ? -1 : 1;
+    if (a.distance !== b.distance) return a.distance - b.distance;
+    if (a.last !== b.last) return b.last.localeCompare(a.last);
+    return seasonSortKey(b.season.name) - seasonSortKey(a.season.name);
+  });
   return summaries[0]?.season ?? seasons.slice().sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0] ?? null;
 }
 
 function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_time: string | null; status: string }>(rows: T[]) {
-  const sorted = rows
-    .slice()
-    .sort(
-      (a, b) =>
-        a.match_date.localeCompare(b.match_date) ||
-        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
-    );
-
+  const sorted = rows.slice().sort((a, b) => a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")));
   const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number }>();
   const assignment = new Map<number, number>();
-
   let currentRound = 0;
   let lastDate: string | null = null;
-
   for (const row of sorted) {
-    const gapDays =
-      lastDate == null
-        ? Number.POSITIVE_INFINITY
-        : Math.round(
-            (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
-          );
-
+    const gapDays = lastDate == null ? Number.POSITIVE_INFINITY : Math.round((new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000);
     if (lastDate == null || gapDays > 4) {
       currentRound += 1;
-      roundMap.set(currentRound, {
-        first_date: row.match_date,
-        last_date: row.match_date,
-        matches: 0,
-        ft: 0,
-      });
+      roundMap.set(currentRound, { first_date: row.match_date, last_date: row.match_date, matches: 0, ft: 0 });
     }
-
     lastDate = row.match_date;
     assignment.set(row.id, currentRound);
     const meta = roundMap.get(currentRound)!;
@@ -265,46 +206,22 @@ function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_tim
     meta.matches += 1;
     if (row.status === "FT") meta.ft += 1;
   }
-
-  return {
-    assignment,
-    roundMeta: attachKnockoutPhaseMeta(Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta }))),
-  };
+  return { assignment, roundMeta: attachKnockoutPhaseMeta(Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta }))) };
 }
 
-function attachKnockoutPhaseMeta(
-  roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>
-) {
-  const labels: Record<number, string> = {
-    1: "final",
-    2: "semifinal",
-    4: "quarterfinal",
-    8: "round16",
-    16: "round32",
-  };
-
+function attachKnockoutPhaseMeta(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>) {
+  const labels: Record<number, string> = { 1: "final", 2: "semifinal", 4: "quarterfinal", 8: "round16", 16: "round32" };
   const counts = new Set(roundMeta.map((item) => item.matches));
   const hasFinal = counts.has(1);
-
   return roundMeta.map((item) => {
     const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
-    const allPowerOfTwo =
-      item.matches > 0 &&
-      (item.matches & (item.matches - 1)) === 0 &&
-      smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
-
-    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) {
-      return { ...item, phaseKey: null };
-    }
-
+    const allPowerOfTwo = item.matches > 0 && (item.matches & (item.matches - 1)) === 0 && smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
+    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) return { ...item, phaseKey: null };
     return { ...item, phaseKey: labels[item.matches] };
   });
 }
 
-function pickAutoRound(
-  roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>,
-  refISO: string
-) {
+function pickAutoRound(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>, refISO: string) {
   if (!roundMeta.length) return null;
   const current = roundMeta.find((item) => item.first_date <= refISO && refISO <= item.last_date);
   if (current) return current.round;
@@ -315,113 +232,58 @@ function pickAutoRound(
 
 function buildRecentForm(rows: MatchRow[]) {
   const formMap = new Map<number, Array<"W" | "D" | "L">>();
-  const sorted = rows
-    .filter((item) => item.status === "FT" && item.home_score != null && item.away_score != null)
-    .slice()
-    .sort(
-      (a, b) =>
-        b.match_date.localeCompare(a.match_date) ||
-        String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
-    );
-
+  const sorted = rows.filter((item) => item.status === "FT" && item.home_score != null && item.away_score != null).slice().sort(
+    (a, b) => b.match_date.localeCompare(a.match_date) || String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
+  );
   for (const row of sorted) {
     const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
     const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
     if (!home?.id || !away?.id || row.home_score == null || row.away_score == null) continue;
-
     const homeForm = formMap.get(home.id) || [];
     const awayForm = formMap.get(away.id) || [];
-
     if (homeForm.length < 5) {
       homeForm.push(row.home_score > row.away_score ? "W" : row.home_score < row.away_score ? "L" : "D");
       formMap.set(home.id, homeForm);
     }
-
     if (awayForm.length < 5) {
       awayForm.push(row.away_score > row.home_score ? "W" : row.away_score < row.home_score ? "L" : "D");
       formMap.set(away.id, awayForm);
     }
   }
-
   return formMap;
 }
 
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await context.params;
-  const refISO =
-    request.nextUrl.searchParams.get("date") && /^\d{4}-\d{2}-\d{2}$/.test(request.nextUrl.searchParams.get("date") || "")
-      ? (request.nextUrl.searchParams.get("date") as string)
-      : new Date().toISOString().slice(0, 10);
-  const roundOverrideRaw = request.nextUrl.searchParams.get("round");
-  const roundOverride =
-    roundOverrideRaw && /^\d+$/.test(roundOverrideRaw) ? Number.parseInt(roundOverrideRaw, 10) : null;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+  const slug = firstString(req.query.slug);
+  const refISO = firstString(req.query.date) && /^\d{4}-\d{2}-\d{2}$/.test(firstString(req.query.date)) ? firstString(req.query.date) : new Date().toISOString().slice(0, 10);
+  const roundOverrideRaw = firstString(req.query.round);
+  const roundOverride = roundOverrideRaw && /^\d+$/.test(roundOverrideRaw) ? Number.parseInt(roundOverrideRaw, 10) : null;
 
   try {
-    const { data: competition, error: competitionError } = await serverSupabase
-      .from("competitions")
-      .select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured")
-      .eq("slug", slug)
-      .maybeSingle();
-
+    const serverSupabase = getServerSupabase();
+    const { data: competition, error: competitionError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").eq("slug", slug).maybeSingle();
     if (competitionError || !competition) throw new Error(`No competition found for slug: ${slug}`);
     const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
-    const mergedCompetition = mergeCompetitionCatalog<CompetitionRow>(
-      [competition as CompetitionRow],
-      fallback ? [fallback.competition as CompetitionRow] : []
-    )[0] ?? (competition as CompetitionRow);
-
-    const { data: seasons, error: seasonsError } = await serverSupabase
-      .from("seasons")
-      .select("id,name,competition_id")
-      .eq("competition_id", competition.id)
-      .order("name", { ascending: false });
-
+    const mergedCompetition = mergeCompetitionCatalog<CompetitionRow>([competition as CompetitionRow], fallback ? [fallback.competition as CompetitionRow] : [])[0] ?? (competition as CompetitionRow);
+    const { data: seasons, error: seasonsError } = await serverSupabase.from("seasons").select("id,name,competition_id").eq("competition_id", competition.id).order("name", { ascending: false });
     if (seasonsError || !seasons?.length) throw new Error(`No season found for: ${slug}`);
-
-    const { data: seasonMatchMeta, error: seasonMetaError } = await serverSupabase
-      .from("matches")
-      .select("id,season_id,match_date,kickoff_time,status")
-      .in(
-        "season_id",
-        seasons.map((row) => row.id)
-      )
-      .order("match_date", { ascending: true })
-      .order("kickoff_time", { ascending: true });
-
+    const { data: seasonMatchMeta, error: seasonMetaError } = await serverSupabase.from("matches").select("id,season_id,match_date,kickoff_time,status").in("season_id", seasons.map((row) => row.id)).order("match_date", { ascending: true }).order("kickoff_time", { ascending: true });
     if (seasonMetaError) throw seasonMetaError;
-
     const season = pickSeasonForReference((seasons || []) as SeasonRow[], (seasonMatchMeta || []) as MatchMetaRow[], refISO);
     if (!season) throw new Error(`No season found for: ${slug}`);
-
-    const { data: competitions, error: competitionsError } = await serverSupabase
-      .from("competitions")
-      .select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured")
-      .order("is_featured", { ascending: false })
-      .order("group_name", { ascending: true })
-      .order("sort_order", { ascending: true })
-      .order("name", { ascending: true });
-
+    const { data: competitions, error: competitionsError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").order("is_featured", { ascending: false }).order("group_name", { ascending: true }).order("sort_order", { ascending: true }).order("name", { ascending: true });
     if (competitionsError) throw competitionsError;
-    const mergedCompetitions = mergeCompetitionCatalog<CompetitionRow>(
-      (competitions || []) as CompetitionRow[],
-      fallback ? (fallback.competitions as CompetitionRow[]) : []
-    );
-
-    const { data: seasonMatches, error: seasonMatchesError } = await serverSupabase
-      .from("matches")
-      .select(`
+    const mergedCompetitions = mergeCompetitionCatalog<CompetitionRow>((competitions || []) as CompetitionRow[], fallback ? (fallback.competitions as CompetitionRow[]) : []);
+    const { data: seasonMatches, error: seasonMatchesError } = await serverSupabase.from("matches").select(`
         id, match_date, kickoff_time, status, minute, home_score, away_score, round, venue,
         home_team:home_team_id ( id, name, slug ),
         away_team:away_team_id ( id, name, slug )
-      `)
-      .eq("season_id", season.id)
-      .order("match_date", { ascending: true });
-
+      `).eq("season_id", season.id).order("match_date", { ascending: true });
     if (seasonMatchesError) throw seasonMatchesError;
-
     const detailedMatches = dedupeLogicalMatches((seasonMatches || []) as MatchRow[], (row) => ({
       id: row.id,
       matchDate: row.match_date,
@@ -436,26 +298,13 @@ export async function GET(
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
     const selectedRound = roundOverride ?? autoSelectedRound;
-
-    const roundMatches =
-      selectedRound == null
-        ? []
-        : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound));
-
+    const roundMatches = selectedRound == null ? [] : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound));
     const fallbackSelectedRound = fallback?.selectedRound ?? null;
-    const fallbackMatches =
-      fallbackSelectedRound == null
-        ? []
-        : dedupeMatches((fallback?.matches || []) as MatchRow[]);
-    const useFallbackStructure = Boolean(
-      fallback &&
-        ((roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0) ||
-          shouldPreferFallbackRound(roundMatches, fallbackMatches))
-    );
+    const fallbackMatches = fallbackSelectedRound == null ? [] : dedupeMatches((fallback?.matches || []) as MatchRow[]);
+    const useFallbackStructure = Boolean(fallback && ((roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0) || shouldPreferFallbackRound(roundMatches, fallbackMatches)));
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
     const matches = mergeLeagueMatches(roundMatches, fallbackMatches);
-
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
     for (const row of detailedMatches.filter((item) => item.status === "FT")) {
@@ -467,65 +316,41 @@ export async function GET(
       const h = table.get(home.id);
       const a = table.get(away.id);
       if (!h || !a) continue;
-      h.pj += 1; a.pj += 1;
-      h.pf += row.home_score; h.pa += row.away_score;
-      a.pf += row.away_score; a.pa += row.home_score;
-      if (row.home_score > row.away_score) { h.w += 1; h.pts += 4; a.l += 1; }
-      else if (row.away_score > row.home_score) { a.w += 1; a.pts += 4; h.l += 1; }
-      else { h.d += 1; a.d += 1; h.pts += 2; a.pts += 2; }
+      h.pj += 1; a.pj += 1; h.pf += row.home_score; h.pa += row.away_score; a.pf += row.away_score; a.pa += row.home_score;
+      if (row.home_score > row.away_score) { h.w += 1; h.pts += 4; a.l += 1; } else if (row.away_score > row.home_score) { a.w += 1; a.pts += 4; h.l += 1; } else { h.d += 1; a.d += 1; h.pts += 2; a.pts += 2; }
     }
-
-    const computedStandings = Array.from(table.values())
-      .sort((a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team))
-      .map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
-
-    const { data: standingsCache, error: standingsCacheError } = await serverSupabase
-      .from("standings_cache")
-      .select(`
+    const computedStandings = Array.from(table.values()).sort((a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team)).map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
+    const { data: standingsCache, error: standingsCacheError } = await serverSupabase.from("standings_cache").select(`
         position, played, won, drawn, lost, points_for, points_against, points,
         team:team_id ( id, name, slug )
-      `)
-      .eq("season_id", season.id)
-      .eq("source", "flashscore")
-      .order("position", { ascending: true });
-
+      `).eq("season_id", season.id).eq("source", "flashscore").order("position", { ascending: true });
     if (standingsCacheError) throw standingsCacheError;
-
-    const useStandingsCache =
-      hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]) &&
-      hasConsistentStandingsCache((standingsCache || []) as StandingCacheRow[], (row) => ({
-        played: row.played,
-        won: row.won,
-        drawn: row.drawn,
-        lost: row.lost,
-      }));
-
-    const standings =
-      useStandingsCache
-        ? ((standingsCache as StandingCacheRow[])
-            .map((row, index) => {
-              const team = Array.isArray(row.team) ? row.team[0] : row.team;
-              if (!team) return null;
-              return {
-                position: row.position ?? index + 1,
-                teamId: team.id,
-                team: team.name,
-                teamSlug: team.slug ?? null,
-                pj: row.played ?? 0,
-                w: row.won ?? 0,
-                d: row.drawn ?? 0,
-                l: row.lost ?? 0,
-                pf: row.points_for ?? 0,
-                pa: row.points_against ?? 0,
-                pts: row.points ?? 0,
-                badge: null,
-                form: recentForm.get(team.id) ?? [],
-              } satisfies StandingsAccumulator & { position: number; badge: null };
-            })
-            .filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>)
-        : computedStandings;
-
-    return NextResponse.json({
+    const useStandingsCache = hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]) && hasConsistentStandingsCache((standingsCache || []) as StandingCacheRow[], (row) => ({
+      played: row.played,
+      won: row.won,
+      drawn: row.drawn,
+      lost: row.lost,
+    }));
+    const standings = useStandingsCache ? ((standingsCache as StandingCacheRow[]).map((row, index) => {
+      const team = Array.isArray(row.team) ? row.team[0] : row.team;
+      if (!team) return null;
+      return {
+        position: row.position ?? index + 1,
+        teamId: team.id,
+        team: team.name,
+        teamSlug: team.slug ?? null,
+        pj: row.played ?? 0,
+        w: row.won ?? 0,
+        d: row.drawn ?? 0,
+        l: row.lost ?? 0,
+        pf: row.points_for ?? 0,
+        pa: row.points_against ?? 0,
+        pts: row.points ?? 0,
+        badge: null,
+        form: recentForm.get(team.id) ?? [],
+      } satisfies StandingsAccumulator & { position: number; badge: null };
+    }).filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>) : computedStandings;
+    return res.status(200).json({
       competition: mergedCompetition,
       season,
       competitions: mergedCompetitions,
@@ -540,27 +365,18 @@ export async function GET(
     const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
     if (snapshot) {
       const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
-      const preferFallback = shouldPreferFallbackRound(
-        dedupeMatches((snapshot.matches || []) as MatchRow[]),
-        dedupeMatches((fallback?.matches || []) as MatchRow[])
-      );
-
-      return NextResponse.json({
+      const preferFallback = shouldPreferFallbackRound(dedupeMatches((snapshot.matches || []) as MatchRow[]), dedupeMatches((fallback?.matches || []) as MatchRow[]));
+      return res.status(200).json({
         ...(preferFallback && fallback ? fallback : snapshot),
         source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: error instanceof Error ? error.message : String(error),
       });
     }
-
     const fallback = getFallbackLeagueData(slug, refISO);
     if (!fallback) {
-      return NextResponse.json(
-        { error: error instanceof Error ? error.message : `No competition found for slug: ${slug}` },
-        { status: 404 }
-      );
+      return res.status(404).json({ error: error instanceof Error ? error.message : `No competition found for slug: ${slug}` });
     }
-
-    return NextResponse.json({
+    return res.status(200).json({
       ...fallback,
       source: "fallback",
       warning: error instanceof Error ? error.message : String(error),

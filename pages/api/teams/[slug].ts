@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
 import { getTeamProfile } from "@/lib/teamProfiles";
 
@@ -47,6 +47,11 @@ type SnapshotPayload = {
   matches: SnapshotMatch[];
 };
 
+function firstString(value: string | string[] | undefined, fallback?: string) {
+  if (Array.isArray(value)) return value[0] ?? fallback ?? "";
+  return value ?? fallback ?? "";
+}
+
 function snapshotPath() {
   return path.join(process.cwd(), "data", "supabase-snapshot.json");
 }
@@ -56,32 +61,38 @@ function loadSnapshot() {
   return JSON.parse(raw) as SnapshotPayload;
 }
 
-export async function GET(_: Request, context: { params: Promise<{ slug: string }> }) {
-  const { slug } = await context.params;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const slug = firstString(req.query.slug);
 
   try {
     const snapshot = loadSnapshot();
     const team = snapshot.teams.find((row) => row.slug === slug);
 
     if (!team) {
-      return NextResponse.json({ error: `Team not found: ${slug}` }, { status: 404 });
+      return res.status(404).json({ error: `Team not found: ${slug}` });
     }
 
     const seasonsById = new Map(snapshot.seasons.map((season) => [season.id, season]));
     const competitionsById = new Map(snapshot.competitions.map((competition) => [competition.id, competition]));
 
     const allMatches = dedupeLogicalMatches(
-      snapshot.matches.filter((match) => match.home_team_id === team.id || match.away_team_id === team.id)
-    , (match) => ({
-      id: match.id,
-      matchDate: match.match_date,
-      kickoffTime: match.kickoff_time,
-      status: match.status,
-      homeScore: match.home_score,
-      awayScore: match.away_score,
-      homeTeamId: match.home_team_id,
-      awayTeamId: match.away_team_id,
-    })).sort(
+      snapshot.matches.filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),
+      (match) => ({
+        id: match.id,
+        matchDate: match.match_date,
+        kickoffTime: match.kickoff_time,
+        status: match.status,
+        homeScore: match.home_score,
+        awayScore: match.away_score,
+        homeTeamId: match.home_team_id,
+        awayTeamId: match.away_team_id,
+      })
+    ).sort(
       (a, b) =>
         b.match_date.localeCompare(a.match_date) ||
         String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
@@ -164,7 +175,7 @@ export async function GET(_: Request, context: { params: Promise<{ slug: string 
 
     const profile = getTeamProfile(slug, team.name);
 
-    return NextResponse.json({
+    return res.status(200).json({
       team,
       profile,
       stats: {
@@ -187,6 +198,6 @@ export async function GET(_: Request, context: { params: Promise<{ slug: string 
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown team error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return res.status(500).json({ error: message });
   }
 }

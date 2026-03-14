@@ -283,10 +283,10 @@ export default function LeagueClient() {
   const usaGroupLabel = tr("groupsUSA");
   const sevenGroupLabel = tr("groupsSeven");
 
-  const slug = params.slug;
-  const explicitDate = searchParams.get("date");
+  const slug = params?.slug ?? "";
+  const explicitDate = searchParams?.get("date") ?? null;
   const refISO = explicitDate || getISODateInTimeZone(new Date(), mounted ? timeZone : "America/New_York");
-  const roundFromUrl = searchParams.get("round");
+  const roundFromUrl = searchParams?.get("round") ?? null;
 
   const [sidebarOpen, setSidebarOpen] = useState(getInitialLeagueSidebarOpen);
   const [sidebarGroups, setSidebarGroups] = useState<Record<string, boolean>>({});
@@ -531,7 +531,7 @@ export default function LeagueClient() {
       (activeTab === "champions" && topTeams.length > 0));
 
   const setRound = (nextRound: number) => {
-    const qs = new URLSearchParams(searchParams.toString());
+    const qs = new URLSearchParams(searchParams?.toString() ?? "");
     qs.set("round", String(nextRound));
     router.replace(`/leagues/${slug}?${qs.toString()}`, { scroll: false });
   };

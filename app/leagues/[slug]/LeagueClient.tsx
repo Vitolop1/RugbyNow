@@ -25,7 +25,7 @@ import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
-import { isActiveMatchStatus, isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
+import { isActiveMatchStatus, isResultPendingMatch, isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
@@ -176,8 +176,24 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
   );
 }
 
-function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
+function StatusBadge({
+  status,
+  lang,
+  resultPending = false,
+}: {
+  status: MatchStatus;
+  lang: "en" | "es" | "fr" | "it";
+  resultPending?: boolean;
+}) {
   const tr = (key: string) => t(lang, key);
+
+  if (resultPending) {
+    return (
+      <span className="rounded-full border border-amber-300/30 bg-amber-300/15 px-2 py-1 text-xs font-semibold text-amber-50">
+        {tr("statusPending")}
+      </span>
+    );
+  }
 
   if (isActiveMatchStatus(status)) {
     return (
@@ -1187,6 +1203,14 @@ export default function LeagueClient() {
                             </div>
                           ) : null}
                           {visibleMatches.map((match) => {
+                            const resultPending = isResultPendingMatch(
+                              match.status,
+                              match.match_date,
+                              match.kickoff_time,
+                              match.home_score,
+                              match.away_score,
+                              data.competition.slug
+                            );
                             const clockLabel = getMatchClockLabel({
                               competitionSlug: data.competition.slug,
                               status: match.status,
@@ -1194,6 +1218,8 @@ export default function LeagueClient() {
                               updatedAt: match.updated_at,
                               matchDate: match.match_date,
                               kickoffTime: match.kickoff_time,
+                              homeScore: match.home_score,
+                              awayScore: match.away_score,
                               timeZone,
                               lang,
                             });
@@ -1204,6 +1230,8 @@ export default function LeagueClient() {
                               updatedAt: match.updated_at,
                               matchDate: match.match_date,
                               kickoffTime: match.kickoff_time,
+                              homeScore: match.home_score,
+                              awayScore: match.away_score,
                               timeZone,
                               lang,
                             });
@@ -1220,7 +1248,7 @@ export default function LeagueClient() {
                                 <div className="w-32 shrink-0">
                                   <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
                                   <div className="mt-1 flex items-center gap-2">
-                                    <StatusBadge status={match.status} lang={lang} />
+                                    <StatusBadge status={match.status} lang={lang} resultPending={resultPending} />
                                     <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
                                   </div>
                                 </div>

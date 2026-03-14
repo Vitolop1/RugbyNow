@@ -173,3 +173,25 @@ export function shouldAutoFinalizeMatch(
 
   return elapsedMinutes >= totalWindow;
 }
+
+export function isResultPendingMatch(
+  status: MatchStatus,
+  matchDate: string,
+  kickoffTime?: string | null,
+  homeScore?: number | null,
+  awayScore?: number | null,
+  competitionSlug?: string | null,
+  now = new Date()
+) {
+  if (status === "FT" || status === "CANC") return false;
+  if (homeScore != null || awayScore != null) return false;
+
+  const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
+  if (!kickoff) return false;
+
+  const rules = getMatchTimingRules(competitionSlug);
+  const elapsedMinutes = Math.floor((now.getTime() - kickoff.getTime()) / 60000);
+  const totalWindow = getTotalLiveWindowMinutes(rules);
+
+  return elapsedMinutes > totalWindow;
+}

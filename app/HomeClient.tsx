@@ -26,7 +26,7 @@ import {
   writeSlugList,
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
-import { isActiveMatchStatus, isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
+import { isActiveMatchStatus, isResultPendingMatch, isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
@@ -118,8 +118,24 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
   );
 }
 
-function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
+function StatusBadge({
+  status,
+  lang,
+  resultPending = false,
+}: {
+  status: MatchStatus;
+  lang: "en" | "es" | "fr" | "it";
+  resultPending?: boolean;
+}) {
   const tr = (key: string) => t(lang, key);
+  if (resultPending) {
+    return (
+      <span className="rounded-full border border-amber-300/30 bg-amber-300/15 px-2 py-1 text-xs font-semibold text-amber-50">
+        {tr("statusPending")}
+      </span>
+    );
+  }
+
   if (isActiveMatchStatus(status)) {
     return (
       <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
@@ -1097,6 +1113,14 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                           </div>
                         ) : null}
                         {block.matches.map((match, index) => {
+                          const resultPending = isResultPendingMatch(
+                            match.status,
+                            match.matchDate,
+                            match.kickoffTime,
+                            match.hs,
+                            match.as,
+                            block.slug
+                          );
                           const clockLabel = getMatchClockLabel({
                             competitionSlug: block.slug,
                             status: match.status,
@@ -1104,6 +1128,8 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             updatedAt: match.updatedAt,
                             matchDate: match.matchDate,
                             kickoffTime: match.kickoffTime,
+                            homeScore: match.hs,
+                            awayScore: match.as,
                             timeZone,
                             lang,
                           });
@@ -1114,6 +1140,8 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             updatedAt: match.updatedAt,
                             matchDate: match.matchDate,
                             kickoffTime: match.kickoffTime,
+                            homeScore: match.hs,
+                            awayScore: match.as,
                             timeZone,
                             lang,
                           });
@@ -1130,7 +1158,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             <div className="w-32 shrink-0">
                               <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
                               <div className="mt-1 flex items-center gap-2">
-                                <StatusBadge status={match.status} lang={lang} />
+                                <StatusBadge status={match.status} lang={lang} resultPending={resultPending} />
                                 <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
                               </div>
                             </div>
@@ -1147,7 +1175,9 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             </div>
 
                             <div className="hidden w-36 shrink-0 text-right text-xs text-white/70 md:block">
-                              {isActiveMatchStatus(match.status)
+                              {resultPending
+                                ? tr("resultPending")
+                                : isActiveMatchStatus(match.status)
                                 ? tr("liveAction")
                                 : match.status === "FT"
                                   ? tr("final")

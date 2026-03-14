@@ -3,7 +3,7 @@
 import { getDateLocale } from "@/lib/dateLocale";
 import { isSevenCompetition } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
-import { getEffectiveMatchState, type MatchStatus } from "@/lib/matchStatus";
+import { getEffectiveMatchState, isResultPendingMatch, type MatchStatus } from "@/lib/matchStatus";
 import type { Lang } from "@/lib/usePrefs";
 
 type MatchClockInput = {
@@ -13,6 +13,8 @@ type MatchClockInput = {
   updatedAt?: string | null;
   matchDate: string;
   kickoffTime?: string | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
   timeZone: string;
   lang: Lang;
 };
@@ -79,6 +81,19 @@ export function getLivePhase(lang: Lang, status: MatchStatus, minute?: number | 
 }
 
 export function getMatchClockLabel(input: MatchClockInput) {
+  if (
+    isResultPendingMatch(
+      input.status,
+      input.matchDate,
+      input.kickoffTime,
+      input.homeScore,
+      input.awayScore,
+      input.competitionSlug
+    )
+  ) {
+    return t(input.lang, "statusPending");
+  }
+
   const effective = getEffectiveMatchState(
     input.status,
     input.matchDate,
@@ -112,6 +127,19 @@ export function getMatchClockLabel(input: MatchClockInput) {
 }
 
 export function getMatchContextLabel(input: MatchClockInput) {
+  if (
+    isResultPendingMatch(
+      input.status,
+      input.matchDate,
+      input.kickoffTime,
+      input.homeScore,
+      input.awayScore,
+      input.competitionSlug
+    )
+  ) {
+    return t(input.lang, "resultPending");
+  }
+
   const effective = getEffectiveMatchState(
     input.status,
     input.matchDate,

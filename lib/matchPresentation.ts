@@ -52,8 +52,12 @@ function estimateMinuteFromScrapeTimestamp(
   const elapsedMinutes = Math.floor((now.getTime() - parsedUpdatedAt.getTime()) / 60000);
   if (elapsedMinutes <= 0) return minute;
 
-  const maxMinute = competitionSlug && isSevenCompetition(competitionSlug.toLowerCase()) ? 14 : 80;
-  return clamp(minute + elapsedMinutes, 1, maxMinute);
+  const isSeven = competitionSlug && isSevenCompetition(competitionSlug.toLowerCase());
+  const firstHalfLimit = isSeven ? 7 : 40;
+  const maxMinute = isSeven ? 14 : 80;
+  const halfCap = minute <= firstHalfLimit ? firstHalfLimit : maxMinute;
+
+  return clamp(minute + elapsedMinutes, 1, halfCap);
 }
 
 export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string, lang: Lang) {

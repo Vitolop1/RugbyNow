@@ -69,6 +69,14 @@ function normalizeTeamName(value?: string | null) {
     "dogos xv": "dogos xv",
     yacare: "yacare xv",
     "yacare xv": "yacare xv",
+    "atletico del rosario": "atletico del rosario",
+    "atl. del rosario": "atletico del rosario",
+    "atletico del rosario ": "atletico del rosario",
+    petrarca: "petrarca",
+    "petrarca padova": "petrarca",
+    lyons: "lyons piacenza",
+    "rugby lyons": "lyons piacenza",
+    "lyons piacenza": "lyons piacenza",
   };
 
   return aliases[normalized] ?? normalized;
@@ -107,7 +115,7 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
       byLogicalKey.set(key, row);
       continue;
     }
-    if (qualityFor(row) >= qualityFor(current)) {
+    if (qualityFor(row) > qualityFor(current)) {
       byLogicalKey.set(key, row);
     }
   }

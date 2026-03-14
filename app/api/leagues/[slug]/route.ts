@@ -74,6 +74,59 @@ type CompetitionRow = {
   is_featured?: boolean | null;
 };
 
+function unwrapTeam(
+  value:
+    | { id: number; name: string; slug: string | null }
+    | { id: number; name: string; slug: string | null }[]
+    | null
+    | undefined
+) {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+function mergeLeagueMatches(primary: MatchRow[], secondary: MatchRow[]) {
+  const byLogicalKey = new Map<string, MatchRow>();
+
+  const keyFor = (row: MatchRow) => {
+    const home = unwrapTeam(row.home_team);
+    const away = unwrapTeam(row.away_team);
+    return `${row.match_date}|${home?.id ?? "x"}|${away?.id ?? "x"}`;
+  };
+
+  const qualityFor = (row: MatchRow) => {
+    let score = 0;
+    if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
+    if (row.home_score != null && row.away_score != null) score += 20;
+    if (row.status === "FT") score += 15;
+    else if (row.status === "LIVE") score += 10;
+    else if (row.status === "NS") score += 5;
+    return score;
+  };
+
+  for (const row of primary) {
+    byLogicalKey.set(keyFor(row), row);
+  }
+
+  for (const row of secondary) {
+    const key = keyFor(row);
+    const current = byLogicalKey.get(key);
+    if (!current) {
+      byLogicalKey.set(key, row);
+      continue;
+    }
+
+    if (qualityFor(row) > qualityFor(current)) {
+      byLogicalKey.set(key, row);
+    }
+  }
+
+  return Array.from(byLogicalKey.values()).sort(
+    (a, b) =>
+      a.match_date.localeCompare(b.match_date) ||
+      String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
+  );
+}
+
 function dedupeMatches(rows: MatchRow[]) {
   return dedupeLogicalMatches(rows, (row) => {
     const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
@@ -378,17 +431,10 @@ export async function GET(
       fallbackSelectedRound == null
         ? []
         : dedupeMatches((fallback?.matches || []) as MatchRow[]);
-    const shouldPreferFallbackFixtures = Boolean(
-      fallback &&
-        (
-          fallbackMatches.length > roundMatches.length ||
-          (roundMatches.length === 0 && fallbackMatches.length > 0) ||
-          ((fallback.roundMeta?.length || 0) > roundMeta.length && fallbackMatches.length > 0)
-        )
-    );
-    const effectiveRoundMeta = shouldPreferFallbackFixtures ? fallback?.roundMeta || roundMeta : roundMeta;
-    const effectiveSelectedRound = shouldPreferFallbackFixtures ? fallbackSelectedRound : selectedRound;
-    const matches = shouldPreferFallbackFixtures ? fallbackMatches : roundMatches;
+    const useFallbackStructure = Boolean(fallback && roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0);
+    const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
+    const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
+    const matches = mergeLeagueMatches(roundMatches, fallbackMatches);
 
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();

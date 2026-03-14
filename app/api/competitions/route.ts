@@ -27,25 +27,46 @@ export async function GET() {
       .order("name", { ascending: true });
 
     if (error) throw error;
-    return NextResponse.json({
-      competitions: mergeCompetitionCatalog((data || []) as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
-      source: "supabase",
-    });
+    return NextResponse.json(
+      {
+        competitions: mergeCompetitionCatalog((data || []) as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
+        source: "supabase",
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      }
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const snapshot = getSnapshotCompetitions();
     if (snapshot) {
-      return NextResponse.json({
-        competitions: mergeCompetitionCatalog(snapshot as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
-        source: "snapshot",
-        warning: message,
-      });
+      return NextResponse.json(
+        {
+          competitions: mergeCompetitionCatalog(snapshot as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
+          source: "snapshot",
+          warning: message,
+        },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        }
+      );
     }
 
-    return NextResponse.json({
-      competitions: mergeCompetitionCatalog(getFallbackCompetitions() as CompetitionRow[], []),
-      source: "fallback",
-      warning: message,
-    });
+    return NextResponse.json(
+      {
+        competitions: mergeCompetitionCatalog(getFallbackCompetitions() as CompetitionRow[], []),
+        source: "fallback",
+        warning: message,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      }
+    );
   }
 }

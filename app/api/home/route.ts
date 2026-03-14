@@ -239,43 +239,64 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({
-      matches: normalizeMatchesForDate(
-        mergeMatches(
-          (data || []) as unknown as RawMatchRow[],
-          candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
-        ),
-        date,
-        timeZone
-      ),
-      source: "supabase",
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
-    if (snapshotMatches) {
-      return NextResponse.json({
+    return NextResponse.json(
+      {
         matches: normalizeMatchesForDate(
           mergeMatches(
-            snapshotMatches as unknown as RawMatchRow[],
+            (data || []) as unknown as RawMatchRow[],
             candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
           ),
           date,
           timeZone
         ),
-        source: "snapshot",
-        warning: message,
-      });
+        source: "supabase",
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+        },
+      }
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
+    if (snapshotMatches) {
+      return NextResponse.json(
+        {
+          matches: normalizeMatchesForDate(
+            mergeMatches(
+              snapshotMatches as unknown as RawMatchRow[],
+              candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
+            ),
+            date,
+            timeZone
+          ),
+          source: "snapshot",
+          warning: message,
+        },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+          },
+        }
+      );
     }
 
-    return NextResponse.json({
-      matches: normalizeMatchesForDate(
-        mergeMatches(candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[], []),
-        date,
-        timeZone
-      ),
-      source: "fallback",
-      warning: message,
-    });
+    return NextResponse.json(
+      {
+        matches: normalizeMatchesForDate(
+          mergeMatches(candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[], []),
+          date,
+          timeZone
+        ),
+        source: "fallback",
+        warning: message,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+        },
+      }
+    );
   }
 }

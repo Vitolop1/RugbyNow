@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
+    "dev": "next dev",
     "start": "next start",
     "lint": "eslint",
     "sync:flashscore": "tsx scripts/sync-flashscore.ts",
@@ -16,9 +16,14 @@
     "export:supabase-snapshot": "tsx scripts/export-supabase-snapshot.ts",
     "build:weekly": "tsx scripts/build-weekly.ts",
     "sync:live": "tsx scripts/sync-live-runner.ts",
-    "audit:fallback": "tsx scripts/audit-fallback.ts"
+    "audit:fallback": "tsx scripts/audit-fallback.ts",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.17.1",
     "@supabase/supabase-js": "^2.98.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
@@ -38,6 +43,7 @@
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.73.0"
   }
 }

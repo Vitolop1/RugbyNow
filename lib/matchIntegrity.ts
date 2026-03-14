@@ -80,6 +80,7 @@ function logicalMatchQuality(row: LogicalMatchShape) {
   if (row.homeScore != null && row.awayScore != null) score += 20;
   if (row.status === "FT") score += 15;
   else if (row.status === "LIVE" || row.status === "HT") score += 10;
+  else if (row.status === "CANC") score += 6;
   else if (row.status === "NS") score += 5;
 
   return score;

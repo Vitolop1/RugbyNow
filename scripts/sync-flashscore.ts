@@ -8,7 +8,11 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chromium, Page, Route } from "playwright";
 
-type MatchStatus = "NS" | "LIVE" | "HT" | "FT";
+type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
+
+function isNonPlayedStatus(status: MatchStatus) {
+  return status === "NS" || status === "CANC";
+}
 
 type FlashInput = {
   compSlug: string | null;
@@ -159,7 +163,7 @@ function detectStatusAndMinute(
   const s = (raw || "").toUpperCase().trim();
 
   if (/(POSTP|CANC|CANCEL|ABAND|ABD|AWD|WO)/.test(s)) {
-    return { status: "NS" as MatchStatus, minute: null as number | null };
+    return { status: "CANC" as MatchStatus, minute: null as number | null };
   }
 
   if (/(FT|FINAL|AET|AFTER EXTRA TIME)/.test(s)) {
@@ -1398,7 +1402,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
     if (findSourceErr) throw findSourceErr;
 
     if (existingBySource?.id) {
-      if (existingBySource.status === "FT" && payload.status === "NS") {
+      if (existingBySource.status === "FT" && isNonPlayedStatus(payload.status as MatchStatus)) {
         return "skipped";
       }
 
@@ -1432,7 +1436,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   if (findLogicalErr) throw findLogicalErr;
 
   if (existingLogical?.id) {
-    if (existingLogical.status === "FT" && payload.status === "NS") {
+    if (existingLogical.status === "FT" && isNonPlayedStatus(payload.status as MatchStatus)) {
       return "skipped";
     }
 
@@ -1741,7 +1745,7 @@ async function main() {
         const kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
         const matchDate = inferredDate;
         let effectiveParsed =
-          parsed.status !== "NS" && matchDate > tomorrowIso
+          !isNonPlayedStatus(parsed.status) && matchDate > tomorrowIso
             ? ({ status: "NS", minute: null } as const)
             : parsed;
 
@@ -1763,7 +1767,7 @@ async function main() {
           }
         }
 
-        if (LIVE_ONLY && effectiveParsed.status === "NS") {
+        if (LIVE_ONLY && isNonPlayedStatus(effectiveParsed.status)) {
           continue;
         }
 
@@ -1800,7 +1804,7 @@ async function main() {
           target = findNearbyDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId, matchDate, kickoffTime);
         }
 
-        if (target?.status === "FT" && effectiveParsed.status === "NS") {
+        if (target?.status === "FT" && isNonPlayedStatus(effectiveParsed.status)) {
           continue;
         }
 
@@ -1819,7 +1823,7 @@ async function main() {
           updated_at: new Date().toISOString(),
         };
 
-        if (effectiveParsed.status === "NS") {
+        if (isNonPlayedStatus(effectiveParsed.status)) {
           payload.home_score = null;
           payload.away_score = null;
         } else {
@@ -1830,7 +1834,7 @@ async function main() {
         if (target?.id && !touchedIds.has(target.id)) {
           const patch: Record<string, unknown> = { ...payload };
 
-          if (target.status === "FT" && patch.status === "NS") {
+          if (target.status === "FT" && isNonPlayedStatus(patch.status as MatchStatus)) {
             continue;
           }
 

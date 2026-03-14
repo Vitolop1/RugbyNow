@@ -1,6 +1,6 @@
 import { isSevenCompetition } from "@/lib/competitionPrefs";
 
-export type MatchStatus = "NS" | "LIVE" | "HT" | "FT";
+export type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
 
 type MatchTimingRules = {
   firstHalfMinutes: number;
@@ -51,6 +51,10 @@ export function isActiveMatchStatus(status: MatchStatus) {
   return status === "LIVE" || status === "HT";
 }
 
+export function isScheduledMatchStatus(status: MatchStatus) {
+  return status === "NS" || status === "CANC";
+}
+
 export function getEffectiveMatchState(
   status: MatchStatus,
   matchDate: string,
@@ -70,6 +74,10 @@ export function getEffectiveMatchState(
 
   if (status === "HT") {
     return { status: "HT" as const, minute: null as number | null };
+  }
+
+  if (status === "CANC") {
+    return { status: "CANC" as const, minute: null as number | null };
   }
 
   const kickoff = parseKickoffDateTime(matchDate, kickoffTime);

@@ -9,7 +9,7 @@ import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
 
-type MatchStatus = "NS" | "LIVE" | "HT" | "FT";
+type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
 
 type TeamPayload = {
   team: { id: number; name: string; slug: string | null };
@@ -312,7 +312,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                               {match.home_team?.name || tr("teamHomeFallback")}
                             </Link>
                             <div className="text-center text-lg font-black tabular-nums text-white">
-                              {match.status === "NS" ? "—" : `${match.home_score ?? "-"} - ${match.away_score ?? "-"}`}
+                              {match.status === "NS" || match.status === "CANC" ? "—" : `${match.home_score ?? "-"} - ${match.away_score ?? "-"}`}
                             </div>
                             <Link href={match.away_team?.slug ? `/teams/${match.away_team.slug}` : "#"} className="truncate text-right text-sm font-semibold text-white hover:text-emerald-200">
                               {match.away_team?.name || tr("teamAwayFallback")}

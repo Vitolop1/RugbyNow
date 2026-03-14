@@ -32,7 +32,7 @@ type SnapshotMatch = {
   season_id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -70,7 +70,7 @@ type HomeMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -89,7 +89,7 @@ type LeagueMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;

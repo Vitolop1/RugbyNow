@@ -25,7 +25,7 @@ import {
   writeSlugList,
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
-import { isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
+import { isActiveMatchStatus, isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
@@ -134,6 +134,14 @@ function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" 
     );
   }
 
+  if (status === "CANC") {
+    return (
+      <span className="rounded-full border border-white/15 bg-slate-400/15 px-2 py-1 text-xs font-semibold text-white/90">
+        {tr("statusCanc")}
+      </span>
+    );
+  }
+
   return (
     <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white/90">
       {tr("statusPre")}
@@ -200,6 +208,7 @@ function dedupeBlock(block: LeagueBlock) {
     if (match.hs != null && match.as != null) score += 20;
     if (match.status === "FT") score += 15;
     else if (isActiveMatchStatus(match.status)) score += 10;
+    else if (match.status === "CANC") score += 6;
     else if (match.status === "NS") score += 5;
     return score;
   };
@@ -437,8 +446,8 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
           homeSlug: row.home_team?.slug ?? null,
           awaySlug: row.away_team?.slug ?? null,
           minute: row.minute,
-          hs: row.status === "NS" ? null : row.home_score,
-          as: row.status === "NS" ? null : row.away_score,
+          hs: isScheduledMatchStatus(row.status) ? null : row.home_score,
+          as: isScheduledMatchStatus(row.status) ? null : row.away_score,
           status: row.status,
         };
 
@@ -1095,11 +1104,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                               <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                 <TeamName name={match.home} slug={match.homeSlug} />
-                                <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "-" : match.hs ?? "-"}</span>
+                                <span className="font-extrabold tabular-nums text-white">{isScheduledMatchStatus(match.status) ? "-" : match.hs ?? "-"}</span>
                               </div>
                               <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                 <TeamName name={match.away} slug={match.awaySlug} />
-                                <span className="font-extrabold tabular-nums text-white">{match.status === "NS" ? "-" : match.as ?? "-"}</span>
+                                <span className="font-extrabold tabular-nums text-white">{isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}</span>
                               </div>
                             </div>
 
@@ -1108,7 +1117,9 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 ? tr("liveAction")
                                 : match.status === "FT"
                                   ? tr("final")
-                                  : tr("upcoming")}
+                                  : match.status === "CANC"
+                                    ? tr("cancelled")
+                                    : tr("upcoming")}
                             </div>
                               </div>
                           <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">

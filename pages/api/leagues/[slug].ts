@@ -169,6 +169,7 @@ function mergeLeagueMatches(primary: MatchRow[], secondary: MatchRow[]) {
     if (row.home_score != null && row.away_score != null) score += 20;
     if (row.status === "FT") score += 15;
     else if (isActiveMatchStatus(row.status)) score += 10;
+    else if (row.status === "CANC") score += 6;
     else if (row.status === "NS") score += 5;
     return score;
   };
@@ -373,6 +374,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const serverSupabase = getServerSupabase();
+    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
     const { data: competition, error: competitionError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").eq("slug", slug).maybeSingle();
     if (competitionError || !competition) throw new Error(`No competition found for slug: ${slug}`);
     const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
@@ -418,22 +420,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound)).map((row) =>
             normalizeRuntimeMatchStatus(row, slug)
           );
+    const snapshotSelectedRound = snapshot?.selectedRound ?? null;
+    const snapshotMatches =
+      snapshotSelectedRound == null
+        ? []
+        : dedupeMatches((snapshot?.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug));
     const fallbackSelectedRound = fallback?.selectedRound ?? null;
     const fallbackMatches =
       fallbackSelectedRound == null
         ? []
         : dedupeMatches((fallback?.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug));
+    const useSnapshotStructure = Boolean(
+      snapshot &&
+        (
+          (roundMeta.length === 0 && (snapshot.roundMeta?.length || 0) > 0) ||
+          (!roundMatches.length && snapshotMatches.length > 0) ||
+          shouldPreferMoreCompleteRound(roundMatches, snapshotMatches)
+        )
+    );
     const useFallbackStructure = Boolean(
       fallback &&
         (
-          (roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0) ||
-          (!roundMatches.length && fallbackMatches.length > 0) ||
+          (((useSnapshotStructure ? snapshot?.roundMeta || roundMeta : roundMeta).length === 0) && (fallback.roundMeta?.length || 0) > 0) ||
+          (!(useSnapshotStructure ? snapshotMatches : roundMatches).length && fallbackMatches.length > 0) ||
           (selectedRound == null && fallbackSelectedRound != null)
         )
     );
-    const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
-    const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
-    const matches = mergeLeagueMatches(roundMatches, fallbackMatches).map((row) => normalizeRuntimeMatchStatus(row, slug));
+    const baseRoundMeta = useSnapshotStructure ? snapshot?.roundMeta || roundMeta : roundMeta;
+    const baseSelectedRound = useSnapshotStructure ? snapshotSelectedRound : selectedRound;
+    const baseMatches = useSnapshotStructure ? mergeLeagueMatches(roundMatches, snapshotMatches) : roundMatches;
+    const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || baseRoundMeta : baseRoundMeta;
+    const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : baseSelectedRound;
+    const matches = mergeLeagueMatches(baseMatches, fallbackMatches).map((row) => normalizeRuntimeMatchStatus(row, slug));
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
     for (const row of detailedMatches.filter((item) => item.status === "FT")) {

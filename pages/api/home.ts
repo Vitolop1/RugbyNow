@@ -175,6 +175,7 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
     if (row.home_score != null && row.away_score != null) score += 20;
     if (row.status === "FT") score += 15;
     else if (isActiveMatchStatus(row.status)) score += 10;
+    else if (row.status === "CANC") score += 6;
     else if (row.status === "NS") score += 5;
     return score;
   };
@@ -244,6 +245,7 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
     if (row.home_score != null && row.away_score != null) score += 20;
     if (row.status === "FT") score += 15;
     else if (isActiveMatchStatus(row.status)) score += 10;
+    else if (row.status === "CANC") score += 6;
     else if (row.status === "NS") score += 5;
     return score;
   };
@@ -305,6 +307,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const serverSupabase = getServerSupabase();
+    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
     const { data, error } = await serverSupabase
       .from("matches")
       .select(`
@@ -330,7 +333,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       matches: normalizeMatchesForDate(
         mergeMatches(
-          (data || []) as unknown as RawMatchRow[],
+          mergeMatches(
+            (data || []) as unknown as RawMatchRow[],
+            snapshotMatches as unknown as RawMatchRow[]
+          ) as unknown as RawMatchRow[],
           candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
         ),
         date,

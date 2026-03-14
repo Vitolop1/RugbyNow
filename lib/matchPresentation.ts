@@ -62,6 +62,7 @@ export function getMatchClockLabel(input: MatchClockInput) {
     input.minute,
     input.competitionSlug
   );
+  if (effective.status === "CANC") return t(input.lang, "statusCanc");
   if (effective.status === "FT") return t(input.lang, "statusFt");
   if (effective.status === "HT") return t(input.lang, "statusHt");
 
@@ -88,6 +89,7 @@ export function getMatchContextLabel(input: MatchClockInput) {
     input.minute,
     input.competitionSlug
   );
+  if (effective.status === "CANC") return t(input.lang, "cancelled");
   if (effective.status === "FT") return t(input.lang, "final");
   if (effective.status === "HT") return t(input.lang, "halftime");
 

@@ -23,7 +23,7 @@ type HomeMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -42,7 +42,7 @@ type LeagueMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -101,7 +101,7 @@ type JsonlRow = {
   away: string;
   home_score: number | null;
   away_score: number | null;
-  status: "NS" | "LIVE" | "HT" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   kickoff_time: string | null;
   match_date: string;
   source_event_key?: string | null;
@@ -186,7 +186,7 @@ function parseScore(x: string) {
 
 function detectStatus(raw: string, hs: number | null, as: number | null, sourcePage: "results" | "fixtures") {
   const s = (raw || "").toUpperCase().trim();
-  if (/(POSTP|CANC|CANCEL|ABAND|ABD|AWD|WO)/.test(s)) return { status: "NS" as const, minute: null };
+  if (/(POSTP|CANC|CANCEL|ABAND|ABD|AWD|WO)/.test(s)) return { status: "CANC" as const, minute: null };
   if (/(FT|FINAL|AET|AFTER EXTRA TIME)/.test(s)) return { status: "FT" as const, minute: null };
   if (/(HT|HALF TIME|BREAK)/.test(s)) return { status: "HT" as const, minute: null };
   if (/(LIVE|1ST HALF|2ND HALF|SECOND HALF)/.test(s)) return { status: "LIVE" as const, minute: null };
@@ -409,6 +409,7 @@ function compareJsonlPreference(a: JsonlRow, b: JsonlRow) {
     let value = 0;
     if (row.status === "FT") value += 8;
     else if (row.status === "LIVE" || row.status === "HT") value += 4;
+    else if (row.status === "CANC") value += 3;
     if (row.home_score != null || row.away_score != null) value += 2;
     if (row.round != null) value += 1;
     return value;
@@ -516,6 +517,7 @@ function compareLeagueRows(a: LeagueMatchRow, b: LeagueMatchRow) {
     let value = 0;
     if (row.status === "FT") value += 8;
     else if (row.status === "LIVE" || row.status === "HT") value += 4;
+    else if (row.status === "CANC") value += 3;
     if (row.home_score != null || row.away_score != null) value += 2;
     if (row.round != null) value += 1;
     return value;
@@ -616,8 +618,8 @@ function buildMergedLeagueRows(
       kickoff_time: row.kickoff_time,
       status: row.status,
       minute: null,
-      home_score: row.status === "NS" ? null : row.home_score,
-      away_score: row.status === "NS" ? null : row.away_score,
+      home_score: row.status === "NS" || row.status === "CANC" ? null : row.home_score,
+      away_score: row.status === "NS" || row.status === "CANC" ? null : row.away_score,
       round: row.round,
       venue: null,
       home_team: getTeamRef(row.home),
@@ -631,7 +633,7 @@ function buildMergedLeagueRows(
       const as = parseScore(row.as);
       const parsed = detectStatus(row.statusOrTime, hs, as, row.sourcePage);
 
-      if (hasJsonlRows && parsed.status !== "NS") return [];
+      if (hasJsonlRows && parsed.status !== "NS" && parsed.status !== "CANC") return [];
       if (maxJsonlDate && matchDate <= maxJsonlDate) return [];
 
       return [
@@ -641,8 +643,8 @@ function buildMergedLeagueRows(
           kickoff_time: inferKickoffTime(row.statusOrTime || row.rawText),
           status: parsed.status,
           minute: parsed.minute,
-          home_score: parsed.status === "NS" ? null : hs,
-          away_score: parsed.status === "NS" ? null : as,
+          home_score: parsed.status === "NS" || parsed.status === "CANC" ? null : hs,
+          away_score: parsed.status === "NS" || parsed.status === "CANC" ? null : as,
           round: parseRound(row.roundText),
           venue: null,
           home_team: getTeamRef(row.home),

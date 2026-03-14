@@ -7,7 +7,7 @@ type SnapshotMatch = {
   season_id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: "NS" | "LIVE" | "FT" | "CANC";
   home_score: number | null;
   away_score: number | null;
   home_team_id: number | null;
@@ -58,7 +58,7 @@ export type WeeklyArticle = {
 export type WeeklyMatchNote = {
   id: number;
   matchDate: string;
-  status: "NS" | "LIVE" | "FT";
+  status: "NS" | "LIVE" | "FT" | "CANC";
   home: string;
   away: string;
   homeScore: number | null;

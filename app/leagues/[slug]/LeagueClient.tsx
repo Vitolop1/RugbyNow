@@ -25,7 +25,7 @@ import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
-import { isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
+import { isActiveMatchStatus, isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
@@ -190,6 +190,14 @@ function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" 
     return (
       <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-xs font-semibold text-white">
         {tr("statusFt")}
+      </span>
+    );
+  }
+
+  if (status === "CANC") {
+    return (
+      <span className="rounded-full border border-white/15 bg-slate-400/15 px-2 py-1 text-xs font-semibold text-white/90">
+        {tr("statusCanc")}
       </span>
     );
   }
@@ -1203,13 +1211,13 @@ export default function LeagueClient() {
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                     <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("teamHomeFallback")} />
                                     <span className="font-extrabold tabular-nums text-white">
-                                      {match.status === "NS" ? "-" : match.home_score ?? "-"}
+                                      {isScheduledMatchStatus(match.status) ? "-" : match.home_score ?? "-"}
                                     </span>
                                   </div>
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                                     <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("teamAwayFallback")} />
                                     <span className="font-extrabold tabular-nums text-white">
-                                      {match.status === "NS" ? "-" : match.away_score ?? "-"}
+                                      {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
                                     </span>
                                   </div>
                                 </div>

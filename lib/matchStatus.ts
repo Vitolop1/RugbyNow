@@ -87,12 +87,10 @@ export function getEffectiveMatchState(
   const inferredLiveMinutes =
     diffMinutes == null ? null : diffMinutes - LIVE_INFERENCE_DELAY_MINUTES;
   const scrapedAt = updatedAt ? new Date(updatedAt) : null;
-  const hasFreshExplicitNsSignal =
+  const hasExplicitNsSignal =
     status === "NS" &&
-    kickoff &&
     scrapedAt &&
-    !Number.isNaN(scrapedAt.getTime()) &&
-    scrapedAt.getTime() >= kickoff.getTime() - 15 * 60000;
+    !Number.isNaN(scrapedAt.getTime());
 
   if (status === "LIVE") {
     if (explicitMinute != null && explicitMinute > 0) {
@@ -128,7 +126,7 @@ export function getEffectiveMatchState(
     };
   }
 
-  if (hasFreshExplicitNsSignal) {
+  if (hasExplicitNsSignal) {
     return { status: "NS" as const, minute: explicitMinute ?? null };
   }
 

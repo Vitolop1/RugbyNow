@@ -257,7 +257,7 @@ function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
   if (!matchDate) return null;
   const time = kickoffTime && kickoffTime.trim() ? kickoffTime.trim() : "00:00";
   const normalized = time.length === 5 ? `${time}:00` : time;
-  const value = new Date(`${matchDate}T${normalized}`);
+  const value = new Date(`${matchDate}T${normalized}Z`);
   return Number.isNaN(value.getTime()) ? null : value;
 }
 

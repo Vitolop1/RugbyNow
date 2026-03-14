@@ -33,7 +33,7 @@ export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, t
     hour: "2-digit",
     minute: "2-digit",
     timeZone,
-  }).format(new Date(`${matchDate}T${normalized}`));
+  }).format(new Date(`${matchDate}T${normalized}Z`));
 }
 
 export function getLivePhase(lang: Lang, minute?: number | null) {

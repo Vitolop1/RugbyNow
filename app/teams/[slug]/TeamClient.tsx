@@ -113,7 +113,7 @@ function formatKickoffTZ(
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
   return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone }).format(
-    new Date(`${matchDate}T${normalized}`)
+    new Date(`${matchDate}T${normalized}Z`)
   );
 }
 

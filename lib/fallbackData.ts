@@ -128,6 +128,12 @@ const COMPETITIONS: Competition[] = [
 ];
 
 const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
+  sra: [
+    { round: 4, home: "Tarucas", away: "Pampas XV", home_score: 22, away_score: 43, status: "FT", kickoff_time: "20:00:00", match_date: "2026-03-13" },
+    { round: 4, home: "Penarol", away: "Cobras", home_score: 40, away_score: 20, status: "FT", kickoff_time: "22:00:00", match_date: "2026-03-13" },
+    { round: 4, home: "Dogos XV", away: "Selknam", home_score: null, away_score: null, status: "NS", kickoff_time: "23:30:00", match_date: "2026-03-14" },
+    { round: 4, home: "Yacare XV", away: "Capibaras XV", home_score: null, away_score: null, status: "NS", kickoff_time: "21:30:00", match_date: "2026-03-14" },
+  ],
   "ar-liga-norte-grande": [
     { round: 1, home: "Universitario de Salta", away: "Tiro Federal de Salta", home_score: 31, away_score: 24, status: "FT", kickoff_time: "18:00:00", match_date: "2026-03-07" },
     { round: 1, home: "Santiago Lawn Tennis Club", away: "Tigres RC", home_score: 28, away_score: 20, status: "FT", kickoff_time: "18:00:00", match_date: "2026-03-07" },

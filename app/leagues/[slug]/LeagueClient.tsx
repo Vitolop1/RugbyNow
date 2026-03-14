@@ -8,6 +8,7 @@ import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
 import BroadcastPill from "@/app/components/BroadcastPill";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
+import HighlightButton from "@/app/components/HighlightButton";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import {
   applyNavigationSectionOrder,
@@ -53,6 +54,9 @@ type LeagueMatch = {
   round?: number | null;
   home_team: { id: number; name: string; slug: string | null } | null;
   away_team: { id: number; name: string; slug: string | null } | null;
+  highlight_url?: string | null;
+  highlight_title?: string | null;
+  highlight_published?: string | null;
 };
 
 type StandingRow = {
@@ -366,6 +370,7 @@ export default function LeagueClient() {
       if (refISO) qs.set("date", refISO);
       if (roundFromUrl) qs.set("round", roundFromUrl);
 
+      qs.set("tz", timeZone);
       const response = await fetch(`/api/leagues/${slug}?${qs.toString()}`, { cache: "no-store" });
       const payload = await response.json();
 
@@ -1141,7 +1146,7 @@ export default function LeagueClient() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
-                                  <span className="rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-base font-black text-white/95 sm:text-lg">
+                                  <span className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-lg font-black text-white/95 sm:text-xl">
                                     {niceDate(match.match_date, lang)}
                                   </span>
                                   <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
@@ -1155,13 +1160,18 @@ export default function LeagueClient() {
                                         ))}
                                       </div>
                                     ) : null}
-                                    <SuggestedWatchButton
-                                      competitionSlug={data.competition.slug}
-                                      competitionName={data.competition.name}
-                                      home={match.home_team?.name}
-                                      away={match.away_team?.name}
-                                      lang={lang}
-                                    />
+                                    <div className="flex flex-wrap items-center justify-end gap-2">
+                                      {match.status === "FT" && match.highlight_url ? (
+                                        <HighlightButton href={match.highlight_url} title={match.highlight_title} lang={lang} />
+                                      ) : null}
+                                      <SuggestedWatchButton
+                                        competitionSlug={data.competition.slug}
+                                        competitionName={data.competition.name}
+                                        home={match.home_team?.name}
+                                        away={match.away_team?.name}
+                                        lang={lang}
+                                      />
+                                    </div>
                                   </div>
                                 </div>
                               </div>

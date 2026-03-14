@@ -88,6 +88,12 @@ type LeaguePayload = {
     country?: string;
     region?: string;
     founded?: string;
+    currentChampion?: {
+      name: string;
+      slug?: string;
+      seasonLabel?: string;
+      note?: string;
+    };
     summary: string;
     history: string;
   };
@@ -1463,7 +1469,37 @@ export default function LeagueClient() {
                     </div>
 
                     <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
-                      <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("currentTopTeams")}</div>
+                      {data.profile?.currentChampion ? (
+                        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4">
+                          <div className="text-xs font-black uppercase tracking-[0.16em] text-emerald-100/75">
+                            {tr("currentChampion")}
+                          </div>
+                          <div className="mt-3 flex items-center gap-3">
+                            {data.profile.currentChampion.slug ? (
+                              <TeamLogo
+                                slug={data.profile.currentChampion.slug}
+                                alt={data.profile.currentChampion.name}
+                                size={34}
+                              />
+                            ) : null}
+                            <div className="min-w-0">
+                              <div className="text-xl font-black text-white">{data.profile.currentChampion.name}</div>
+                              {data.profile.currentChampion.seasonLabel ? (
+                                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100/70">
+                                  {tr("seasonLabel")} {data.profile.currentChampion.seasonLabel}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                          {data.profile.currentChampion.note ? (
+                            <div className="mt-3 text-sm leading-6 text-white/75">{data.profile.currentChampion.note}</div>
+                          ) : null}
+                        </div>
+                      ) : null}
+
+                      <div className={`text-xs font-black uppercase tracking-[0.16em] text-white/55 ${data.profile?.currentChampion ? "mt-5" : ""}`}>
+                        {tr("currentTopTeams")}
+                      </div>
                       <div className="mt-4 space-y-3">
                         {topTeams.map((team) => (
                           <div key={`champions-${team.id}`} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">

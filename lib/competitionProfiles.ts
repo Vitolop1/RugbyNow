@@ -3,6 +3,12 @@ export type CompetitionProfile = {
   country?: string;
   region?: string;
   founded?: string;
+  currentChampion?: {
+    name: string;
+    slug?: string;
+    seasonLabel?: string;
+    note?: string;
+  };
   summary: string;
   history: string;
 };
@@ -60,6 +66,12 @@ const COMPETITION_PROFILES: Record<string, CompetitionProfile> = {
     slug: "int-six-nations",
     region: "International",
     founded: "1883",
+    currentChampion: {
+      name: "France",
+      slug: "france",
+      seasonLabel: "2026",
+      note: "Champions after the final-round win over England.",
+    },
     summary:
       "Six Nations es el campeonato anual mas tradicional del rugby europeo de selecciones entre Inglaterra, Francia, Irlanda, Italia, Escocia y Gales.",
     history:

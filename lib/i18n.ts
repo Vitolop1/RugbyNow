@@ -73,6 +73,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     leagueTeamsIntro: "Clubs and franchises currently attached to this competition.",
     championsIntro:
       "Historical champions and season archive are the next step. This tab is ready, but it still depends on cleaner season-by-season history from the scraper and snapshot.",
+    currentChampion: "Current champion",
     currentTopTeams: "Current top teams",
     loadingLeague: "Loading league...",
     noMatchesSeason: "No matches loaded for this season yet.",
@@ -282,6 +283,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     leagueTeamsIntro: "Clubes y franquicias que hoy forman parte de esta competencia.",
     championsIntro:
       "Los campeones historicos y el archivo por temporadas son el siguiente paso. Esta pestana ya esta preparada, pero todavia depende de cargar mejor la historia desde el scraper y el snapshot.",
+    currentChampion: "Campeon actual",
     currentTopTeams: "Equipos top actuales",
     loadingLeague: "Cargando liga...",
     noMatchesSeason: "Todavia no hay partidos cargados para esta temporada.",
@@ -491,6 +493,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     leagueTeamsIntro: "Clubs et franchises actuellement associes a cette competition.",
     championsIntro:
       "Les champions historiques et l'archive par saison sont la prochaine etape. Cet onglet est pret, mais depend encore d'un historique saison par saison plus propre.",
+    currentChampion: "Champion actuel",
     currentTopTeams: "Meilleures equipes actuelles",
     loadingLeague: "Chargement de la ligue...",
     noMatchesSeason: "Aucun match n'est encore charge pour cette saison.",
@@ -700,6 +703,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     leagueTeamsIntro: "Club e franchigie attualmente collegati a questa competizione.",
     championsIntro:
       "I campioni storici e l'archivio per stagione sono il passo successivo. Questa scheda e pronta, ma dipende ancora da una storia stagione per stagione piu pulita.",
+    currentChampion: "Campione attuale",
     currentTopTeams: "Squadre top attuali",
     loadingLeague: "Caricamento lega...",
     noMatchesSeason: "Non ci sono ancora partite caricate per questa stagione.",

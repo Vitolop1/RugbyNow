@@ -368,95 +368,83 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
   useEffect(() => {
     const loadCompetitions = async () => {
-      try {
-        setCompLoading(true);
-        setCompError("");
+      setCompLoading(true);
+      setCompError("");
 
-        const response = await fetch("/api/competitions", { cache: "no-store" });
-        const payload = await response.json();
+      const response = await fetch("/api/competitions", { cache: "no-store" });
+      const payload = await response.json();
 
-        if (!response.ok) {
-          setCompetitions([]);
-          setCompError(payload.error ?? tr("unknownCompetitionsError"));
-        } else {
-          setCompetitions((payload.competitions || []) as Competition[]);
-        }
-      } catch (error) {
+      if (!response.ok) {
         setCompetitions([]);
-        setCompError(error instanceof Error ? error.message : tr("unknownCompetitionsError"));
-      } finally {
-        setCompLoading(false);
+        setCompError(payload.error ?? tr("unknownCompetitionsError"));
+      } else {
+        setCompetitions((payload.competitions || []) as Competition[]);
       }
+
+      setCompLoading(false);
     };
 
     loadCompetitions();
-  }, [tr]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const loadMatches = async () => {
-      try {
-        setLoading(true);
-        setLoadError("");
+      setLoading(true);
+      setLoadError("");
 
-        const response = await fetch(`/api/home?date=${selectedISO}&tz=${encodeURIComponent(timeZone)}`, { cache: "no-store" });
-        const payload = await response.json();
+      const response = await fetch(`/api/home?date=${selectedISO}&tz=${encodeURIComponent(timeZone)}`, { cache: "no-store" });
+      const payload = await response.json();
 
-        if (cancelled) return;
+      if (cancelled) return;
 
-        if (!response.ok) {
-          setBlocks([]);
-          setLoadError(payload.error ?? tr("unknownMatchesError"));
-          timer = setTimeout(loadMatches, 60000);
-          return;
-        }
-
-        const rows = (payload.matches || []) as DbMatchRow[];
-        const byLeague = new Map<string, LeagueBlock>();
-        let hasLive = false;
-
-        for (const row of rows) {
-          if (row.status === "LIVE") hasLive = true;
-
-          const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
-          const leagueSlug = row.season?.competition?.slug ?? "unknown";
-          const region = row.season?.competition?.region ?? "";
-
-          const match: Match = {
-            matchDate: row.match_date,
-            kickoffTime: row.kickoff_time,
-            home: row.home_team?.name ?? tr("tbd"),
-            away: row.away_team?.name ?? tr("tbd"),
-            homeSlug: row.home_team?.slug ?? null,
-            awaySlug: row.away_team?.slug ?? null,
-            minute: row.minute,
-            hs: row.status === "NS" ? null : row.home_score,
-            as: row.status === "NS" ? null : row.away_score,
-            status: row.status,
-            highlightUrl: row.highlight_url ?? null,
-            highlightTitle: row.highlight_title ?? null,
-            highlightPublished: row.highlight_published ?? null,
-          };
-
-          if (!byLeague.has(leagueSlug)) {
-            byLeague.set(leagueSlug, { league: leagueName, region, slug: leagueSlug, matches: [] });
-          }
-
-          byLeague.get(leagueSlug)!.matches.push(match);
-        }
-
-        setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
-        timer = setTimeout(loadMatches, hasLive ? 30000 : 180000);
-      } catch (error) {
-        if (cancelled) return;
+      if (!response.ok) {
         setBlocks([]);
-        setLoadError(error instanceof Error ? error.message : tr("unknownMatchesError"));
+        setLoadError(payload.error ?? tr("unknownMatchesError"));
+        setLoading(false);
         timer = setTimeout(loadMatches, 60000);
-      } finally {
-        if (!cancelled) setLoading(false);
+        return;
       }
+
+      const rows = (payload.matches || []) as DbMatchRow[];
+      const byLeague = new Map<string, LeagueBlock>();
+      let hasLive = false;
+
+      for (const row of rows) {
+        if (row.status === "LIVE") hasLive = true;
+
+        const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
+        const leagueSlug = row.season?.competition?.slug ?? "unknown";
+        const region = row.season?.competition?.region ?? "";
+
+        const match: Match = {
+          matchDate: row.match_date,
+          kickoffTime: row.kickoff_time,
+          home: row.home_team?.name ?? tr("tbd"),
+          away: row.away_team?.name ?? tr("tbd"),
+          homeSlug: row.home_team?.slug ?? null,
+          awaySlug: row.away_team?.slug ?? null,
+          minute: row.minute,
+          hs: row.status === "NS" ? null : row.home_score,
+          as: row.status === "NS" ? null : row.away_score,
+          status: row.status,
+          highlightUrl: row.highlight_url ?? null,
+          highlightTitle: row.highlight_title ?? null,
+          highlightPublished: row.highlight_published ?? null,
+        };
+
+        if (!byLeague.has(leagueSlug)) {
+          byLeague.set(leagueSlug, { league: leagueName, region, slug: leagueSlug, matches: [] });
+        }
+
+        byLeague.get(leagueSlug)!.matches.push(match);
+      }
+
+      setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
+      setLoading(false);
+      timer = setTimeout(loadMatches, hasLive ? 30000 : 180000);
     };
 
     loadMatches();
@@ -465,7 +453,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [selectedISO, timeZone, tr]);
+  }, [selectedISO, timeZone]);
 
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {

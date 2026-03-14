@@ -15,6 +15,7 @@ import { getDateLocale } from "@/lib/dateLocale";
 import {
   applyNavigationSectionOrder,
   buildCompetitionNavigationSections,
+  moveSlug,
   readOrderedKeys,
   reorderNavigationSectionKeys,
   readSlugList,
@@ -523,10 +524,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   );
 
   const favoriteCompetitions = useMemo(
-    () =>
-      dedupedCompetitions
+    () => {
+      const rank = new Map(favoriteSlugs.map((slug, index) => [slug, index]));
+      return dedupedCompetitions
         .filter((competition) => favoriteSlugs.includes(competition.slug) && !hiddenSlugs.includes(competition.slug))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+        .sort((a, b) => (rank.get(a.slug) ?? 999) - (rank.get(b.slug) ?? 999));
+    },
     [dedupedCompetitions, favoriteSlugs, hiddenSlugs]
   );
 
@@ -589,6 +592,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const toggleFavoriteLeague = (slug: string) =>
     setFavoriteSlugs((prev) => {
       const next = toggleSlug(prev, slug);
+      if (prefsLoaded) writeSlugList("rn:favorite-leagues", next);
+      return next;
+    });
+  const moveFavoriteLeague = (slug: string, direction: -1 | 1) =>
+    setFavoriteSlugs((prev) => {
+      const next = moveSlug(prev, slug, direction);
       if (prefsLoaded) writeSlugList("rn:favorite-leagues", next);
       return next;
     });
@@ -674,11 +683,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                     if (section.key === "featured") {
                       const highlightedCompetitions = favoriteCompetitions.length ? favoriteCompetitions : section.competitions;
 
-                      if (!highlightedCompetitions.length) {
-                        return null;
-                      }
+                    if (!highlightedCompetitions.length) {
+                      return null;
+                    }
 
-                      return (
+                    return (
                         <div
                           key={section.key}
                           draggable
@@ -703,8 +712,14 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             </div>
                             <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Drag</span>
                           </div>
-                          <div className="space-y-2">
-                            {highlightedCompetitions.map((competition) => (
+                        <div className="space-y-2">
+                            {highlightedCompetitions.map((competition) => {
+                              const isFavorite = favoriteSlugs.includes(competition.slug);
+                              const favoriteIndex = favoriteSlugs.indexOf(competition.slug);
+                              const canMoveUp = favoriteIndex > 0;
+                              const canMoveDown = favoriteIndex !== -1 && favoriteIndex < favoriteSlugs.length - 1;
+
+                              return (
                               <div
                                 key={`${section.key}-${competition.slug}-${competition.id}`}
                                 className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
@@ -713,6 +728,36 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                   <LeagueLogo slug={competition.slug} alt={competition.name} />
                                   <span className="truncate text-sm font-medium text-white">{competition.name}</span>
                                 </Link>
+                                <div className="flex shrink-0 items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => moveFavoriteLeague(competition.slug, -1)}
+                                    disabled={!isFavorite || !canMoveUp}
+                                    className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border text-base font-black transition ${
+                                      isFavorite && canMoveUp
+                                        ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
+                                        : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
+                                    }`}
+                                    title="Mover arriba"
+                                    aria-label={`Mover ${competition.name} arriba`}
+                                  >
+                                    ↑
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => moveFavoriteLeague(competition.slug, 1)}
+                                    disabled={!isFavorite || !canMoveDown}
+                                    className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border text-base font-black transition ${
+                                      isFavorite && canMoveDown
+                                        ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
+                                        : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
+                                    }`}
+                                    title="Mover abajo"
+                                    aria-label={`Mover ${competition.name} abajo`}
+                                  >
+                                    ↓
+                                  </button>
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => toggleFavoriteLeague(competition.slug)}
@@ -736,7 +781,8 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                   {"\u{1F441}"}
                                 </button>
                               </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
                       );

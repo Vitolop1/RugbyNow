@@ -11,7 +11,10 @@ export function readSlugList(key: string) {
 
 export function writeSlugList(key: string, values: string[]) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(key, JSON.stringify(Array.from(new Set(values)).sort()));
+  const deduped = Array.from(
+    new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))
+  );
+  window.localStorage.setItem(key, JSON.stringify(deduped));
 }
 
 export function readOrderedKeys(key: string) {
@@ -33,6 +36,22 @@ export function writeOrderedKeys(key: string, values: string[]) {
 
 export function toggleSlug(values: string[], slug: string) {
   return values.includes(slug) ? values.filter((value) => value !== slug) : [...values, slug];
+}
+
+export function moveSlug(values: string[], slug: string, direction: -1 | 1) {
+  const deduped = Array.from(
+    new Set(values.filter((value): value is string => typeof value === "string" && value.length > 0))
+  );
+  const currentIndex = deduped.indexOf(slug);
+  if (currentIndex === -1) return deduped;
+
+  const nextIndex = currentIndex + direction;
+  if (nextIndex < 0 || nextIndex >= deduped.length) return deduped;
+
+  const next = deduped.slice();
+  const [moved] = next.splice(currentIndex, 1);
+  next.splice(nextIndex, 0, moved);
+  return next;
 }
 
 type CompetitionLike = {

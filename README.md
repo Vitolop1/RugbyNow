@@ -93,6 +93,8 @@ FLASH_URLS=fr-top14=https://www.flashscore.com/rugby-union/france/top-14/results
 Optional:
 
 ```env
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+GOOGLE_SITE_VERIFICATION=your_search_console_verification_token
 LIVE_ONLY=1
 DRY_RUN=1
 ```
@@ -101,8 +103,27 @@ Notes:
 
 - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are required for real database syncs
 - `FLASH_URLS` accepts one or many league URLs
+- `NEXT_PUBLIC_GA_ID` enables Google Analytics 4 tracking
+- `GOOGLE_SITE_VERIFICATION` enables Google Search Console verification through the app metadata
 - `DRY_RUN=1` skips database writes and writes local dumps instead
 - `LIVE_ONLY=1` limits scraping to live-oriented fixtures mode
+
+## Admin / Analytics Tooling
+
+RugbyNow is already wired for:
+
+- `Vercel Analytics`
+- `Vercel Speed Insights`
+- `Google Analytics 4` via `NEXT_PUBLIC_GA_ID`
+- `Google Search Console` verification via `GOOGLE_SITE_VERIFICATION`
+
+What still needs to happen outside the repo:
+
+- enable Analytics and Speed Insights in the Vercel project dashboard
+- create a GA4 property and copy its `G-...` ID into `.env.local`
+- add the domain in Search Console and copy the verification token into `.env.local`
+
+Once those values are present and deployed, no extra code changes are needed.
 
 ## Available Scripts
 

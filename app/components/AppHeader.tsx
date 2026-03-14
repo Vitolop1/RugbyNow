@@ -167,8 +167,12 @@ export default function AppHeader({
     <header className="rn-header-shell sticky top-0 z-50 backdrop-blur">
       <div className="mx-auto max-w-[1280px] px-4 py-3 sm:px-6">
         <div className="relative flex items-center">
-          <Link href="/" className="hidden shrink-0 items-center gap-2 sm:flex" aria-label="RugbyNow home">
-            <div className="rn-header-pill flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl shadow sm:h-[54px] sm:w-[54px]">
+          <Link
+            href="/"
+            className="rn-header-pill hidden shrink-0 items-center gap-3 rounded-2xl px-2.5 py-1.5 shadow sm:inline-flex"
+            aria-label="RugbyNow home"
+          >
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/5 sm:h-11 sm:w-11">
               {logoOk ? (
                 <Image
                   src="/logo.png"
@@ -183,7 +187,7 @@ export default function AppHeader({
                 <span className="text-xs font-black text-white">RN</span>
               )}
             </div>
-            <span className="rn-header-pill inline-flex h-9 items-center px-3 text-xs font-extrabold uppercase tracking-[0.14em]">
+            <span className="inline-flex h-9 items-center pr-2 text-xs font-extrabold uppercase tracking-[0.14em] text-white/95">
               Home
             </span>
           </Link>

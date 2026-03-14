@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
+import bundledSnapshotJson from "@/data/supabase-snapshot.json";
 
 type SnapshotCompetition = {
   id: number;
@@ -31,7 +32,7 @@ type SnapshotMatch = {
   season_id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -69,7 +70,7 @@ type HomeMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -88,7 +89,7 @@ type LeagueMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: "NS" | "LIVE" | "HT" | "FT";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -151,6 +152,23 @@ type RoundMeta = {
 
 let cachedSnapshot: SnapshotPayload | null | undefined;
 
+function isSnapshotPayload(value: unknown): value is SnapshotPayload {
+  if (!value || typeof value !== "object") return false;
+
+  const candidate = value as Partial<SnapshotPayload>;
+  return (
+    Array.isArray(candidate.competitions) &&
+    Array.isArray(candidate.seasons) &&
+    Array.isArray(candidate.teams) &&
+    Array.isArray(candidate.matches) &&
+    Array.isArray(candidate.standings_cache)
+  );
+}
+
+function bundledSnapshot(): SnapshotPayload | null {
+  return isSnapshotPayload(bundledSnapshotJson) ? bundledSnapshotJson : null;
+}
+
 function snapshotPath() {
   return path.join(process.cwd(), "data", "supabase-snapshot.json");
 }
@@ -179,9 +197,10 @@ function loadSnapshot() {
 
   try {
     const raw = fs.readFileSync(snapshotPath(), "utf8");
-    cachedSnapshot = JSON.parse(raw) as SnapshotPayload;
+    const parsed = JSON.parse(raw) as unknown;
+    cachedSnapshot = isSnapshotPayload(parsed) ? parsed : bundledSnapshot();
   } catch {
-    cachedSnapshot = null;
+    cachedSnapshot = bundledSnapshot();
   }
 
   return cachedSnapshot;

@@ -1,0 +1,1272 @@
+{
+  "generatedAt": "2026-03-14T09:45:32.854Z",
+  "totalTeams": 136,
+  "profiles": {
+    "penarol-rugby": {
+      "slug": "penarol-rugby",
+      "displayName": "Peñarol Rugby",
+      "country": "Uruguay",
+      "city": "Montevideo",
+      "venue": "Montevideo",
+      "summary": "Peñarol Rugby es equipo profesional de rugby de Montevideo, Uruguay. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Montevideo. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "wikipediaTitle": "Peñarol Rugby rugby union",
+      "source": "generated"
+    },
+    "selknam": {
+      "slug": "selknam",
+      "displayName": "Selknam",
+      "country": "Chile",
+      "city": "Santiago",
+      "venue": "Santiago",
+      "summary": "Selknam es equipo profesional de rugby de Santiago, Chile. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Santiago. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "wikipediaTitle": "Selknam rugby union",
+      "source": "generated"
+    },
+    "tiro-federal-de-salta": {
+      "slug": "tiro-federal-de-salta",
+      "displayName": "Tiro Federal de Salta",
+      "country": "Argentina",
+      "city": "Salta",
+      "venue": "Salta",
+      "summary": "Tiro Federal de Salta es club de rugby de Salta, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Salta. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Tiro Federal de Salta rugby union",
+      "source": "generated"
+    },
+    "yacare-xv": {
+      "slug": "yacare-xv",
+      "displayName": "Yacare XV",
+      "country": "Paraguay",
+      "city": "Asuncion",
+      "venue": "Asuncion",
+      "summary": "Yacare XV es equipo profesional de rugby de Asuncion, Paraguay. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Asuncion. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "wikipediaTitle": "Yacare XV rugby union",
+      "source": "generated"
+    },
+    "dogos-xv": {
+      "slug": "dogos-xv",
+      "displayName": "Dogos XV",
+      "country": "Argentina",
+      "city": "Cordoba",
+      "venue": "Cordoba",
+      "summary": "Dogos XV es equipo profesional de rugby de Cordoba, Argentina. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Cordoba. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "wikipediaTitle": "Dogos XV rugby union",
+      "source": "generated"
+    },
+    "tigres-rc": {
+      "slug": "tigres-rc",
+      "displayName": "Tigres RC",
+      "country": "Argentina",
+      "city": "Salta",
+      "venue": "Salta",
+      "summary": "Tigres RC es club de rugby de Salta, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Salta. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Tigres RC rugby union",
+      "source": "generated"
+    },
+    "tarucas": {
+      "slug": "tarucas",
+      "displayName": "Tarucas",
+      "country": "Argentina",
+      "city": "San Miguel de Tucuman",
+      "venue": "Tucuman",
+      "summary": "Tarucas es equipo profesional de rugby de San Miguel de Tucuman, Argentina. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Tucuman. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "wikipediaTitle": "Tarucas rugby union",
+      "source": "generated"
+    },
+    "universitario-de-salta": {
+      "slug": "universitario-de-salta",
+      "displayName": "Universitario de Salta",
+      "country": "Argentina",
+      "city": "Salta",
+      "venue": "Salta",
+      "summary": "Universitario de Salta es club de rugby de Salta, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Salta. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Universitario de Salta rugby union",
+      "source": "generated"
+    },
+    "rovigo": {
+      "slug": "rovigo",
+      "displayName": "Rovigo",
+      "country": "Italia",
+      "venue": "Stadio Mario Battaglini",
+      "founded": "1935",
+      "summary": "Rovigo es club de rugby de Italia. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Su origen institucional figura alrededor de 1935. Juega como local en Stadio Mario Battaglini. Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Rugby Rovigo Delta",
+      "source": "wikidata"
+    },
+    "calvisano": {
+      "slug": "calvisano",
+      "displayName": "Calvisano",
+      "country": "Italia",
+      "city": "Calvisano",
+      "venue": "San Michele Stadium",
+      "founded": "1970",
+      "summary": "Calvisano es club de rugby de Calvisano, Italia. En RugbyNow aparece vinculado a las competencias que sigue RugbyNow.",
+      "history": "Su origen institucional figura alrededor de 1970. Juega como local en San Michele Stadium. Dentro de RugbyNow lo seguimos sobre todo por las competencias que sigue RugbyNow.",
+      "wikipediaTitle": "Rugby Calvisano",
+      "source": "wikidata"
+    },
+    "mogliano": {
+      "slug": "mogliano",
+      "displayName": "Mogliano",
+      "country": "Italia",
+      "city": "Mogliano Veneto",
+      "venue": "Stadio Maurizio Quaggia",
+      "founded": "1956",
+      "summary": "Mogliano es club de rugby de Mogliano Veneto, Italia. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Su origen institucional figura alrededor de 1956. Juega como local en Stadio Maurizio Quaggia. Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Mogliano Rugby",
+      "source": "wikidata"
+    },
+    "viadana": {
+      "slug": "viadana",
+      "displayName": "Viadana",
+      "country": "Italia",
+      "city": "Viadana",
+      "venue": "Luigi Zaffanella Stadium",
+      "founded": "1970",
+      "summary": "Viadana es club de rugby de Viadana, Italia. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Su origen institucional figura alrededor de 1970. Juega como local en Luigi Zaffanella Stadium. Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Rugby Viadana",
+      "source": "wikidata"
+    },
+    "lazio": {
+      "slug": "lazio",
+      "displayName": "Lazio",
+      "summary": "Lazio es club de rugby. En RugbyNow aparece vinculado a las competencias que sigue RugbyNow.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por las competencias que sigue RugbyNow.",
+      "wikipediaTitle": "Lazio rugby union",
+      "source": "generated"
+    },
+    "fiamme-oro": {
+      "slug": "fiamme-oro",
+      "displayName": "Fiamme Oro",
+      "country": "Italia",
+      "founded": "1955",
+      "summary": "Fiamme Oro es club de rugby de Italia. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Su origen institucional figura alrededor de 1955. Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Fiamme Oro Rugby",
+      "source": "wikidata"
+    },
+    "colorno": {
+      "slug": "colorno",
+      "displayName": "Colorno",
+      "country": "Italia",
+      "city": "Colorno",
+      "founded": "1975",
+      "summary": "Colorno es club de rugby de Colorno, Italia. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Su origen institucional figura alrededor de 1975. Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Rugby Colorno",
+      "source": "wikidata"
+    },
+    "stade-toulousain": {
+      "slug": "stade-toulousain",
+      "displayName": "Stade Toulousain",
+      "country": "Francia",
+      "city": "Toulouse",
+      "venue": "Estadio Ernest-Wallon",
+      "founded": "1907",
+      "summary": "Stade Toulousain es club de rugby de Toulouse, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 1907. Juega como local en Estadio Ernest-Wallon. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "Stade Toulousain",
+      "source": "wikidata"
+    },
+    "section-paloise": {
+      "slug": "section-paloise",
+      "displayName": "Section Paloise",
+      "country": "Francia",
+      "city": "Pau",
+      "venue": "Estadio du Hameau",
+      "founded": "1902",
+      "summary": "Section Paloise es club de rugby de Pau, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 1902. Juega como local en Estadio du Hameau. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "Section Paloise",
+      "source": "wikidata"
+    },
+    "bordeaux-begles": {
+      "slug": "bordeaux-begles",
+      "displayName": "Bordeaux Bègles",
+      "country": "Francia",
+      "city": "Bègles",
+      "venue": "Stade Jacques Chaban-Delmas",
+      "founded": "2006",
+      "summary": "Bordeaux Bègles es club de rugby de Bègles, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 2006. Juega como local en Stade Jacques Chaban-Delmas. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "Union Bordeaux Bègles",
+      "source": "wikidata"
+    },
+    "jockey-club-de-salta": {
+      "slug": "jockey-club-de-salta",
+      "displayName": "Jockey Club de Salta",
+      "country": "Argentina",
+      "city": "Salta",
+      "venue": "Salta",
+      "summary": "Jockey Club de Salta es club de rugby de Salta, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Salta. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Jockey Club de Salta rugby union",
+      "source": "generated"
+    },
+    "stade-francais": {
+      "slug": "stade-francais",
+      "displayName": "Stade Français",
+      "country": "Francia",
+      "city": "XVI Distrito de París",
+      "venue": "Estadio Jean-Bouin",
+      "founded": "1883",
+      "summary": "Stade Français es club de rugby de XVI Distrito de París, Francia. En RugbyNow aparece vinculado a Top 14.",
+      "history": "Su origen institucional figura alrededor de 1883. Juega como local en Estadio Jean-Bouin. Dentro de RugbyNow lo seguimos sobre todo por Top 14.",
+      "wikipediaTitle": "Stade Français",
+      "source": "wikidata"
+    },
+    "toulon": {
+      "slug": "toulon",
+      "displayName": "Toulon",
+      "country": "Francia",
+      "city": "Tolón",
+      "venue": "Estadio Mayol",
+      "founded": "1908",
+      "summary": "Toulon es club de rugby de Tolón, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 1908. Juega como local en Estadio Mayol. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "RC Toulon",
+      "source": "wikidata"
+    },
+    "castres-olympique": {
+      "slug": "castres-olympique",
+      "displayName": "Castres Olympique",
+      "country": "Francia",
+      "city": "Labruguière",
+      "venue": "Estadio Pierre-Fabre",
+      "founded": "1906",
+      "summary": "Castres Olympique es club de rugby de Labruguière, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 1906. Juega como local en Estadio Pierre-Fabre. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "Castres Olympique",
+      "source": "wikidata"
+    },
+    "santiago-lawn-tennis-club": {
+      "slug": "santiago-lawn-tennis-club",
+      "displayName": "Santiago Lawn Tennis Club",
+      "country": "Argentina",
+      "city": "Santiago del Estero",
+      "venue": "Santiago del Estero",
+      "summary": "Santiago Lawn Tennis Club es club de rugby de Santiago del Estero, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Santiago del Estero. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Santiago Lawn Tennis Club rugby union",
+      "source": "generated"
+    },
+    "racing-92": {
+      "slug": "racing-92",
+      "displayName": "Racing 92",
+      "country": "Francia",
+      "city": "Colombes",
+      "venue": "Stade Olympique Yves-du-Manoir",
+      "founded": "1890",
+      "summary": "Racing 92 es club de rugby de Colombes, Francia. En RugbyNow aparece vinculado a Top 14.",
+      "history": "Su origen institucional figura alrededor de 1890. Juega como local en Stade Olympique Yves-du-Manoir. Dentro de RugbyNow lo seguimos sobre todo por Top 14.",
+      "wikipediaTitle": "Racing 92",
+      "source": "wikidata"
+    },
+    "stade-rochelais": {
+      "slug": "stade-rochelais",
+      "displayName": "Stade Rochelais",
+      "country": "Francia",
+      "city": "La Rochela",
+      "venue": "Estadio Marcel-Deflandre",
+      "founded": "1898",
+      "summary": "Stade Rochelais es club de rugby de La Rochela, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 1898. Juega como local en Estadio Marcel-Deflandre. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "Stade Rochelais",
+      "source": "wikidata"
+    },
+    "bayonne": {
+      "slug": "bayonne",
+      "displayName": "Bayonne",
+      "country": "Francia",
+      "city": "Bayona",
+      "venue": "Stade Jean-Dauger",
+      "founded": "1906",
+      "summary": "Bayonne es club de rugby de Bayona, Francia. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Su origen institucional figura alrededor de 1906. Juega como local en Stade Jean-Dauger. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "wikipediaTitle": "Aviron Bayonnais",
+      "source": "wikidata"
+    },
+    "lyon": {
+      "slug": "lyon",
+      "displayName": "Lyon",
+      "country": "Francia",
+      "city": "Lyon",
+      "venue": "Estadio Gerland",
+      "founded": "1896",
+      "summary": "Lyon es club de rugby de Lyon, Francia. En RugbyNow aparece vinculado a Top 14.",
+      "history": "Su origen institucional figura alrededor de 1896. Juega como local en Estadio Gerland. Dentro de RugbyNow lo seguimos sobre todo por Top 14.",
+      "wikipediaTitle": "Lyon OU Rugby",
+      "source": "wikidata"
+    },
+    "usa-perpignan": {
+      "slug": "usa-perpignan",
+      "displayName": "USA Perpignan",
+      "country": "Francia",
+      "city": "Perpiñán",
+      "venue": "Estadio Aimé Giral",
+      "founded": "1933",
+      "summary": "USA Perpignan es club de rugby de Perpiñán, Francia. En RugbyNow aparece vinculado a Top 14.",
+      "history": "Su origen institucional figura alrededor de 1933. Juega como local en Estadio Aimé Giral. Dentro de RugbyNow lo seguimos sobre todo por Top 14.",
+      "wikipediaTitle": "USA Perpignan",
+      "source": "wikidata"
+    },
+    "montauban": {
+      "slug": "montauban",
+      "displayName": "Montauban",
+      "country": "Francia",
+      "city": "Montauban",
+      "venue": "Stade Sapiac",
+      "founded": "1903",
+      "summary": "Montauban es club de rugby de Montauban, Francia. En RugbyNow aparece vinculado a Top 14.",
+      "history": "Su origen institucional figura alrededor de 1903. Juega como local en Stade Sapiac. Dentro de RugbyNow lo seguimos sobre todo por Top 14.",
+      "wikipediaTitle": "US Montauban",
+      "source": "wikidata"
+    },
+    "biella": {
+      "slug": "biella",
+      "displayName": "Biella",
+      "country": "Italy",
+      "summary": "Biella es club de rugby de Italy. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Biella rugby union",
+      "source": "generated"
+    },
+    "vicenza": {
+      "slug": "vicenza",
+      "displayName": "Vicenza",
+      "country": "Italy",
+      "summary": "Vicenza es club de rugby de Italy. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "wikipediaTitle": "Vicenza rugby union",
+      "source": "generated"
+    },
+    "old-lions-rc": {
+      "slug": "old-lions-rc",
+      "displayName": "Old Lions RC",
+      "country": "Argentina",
+      "city": "Santiago del Estero",
+      "venue": "Santiago del Estero",
+      "summary": "Old Lions RC es equipo profesional de rugby de Santiago del Estero, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande y United Rugby Championship.",
+      "history": "Juega como local en Santiago del Estero. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande y United Rugby Championship.",
+      "wikipediaTitle": "Old Lions RC rugby union",
+      "source": "generated"
+    },
+    "gimnasia-y-tiro": {
+      "slug": "gimnasia-y-tiro",
+      "displayName": "Gimnasia y Tiro",
+      "country": "Argentina",
+      "city": "Salta",
+      "venue": "Salta",
+      "summary": "Gimnasia y Tiro es club de rugby de Salta, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Salta. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Gimnasia y Tiro rugby union",
+      "source": "generated"
+    },
+    "santiago-rugby-club": {
+      "slug": "santiago-rugby-club",
+      "displayName": "Santiago Rugby Club",
+      "country": "Argentina",
+      "city": "Santiago del Estero",
+      "venue": "Santiago del Estero",
+      "summary": "Santiago Rugby Club es club de rugby de Santiago del Estero, Argentina. En RugbyNow aparece vinculado a Liga Norte Grande.",
+      "history": "Juega como local en Santiago del Estero. Dentro de RugbyNow lo seguimos sobre todo por Liga Norte Grande.",
+      "wikipediaTitle": "Santiago Rugby Club rugby union",
+      "source": "generated"
+    },
+    "ulster": {
+      "slug": "ulster",
+      "displayName": "Ulster",
+      "country": "Reino Unido",
+      "city": "Belfast",
+      "venue": "Estadio Ravenhill",
+      "founded": "1879",
+      "summary": "Ulster es equipo profesional de rugby de Belfast, Reino Unido. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Su origen institucional figura alrededor de 1879. Juega como local en Estadio Ravenhill. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "wikipediaTitle": "Ulster Rugby",
+      "source": "wikidata"
+    },
+    "benetton": {
+      "slug": "benetton",
+      "displayName": "Benetton",
+      "country": "Italy",
+      "city": "Treviso",
+      "venue": "Stadio Comunale di Monigo",
+      "founded": "1932",
+      "summary": "Benetton es equipo profesional de rugby de Treviso, Italy. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Su origen institucional figura alrededor de 1932. Juega como local en Stadio Comunale di Monigo. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "wikipediaTitle": "Benetton Rugby",
+      "source": "wikidata"
+    },
+    "fiyi-7s": {
+      "slug": "fiyi-7s",
+      "displayName": "Fiyi 7s",
+      "country": "Fiyi",
+      "summary": "Fiyi 7s es club de rugby de Fiyi. En RugbyNow aparece vinculado a SVNS Australia.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS Australia.",
+      "wikipediaTitle": "Fiji national rugby sevens team",
+      "source": "wikidata"
+    },
+    "nueva-zelanda-7s": {
+      "slug": "nueva-zelanda-7s",
+      "displayName": "Nueva Zelanda 7s",
+      "country": "Nueva Zelanda",
+      "summary": "Nueva Zelanda 7s es club de rugby de Nueva Zelanda. En RugbyNow aparece vinculado a SVNS Australia.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS Australia.",
+      "wikipediaTitle": "New Zealand national rugby sevens team",
+      "source": "wikidata"
+    },
+    "gran-bretana-7s": {
+      "slug": "gran-bretana-7s",
+      "displayName": "Gran Bretaña 7s",
+      "country": "Reino Unido",
+      "summary": "Gran Bretaña 7s es club de rugby de Reino Unido. En RugbyNow aparece vinculado a SVNS Australia.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS Australia.",
+      "wikipediaTitle": "Great Britain national rugby sevens team",
+      "source": "wikidata"
+    },
+    "kenya-7s": {
+      "slug": "kenya-7s",
+      "displayName": "Kenya 7s",
+      "country": "Kenia",
+      "summary": "Kenya 7s es club de rugby de Kenia. En RugbyNow aparece vinculado a las competencias que sigue RugbyNow.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por las competencias que sigue RugbyNow.",
+      "wikipediaTitle": "Kenya national rugby sevens team",
+      "source": "wikidata"
+    },
+    "crusaders": {
+      "slug": "crusaders",
+      "displayName": "Crusaders",
+      "country": "New Zealand",
+      "city": "Christchurch",
+      "venue": "Apollo Projects Stadium",
+      "founded": "1996",
+      "summary": "Crusaders es equipo profesional de rugby de Christchurch, New Zealand. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Su origen institucional figura alrededor de 1996. Juega como local en Apollo Projects Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "wikipediaTitle": "Crusaders (rugby union)",
+      "source": "wikidata"
+    },
+    "brumbies": {
+      "slug": "brumbies",
+      "displayName": "Brumbies",
+      "country": "Australia",
+      "city": "Canberra",
+      "venue": "GIO Stadium",
+      "founded": "1996",
+      "summary": "Brumbies es equipo profesional de rugby de Canberra, Australia. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Su origen institucional figura alrededor de 1996. Juega como local en GIO Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "wikipediaTitle": "ACT Brumbies",
+      "source": "wikidata"
+    },
+    "western-force": {
+      "slug": "western-force",
+      "displayName": "Western Force",
+      "country": "Australia",
+      "city": "Perth",
+      "venue": "HBF Park",
+      "founded": "2005",
+      "summary": "Western Force es equipo profesional de rugby de Perth, Australia. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Su origen institucional figura alrededor de 2005. Juega como local en HBF Park. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "wikipediaTitle": "Western Force",
+      "source": "wikidata"
+    },
+    "blues": {
+      "slug": "blues",
+      "displayName": "Blues",
+      "country": "New Zealand",
+      "city": "Auckland",
+      "venue": "Eden Park",
+      "founded": "1996",
+      "summary": "Blues es equipo profesional de rugby de Auckland, New Zealand. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Su origen institucional figura alrededor de 1996. Juega como local en Eden Park. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "wikipediaTitle": "Blues (Super Rugby)",
+      "source": "wikidata"
+    },
+    "highlanders": {
+      "slug": "highlanders",
+      "displayName": "Highlanders",
+      "country": "New Zealand",
+      "city": "Dunedin",
+      "venue": "Forsyth Barr Stadium",
+      "founded": "1996",
+      "summary": "Highlanders es equipo profesional de rugby de Dunedin, New Zealand. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Su origen institucional figura alrededor de 1996. Juega como local en Forsyth Barr Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "wikipediaTitle": "Highlanders (rugby union)",
+      "source": "wikidata"
+    },
+    "chiefs": {
+      "slug": "chiefs",
+      "displayName": "Chiefs",
+      "country": "New Zealand",
+      "city": "Hamilton",
+      "venue": "FMG Stadium Waikato",
+      "summary": "Chiefs es equipo profesional de rugby de Hamilton, New Zealand. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Juega como local en FMG Stadium Waikato. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "source": "generated"
+    },
+    "waratahs": {
+      "slug": "waratahs",
+      "displayName": "Waratahs",
+      "country": "Australia",
+      "city": "Sydney",
+      "venue": "Sydney Football Stadium",
+      "summary": "Waratahs es equipo profesional de rugby de Sydney, Australia. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Juega como local en Sydney Football Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "source": "generated"
+    },
+    "fijian-drua": {
+      "slug": "fijian-drua",
+      "displayName": "Fijian Drua",
+      "country": "Fiji",
+      "city": "Lautoka",
+      "venue": "Churchill Park",
+      "summary": "Fijian Drua es equipo profesional de rugby de Lautoka, Fiji. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Juega como local en Churchill Park. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "source": "generated"
+    },
+    "hurricanes": {
+      "slug": "hurricanes",
+      "displayName": "Hurricanes",
+      "country": "New Zealand",
+      "city": "Wellington",
+      "venue": "Sky Stadium",
+      "summary": "Hurricanes es equipo profesional de rugby de Wellington, New Zealand. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Juega como local en Sky Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "source": "generated"
+    },
+    "moana-pasifika": {
+      "slug": "moana-pasifika",
+      "displayName": "Moana Pasifika",
+      "country": "New Zealand",
+      "city": "Auckland",
+      "venue": "North Harbour Stadium",
+      "summary": "Moana Pasifika es equipo profesional de rugby de Auckland, New Zealand. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Juega como local en North Harbour Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "source": "generated"
+    },
+    "reds": {
+      "slug": "reds",
+      "displayName": "Reds",
+      "country": "Australia",
+      "city": "Brisbane",
+      "venue": "Suncorp Stadium",
+      "summary": "Reds es equipo profesional de rugby de Brisbane, Australia. En RugbyNow aparece vinculado a Super Rugby Pacific.",
+      "history": "Juega como local en Suncorp Stadium. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Pacific.",
+      "source": "generated"
+    },
+    "california-legion": {
+      "slug": "california-legion",
+      "displayName": "California Legion",
+      "country": "United States",
+      "summary": "California Legion es equipo profesional de rugby de United States. En RugbyNow aparece vinculado a Major League Rugby.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Major League Rugby.",
+      "source": "generated"
+    },
+    "anthem-rc": {
+      "slug": "anthem-rc",
+      "displayName": "Anthem RC",
+      "country": "United States",
+      "summary": "Anthem RC es equipo profesional de rugby de United States. En RugbyNow aparece vinculado a Major League Rugby.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Major League Rugby.",
+      "source": "generated"
+    },
+    "valorugby-emilia": {
+      "slug": "valorugby-emilia",
+      "displayName": "Valorugby Emilia",
+      "country": "Italy",
+      "summary": "Valorugby Emilia es club de rugby de Italy. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "source": "generated"
+    },
+    "petrarca": {
+      "slug": "petrarca",
+      "displayName": "Petrarca",
+      "country": "Italy",
+      "summary": "Petrarca es club de rugby de Italy. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "source": "generated"
+    },
+    "lyons-piacenza": {
+      "slug": "lyons-piacenza",
+      "displayName": "Lyons Piacenza",
+      "country": "Italy",
+      "summary": "Lyons Piacenza es club de rugby de Italy. En RugbyNow aparece vinculado a Serie A Elite.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Serie A Elite.",
+      "source": "generated"
+    },
+    "asm-clermont-auvergne": {
+      "slug": "asm-clermont-auvergne",
+      "displayName": "ASM Clermont Auvergne",
+      "country": "Europe",
+      "summary": "ASM Clermont Auvergne es club de rugby de Europe. En RugbyNow aparece vinculado a European Rugby Champions Cup y Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y Top 14.",
+      "source": "generated"
+    },
+    "montpellier-herault-rugby": {
+      "slug": "montpellier-herault-rugby",
+      "displayName": "Montpellier Hérault Rugby",
+      "country": "France",
+      "summary": "Montpellier Hérault Rugby es club de rugby de France. En RugbyNow aparece vinculado a Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Top 14.",
+      "source": "generated"
+    },
+    "england": {
+      "slug": "england",
+      "displayName": "England",
+      "summary": "England es seleccion nacional de rugby. En RugbyNow aparece vinculado a Nations Championship, Six Nations y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Six Nations y 1 mas.",
+      "source": "generated"
+    },
+    "france": {
+      "slug": "france",
+      "displayName": "France",
+      "summary": "France es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Nations Championship, Six Nations y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Six Nations y 1 mas.",
+      "source": "generated"
+    },
+    "ireland": {
+      "slug": "ireland",
+      "displayName": "Ireland",
+      "summary": "Ireland es seleccion nacional de rugby. En RugbyNow aparece vinculado a Nations Championship, Six Nations y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Six Nations y 1 mas.",
+      "source": "generated"
+    },
+    "italy": {
+      "slug": "italy",
+      "displayName": "Italy",
+      "summary": "Italy es seleccion nacional de rugby. En RugbyNow aparece vinculado a Nations Championship, Six Nations y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Six Nations y 1 mas.",
+      "source": "generated"
+    },
+    "scotland": {
+      "slug": "scotland",
+      "displayName": "Scotland",
+      "summary": "Scotland es seleccion nacional de rugby. En RugbyNow aparece vinculado a Nations Championship, Six Nations y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Six Nations y 1 mas.",
+      "source": "generated"
+    },
+    "wales": {
+      "slug": "wales",
+      "displayName": "Wales",
+      "summary": "Wales es seleccion nacional de rugby. En RugbyNow aparece vinculado a Nations Championship, Six Nations y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Six Nations y 1 mas.",
+      "source": "generated"
+    },
+    "seattle-seawolves": {
+      "slug": "seattle-seawolves",
+      "displayName": "Seattle Seawolves",
+      "country": "United States",
+      "summary": "Seattle Seawolves es equipo profesional de rugby de United States. En RugbyNow aparece vinculado a Major League Rugby.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Major League Rugby.",
+      "source": "generated"
+    },
+    "old-glory-dc": {
+      "slug": "old-glory-dc",
+      "displayName": "Old Glory DC",
+      "country": "United States",
+      "summary": "Old Glory DC es equipo profesional de rugby de United States. En RugbyNow aparece vinculado a Major League Rugby.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Major League Rugby.",
+      "source": "generated"
+    },
+    "chicago-hounds": {
+      "slug": "chicago-hounds",
+      "displayName": "Chicago Hounds",
+      "country": "United States",
+      "summary": "Chicago Hounds es equipo profesional de rugby de United States. En RugbyNow aparece vinculado a Major League Rugby.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Major League Rugby.",
+      "source": "generated"
+    },
+    "new-england-free-jacks": {
+      "slug": "new-england-free-jacks",
+      "displayName": "New England Free Jacks",
+      "country": "United States",
+      "summary": "New England Free Jacks es equipo profesional de rugby de United States. En RugbyNow aparece vinculado a Major League Rugby.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Major League Rugby.",
+      "source": "generated"
+    },
+    "ospreys": {
+      "slug": "ospreys",
+      "displayName": "Ospreys",
+      "country": "Wales",
+      "city": "Swansea",
+      "venue": "Swansea.com Stadium",
+      "summary": "Ospreys es equipo profesional de rugby de Swansea, Wales. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Juega como local en Swansea.com Stadium. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "source": "generated"
+    },
+    "dragons": {
+      "slug": "dragons",
+      "displayName": "Dragons",
+      "country": "Wales",
+      "city": "Newport",
+      "venue": "Rodney Parade",
+      "summary": "Dragons es equipo profesional de rugby de Newport, Wales. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Juega como local en Rodney Parade. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "source": "generated"
+    },
+    "cobras-brasil-rugby": {
+      "slug": "cobras-brasil-rugby",
+      "displayName": "Cobras Brasil Rugby",
+      "country": "Brazil",
+      "city": "Sao Paulo",
+      "venue": "Sao Paulo",
+      "summary": "Cobras Brasil Rugby es equipo profesional de rugby de Sao Paulo, Brazil. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Sao Paulo. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "source": "generated"
+    },
+    "capibaras-xv": {
+      "slug": "capibaras-xv",
+      "displayName": "Capibaras XV",
+      "country": "Brazil",
+      "city": "Sao Paulo",
+      "venue": "Sao Paulo",
+      "summary": "Capibaras XV es equipo profesional de rugby de Sao Paulo, Brazil. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Sao Paulo. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "source": "generated"
+    },
+    "pampas-xv": {
+      "slug": "pampas-xv",
+      "displayName": "Pampas XV",
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "venue": "Buenos Aires",
+      "summary": "Pampas XV es equipo profesional de rugby de Buenos Aires, Argentina. En RugbyNow aparece vinculado a Super Rugby Americas.",
+      "history": "Juega como local en Buenos Aires. Dentro de RugbyNow lo seguimos sobre todo por Super Rugby Americas.",
+      "source": "generated"
+    },
+    "penarol": {
+      "slug": "penarol",
+      "displayName": "Penarol",
+      "summary": "Penarol es club de rugby. En RugbyNow aparece vinculado a las competencias que sigue RugbyNow.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por las competencias que sigue RugbyNow.",
+      "source": "generated"
+    },
+    "samoa": {
+      "slug": "samoa",
+      "displayName": "Samoa",
+      "summary": "Samoa es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "belgium": {
+      "slug": "belgium",
+      "displayName": "Belgium",
+      "summary": "Belgium es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "namibia": {
+      "slug": "namibia",
+      "displayName": "Namibia",
+      "summary": "Namibia es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "brazil": {
+      "slug": "brazil",
+      "displayName": "Brazil",
+      "summary": "Brazil es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "australia": {
+      "slug": "australia",
+      "displayName": "Australia",
+      "summary": "Australia es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Nations Championship, Rugby World Cup y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Rugby World Cup y 1 mas.",
+      "source": "generated"
+    },
+    "hong-kong": {
+      "slug": "hong-kong",
+      "displayName": "Hong Kong",
+      "summary": "Hong Kong es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "zimbabwe": {
+      "slug": "zimbabwe",
+      "displayName": "Zimbabwe",
+      "summary": "Zimbabwe es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "new-zealand": {
+      "slug": "new-zealand",
+      "displayName": "New Zealand",
+      "summary": "New Zealand es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Nations Championship, Rugby World Cup y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Rugby World Cup y 1 mas.",
+      "source": "generated"
+    },
+    "chile": {
+      "slug": "chile",
+      "displayName": "Chile",
+      "summary": "Chile es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "tonga": {
+      "slug": "tonga",
+      "displayName": "Tonga",
+      "summary": "Tonga es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "japan": {
+      "slug": "japan",
+      "displayName": "Japan",
+      "summary": "Japan es seleccion nacional de rugby. En RugbyNow aparece vinculado a Nations Championship y Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship y Rugby World Cup.",
+      "source": "generated"
+    },
+    "south-africa": {
+      "slug": "south-africa",
+      "displayName": "South Africa",
+      "summary": "South Africa es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Nations Championship, Rugby World Cup y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Rugby World Cup y 1 mas.",
+      "source": "generated"
+    },
+    "uruguay": {
+      "slug": "uruguay",
+      "displayName": "Uruguay",
+      "summary": "Uruguay es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "georgia": {
+      "slug": "georgia",
+      "displayName": "Georgia",
+      "summary": "Georgia es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "romania": {
+      "slug": "romania",
+      "displayName": "Romania",
+      "summary": "Romania es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "fiji": {
+      "slug": "fiji",
+      "displayName": "Fiji",
+      "summary": "Fiji es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Nations Championship, Rugby World Cup y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Rugby World Cup y 1 mas.",
+      "source": "generated"
+    },
+    "spain": {
+      "slug": "spain",
+      "displayName": "Spain",
+      "summary": "Spain es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Rugby World Cup y SVNS USA.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup y SVNS USA.",
+      "source": "generated"
+    },
+    "portugal": {
+      "slug": "portugal",
+      "displayName": "Portugal",
+      "summary": "Portugal es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "argentina": {
+      "slug": "argentina",
+      "displayName": "Argentina",
+      "summary": "Argentina es seleccion nacional de rugby seven. En RugbyNow aparece vinculado a Nations Championship, Rugby World Cup y 1 mas.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Nations Championship, Rugby World Cup y 1 mas.",
+      "source": "generated"
+    },
+    "canada": {
+      "slug": "canada",
+      "displayName": "Canada",
+      "summary": "Canada es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "usa": {
+      "slug": "usa",
+      "displayName": "USA",
+      "summary": "USA es seleccion nacional de rugby. En RugbyNow aparece vinculado a Rugby World Cup.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por Rugby World Cup.",
+      "source": "generated"
+    },
+    "alumni": {
+      "slug": "alumni",
+      "displayName": "Alumni",
+      "country": "Argentina",
+      "summary": "Alumni es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "cuba": {
+      "slug": "cuba",
+      "displayName": "CUBA",
+      "country": "Argentina",
+      "summary": "CUBA es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "champagnat": {
+      "slug": "champagnat",
+      "displayName": "Champagnat",
+      "country": "Argentina",
+      "summary": "Champagnat es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "casi": {
+      "slug": "casi",
+      "displayName": "CASI",
+      "country": "Argentina",
+      "summary": "CASI es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "hindu": {
+      "slug": "hindu",
+      "displayName": "Hindu",
+      "country": "Argentina",
+      "summary": "Hindu es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "los-tilos": {
+      "slug": "los-tilos",
+      "displayName": "Los Tilos",
+      "country": "Argentina",
+      "summary": "Los Tilos es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "la-plata": {
+      "slug": "la-plata",
+      "displayName": "La Plata",
+      "country": "Argentina",
+      "summary": "La Plata es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "atletico-del-rosario": {
+      "slug": "atletico-del-rosario",
+      "displayName": "Atlético del Rosario",
+      "country": "Argentina",
+      "summary": "Atlético del Rosario es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "los-matreros": {
+      "slug": "los-matreros",
+      "displayName": "Los Matreros",
+      "country": "Argentina",
+      "summary": "Los Matreros es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "regatas-bella-vista": {
+      "slug": "regatas-bella-vista",
+      "displayName": "Regatas Bella Vista",
+      "country": "Argentina",
+      "summary": "Regatas Bella Vista es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "newman": {
+      "slug": "newman",
+      "displayName": "Newman",
+      "country": "Argentina",
+      "summary": "Newman es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "buenos-aires": {
+      "slug": "buenos-aires",
+      "displayName": "Buenos Aires",
+      "country": "Argentina",
+      "summary": "Buenos Aires es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "sic": {
+      "slug": "sic",
+      "displayName": "SIC",
+      "country": "Argentina",
+      "summary": "SIC es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "belgrano": {
+      "slug": "belgrano",
+      "displayName": "Belgrano",
+      "country": "Argentina",
+      "summary": "Belgrano es club de rugby de Argentina. En RugbyNow aparece vinculado a URBA Top 14.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por URBA Top 14.",
+      "source": "generated"
+    },
+    "sale-sharks": {
+      "slug": "sale-sharks",
+      "displayName": "Sale Sharks",
+      "country": "England",
+      "city": "Salford",
+      "venue": "Salford Community Stadium",
+      "summary": "Sale Sharks es club de rugby de Salford, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en Salford Community Stadium. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "northampton-saints": {
+      "slug": "northampton-saints",
+      "displayName": "Northampton Saints",
+      "country": "England",
+      "city": "Northampton",
+      "venue": "Franklin's Gardens",
+      "summary": "Northampton Saints es club de rugby de Northampton, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en Franklin's Gardens. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "harlequins": {
+      "slug": "harlequins",
+      "displayName": "Harlequins",
+      "country": "England",
+      "city": "London",
+      "venue": "Twickenham Stoop",
+      "summary": "Harlequins es club de rugby de London, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en Twickenham Stoop. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "leicester-tigers": {
+      "slug": "leicester-tigers",
+      "displayName": "Leicester Tigers",
+      "country": "England",
+      "city": "Leicester",
+      "venue": "Welford Road",
+      "summary": "Leicester Tigers es club de rugby de Leicester, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en Welford Road. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "exeter-chiefs": {
+      "slug": "exeter-chiefs",
+      "displayName": "Exeter Chiefs",
+      "country": "England",
+      "city": "Exeter",
+      "venue": "Sandy Park",
+      "summary": "Exeter Chiefs es club de rugby de Exeter, England. En RugbyNow aparece vinculado a Premiership Rugby.",
+      "history": "Juega como local en Sandy Park. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby.",
+      "source": "generated"
+    },
+    "bristol": {
+      "slug": "bristol",
+      "displayName": "Bristol",
+      "country": "England",
+      "city": "Bristol",
+      "venue": "Ashton Gate Stadium",
+      "summary": "Bristol es club de rugby de Bristol, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en Ashton Gate Stadium. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "saracens": {
+      "slug": "saracens",
+      "displayName": "Saracens",
+      "country": "England",
+      "city": "London",
+      "venue": "StoneX Stadium",
+      "summary": "Saracens es club de rugby de London, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en StoneX Stadium. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "newcastle-falcons": {
+      "slug": "newcastle-falcons",
+      "displayName": "Newcastle Falcons",
+      "country": "England",
+      "city": "Newcastle upon Tyne",
+      "venue": "Kingston Park",
+      "summary": "Newcastle Falcons es club de rugby de Newcastle upon Tyne, England. En RugbyNow aparece vinculado a Premiership Rugby.",
+      "history": "Juega como local en Kingston Park. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby.",
+      "source": "generated"
+    },
+    "gloucester": {
+      "slug": "gloucester",
+      "displayName": "Gloucester",
+      "country": "England",
+      "city": "Gloucester",
+      "venue": "Kingsholm Stadium",
+      "summary": "Gloucester es club de rugby de Gloucester, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en Kingsholm Stadium. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "bath": {
+      "slug": "bath",
+      "displayName": "Bath",
+      "country": "England",
+      "city": "Bath",
+      "venue": "The Recreation Ground",
+      "summary": "Bath es club de rugby de Bath, England. En RugbyNow aparece vinculado a Premiership Rugby y European Rugby Champions Cup.",
+      "history": "Juega como local en The Recreation Ground. Dentro de RugbyNow lo seguimos sobre todo por Premiership Rugby y European Rugby Champions Cup.",
+      "source": "generated"
+    },
+    "rc-toulonnais": {
+      "slug": "rc-toulonnais",
+      "displayName": "RC Toulonnais",
+      "country": "Francia",
+      "city": "Tolón",
+      "venue": "Estadio Mayol",
+      "founded": "1908",
+      "summary": "RC Toulonnais es club de rugby de Tolón, Francia. En RugbyNow aparece vinculado a las competencias que sigue RugbyNow.",
+      "history": "Su origen institucional figura alrededor de 1908. Juega como local en Estadio Mayol. Dentro de RugbyNow lo seguimos sobre todo por las competencias que sigue RugbyNow.",
+      "wikipediaTitle": "RC Toulon",
+      "source": "wikidata"
+    },
+    "aviron-bayonnais": {
+      "slug": "aviron-bayonnais",
+      "displayName": "Aviron Bayonnais",
+      "summary": "Aviron Bayonnais es club de rugby. En RugbyNow aparece vinculado a las competencias que sigue RugbyNow.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por las competencias que sigue RugbyNow.",
+      "source": "generated"
+    },
+    "glasgow-warriors": {
+      "slug": "glasgow-warriors",
+      "displayName": "Glasgow Warriors",
+      "country": "Scotland",
+      "city": "Glasgow",
+      "venue": "Scotstoun Stadium",
+      "summary": "Glasgow Warriors es equipo profesional de rugby de Glasgow, Scotland. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en Scotstoun Stadium. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "edinburgh": {
+      "slug": "edinburgh",
+      "displayName": "Edinburgh",
+      "country": "Scotland",
+      "city": "Edinburgh",
+      "venue": "Hive Stadium",
+      "summary": "Edinburgh es equipo profesional de rugby de Edinburgh, Scotland. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en Hive Stadium. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "scarlets": {
+      "slug": "scarlets",
+      "displayName": "Scarlets",
+      "country": "Wales",
+      "city": "Llanelli",
+      "venue": "Parc y Scarlets",
+      "summary": "Scarlets es equipo profesional de rugby de Llanelli, Wales. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en Parc y Scarlets. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "munster": {
+      "slug": "munster",
+      "displayName": "Munster",
+      "country": "Ireland",
+      "city": "Limerick",
+      "venue": "Thomond Park",
+      "summary": "Munster es equipo profesional de rugby de Limerick, Ireland. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en Thomond Park. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "leinster": {
+      "slug": "leinster",
+      "displayName": "Leinster",
+      "country": "Ireland",
+      "city": "Dublin",
+      "venue": "RDS Arena",
+      "summary": "Leinster es equipo profesional de rugby de Dublin, Ireland. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en RDS Arena. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "stormers": {
+      "slug": "stormers",
+      "displayName": "Stormers",
+      "country": "South Africa",
+      "city": "Cape Town",
+      "venue": "DHL Stadium",
+      "summary": "Stormers es equipo profesional de rugby de Cape Town, South Africa. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en DHL Stadium. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "sharks": {
+      "slug": "sharks",
+      "displayName": "Sharks",
+      "country": "South Africa",
+      "city": "Durban",
+      "venue": "Kings Park Stadium",
+      "summary": "Sharks es equipo profesional de rugby de Durban, South Africa. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en Kings Park Stadium. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "bulls": {
+      "slug": "bulls",
+      "displayName": "Bulls",
+      "country": "South Africa",
+      "city": "Pretoria",
+      "venue": "Loftus Versfeld Stadium",
+      "summary": "Bulls es equipo profesional de rugby de Pretoria, South Africa. En RugbyNow aparece vinculado a European Rugby Champions Cup y United Rugby Championship.",
+      "history": "Juega como local en Loftus Versfeld Stadium. Dentro de RugbyNow lo seguimos sobre todo por European Rugby Champions Cup y United Rugby Championship.",
+      "source": "generated"
+    },
+    "zebre": {
+      "slug": "zebre",
+      "displayName": "Zebre",
+      "country": "Italy",
+      "city": "Parma",
+      "venue": "Stadio Sergio Lanfranchi",
+      "summary": "Zebre es equipo profesional de rugby de Parma, Italy. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Juega como local en Stadio Sergio Lanfranchi. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "source": "generated"
+    },
+    "connacht": {
+      "slug": "connacht",
+      "displayName": "Connacht",
+      "country": "Ireland",
+      "city": "Galway",
+      "venue": "Dexcom Stadium",
+      "summary": "Connacht es equipo profesional de rugby de Galway, Ireland. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Juega como local en Dexcom Stadium. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "source": "generated"
+    },
+    "cardiff-rugby": {
+      "slug": "cardiff-rugby",
+      "displayName": "Cardiff Rugby",
+      "country": "Wales",
+      "city": "Cardiff",
+      "venue": "Cardiff Arms Park",
+      "summary": "Cardiff Rugby es equipo profesional de rugby de Cardiff, Wales. En RugbyNow aparece vinculado a United Rugby Championship.",
+      "history": "Juega como local en Cardiff Arms Park. Dentro de RugbyNow lo seguimos sobre todo por United Rugby Championship.",
+      "source": "generated"
+    },
+    "sudafrica-7s": {
+      "slug": "sudafrica-7s",
+      "displayName": "Sudáfrica 7s",
+      "summary": "Sudáfrica 7s es club de rugby. En RugbyNow aparece vinculado a SVNS Australia.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS Australia.",
+      "source": "generated"
+    },
+    "espana-7s": {
+      "slug": "espana-7s",
+      "displayName": "España 7s",
+      "summary": "España 7s es club de rugby. En RugbyNow aparece vinculado a SVNS Australia.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS Australia.",
+      "source": "generated"
+    },
+    "francia-7s": {
+      "slug": "francia-7s",
+      "displayName": "Francia 7s",
+      "summary": "Francia 7s es club de rugby. En RugbyNow aparece vinculado a SVNS Australia.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS Australia.",
+      "source": "generated"
+    },
+    "great-britain-7s": {
+      "slug": "great-britain-7s",
+      "displayName": "Great Britain 7s",
+      "country": "Reino Unido",
+      "summary": "Great Britain 7s es club de rugby de Reino Unido. En RugbyNow aparece vinculado a SVNS USA.",
+      "history": "Dentro de RugbyNow lo seguimos sobre todo por SVNS USA.",
+      "wikipediaTitle": "Great Britain national rugby sevens team",
+      "source": "wikidata"
+    }
+  }
+}

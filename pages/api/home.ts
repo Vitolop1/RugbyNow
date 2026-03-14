@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
+import { getEffectiveMatchState, isActiveMatchStatus, parseKickoffDateTime, type MatchStatus } from "@/lib/matchStatus";
 import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 
@@ -8,7 +9,7 @@ type MatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: MatchStatus;
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -90,14 +91,82 @@ function normalizeTeamName(value?: string | null) {
   return aliases[normalized] ?? normalized;
 }
 
-function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
-  const byLogicalKey = new Map<string, MatchRow>();
+function isPlaceholderKickoffTime(kickoffTime?: string | null) {
+  return !kickoffTime || kickoffTime === "00:00:00" || kickoffTime === "00:00";
+}
 
-  const keyFor = (row: MatchRow) => {
+function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
+  const normalizedTime = kickoffTime && kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime || "00:00:00";
+  const parsed = new Date(`${matchDate}T${normalizedTime}Z`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function daysBetweenMatchDates(leftDate: string, rightDate: string) {
+  const left = new Date(`${leftDate}T00:00:00Z`);
+  const right = new Date(`${rightDate}T00:00:00Z`);
+  if (Number.isNaN(left.getTime()) || Number.isNaN(right.getTime())) return Number.POSITIVE_INFINITY;
+  return Math.abs(left.getTime() - right.getTime()) / 86400000;
+}
+
+function sameKnownScore(left: MatchRow, right: MatchRow) {
+  return (
+    left.home_score != null &&
+    left.away_score != null &&
+    right.home_score != null &&
+    right.away_score != null &&
+    left.home_score === right.home_score &&
+    left.away_score === right.away_score
+  );
+}
+
+function areMatchDuplicates(left: MatchRow, right: MatchRow) {
+  const leftCompetitionSlug = left.season?.competition?.slug ?? "unknown";
+  const rightCompetitionSlug = right.season?.competition?.slug ?? "unknown";
+  if (leftCompetitionSlug !== rightCompetitionSlug) return false;
+
+  const leftHome = normalizeTeamName(left.home_team?.name);
+  const leftAway = normalizeTeamName(left.away_team?.name);
+  const rightHome = normalizeTeamName(right.home_team?.name);
+  const rightAway = normalizeTeamName(right.away_team?.name);
+  if (leftHome !== rightHome || leftAway !== rightAway) return false;
+
+  const dateGapDays = daysBetweenMatchDates(left.match_date, right.match_date);
+  if (dateGapDays > 2) return false;
+
+  if (
+    left.home_score != null &&
+    left.away_score != null &&
+    right.home_score != null &&
+    right.away_score != null &&
+    !sameKnownScore(left, right)
+  ) {
+    return false;
+  }
+
+  if (left.status === "FT" && right.status === "FT") {
+    return sameKnownScore(left, right);
+  }
+
+  const leftDateTime = parseMatchDateTime(left.match_date, left.kickoff_time);
+  const rightDateTime = parseMatchDateTime(right.match_date, right.kickoff_time);
+  const minutesApart =
+    !leftDateTime || !rightDateTime ? Number.POSITIVE_INFINITY : Math.abs(leftDateTime.getTime() - rightDateTime.getTime()) / 60000;
+
+  return (
+    minutesApart <= 360 ||
+    isPlaceholderKickoffTime(left.kickoff_time) ||
+    isPlaceholderKickoffTime(right.kickoff_time)
+  );
+}
+
+function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
+  const byBucket = new Map<string, Array<{ row: MatchRow; isPrimary: boolean }>>();
+
+  const bucketKeyFor = (row: MatchRow) => {
     const competitionSlug = row.season?.competition?.slug ?? "unknown";
     const home = normalizeTeamName(row.home_team?.name);
     const away = normalizeTeamName(row.away_team?.name);
-    return `${row.match_date}|${competitionSlug}|${home}|${away}`;
+    return `${competitionSlug}|${home}|${away}`;
   };
 
   const qualityFor = (row: MatchRow) => {
@@ -105,30 +174,47 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
     if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
     if (row.home_score != null && row.away_score != null) score += 20;
     if (row.status === "FT") score += 15;
-    else if (row.status === "LIVE") score += 10;
+    else if (isActiveMatchStatus(row.status)) score += 10;
     else if (row.status === "NS") score += 5;
     return score;
   };
 
-  for (const rawRow of base) {
+  const insertRow = (rawRow: RawMatchRow, isPrimary: boolean) => {
     const row = normalizeMatchRow(rawRow);
-    byLogicalKey.set(keyFor(row), row);
-  }
+    const key = bucketKeyFor(row);
+    const bucket = byBucket.get(key) ?? [];
+    const currentIndex = bucket.findIndex((entry) => areMatchDuplicates(entry.row, row));
 
-  for (const rawRow of extra) {
-    const row = normalizeMatchRow(rawRow);
-    const key = keyFor(row);
-    const current = byLogicalKey.get(key);
-    if (!current) {
-      byLogicalKey.set(key, row);
-      continue;
+    if (currentIndex === -1) {
+      bucket.push({ row, isPrimary });
+      byBucket.set(key, bucket);
+      return;
     }
-    if (qualityFor(row) > qualityFor(current)) {
-      byLogicalKey.set(key, row);
-    }
-  }
 
-  return Array.from(byLogicalKey.values()).sort(
+    const current = bucket[currentIndex];
+
+    if (current.isPrimary && !isPrimary) {
+      return;
+    }
+
+    if (isPrimary && !current.isPrimary) {
+      bucket[currentIndex] = { row, isPrimary };
+      byBucket.set(key, bucket);
+      return;
+    }
+
+    if (qualityFor(row) > qualityFor(current.row)) {
+      bucket[currentIndex] = { row, isPrimary };
+      byBucket.set(key, bucket);
+    }
+  };
+
+  for (const rawRow of base) insertRow(rawRow, true);
+  for (const rawRow of extra) insertRow(rawRow, false);
+
+  return Array.from(byBucket.values())
+    .flatMap((bucket) => bucket.map((entry) => entry.row))
+    .sort(
     (a, b) =>
       a.match_date.localeCompare(b.match_date) ||
       String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
@@ -142,27 +228,10 @@ function addDaysISO(iso: string, delta: number) {
   return parsed.toISOString().slice(0, 10);
 }
 
-function parseKickoffDateTime(matchDate: string, kickoffTime?: string | null) {
-  if (!kickoffTime) return null;
-  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  if (!normalized) return null;
-  const parsed = new Date(`${matchDate}T${normalized}Z`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
 function getLocalMatchDate(matchDate: string, kickoffTime: string | null | undefined, timeZone: string) {
   const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
   if (!kickoff) return matchDate;
   return getISODateInTimeZone(kickoff, timeZone);
-}
-
-function isEffectivelyLive(status: MatchRow["status"], matchDate: string, kickoffTime: string | null | undefined, now = new Date()) {
-  if (status === "LIVE") return true;
-  if (status === "FT") return false;
-  const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
-  if (!kickoff) return false;
-  const diffMinutes = Math.floor((now.getTime() - kickoff.getTime()) / 60000);
-  return diffMinutes >= 0 && diffMinutes <= 130;
 }
 
 function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZone: string) {
@@ -174,21 +243,22 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
     if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
     if (row.home_score != null && row.away_score != null) score += 20;
     if (row.status === "FT") score += 15;
-    else if (row.status === "LIVE") score += 10;
+    else if (isActiveMatchStatus(row.status)) score += 10;
     else if (row.status === "NS") score += 5;
     return score;
   };
 
   for (const row of rows) {
     const localDate = getLocalMatchDate(row.match_date, row.kickoff_time, timeZone);
-    const effectiveLive = isEffectivelyLive(row.status, row.match_date, row.kickoff_time);
+    const effective = getEffectiveMatchState(row.status, row.match_date, row.kickoff_time, row.minute);
     const normalizedRow: MatchRow = {
       ...row,
       match_date: localDate,
-      status: row.status === "NS" && effectiveLive ? ("LIVE" as const) : row.status,
+      status: effective.status,
+      minute: effective.minute,
     };
 
-    if (!(normalizedRow.match_date === selectedDate || (selectedDate === todayInZone && normalizedRow.status === "LIVE"))) {
+    if (!(normalizedRow.match_date === selectedDate || (selectedDate === todayInZone && isActiveMatchStatus(normalizedRow.status)))) {
       continue;
     }
 
@@ -204,7 +274,7 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
 
   return Array.from(byLogicalKey.values()).sort(
     (a, b) =>
-      (a.status === "LIVE" ? -1 : 0) - (b.status === "LIVE" ? -1 : 0) ||
+      (isActiveMatchStatus(a.status) ? -1 : 0) - (isActiveMatchStatus(b.status) ? -1 : 0) ||
       a.match_date.localeCompare(b.match_date) ||
       String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
       String(a.season?.competition?.name || "").localeCompare(String(b.season?.competition?.name || ""))
@@ -265,7 +335,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
-    if (snapshotMatches) {
+    if (snapshotMatches.length > 0) {
       return res.status(200).json({
         matches: normalizeMatchesForDate(
           mergeMatches(

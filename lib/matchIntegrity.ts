@@ -79,7 +79,7 @@ function logicalMatchQuality(row: LogicalMatchShape) {
   if (!isPlaceholderKickoffTime(row.kickoffTime)) score += 40;
   if (row.homeScore != null && row.awayScore != null) score += 20;
   if (row.status === "FT") score += 15;
-  else if (row.status === "LIVE") score += 10;
+  else if (row.status === "LIVE" || row.status === "HT") score += 10;
   else if (row.status === "NS") score += 5;
 
   return score;

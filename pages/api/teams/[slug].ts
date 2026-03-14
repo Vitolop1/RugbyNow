@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { NextApiRequest, NextApiResponse } from "next";
+import type { MatchStatus } from "@/lib/matchStatus";
+import { getCountryProfile } from "@/lib/countryProfiles";
 import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
 import { getTeamProfile } from "@/lib/teamProfiles";
 
@@ -30,7 +32,7 @@ type SnapshotMatch = {
   season_id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: MatchStatus;
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -174,10 +176,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const profile = getTeamProfile(slug, team.name);
+    const countryProfile = getCountryProfile(profile.country);
 
     return res.status(200).json({
       team,
       profile,
+      countryProfile,
       stats: {
         played,
         won,

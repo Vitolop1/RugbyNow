@@ -575,16 +575,28 @@ export function getCompetitionSortPriority(competition: {
   const region = (competition.region ?? "").toLowerCase();
   const name = (competition.name ?? "").toLowerCase();
 
-  if (slug === "fr-top14") return 1;
-  if (slug === "en-premiership-rugby") return 2;
-  if (slug === "it-serie-a-elite") return 3;
-  if (competition.country_code === "ES" || slug.includes("spain") || region.includes("spain") || name.includes("spain")) return 4;
-  if (slug === "int-six-nations") return 5;
-  if (slug === "int-world-cup") return 6;
-  if (slug === "int-nations-championship") return 7;
-  if (slug === "int-super-rugby-pacific") return 8;
-  if (slug === "eu-champions-cup") return 9;
-  if (slug === "int-united-rugby-championship") return 10;
+  const explicitPriority: Record<string, number> = {
+    "fr-top14": 10,
+    "it-serie-a-elite": 20,
+    "int-united-rugby-championship": 30,
+    "eu-champions-cup": 40,
+    "int-super-rugby-pacific": 50,
+    "en-premiership-rugby": 60,
+    "int-six-nations": 70,
+    "int-nations-championship": 80,
+    "int-world-cup": 90,
+    sra: 100,
+    "svns-australia": 110,
+    "svns-usa": 111,
+    "svns-hong-kong": 112,
+    "svns-singapore": 113,
+    "us-mlr": 120,
+    "ar-urba-top14": 130,
+    "ar-liga-norte-grande": 140,
+  };
+
+  if (explicitPriority[slug] != null) return explicitPriority[slug];
+  if (competition.country_code === "ES" || slug.includes("spain") || region.includes("spain") || name.includes("spain")) return 150;
 
   return competition.sort_order ?? 9999;
 }

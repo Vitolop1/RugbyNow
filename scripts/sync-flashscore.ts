@@ -8,7 +8,7 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chromium, Page, Route } from "playwright";
 
-type MatchStatus = "NS" | "LIVE" | "FT";
+type MatchStatus = "NS" | "LIVE" | "HT" | "FT";
 
 type FlashInput = {
   compSlug: string | null;
@@ -166,7 +166,11 @@ function detectStatusAndMinute(
     return { status: "FT" as MatchStatus, minute: null as number | null };
   }
 
-  if (/(HT|HALF TIME|LIVE|1ST HALF|2ND HALF|SECOND HALF|BREAK)/.test(s)) {
+  if (/(HT|HALF TIME|BREAK)/.test(s)) {
+    return { status: "HT" as MatchStatus, minute: null as number | null };
+  }
+
+  if (/(LIVE|1ST HALF|2ND HALF|SECOND HALF)/.test(s)) {
     return { status: "LIVE" as MatchStatus, minute: null as number | null };
   }
 
@@ -262,7 +266,7 @@ function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
 }
 
 function isPotentiallyLiveWindow(matchDate: string, kickoffTime?: string | null, status?: MatchStatus | null) {
-  if (status === "LIVE") return true;
+  if (status === "LIVE" || status === "HT") return true;
 
   const kickoff = parseMatchDateTime(matchDate, kickoffTime);
   if (!kickoff) return false;
@@ -1745,11 +1749,11 @@ async function main() {
           resetFutureScores++;
         }
 
-        if (LIVE_ONLY && effectiveParsed.status === "LIVE" && effectiveParsed.minute == null && row.detailUrl && detailPage) {
+        if (LIVE_ONLY && (effectiveParsed.status === "LIVE" || effectiveParsed.status === "HT") && effectiveParsed.minute == null && row.detailUrl && detailPage) {
           const detailStatus = await scrapeMatchDetailStatus(detailPage, row.detailUrl);
           if (detailStatus) {
             const detailParsed = detectStatusAndMinute(detailStatus, hs, as, "live");
-            if (detailParsed.status === "LIVE" || detailParsed.status === "FT") {
+            if (detailParsed.status === "LIVE" || detailParsed.status === "HT" || detailParsed.status === "FT") {
               parsed = detailParsed;
               effectiveParsed =
                 matchDate > tomorrowIso

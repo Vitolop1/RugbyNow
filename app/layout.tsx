@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
+import GoogleAnalyticsPageview from "@/app/components/GoogleAnalyticsPageview";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -104,7 +105,7 @@ export default function RootLayout({
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
                 gtag('config', '${googleAnalyticsId}', {
-                  page_path: window.location.pathname,
+                  send_page_view: false,
                 });
               `}
             </Script>
@@ -120,6 +121,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} rn-app-bg min-h-screen antialiased`}
       >
+        {googleAnalyticsId ? <GoogleAnalyticsPageview measurementId={googleAnalyticsId} /> : null}
         {children}
       </body>
     </html>

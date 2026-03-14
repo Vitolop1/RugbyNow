@@ -12,6 +12,7 @@ import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import {
   applyNavigationSectionOrder,
   buildCompetitionNavigationSections,
+  getCompetitionSortPriority,
   moveSlug,
   readOrderedKeys,
   reorderNavigationSectionKeys,
@@ -24,11 +25,10 @@ import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
+import { isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
-
-type MatchStatus = "NS" | "LIVE" | "FT";
 
 type Competition = {
   id: number;
@@ -82,6 +82,20 @@ type RoundMeta = {
 
 type LeaguePayload = {
   competition: Competition;
+  profile?: {
+    slug: string;
+    country?: string;
+    region?: string;
+    founded?: string;
+    summary: string;
+    history: string;
+  };
+  regionProfile?: {
+    key: string;
+    name: string;
+    summary: string;
+    rugbyContext: string;
+  } | null;
   season: { id: number; name: string } | null;
   competitions: Competition[];
   roundMeta: RoundMeta[];
@@ -163,11 +177,11 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
 function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
   const tr = (key: string) => t(lang, key);
 
-  if (status === "LIVE") {
+  if (isActiveMatchStatus(status)) {
     return (
       <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
         <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-        {tr("statusLive")}
+        {status === "HT" ? tr("statusHt") : tr("statusLive")}
       </span>
     );
   }
@@ -227,6 +241,20 @@ function phaseLabel(tr: (key: string) => string, phaseKey?: string | null) {
 
 const LEAGUE_SIDEBAR_KEY = "rn:league-sidebar-open";
 const SIDEBAR_SECTION_ORDER_KEY = "rn:league-section-order";
+const DEFAULT_SECTION_ORDER = [
+  "featured",
+  "country:france",
+  "country:italy",
+  "country:europe",
+  "country:england",
+  "selections",
+  "franchises",
+  "country:southamerica",
+  "seven",
+  "country:usa",
+  "country:argentina",
+  "other",
+];
 
 function getInitialLeagueSidebarOpen() {
   return false;
@@ -350,16 +378,19 @@ export default function LeagueClient() {
   }, [mounted, prefsLoaded, sectionOrder]);
 
   useEffect(() => {
-    const id = window.setInterval(() => setClockTick(Date.now()), 30000);
+    const id = window.setInterval(() => setClockTick(Date.now()), 60000);
     return () => window.clearInterval(id);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let isInitialFetch = true;
 
     const load = async () => {
-      setLoading(true);
+      if (isInitialFetch) {
+        setLoading(true);
+      }
       setError("");
 
       const qs = new URLSearchParams();
@@ -380,9 +411,10 @@ export default function LeagueClient() {
       }
 
       setLoading(false);
+      isInitialFetch = false;
 
-      const hasLive = (payload.matches || []).some((match: LeagueMatch) => match.status === "LIVE");
-      timer = setTimeout(load, hasLive ? 30000 : 180000);
+      const hasLive = (payload.matches || []).some((match: LeagueMatch) => isActiveMatchStatus(match.status));
+      timer = setTimeout(load, hasLive ? 60000 : 300000);
     };
 
     load();
@@ -449,7 +481,7 @@ export default function LeagueClient() {
   );
 
   const orderedNavigationSections = useMemo(
-    () => applyNavigationSectionOrder(navigationSections, sectionOrder),
+    () => applyNavigationSectionOrder(navigationSections, sectionOrder.length ? sectionOrder : DEFAULT_SECTION_ORDER),
     [navigationSections, sectionOrder]
   );
 
@@ -458,7 +490,11 @@ export default function LeagueClient() {
       const rank = new Map(favoriteSlugs.map((leagueSlug, index) => [leagueSlug, index]));
       return (data?.competitions || [])
         .filter((competition) => favoriteSlugs.includes(competition.slug) && !hiddenSlugs.includes(competition.slug))
-        .sort((a, b) => (rank.get(a.slug) ?? 999) - (rank.get(b.slug) ?? 999));
+        .sort((a, b) => {
+          const rankDelta = (rank.get(a.slug) ?? 999) - (rank.get(b.slug) ?? 999);
+          if (rankDelta !== 0) return rankDelta;
+          return getCompetitionSortPriority(a) - getCompetitionSortPriority(b);
+        });
     },
     [data?.competitions, favoriteSlugs, hiddenSlugs]
   );
@@ -987,6 +1023,43 @@ export default function LeagueClient() {
                 {activeTab === "overview" ? (
                 <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
                   <section className="min-w-0 flex-1 space-y-4">
+                    {data.profile ? (
+                      <div className="grid gap-4 lg:grid-cols-[1.35fr_0.95fr]">
+                        <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                          <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("about")}</div>
+                          <h2 className="mt-2 text-2xl font-black text-white">{data.competition.name}</h2>
+                          <p className="mt-3 text-sm leading-7 text-white/80">{data.profile.summary}</p>
+                          <p className="mt-3 text-sm leading-7 text-white/70">{data.profile.history}</p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {data.profile.country ? (
+                              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                                {data.profile.country}
+                              </span>
+                            ) : null}
+                            {data.profile.region ? (
+                              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                                {data.profile.region}
+                              </span>
+                            ) : null}
+                            {data.profile.founded ? (
+                              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                                {tr("foundedChip")} {data.profile.founded}
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {data.regionProfile ? (
+                          <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+                            <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("region")}</div>
+                            <h2 className="mt-2 text-2xl font-black text-white">{data.regionProfile.name}</h2>
+                            <p className="mt-3 text-sm leading-7 text-white/80">{data.regionProfile.summary}</p>
+                            <p className="mt-3 text-sm leading-7 text-white/70">{data.regionProfile.rugbyContext}</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+
                     <div className="rounded-2xl border border-white/15 bg-black/20 p-4 backdrop-blur">
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -1112,7 +1185,7 @@ export default function LeagueClient() {
                               <div
                                 key={match.id}
                                 className={`flex flex-col gap-3 px-4 py-3 transition ${
-                                  match.status === "LIVE" ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
+                                  isActiveMatchStatus(match.status) ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
                                 }`}
                               >
                                 <div className="flex items-start gap-4">

@@ -9,7 +9,7 @@ import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/usePrefs";
 
-type MatchStatus = "NS" | "LIVE" | "FT";
+type MatchStatus = "NS" | "LIVE" | "HT" | "FT";
 
 type TeamPayload = {
   team: { id: number; name: string; slug: string | null };
@@ -24,6 +24,12 @@ type TeamPayload = {
     history?: string;
     colors?: string[];
   };
+  countryProfile?: {
+    key: string;
+    name: string;
+    summary: string;
+    rugbyContext: string;
+  } | null;
   stats: {
     played: number;
     won: number;
@@ -155,7 +161,7 @@ export default function TeamClient({ slug }: { slug: string }) {
 
       if (!response.ok) {
         setData(null);
-        setError(payload.error ?? "Unknown team error");
+        setError(payload.error ?? tr("unknownTeamError"));
       } else {
         setData(payload as TeamPayload);
       }
@@ -169,11 +175,13 @@ export default function TeamClient({ slug }: { slug: string }) {
     };
   }, [slug]);
 
-  const title = data?.profile.displayName || data?.team.name || "Club";
+  const title = data?.profile.displayName || data?.team.name || tr("teamLabel");
   const profileSummary = data?.profile.summary || `${title} en RugbyNow.`;
   const profileHistory =
     data?.profile.history ||
     "Ficha institucional en construccion. Esta pagina va a sumar historia, estadio, ciudad, fundacion y mas metadata a medida que carguemos informacion curada.";
+  const countrySummary = data?.countryProfile?.summary ?? null;
+  const countryHistory = data?.countryProfile?.rugbyContext ?? null;
   const recordLine = useMemo(
     () => `${data?.stats.won ?? 0}-${data?.stats.drawn ?? 0}-${data?.stats.lost ?? 0}`,
     [data?.stats.won, data?.stats.drawn, data?.stats.lost]
@@ -193,7 +201,7 @@ export default function TeamClient({ slug }: { slug: string }) {
           {loading ? (
             <div className="rounded-2xl border border-white/15 bg-black/20 p-8 text-white/80">{tr("loadingMatches")}</div>
           ) : error || !data ? (
-            <div className="rounded-2xl border border-red-200/20 bg-red-400/10 p-8 text-red-100">{error || "Team not found"}</div>
+            <div className="rounded-2xl border border-red-200/20 bg-red-400/10 p-8 text-red-100">{error || tr("teamNotFound")}</div>
           ) : (
             <div className="space-y-6">
               <section className="overflow-hidden rounded-[28px] border border-white/15 bg-black/20 backdrop-blur">
@@ -218,25 +226,25 @@ export default function TeamClient({ slug }: { slug: string }) {
 
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                       <StatCard label={tr("played")} value={data.stats.played} />
-                      <StatCard label="Record" value={recordLine} />
+                      <StatCard label={tr("recordLabel")} value={recordLine} />
                       <StatCard label={tr("winRate")} value={`${data.stats.winRate}%`} accent="text-emerald-200" />
-                      <StatCard label="PF / PA" value={`${data.stats.pointsFor} / ${data.stats.pointsAgainst}`} />
+                      <StatCard label={tr("pointsBalance")} value={`${data.stats.pointsFor} / ${data.stats.pointsAgainst}`} />
                     </div>
                   </div>
 
                   <div className="rounded-3xl border border-white/15 bg-white/10 p-5">
-                    <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">Club info</div>
+                    <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("clubInfo")}</div>
                     <div className="mt-3">
                       <InfoRow label={tr("teamLabel")} value={title} />
                       <InfoRow label={tr("founded")} value={data.profile.founded} />
                       <InfoRow label={tr("venue")} value={data.profile.venue} />
-                      <InfoRow label="City" value={data.profile.city} />
-                      <InfoRow label="Country" value={data.profile.country} />
+                      <InfoRow label={tr("city")} value={data.profile.city} />
+                      <InfoRow label={tr("country")} value={data.profile.country} />
                     </div>
 
                     {data.profile.colors?.length ? (
                       <div className="mt-4">
-                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">Colors</div>
+                        <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("colors")}</div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {data.profile.colors.map((color) => (
                             <span key={color} className="rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs font-semibold text-white/85">
@@ -250,7 +258,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                     <div className="mt-5">
                       <div className="text-xs font-black uppercase tracking-[0.16em] text-white/55">{tr("recentForm")}</div>
                       <div className="mt-3 flex gap-1.5">
-                        {data.stats.form.length ? data.stats.form.map((value, index) => <FormPill key={`${value}-${index}`} value={value} lang={lang} />) : <span className="text-sm text-white/60">No form yet</span>}
+                        {data.stats.form.length ? data.stats.form.map((value, index) => <FormPill key={`${value}-${index}`} value={value} lang={lang} />) : <span className="text-sm text-white/60">{tr("noFormYet")}</span>}
                       </div>
                     </div>
                   </div>
@@ -261,15 +269,24 @@ export default function TeamClient({ slug }: { slug: string }) {
                 <div className="space-y-6">
                   <div className="rounded-3xl border border-white/15 bg-black/20 p-6 backdrop-blur">
                     <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("about")}</div>
-                    <h2 className="mt-2 text-2xl font-black text-white">Institutional snapshot</h2>
+                    <h2 className="mt-2 text-2xl font-black text-white">{tr("institutionalSnapshot")}</h2>
                     <p className="mt-4 text-sm leading-7 text-white/80">{profileHistory}</p>
                   </div>
+
+                  {countrySummary ? (
+                    <div className="rounded-3xl border border-white/15 bg-black/20 p-6 backdrop-blur">
+                      <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("countrySection")}</div>
+                      <h2 className="mt-2 text-2xl font-black text-white">{data?.countryProfile?.name}</h2>
+                      <p className="mt-4 text-sm leading-7 text-white/80">{countrySummary}</p>
+                      {countryHistory ? <p className="mt-3 text-sm leading-7 text-white/70">{countryHistory}</p> : null}
+                    </div>
+                  ) : null}
 
                   <div className="rounded-3xl border border-white/15 bg-black/20 p-6 backdrop-blur">
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("recentMatches")}</div>
-                        <h2 className="mt-2 text-2xl font-black text-white">Last results</h2>
+                        <h2 className="mt-2 text-2xl font-black text-white">{tr("lastResults")}</h2>
                       </div>
                     </div>
 
@@ -280,12 +297,12 @@ export default function TeamClient({ slug }: { slug: string }) {
                             <Link href={`/leagues/${match.competition?.slug || ""}`} className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white/85 hover:text-white">
                               <img
                                 src={getLeagueLogo(match.competition?.slug)}
-                                alt={match.competition?.name || "League"}
+                                alt={match.competition?.name || tr("league")}
                                 width={18}
                                 height={18}
                                 className="rounded-sm bg-white/5 object-contain"
                               />
-                              <span className="truncate">{match.competition?.name || "League"}</span>
+                              <span className="truncate">{match.competition?.name || tr("league")}</span>
                             </Link>
                             <span className="shrink-0 text-xs text-white/60">{niceDate(match.match_date, lang)}</span>
                           </div>
@@ -319,7 +336,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                 <div className="space-y-6">
                   <div className="rounded-3xl border border-white/15 bg-black/20 p-6 backdrop-blur">
                     <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("upcomingMatches")}</div>
-                    <h2 className="mt-2 text-2xl font-black text-white">Next fixtures</h2>
+                    <h2 className="mt-2 text-2xl font-black text-white">{tr("nextFixtures")}</h2>
 
                     <div className="mt-5 space-y-3">
                       {data.upcomingMatches.length === 0 ? (
@@ -331,7 +348,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                               {niceDate(match.match_date, lang)} | {formatKickoffTZ(match.match_date, match.kickoff_time, timeZone, lang) || tr("tbd")}
                             </div>
                             <div className="mt-2 text-sm font-semibold text-white">
-                              {match.home_team?.name || tr("teamHomeFallback")} vs {match.away_team?.name || tr("teamAwayFallback")}
+                              {match.home_team?.name || tr("teamHomeFallback")} {tr("versus")} {match.away_team?.name || tr("teamAwayFallback")}
                             </div>
                             {match.competition ? (
                               <Link href={`/leagues/${match.competition.slug}`} className="mt-2 inline-flex text-xs text-emerald-200 hover:text-emerald-100">
@@ -355,7 +372,7 @@ export default function TeamClient({ slug }: { slug: string }) {
 
                   <div className="rounded-3xl border border-white/15 bg-black/20 p-6 backdrop-blur">
                     <div className="text-xs font-black uppercase tracking-[0.18em] text-white/60">{tr("competitions")}</div>
-                    <h2 className="mt-2 text-2xl font-black text-white">Competitions</h2>
+                    <h2 className="mt-2 text-2xl font-black text-white">{tr("competitions")}</h2>
 
                     <div className="mt-5 space-y-3">
                       {data.competitions.map((competition) => (
@@ -374,7 +391,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                           <div className="min-w-0">
                             <div className="truncate text-sm font-semibold text-white">{competition.name}</div>
                             <div className="text-xs text-white/60">
-                              {competition.region || "Region"} | {competition.seasons.join(", ")}
+                              {competition.region || tr("region")} | {competition.seasons.join(", ")}
                             </div>
                           </div>
                         </Link>

@@ -2,9 +2,8 @@
 
 import { getDateLocale } from "@/lib/dateLocale";
 import { t } from "@/lib/i18n";
+import { getEffectiveMatchState, type MatchStatus } from "@/lib/matchStatus";
 import type { Lang } from "@/lib/usePrefs";
-
-export type MatchStatus = "NS" | "LIVE" | "FT";
 
 type MatchClockInput = {
   status: MatchStatus;
@@ -19,9 +18,16 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-export function estimateLiveMinute(matchDate: string, kickoffTime?: string | null, explicitMinute?: number | null) {
-  if (explicitMinute != null && explicitMinute > 0) {
-    return clamp(explicitMinute, 1, 90);
+export function estimateLiveMinute(
+  status: MatchStatus,
+  matchDate: string,
+  kickoffTime?: string | null,
+  explicitMinute?: number | null
+) {
+  const effective = getEffectiveMatchState(status, matchDate, kickoffTime, explicitMinute);
+  if (effective.status !== "LIVE") return null;
+  if (effective.minute != null && effective.minute > 0) {
+    return clamp(effective.minute, 1, 80);
   }
   return null;
 }
@@ -36,17 +42,20 @@ export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, t
   }).format(new Date(`${matchDate}T${normalized}Z`));
 }
 
-export function getLivePhase(lang: Lang, minute?: number | null) {
+export function getLivePhase(lang: Lang, status: MatchStatus, minute?: number | null) {
+  if (status === "HT") return t(lang, "halftime");
   if (minute == null) return null;
   return minute <= 40 ? t(lang, "liveFirstHalf") : t(lang, "liveSecondHalf");
 }
 
 export function getMatchClockLabel(input: MatchClockInput) {
-  if (input.status === "FT") return t(input.lang, "statusFt");
+  const effective = getEffectiveMatchState(input.status, input.matchDate, input.kickoffTime, input.minute);
+  if (effective.status === "FT") return t(input.lang, "statusFt");
+  if (effective.status === "HT") return t(input.lang, "statusHt");
 
-  if (input.status === "LIVE") {
-    const minute = estimateLiveMinute(input.matchDate, input.kickoffTime, input.minute);
-    const phase = getLivePhase(input.lang, minute);
+  if (effective.status === "LIVE") {
+    const minute = estimateLiveMinute(effective.status, input.matchDate, input.kickoffTime, effective.minute);
+    const phase = getLivePhase(input.lang, effective.status, minute);
     return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
   }
 
@@ -54,11 +63,13 @@ export function getMatchClockLabel(input: MatchClockInput) {
 }
 
 export function getMatchContextLabel(input: MatchClockInput) {
-  if (input.status === "FT") return t(input.lang, "final");
+  const effective = getEffectiveMatchState(input.status, input.matchDate, input.kickoffTime, input.minute);
+  if (effective.status === "FT") return t(input.lang, "final");
+  if (effective.status === "HT") return t(input.lang, "halftime");
 
-  if (input.status === "LIVE") {
-    const minute = estimateLiveMinute(input.matchDate, input.kickoffTime, input.minute);
-    return getLivePhase(input.lang, minute) ?? t(input.lang, "liveAction");
+  if (effective.status === "LIVE") {
+    const minute = estimateLiveMinute(effective.status, input.matchDate, input.kickoffTime, effective.minute);
+    return getLivePhase(input.lang, effective.status, minute) ?? t(input.lang, "liveAction");
   }
 
   return t(input.lang, "upcoming");

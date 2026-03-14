@@ -15,6 +15,7 @@ import { getDateLocale } from "@/lib/dateLocale";
 import {
   applyNavigationSectionOrder,
   buildCompetitionNavigationSections,
+  getCompetitionSortPriority,
   moveSlug,
   readOrderedKeys,
   reorderNavigationSectionKeys,
@@ -24,11 +25,10 @@ import {
   writeSlugList,
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
+import { isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
-
-type MatchStatus = "NS" | "LIVE" | "FT";
 
 type Match = {
   matchDate: string;
@@ -117,11 +117,11 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
 
 function StatusBadge({ status, lang }: { status: MatchStatus; lang: "en" | "es" | "fr" | "it" }) {
   const tr = (key: string) => t(lang, key);
-  if (status === "LIVE") {
+  if (isActiveMatchStatus(status)) {
     return (
       <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
         <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-        {tr("statusLive")}
+        {status === "HT" ? tr("statusHt") : tr("statusLive")}
       </span>
     );
   }
@@ -199,7 +199,7 @@ function dedupeBlock(block: LeagueBlock) {
     if (match.kickoffTime && match.kickoffTime !== "00:00:00" && match.kickoffTime !== "00:00") score += 40;
     if (match.hs != null && match.as != null) score += 20;
     if (match.status === "FT") score += 15;
-    else if (match.status === "LIVE") score += 10;
+    else if (isActiveMatchStatus(match.status)) score += 10;
     else if (match.status === "NS") score += 5;
     return score;
   };
@@ -223,6 +223,20 @@ function dedupeBlock(block: LeagueBlock) {
 
 const HOME_SIDEBAR_KEY = "rn:home-sidebar-open";
 const SIDEBAR_SECTION_ORDER_KEY = "rn:league-section-order";
+const DEFAULT_SECTION_ORDER = [
+  "featured",
+  "country:france",
+  "country:italy",
+  "country:europe",
+  "country:england",
+  "selections",
+  "franchises",
+  "country:southamerica",
+  "seven",
+  "country:usa",
+  "country:argentina",
+  "other",
+];
 
 function getInitialHomeSidebarOpen() {
   return false;
@@ -341,7 +355,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   }, [mounted, prefsLoaded, sectionOrder]);
 
   useEffect(() => {
-    const id = window.setInterval(() => setClockTick(Date.now()), 30000);
+    const id = window.setInterval(() => setClockTick(Date.now()), 60000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -382,9 +396,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let isInitialFetch = true;
 
     const loadMatches = async () => {
-      setLoading(true);
+      if (isInitialFetch) {
+        setLoading(true);
+      }
       setLoadError("");
 
       const response = await fetch(`/api/home?date=${selectedISO}`, { cache: "no-store" });
@@ -396,6 +413,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
         setBlocks([]);
         setLoadError(payload.error ?? tr("unknownMatchesError"));
         setLoading(false);
+        isInitialFetch = false;
         timer = setTimeout(loadMatches, 60000);
         return;
       }
@@ -405,7 +423,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       let hasLive = false;
 
       for (const row of rows) {
-        if (row.status === "LIVE") hasLive = true;
+        if (isActiveMatchStatus(row.status)) hasLive = true;
 
         const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
         const leagueSlug = row.season?.competition?.slug ?? "unknown";
@@ -433,7 +451,8 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
       setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
       setLoading(false);
-      timer = setTimeout(loadMatches, hasLive ? 30000 : 180000);
+      isInitialFetch = false;
+      timer = setTimeout(loadMatches, hasLive ? 60000 : 300000);
     };
 
     loadMatches();
@@ -519,7 +538,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   );
 
   const orderedNavigationSections = useMemo(
-    () => applyNavigationSectionOrder(navigationSections, sectionOrder),
+    () => applyNavigationSectionOrder(navigationSections, sectionOrder.length ? sectionOrder : DEFAULT_SECTION_ORDER),
     [navigationSections, sectionOrder]
   );
 
@@ -548,11 +567,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
   const filteredBlocks = useMemo(() => {
     const visibleBlocks = blocks.filter((block) => !hiddenSlugs.includes(block.slug));
-    const blocksForTab =
+      const blocksForTab =
       tab !== "LIVE"
         ? visibleBlocks
         : visibleBlocks
-      .map((block) => ({ ...block, matches: block.matches.filter((match) => match.status === "LIVE") }))
+      .map((block) => ({ ...block, matches: block.matches.filter((match) => isActiveMatchStatus(match.status)) }))
       .filter((block) => block.matches.length > 0);
 
     const favoriteRank = new Map(favoriteSlugs.map((slug, index) => [slug, index]));
@@ -567,12 +586,16 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
       const aMeta = competitionMetaBySlug.get(a.slug);
       const bMeta = competitionMetaBySlug.get(b.slug);
+      const aSort = aMeta?.sort_order ?? 9999;
+      const bSort = bMeta?.sort_order ?? 9999;
+      const aPriority = aMeta ? getCompetitionSortPriority(aMeta) : aSort;
+      const bPriority = bMeta ? getCompetitionSortPriority(bMeta) : bSort;
+      if (aPriority !== bPriority) return aPriority - bPriority;
+
       const aFeatured = Boolean(aMeta?.is_featured);
       const bFeatured = Boolean(bMeta?.is_featured);
       if (aFeatured !== bFeatured) return aFeatured ? -1 : 1;
 
-      const aSort = aMeta?.sort_order ?? 9999;
-      const bSort = bMeta?.sort_order ?? 9999;
       if (aSort !== bSort) return aSort - bSort;
 
       return a.league.localeCompare(b.league);
@@ -1055,7 +1078,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             <div
                               key={`${block.slug}-${index}-${match.matchDate}-${match.kickoffTime ?? ""}-${match.home}-${match.away}`}
                               className={`flex flex-col gap-3 px-4 py-3 transition ${
-                                match.status === "LIVE" ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
+                                isActiveMatchStatus(match.status) ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
                               }`}
                             >
                               <div className="flex items-start gap-4">
@@ -1079,7 +1102,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             </div>
 
                             <div className="hidden w-36 shrink-0 text-right text-xs text-white/70 md:block">
-                              {match.status === "LIVE"
+                              {isActiveMatchStatus(match.status)
                                 ? tr("liveAction")
                                 : match.status === "FT"
                                   ? tr("final")

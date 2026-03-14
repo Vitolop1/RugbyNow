@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
+import { getCompetitionProfile } from "@/lib/competitionProfiles";
+import { getCountryProfile } from "@/lib/countryProfiles";
+import { getEffectiveMatchState, isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
@@ -45,14 +48,14 @@ type MatchMetaRow = {
   season_id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: MatchStatus;
 };
 
 type MatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT";
+  status: MatchStatus;
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -90,42 +93,120 @@ function unwrapTeam(
 }
 
 function mergeLeagueMatches(primary: MatchRow[], secondary: MatchRow[]) {
-  const byLogicalKey = new Map<string, MatchRow>();
-  const keyFor = (row: MatchRow) => {
+  const byBucket = new Map<string, Array<{ row: MatchRow; isPrimary: boolean }>>();
+
+  const bucketKeyFor = (row: MatchRow) => {
     const home = unwrapTeam(row.home_team);
     const away = unwrapTeam(row.away_team);
-    return `${row.match_date}|${home?.id ?? "x"}|${away?.id ?? "x"}`;
+    return `${home?.id ?? "x"}|${away?.id ?? "x"}`;
   };
+
+  const isPlaceholderKickoffTime = (kickoffTime?: string | null) =>
+    !kickoffTime || kickoffTime === "00:00:00" || kickoffTime === "00:00";
+
+  const parseMatchDateTime = (matchDate: string, kickoffTime?: string | null) => {
+    const normalizedTime = kickoffTime && kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime || "00:00:00";
+    const parsed = new Date(`${matchDate}T${normalizedTime}Z`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const daysBetweenMatchDates = (leftDate: string, rightDate: string) => {
+    const left = new Date(`${leftDate}T00:00:00Z`);
+    const right = new Date(`${rightDate}T00:00:00Z`);
+    if (Number.isNaN(left.getTime()) || Number.isNaN(right.getTime())) return Number.POSITIVE_INFINITY;
+    return Math.abs(left.getTime() - right.getTime()) / 86400000;
+  };
+
+  const sameKnownScore = (left: MatchRow, right: MatchRow) =>
+    left.home_score != null &&
+    left.away_score != null &&
+    right.home_score != null &&
+    right.away_score != null &&
+    left.home_score === right.home_score &&
+    left.away_score === right.away_score;
+
+  const areLeagueMatchDuplicates = (left: MatchRow, right: MatchRow) => {
+    const leftHome = unwrapTeam(left.home_team);
+    const leftAway = unwrapTeam(left.away_team);
+    const rightHome = unwrapTeam(right.home_team);
+    const rightAway = unwrapTeam(right.away_team);
+
+    if (!leftHome?.id || !leftAway?.id || !rightHome?.id || !rightAway?.id) return false;
+    if (leftHome.id !== rightHome.id || leftAway.id !== rightAway.id) return false;
+
+    const dateGapDays = daysBetweenMatchDates(left.match_date, right.match_date);
+    if (dateGapDays > 2) return false;
+
+    if (
+      left.home_score != null &&
+      left.away_score != null &&
+      right.home_score != null &&
+      right.away_score != null &&
+      !sameKnownScore(left, right)
+    ) {
+      return false;
+    }
+
+    if (left.status === "FT" && right.status === "FT") {
+      return sameKnownScore(left, right);
+    }
+
+    const leftDateTime = parseMatchDateTime(left.match_date, left.kickoff_time);
+    const rightDateTime = parseMatchDateTime(right.match_date, right.kickoff_time);
+    const minutesApart =
+      !leftDateTime || !rightDateTime ? Number.POSITIVE_INFINITY : Math.abs(leftDateTime.getTime() - rightDateTime.getTime()) / 60000;
+
+    return (
+      minutesApart <= 360 ||
+      isPlaceholderKickoffTime(left.kickoff_time) ||
+      isPlaceholderKickoffTime(right.kickoff_time)
+    );
+  };
+
   const qualityFor = (row: MatchRow) => {
     let score = 0;
     if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
     if (row.home_score != null && row.away_score != null) score += 20;
     if (row.status === "FT") score += 15;
-    else if (row.status === "LIVE") score += 10;
+    else if (isActiveMatchStatus(row.status)) score += 10;
     else if (row.status === "NS") score += 5;
     return score;
   };
-  for (const row of primary) byLogicalKey.set(keyFor(row), row);
-  for (const row of secondary) {
-    const key = keyFor(row);
-    const current = byLogicalKey.get(key);
-    if (!current || qualityFor(row) > qualityFor(current)) byLogicalKey.set(key, row);
-  }
-  return Array.from(byLogicalKey.values()).sort(
+
+  const insertRow = (row: MatchRow, isPrimary: boolean) => {
+    const key = bucketKeyFor(row);
+    const bucket = byBucket.get(key) ?? [];
+    const currentIndex = bucket.findIndex((entry) => areLeagueMatchDuplicates(entry.row, row));
+
+    if (currentIndex === -1) {
+      bucket.push({ row, isPrimary });
+      byBucket.set(key, bucket);
+      return;
+    }
+
+    const current = bucket[currentIndex];
+    if (current.isPrimary && !isPrimary) return;
+
+    if (isPrimary && !current.isPrimary) {
+      bucket[currentIndex] = { row, isPrimary };
+      byBucket.set(key, bucket);
+      return;
+    }
+
+    if (qualityFor(row) > qualityFor(current.row)) {
+      bucket[currentIndex] = { row, isPrimary };
+      byBucket.set(key, bucket);
+    }
+  };
+
+  for (const row of primary) insertRow(row, true);
+  for (const row of secondary) insertRow(row, false);
+
+  return Array.from(byBucket.values())
+    .flatMap((bucket) => bucket.map((entry) => entry.row))
+    .sort(
     (a, b) => a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
   );
-}
-
-function shouldPreferFallbackRound(primaryMatches: MatchRow[], fallbackMatches: MatchRow[]) {
-  if (!fallbackMatches.length) return false;
-  if (!primaryMatches.length) return true;
-  const primaryFt = primaryMatches.filter((item) => item.status === "FT").length;
-  const fallbackFt = fallbackMatches.filter((item) => item.status === "FT").length;
-  if (fallbackMatches.length > primaryMatches.length) return true;
-  if (fallbackFt > primaryFt) return true;
-  const primaryHasScores = primaryMatches.some((item) => item.home_score != null && item.away_score != null);
-  const fallbackHasScores = fallbackMatches.some((item) => item.home_score != null && item.away_score != null);
-  return fallbackHasScores && !primaryHasScores;
 }
 
 function dedupeMatches(rows: MatchRow[]) {
@@ -143,6 +224,27 @@ function dedupeMatches(rows: MatchRow[]) {
       awayTeamId: away?.id ?? null,
     };
   });
+}
+
+function shouldPreferMoreCompleteRound(primaryMatches: MatchRow[], fallbackMatches: MatchRow[]) {
+  if (!fallbackMatches.length) return false;
+  if (!primaryMatches.length) return true;
+  const primaryFt = primaryMatches.filter((item) => item.status === "FT").length;
+  const fallbackFt = fallbackMatches.filter((item) => item.status === "FT").length;
+  if (fallbackMatches.length > primaryMatches.length) return true;
+  if (fallbackFt > primaryFt) return true;
+  const primaryHasScores = primaryMatches.some((item) => item.home_score != null && item.away_score != null);
+  const fallbackHasScores = fallbackMatches.some((item) => item.home_score != null && item.away_score != null);
+  return fallbackHasScores && !primaryHasScores;
+}
+
+function normalizeRuntimeMatchStatus(row: MatchRow): MatchRow {
+  const effective = getEffectiveMatchState(row.status, row.match_date, row.kickoff_time, row.minute);
+  return {
+    ...row,
+    status: effective.status,
+    minute: effective.minute,
+  };
 }
 
 function hasUsableStandingCache(rows: StandingCacheRow[]) {
@@ -269,6 +371,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (competitionError || !competition) throw new Error(`No competition found for slug: ${slug}`);
     const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
     const mergedCompetition = mergeCompetitionCatalog<CompetitionRow>([competition as CompetitionRow], fallback ? [fallback.competition as CompetitionRow] : [])[0] ?? (competition as CompetitionRow);
+    const competitionProfile = getCompetitionProfile(mergedCompetition.slug, {
+      name: mergedCompetition.name,
+      country: mergedCompetition.country_code ?? undefined,
+      region: mergedCompetition.region ?? undefined,
+    });
+    const regionProfile = getCountryProfile(competitionProfile.country ?? mergedCompetition.region);
     const { data: seasons, error: seasonsError } = await serverSupabase.from("seasons").select("id,name,competition_id").eq("competition_id", competition.id).order("name", { ascending: false });
     if (seasonsError || !seasons?.length) throw new Error(`No season found for: ${slug}`);
     const { data: seasonMatchMeta, error: seasonMetaError } = await serverSupabase.from("matches").select("id,season_id,match_date,kickoff_time,status").in("season_id", seasons.map((row) => row.id)).order("match_date", { ascending: true }).order("kickoff_time", { ascending: true });
@@ -298,13 +406,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
     const selectedRound = roundOverride ?? autoSelectedRound;
-    const roundMatches = selectedRound == null ? [] : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound));
+    const roundMatches = selectedRound == null ? [] : dedupeMatches(detailedMatches.filter((row) => derived.assignment.get(row.id) === selectedRound)).map(normalizeRuntimeMatchStatus);
     const fallbackSelectedRound = fallback?.selectedRound ?? null;
-    const fallbackMatches = fallbackSelectedRound == null ? [] : dedupeMatches((fallback?.matches || []) as MatchRow[]);
-    const useFallbackStructure = Boolean(fallback && ((roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0) || shouldPreferFallbackRound(roundMatches, fallbackMatches)));
+    const fallbackMatches = fallbackSelectedRound == null ? [] : dedupeMatches((fallback?.matches || []) as MatchRow[]).map(normalizeRuntimeMatchStatus);
+    const useFallbackStructure = Boolean(
+      fallback &&
+        (
+          (roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0) ||
+          (!roundMatches.length && fallbackMatches.length > 0) ||
+          (selectedRound == null && fallbackSelectedRound != null)
+        )
+    );
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
-    const matches = mergeLeagueMatches(roundMatches, fallbackMatches);
+    const matches = mergeLeagueMatches(roundMatches, fallbackMatches).map(normalizeRuntimeMatchStatus);
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
     for (const row of detailedMatches.filter((item) => item.status === "FT")) {
@@ -352,6 +467,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }).filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>) : computedStandings;
     return res.status(200).json({
       competition: mergedCompetition,
+      profile: competitionProfile,
+      regionProfile,
       season,
       competitions: mergedCompetitions,
       roundMeta: effectiveRoundMeta,
@@ -365,9 +482,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
     if (snapshot) {
       const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
-      const preferFallback = shouldPreferFallbackRound(dedupeMatches((snapshot.matches || []) as MatchRow[]), dedupeMatches((fallback?.matches || []) as MatchRow[]));
+      const preferFallback = shouldPreferMoreCompleteRound(
+        dedupeMatches((snapshot.matches || []) as MatchRow[]),
+        dedupeMatches((fallback?.matches || []) as MatchRow[])
+      );
+      const basePayload = preferFallback && fallback ? fallback : snapshot;
+      const competitionProfile = getCompetitionProfile(basePayload.competition.slug, {
+        name: basePayload.competition.name,
+        country: basePayload.competition.country_code ?? undefined,
+        region: basePayload.competition.region ?? undefined,
+      });
+      const regionProfile = getCountryProfile(competitionProfile.country ?? basePayload.competition.region);
       return res.status(200).json({
-        ...(preferFallback && fallback ? fallback : snapshot),
+        ...basePayload,
+        profile: competitionProfile,
+        regionProfile,
+        matches: ((basePayload.matches || []) as MatchRow[]).map(normalizeRuntimeMatchStatus),
         source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: error instanceof Error ? error.message : String(error),
       });
@@ -376,8 +506,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!fallback) {
       return res.status(404).json({ error: error instanceof Error ? error.message : `No competition found for slug: ${slug}` });
     }
+    const competitionProfile = getCompetitionProfile(fallback.competition.slug, {
+      name: fallback.competition.name,
+      country: fallback.competition.country_code ?? undefined,
+      region: fallback.competition.region ?? undefined,
+    });
+    const regionProfile = getCountryProfile(competitionProfile.country ?? fallback.competition.region);
     return res.status(200).json({
       ...fallback,
+      profile: competitionProfile,
+      regionProfile,
+      matches: ((fallback.matches || []) as MatchRow[]).map(normalizeRuntimeMatchStatus),
       source: "fallback",
       warning: error instanceof Error ? error.message : String(error),
     });

@@ -695,8 +695,13 @@ export default function LeagueClient() {
                             <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
                             <span>{section.label}</span>
                           </div>
-                          <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Drag</span>
+                          <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Top</span>
                         </div>
+                        <p className="mb-3 text-[11px] font-semibold text-white/70">
+                          {favoriteSlugs.length
+                            ? "Usa Subir y Bajar para decidir qué liga querés ver primero."
+                            : "Marcá una liga con estrella y después ordenala con Subir y Bajar."}
+                        </p>
                         <div className="space-y-2">
                           {highlightedCompetitions.map((competition) => {
                             const active = competition.slug === slug;
@@ -716,6 +721,9 @@ export default function LeagueClient() {
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex min-w-0 items-center gap-2">
+                                    <div className="inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-200/20 bg-emerald-300/15 px-2 text-sm font-black text-white">
+                                      {favoriteIndex !== -1 ? favoriteIndex + 1 : "•"}
+                                    </div>
                                     <LeagueLogo slug={competition.slug} alt={competition.name} />
                                     <div className="truncate text-sm font-medium text-white">{competition.name}</div>
                                   </div>
@@ -727,7 +735,7 @@ export default function LeagueClient() {
                                         moveFavoriteLeague(competition.slug, -1);
                                       }}
                                       disabled={!isFavorite || !canMoveUp}
-                                      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-base font-black transition ${
+                                      className={`inline-flex h-8 shrink-0 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
                                         isFavorite && canMoveUp
                                           ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -735,7 +743,7 @@ export default function LeagueClient() {
                                       title="Mover arriba"
                                       aria-label={`Mover ${competition.name} arriba`}
                                     >
-                                      ↑
+                                      Subir
                                     </button>
                                     <button
                                       type="button"
@@ -744,7 +752,7 @@ export default function LeagueClient() {
                                         moveFavoriteLeague(competition.slug, 1);
                                       }}
                                       disabled={!isFavorite || !canMoveDown}
-                                      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-base font-black transition ${
+                                      className={`inline-flex h-8 shrink-0 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
                                         isFavorite && canMoveDown
                                           ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -752,7 +760,7 @@ export default function LeagueClient() {
                                       title="Mover abajo"
                                       aria-label={`Mover ${competition.name} abajo`}
                                     >
-                                      ↓
+                                      Bajar
                                     </button>
                                     <button
                                       type="button"
@@ -945,8 +953,8 @@ export default function LeagueClient() {
                       onClick={() => setActiveTab("overview")}
                       className={`px-4 py-4 text-sm font-black uppercase tracking-[0.16em] transition ${
                         activeTab === "overview"
-                          ? "bg-emerald-400/20 text-emerald-100"
-                          : "bg-transparent text-white/70 hover:bg-white/5 hover:text-white"
+                          ? "border-b-4 border-emerald-300 bg-emerald-300/25 text-white shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)]"
+                          : "bg-transparent text-white/45 hover:bg-white/5 hover:text-white/80"
                       }`}
                     >
                       {tr("overviewTab")}
@@ -956,8 +964,8 @@ export default function LeagueClient() {
                       onClick={() => setActiveTab("teams")}
                       className={`border-t border-white/10 px-4 py-4 text-sm font-black uppercase tracking-[0.16em] transition sm:border-l sm:border-t-0 ${
                         activeTab === "teams"
-                          ? "bg-emerald-400/20 text-emerald-100"
-                          : "bg-transparent text-white/70 hover:bg-white/5 hover:text-white"
+                          ? "border-b-4 border-emerald-300 bg-emerald-300/25 text-white shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)]"
+                          : "bg-transparent text-white/45 hover:bg-white/5 hover:text-white/80"
                       }`}
                     >
                       {tr("teamsTab")}
@@ -967,8 +975,8 @@ export default function LeagueClient() {
                       onClick={() => setActiveTab("champions")}
                       className={`border-t border-white/10 px-4 py-4 text-sm font-black uppercase tracking-[0.16em] transition sm:border-l sm:border-t-0 ${
                         activeTab === "champions"
-                          ? "bg-emerald-400/20 text-emerald-100"
-                          : "bg-transparent text-white/70 hover:bg-white/5 hover:text-white"
+                          ? "border-b-4 border-emerald-300 bg-emerald-300/25 text-white shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)]"
+                          : "bg-transparent text-white/45 hover:bg-white/5 hover:text-white/80"
                       }`}
                     >
                       {tr("championsTab")}

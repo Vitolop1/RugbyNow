@@ -710,8 +710,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                               <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
                               <span>{section.label}</span>
                             </div>
-                            <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Drag</span>
+                            <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Top</span>
                           </div>
+                          <p className="mb-3 text-[11px] font-semibold text-white/70">
+                            {favoriteSlugs.length
+                              ? "Usa Subir y Bajar para decidir qué liga querés ver primero."
+                              : "Marcá una liga con estrella y después ordenala con Subir y Bajar."}
+                          </p>
                         <div className="space-y-2">
                             {highlightedCompetitions.map((competition) => {
                               const isFavorite = favoriteSlugs.includes(competition.slug);
@@ -724,16 +729,19 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 key={`${section.key}-${competition.slug}-${competition.id}`}
                                 className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/20 px-3 py-2"
                               >
+                                <div className="inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-200/20 bg-emerald-300/15 px-2 text-sm font-black text-white">
+                                  {favoriteIndex !== -1 ? favoriteIndex + 1 : "•"}
+                                </div>
                                 <Link href={`/leagues/${competition.slug}${dateQuery}`} className="flex min-w-0 flex-1 items-center gap-2">
                                   <LeagueLogo slug={competition.slug} alt={competition.name} />
                                   <span className="truncate text-sm font-medium text-white">{competition.name}</span>
                                 </Link>
-                                <div className="flex shrink-0 items-center gap-1">
+                                <div className="flex shrink-0 items-center gap-1.5">
                                   <button
                                     type="button"
                                     onClick={() => moveFavoriteLeague(competition.slug, -1)}
                                     disabled={!isFavorite || !canMoveUp}
-                                    className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border text-base font-black transition ${
+                                    className={`inline-flex h-8 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
                                       isFavorite && canMoveUp
                                         ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                         : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -741,13 +749,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                     title="Mover arriba"
                                     aria-label={`Mover ${competition.name} arriba`}
                                   >
-                                    ↑
+                                    Subir
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => moveFavoriteLeague(competition.slug, 1)}
                                     disabled={!isFavorite || !canMoveDown}
-                                    className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border text-base font-black transition ${
+                                    className={`inline-flex h-8 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
                                       isFavorite && canMoveDown
                                         ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                         : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -755,7 +763,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                     title="Mover abajo"
                                     aria-label={`Mover ${competition.name} abajo`}
                                   >
-                                    ↓
+                                    Bajar
                                   </button>
                                 </div>
                                 <button

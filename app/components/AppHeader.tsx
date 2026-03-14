@@ -404,7 +404,7 @@ export default function AppHeader({
           <div className="hidden items-center gap-3 md:ml-auto md:flex">
             <div className="rn-header-card flex h-[56px] w-[190px] flex-col justify-center px-4 py-2">
               <div className="text-[11px] font-semibold rn-text-muted">{tr("today")}</div>
-              <div className="mt-1 truncate text-lg font-black leading-tight sm:text-xl">
+              <div className="mt-1 truncate text-base font-extrabold leading-tight">
                 {mounted && now ? formatTodayTZ(now, timeZone, effectiveLang) : ""}
               </div>
             </div>

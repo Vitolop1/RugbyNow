@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { getCompetitionProfile } from "@/lib/competitionProfiles";
 import { getCountryProfile } from "@/lib/countryProfiles";
-import { getEffectiveMatchState, isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
+import { getEffectiveMatchState, isActiveMatchStatus, shouldAutoFinalizeMatch, type MatchStatus } from "@/lib/matchStatus";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData } from "@/lib/fallbackData";
@@ -249,10 +249,18 @@ function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | n
     competitionSlug,
     row.updated_at
   );
+  const autoFinalized = shouldAutoFinalizeMatch(
+    row.status,
+    row.match_date,
+    row.kickoff_time,
+    row.home_score,
+    row.away_score,
+    competitionSlug
+  );
   return {
     ...row,
-    status: effective.status,
-    minute: effective.minute,
+    status: autoFinalized ? "FT" : effective.status,
+    minute: autoFinalized ? null : effective.minute,
   };
 }
 

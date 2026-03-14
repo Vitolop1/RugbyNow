@@ -1,7 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
-import { getEffectiveMatchState, isActiveMatchStatus, parseKickoffDateTime, type MatchStatus } from "@/lib/matchStatus";
+import {
+  getEffectiveMatchState,
+  isActiveMatchStatus,
+  parseKickoffDateTime,
+  shouldAutoFinalizeMatch,
+  type MatchStatus,
+} from "@/lib/matchStatus";
 import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 
@@ -261,11 +267,19 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
       row.season?.competition?.slug,
       row.updated_at
     );
+    const autoFinalized = shouldAutoFinalizeMatch(
+      row.status,
+      row.match_date,
+      row.kickoff_time,
+      row.home_score,
+      row.away_score,
+      row.season?.competition?.slug
+    );
     const normalizedRow: MatchRow = {
       ...row,
       match_date: localDate,
-      status: effective.status,
-      minute: effective.minute,
+      status: autoFinalized ? "FT" : effective.status,
+      minute: autoFinalized ? null : effective.minute,
     };
 
     if (!(normalizedRow.match_date === selectedDate || (selectedDate === todayInZone && isActiveMatchStatus(normalizedRow.status)))) {

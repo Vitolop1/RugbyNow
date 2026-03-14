@@ -1,0 +1,34 @@
+name: sync-live-finish (every 5m for final result detection)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "4,9,14,19,24,29,34,39,44,49,54,59 * * * *"
+
+concurrency:
+  group: rugby-now-live-finish
+  cancel-in-progress: true
+
+jobs:
+  sync_live_finish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Run fast finalization sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FLASH_URLS: ${{ vars.FLASH_URLS }}
+        run: |
+          npm run ensure:flashscore-competitions
+          npm run sync:live:finish

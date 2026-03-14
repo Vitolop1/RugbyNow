@@ -17,6 +17,7 @@
     "build:weekly": "tsx scripts/build-weekly.ts",
     "sync:live": "tsx scripts/sync-live-runner.ts",
     "sync:live:clock": "tsx scripts/sync-live-clock-runner.ts",
+    "sync:live:finish": "tsx scripts/sync-live-finish-runner.ts",
     "audit:fallback": "tsx scripts/audit-fallback.ts",
     "generate:team-profiles": "tsx scripts/generate-team-profiles.ts",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",

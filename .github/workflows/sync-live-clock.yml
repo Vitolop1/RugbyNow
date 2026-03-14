@@ -1,16 +1,16 @@
-name: sync-live (every 5m if LIVE)
+name: sync-live-clock (every 5m for live score/time changes)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 concurrency:
-  group: rugby-now-live
+  group: rugby-now-live-clock
   cancel-in-progress: true
 
 jobs:
-  sync_live:
+  sync_live_clock:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +24,11 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      - name: Run sync (live-only mode)
+      - name: Run strict live clock sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
           npm run ensure:flashscore-competitions
-          npm run sync:live
+          npm run sync:live:clock

@@ -234,7 +234,9 @@ function collapseLeagueMatches(rows: MatchRow[]) {
   for (const row of rows) {
     const home = unwrapTeam(row.home_team);
     const away = unwrapTeam(row.away_team);
-    const logicalKey = `${row.match_date}|${home?.id ?? "x"}|${away?.id ?? "x"}`;
+    const homeKey = home?.slug?.trim().toLowerCase() || String(home?.id ?? "x");
+    const awayKey = away?.slug?.trim().toLowerCase() || String(away?.id ?? "x");
+    const logicalKey = `${row.match_date}|${homeKey}|${awayKey}`;
     const current = bestByLogicalKey.get(logicalKey);
 
     if (!current) {

@@ -93,9 +93,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="theme-rugby">
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeInitScript}
-        </Script>
+        <script id="theme-init" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {googleAnalyticsId ? (
           <>
             <Script
@@ -114,9 +112,10 @@ export default function RootLayout({
             </Script>
           </>
         ) : null}
-        <script
-          async
+        <Script
+          id="adsense-loader"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4088690490762441"
+          strategy="afterInteractive"
           crossOrigin="anonymous"
         />
       </head>

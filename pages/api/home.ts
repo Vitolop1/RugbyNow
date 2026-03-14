@@ -258,7 +258,8 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
       row.match_date,
       row.kickoff_time,
       row.minute,
-      row.season?.competition?.slug
+      row.season?.competition?.slug,
+      row.updated_at
     );
     const normalizedRow: MatchRow = {
       ...row,

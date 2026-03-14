@@ -246,7 +246,8 @@ function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | n
     row.match_date,
     row.kickoff_time,
     row.minute,
-    competitionSlug
+    competitionSlug,
+    row.updated_at
   );
   return {
     ...row,

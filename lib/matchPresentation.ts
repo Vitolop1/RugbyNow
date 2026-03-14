@@ -26,11 +26,12 @@ export function estimateLiveMinute(
   matchDate: string,
   kickoffTime?: string | null,
   explicitMinute?: number | null,
-  competitionSlug?: string | null
+  competitionSlug?: string | null,
+  updatedAt?: string | null
 ) {
   const maxMinute = competitionSlug && isSevenCompetition(competitionSlug.toLowerCase()) ? 14 : 80;
   const firstHalfLimit = competitionSlug && isSevenCompetition(competitionSlug.toLowerCase()) ? 7 : 40;
-  const effective = getEffectiveMatchState(status, matchDate, kickoffTime, explicitMinute, competitionSlug);
+  const effective = getEffectiveMatchState(status, matchDate, kickoffTime, explicitMinute, competitionSlug, updatedAt);
   if (effective.status !== "LIVE") return null;
   if (effective.minute != null && effective.minute > 0) {
     return clamp(effective.minute, 1, maxMinute);
@@ -83,7 +84,8 @@ export function getMatchClockLabel(input: MatchClockInput) {
     input.matchDate,
     input.kickoffTime,
     input.minute,
-    input.competitionSlug
+    input.competitionSlug,
+    input.updatedAt
   );
   if (effective.status === "CANC") return t(input.lang, "statusCanc");
   if (effective.status === "FT") return t(input.lang, "statusFt");
@@ -95,7 +97,8 @@ export function getMatchClockLabel(input: MatchClockInput) {
       input.matchDate,
       input.kickoffTime,
       effective.minute,
-      input.competitionSlug
+      input.competitionSlug,
+      input.updatedAt
     );
     const minute =
       estimatedMinute != null
@@ -114,7 +117,8 @@ export function getMatchContextLabel(input: MatchClockInput) {
     input.matchDate,
     input.kickoffTime,
     input.minute,
-    input.competitionSlug
+    input.competitionSlug,
+    input.updatedAt
   );
   if (effective.status === "CANC") return t(input.lang, "cancelled");
   if (effective.status === "FT") return t(input.lang, "final");
@@ -126,7 +130,8 @@ export function getMatchContextLabel(input: MatchClockInput) {
       input.matchDate,
       input.kickoffTime,
       effective.minute,
-      input.competitionSlug
+      input.competitionSlug,
+      input.updatedAt
     );
     const minute =
       estimatedMinute != null

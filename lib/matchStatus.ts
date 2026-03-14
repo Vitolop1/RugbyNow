@@ -24,6 +24,7 @@ const SEVENS_RULES: MatchTimingRules = {
 };
 
 const LIVE_INFERENCE_DELAY_MINUTES = 2;
+const SCRAPED_STATUS_FRESHNESS_MINUTES = 15;
 
 function getMatchTimingRules(competitionSlug?: string | null): MatchTimingRules {
   if (competitionSlug && isSevenCompetition(competitionSlug.toLowerCase())) {
@@ -63,6 +64,7 @@ export function getEffectiveMatchState(
   kickoffTime?: string | null,
   explicitMinute?: number | null,
   competitionSlug?: string | null,
+  updatedAt?: string | null,
   now = new Date()
 ) {
   const rules = getMatchTimingRules(competitionSlug);
@@ -86,6 +88,11 @@ export function getEffectiveMatchState(
   const diffMinutes = kickoff ? Math.floor((now.getTime() - kickoff.getTime()) / 60000) : null;
   const inferredLiveMinutes =
     diffMinutes == null ? null : diffMinutes - LIVE_INFERENCE_DELAY_MINUTES;
+  const scrapedAt = updatedAt ? new Date(updatedAt) : null;
+  const scrapedAgeMinutes =
+    scrapedAt && !Number.isNaN(scrapedAt.getTime())
+      ? Math.floor((now.getTime() - scrapedAt.getTime()) / 60000)
+      : null;
 
   if (status === "LIVE") {
     if (explicitMinute != null && explicitMinute > 0) {
@@ -119,6 +126,10 @@ export function getEffectiveMatchState(
         rules.maxDisplayMinute
       ),
     };
+  }
+
+  if (status === "NS" && scrapedAgeMinutes != null && scrapedAgeMinutes >= 0 && scrapedAgeMinutes <= SCRAPED_STATUS_FRESHNESS_MINUTES) {
+    return { status: "NS" as const, minute: explicitMinute ?? null };
   }
 
   if (inferredLiveMinutes == null || inferredLiveMinutes < 0 || inferredLiveMinutes > totalLiveWindowMinutes) {

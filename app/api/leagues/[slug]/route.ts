@@ -127,6 +127,22 @@ function mergeLeagueMatches(primary: MatchRow[], secondary: MatchRow[]) {
   );
 }
 
+function shouldPreferFallbackRound(primaryMatches: MatchRow[], fallbackMatches: MatchRow[]) {
+  if (!fallbackMatches.length) return false;
+  if (!primaryMatches.length) return true;
+
+  const primaryFt = primaryMatches.filter((item) => item.status === "FT").length;
+  const fallbackFt = fallbackMatches.filter((item) => item.status === "FT").length;
+
+  if (fallbackMatches.length > primaryMatches.length) return true;
+  if (fallbackFt > primaryFt) return true;
+
+  const primaryHasScores = primaryMatches.some((item) => item.home_score != null && item.away_score != null);
+  const fallbackHasScores = fallbackMatches.some((item) => item.home_score != null && item.away_score != null);
+
+  return fallbackHasScores && !primaryHasScores;
+}
+
 function dedupeMatches(rows: MatchRow[]) {
   return dedupeLogicalMatches(rows, (row) => {
     const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
@@ -431,7 +447,11 @@ export async function GET(
       fallbackSelectedRound == null
         ? []
         : dedupeMatches((fallback?.matches || []) as MatchRow[]);
-    const useFallbackStructure = Boolean(fallback && roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0);
+    const useFallbackStructure = Boolean(
+      fallback &&
+        ((roundMeta.length === 0 && (fallback.roundMeta?.length || 0) > 0) ||
+          shouldPreferFallbackRound(roundMatches, fallbackMatches))
+    );
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || roundMeta : roundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : selectedRound;
     const matches = mergeLeagueMatches(roundMatches, fallbackMatches);
@@ -519,9 +539,15 @@ export async function GET(
   } catch (error) {
     const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
     if (snapshot) {
+      const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
+      const preferFallback = shouldPreferFallbackRound(
+        dedupeMatches((snapshot.matches || []) as MatchRow[]),
+        dedupeMatches((fallback?.matches || []) as MatchRow[])
+      );
+
       return NextResponse.json({
-        ...snapshot,
-        source: "snapshot",
+        ...(preferFallback && fallback ? fallback : snapshot),
+        source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: error instanceof Error ? error.message : String(error),
       });
     }

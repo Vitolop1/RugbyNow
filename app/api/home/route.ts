@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { serverSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchesByDate } from "@/lib/fallbackData";
 import { getSnapshotMatchesByDate } from "@/lib/supabaseSnapshot";
+import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 
 type MatchRow = {
   id: number;
@@ -69,6 +70,8 @@ function normalizeTeamName(value?: string | null) {
     "dogos xv": "dogos xv",
     yacare: "yacare xv",
     "yacare xv": "yacare xv",
+    capibaras: "capibaras xv",
+    "capibaras xv": "capibaras xv",
     "atletico del rosario": "atletico del rosario",
     "atl. del rosario": "atletico del rosario",
     "atletico del rosario ": "atletico del rosario",
@@ -128,12 +131,90 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
   );
 }
 
+function addDaysISO(iso: string, delta: number) {
+  const parsed = new Date(`${iso}T00:00:00Z`);
+  parsed.setUTCDate(parsed.getUTCDate() + delta);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function parseKickoffDateTime(matchDate: string, kickoffTime?: string | null) {
+  if (!kickoffTime) return null;
+  const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
+  if (!normalized) return null;
+  const parsed = new Date(`${matchDate}T${normalized}Z`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getLocalMatchDate(matchDate: string, kickoffTime: string | null | undefined, timeZone: string) {
+  const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
+  if (!kickoff) return matchDate;
+  return getISODateInTimeZone(kickoff, timeZone);
+}
+
+function isEffectivelyLive(status: MatchRow["status"], matchDate: string, kickoffTime: string | null | undefined, now = new Date()) {
+  if (status === "LIVE") return true;
+  if (status === "FT") return false;
+  const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
+  if (!kickoff) return false;
+  const diffMinutes = Math.floor((now.getTime() - kickoff.getTime()) / 60000);
+  return diffMinutes >= 0 && diffMinutes <= 130;
+}
+
+function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZone: string) {
+  const todayInZone = getISODateInTimeZone(new Date(), timeZone);
+  const byLogicalKey = new Map<string, MatchRow>();
+
+  const qualityFor = (row: MatchRow) => {
+    let score = 0;
+    if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
+    if (row.home_score != null && row.away_score != null) score += 20;
+    if (row.status === "FT") score += 15;
+    else if (row.status === "LIVE") score += 10;
+    else if (row.status === "NS") score += 5;
+    return score;
+  };
+
+  for (const row of rows) {
+    const localDate = getLocalMatchDate(row.match_date, row.kickoff_time, timeZone);
+    const effectiveLive = isEffectivelyLive(row.status, row.match_date, row.kickoff_time);
+    const normalizedRow: MatchRow = {
+      ...row,
+      match_date: localDate,
+      status: row.status === "NS" && effectiveLive ? ("LIVE" as const) : row.status,
+    };
+
+    if (!(normalizedRow.match_date === selectedDate || (selectedDate === todayInZone && normalizedRow.status === "LIVE"))) {
+      continue;
+    }
+
+    const competitionSlug = normalizedRow.season?.competition?.slug ?? "unknown";
+    const home = normalizeTeamName(normalizedRow.home_team?.name);
+    const away = normalizeTeamName(normalizedRow.away_team?.name);
+    const key = `${normalizedRow.match_date}|${competitionSlug}|${home}|${away}`;
+    const current = byLogicalKey.get(key);
+    if (!current || qualityFor(normalizedRow) > qualityFor(current)) {
+      byLogicalKey.set(key, normalizedRow);
+    }
+  }
+
+  return Array.from(byLogicalKey.values()).sort(
+    (a, b) =>
+      (a.status === "LIVE" ? -1 : 0) - (b.status === "LIVE" ? -1 : 0) ||
+      a.match_date.localeCompare(b.match_date) ||
+      String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
+      String(a.season?.competition?.name || "").localeCompare(String(b.season?.competition?.name || ""))
+  );
+}
+
 export async function GET(request: NextRequest) {
   const date = request.nextUrl.searchParams.get("date");
+  const timeZone = request.nextUrl.searchParams.get("tz") || "America/New_York";
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return NextResponse.json({ error: "Invalid or missing date" }, { status: 400 });
   }
+
+  const candidateDates = [addDaysISO(date, -1), date, addDaysISO(date, 1)];
 
   try {
     const { data, error } = await serverSupabase
@@ -152,29 +233,47 @@ export async function GET(request: NextRequest) {
           competition:competition_id ( name, slug, region )
         )
       `)
-      .eq("match_date", date)
+      .in("match_date", candidateDates)
       .order("kickoff_time", { ascending: true })
       .limit(2000);
 
     if (error) throw error;
 
     return NextResponse.json({
-      matches: mergeMatches((data || []) as unknown as RawMatchRow[], getFallbackMatchesByDate(date) as unknown as RawMatchRow[]),
+      matches: normalizeMatchesForDate(
+        mergeMatches(
+          (data || []) as unknown as RawMatchRow[],
+          candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
+        ),
+        date,
+        timeZone
+      ),
       source: "supabase",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    const snapshotMatches = getSnapshotMatchesByDate(date);
+    const snapshotMatches = candidateDates.flatMap((candidateDate) => getSnapshotMatchesByDate(candidateDate) ?? []);
     if (snapshotMatches) {
       return NextResponse.json({
-        matches: mergeMatches(snapshotMatches as unknown as RawMatchRow[], getFallbackMatchesByDate(date) as unknown as RawMatchRow[]),
+        matches: normalizeMatchesForDate(
+          mergeMatches(
+            snapshotMatches as unknown as RawMatchRow[],
+            candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
+          ),
+          date,
+          timeZone
+        ),
         source: "snapshot",
         warning: message,
       });
     }
 
     return NextResponse.json({
-      matches: mergeMatches(getFallbackMatchesByDate(date) as unknown as RawMatchRow[], []),
+      matches: normalizeMatchesForDate(
+        mergeMatches(candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[], []),
+        date,
+        timeZone
+      ),
       source: "fallback",
       warning: message,
     });

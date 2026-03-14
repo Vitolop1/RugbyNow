@@ -162,6 +162,8 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
   ],
 };
 
+const CURATED_ONLY_COMPETITIONS = new Set(["sra", "ar-liga-norte-grande"]);
+
 function norm(s: string) {
   return (s || "")
     .toLowerCase()
@@ -376,6 +378,7 @@ function loadJsonlRowsByCompetition() {
     const match = file.match(/^flashscore_(.+?)_\d{4}-\d{4}_(.*)\.jsonl$/i);
     if (!match) continue;
     const competition = match[1];
+    if (CURATED_ONLY_COMPETITIONS.has(competition)) continue;
     const stamp = match[2];
     const current = latestByCompetition.get(competition);
     if (!current || stamp > current.stamp) {
@@ -601,7 +604,7 @@ function buildMergedLeagueRows(
     ? jsonlRows.reduce((max, row) => (row.match_date > max ? row.match_date : max), jsonlRows[0].match_date)
     : null;
   const dumps = loadDryRunDumps();
-  const dump = dumps.find((item) => item.competition === compSlug);
+  const dump = CURATED_ONLY_COMPETITIONS.has(compSlug) ? null : dumps.find((item) => item.competition === compSlug);
 
   void teamIds;
 

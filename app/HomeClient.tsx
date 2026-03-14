@@ -15,8 +15,8 @@ import { getDateLocale } from "@/lib/dateLocale";
 import {
   applyNavigationSectionOrder,
   buildCompetitionNavigationSections,
-  moveNavigationSectionKey,
   readOrderedKeys,
+  reorderNavigationSectionKeys,
   readSlugList,
   toggleSlug,
   writeOrderedKeys,
@@ -24,6 +24,7 @@ import {
 } from "@/lib/competitionPrefs";
 import { t } from "@/lib/i18n";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
+import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
@@ -190,22 +191,33 @@ function isSameDay(a: Date, b: Date) {
 }
 
 function dedupeBlock(block: LeagueBlock) {
-  const seen = new Set<string>();
-  const matches: Match[] = [];
+  const logicalMatches = new Map<string, Match>();
+
+  const qualityFor = (match: Match) => {
+    let score = 0;
+    if (match.kickoffTime && match.kickoffTime !== "00:00:00" && match.kickoffTime !== "00:00") score += 40;
+    if (match.hs != null && match.as != null) score += 20;
+    if (match.status === "FT") score += 15;
+    else if (match.status === "LIVE") score += 10;
+    else if (match.status === "NS") score += 5;
+    return score;
+  };
 
   for (const match of block.matches) {
-    const pair = [match.home, match.away].map((value) => value.trim().toLowerCase()).sort().join("|");
-    const scores =
-      match.hs == null && match.as == null
-        ? ""
-        : [match.hs ?? "", match.as ?? ""].map(String).sort().join("|");
-    const key = `${block.slug}|${match.matchDate}|${match.kickoffTime ?? ""}|${pair}|${match.status}|${scores}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    matches.push(match);
+    const pair = [match.home, match.away].map((value) => value.trim().toLowerCase()).join("|");
+    const key = `${block.slug}|${match.matchDate}|${pair}`;
+    const current = logicalMatches.get(key);
+    if (!current || qualityFor(match) >= qualityFor(current)) {
+      logicalMatches.set(key, match);
+    }
   }
 
-  return { ...block, matches };
+  return {
+    ...block,
+    matches: Array.from(logicalMatches.values()).sort(
+      (a, b) => String(a.kickoffTime || "").localeCompare(String(b.kickoffTime || "")) || a.home.localeCompare(b.home)
+    ),
+  };
 }
 
 const HOME_SIDEBAR_KEY = "rn:home-sidebar-open";
@@ -226,9 +238,10 @@ function readSidebarPreference(storageKey: string) {
 export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const router = useRouter();
   const { timeZone, mounted, lang, theme } = usePrefs();
+  const hasExplicitInitialDate = Boolean(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate));
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedISO, setSelectedISO] = useState<string>(() =>
-    initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) ? initialDate : toISODateLocal(new Date())
+    hasExplicitInitialDate ? (initialDate as string) : getISODateInTimeZone(new Date(), "America/New_York")
   );
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
@@ -247,9 +260,15 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const homeRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_RAIL;
 
   const lastPushedISO = useRef<string>("");
+  const previousTodayISORef = useRef<string>(getISODateInTimeZone(new Date(), "America/New_York"));
+  const draggedSectionKeyRef = useRef<string | null>(null);
   const datePickerRef = useRef<HTMLInputElement | null>(null);
   const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
-  const todayLocal = mounted ? new Date() : null;
+  const todayISO = useMemo(
+    () => getISODateInTimeZone(new Date(), mounted ? timeZone : "America/New_York"),
+    [mounted, timeZone]
+  );
+  const todayLocal = useMemo(() => fromISODateLocal(todayISO), [todayISO]);
   const previousDate = useMemo(() => addDays(selectedDate, -1), [selectedDate]);
   const dateQuery = `?date=${selectedISO}`;
   const tr = (key: string) => t(lang, key);
@@ -330,6 +349,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     lastPushedISO.current = selectedISO;
     router.replace(`/?date=${selectedISO}`, { scroll: false });
   }, [router, selectedISO]);
+
+  useEffect(() => {
+    if (!mounted || hasExplicitInitialDate) return;
+    const nextToday = getISODateInTimeZone(new Date(), timeZone);
+    setSelectedISO((current) => (current === previousTodayISORef.current ? nextToday : current));
+    previousTodayISORef.current = nextToday;
+  }, [hasExplicitInitialDate, mounted, timeZone]);
 
   useEffect(() => {
     const loadCompetitions = async () => {
@@ -495,10 +521,6 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     () => applyNavigationSectionOrder(navigationSections, sectionOrder),
     [navigationSections, sectionOrder]
   );
-  const navigationSectionKeys = useMemo(
-    () => orderedNavigationSections.map((section) => section.key),
-    [orderedNavigationSections]
-  );
 
   const favoriteCompetitions = useMemo(
     () =>
@@ -538,9 +560,9 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       return next;
     });
   const toggleHiddenLeague = (slug: string) => setHiddenSlugs((prev) => toggleSlug(prev, slug));
-  const moveSection = (sectionKey: string, direction: -1 | 1) =>
+  const reorderSections = (draggedKey: string, targetKey: string) =>
     setSectionOrder((prev) =>
-      moveNavigationSectionKey(prev, sectionKey, direction, navigationSections.map((section) => section.key))
+      reorderNavigationSectionKeys(prev, draggedKey, targetKey, navigationSections.map((section) => section.key))
     );
 
   return (
@@ -612,11 +634,9 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                 <div className="text-xs text-red-200">{compError}</div>
               ) : (
                 <div className="space-y-3">
-                  {orderedNavigationSections.map((section, index) => {
+                  {orderedNavigationSections.map((section) => {
                     const open = openGroups[section.key] ?? defaultSidebarGroupOpen;
                     const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
-                    const canMoveUp = index > 0;
-                    const canMoveDown = index < navigationSectionKeys.length - 1;
 
                     if (section.key === "featured") {
                       const highlightedCompetitions = favoriteCompetitions.length ? favoriteCompetitions : section.competitions;
@@ -626,32 +646,29 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                       }
 
                       return (
-                        <div key={section.key} className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3">
+                        <div
+                          key={section.key}
+                          draggable
+                          onDragStart={() => {
+                            draggedSectionKeyRef.current = section.key;
+                          }}
+                          onDragOver={(event) => event.preventDefault()}
+                          onDrop={() => {
+                            const draggedKey = draggedSectionKeyRef.current;
+                            if (draggedKey) reorderSections(draggedKey, section.key);
+                            draggedSectionKeyRef.current = null;
+                          }}
+                          onDragEnd={() => {
+                            draggedSectionKeyRef.current = null;
+                          }}
+                          className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3"
+                        >
                           <div className="mb-2 flex items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-50/85">
                             <div className="flex min-w-0 items-center gap-2">
                               <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
                               <span>{section.label}</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => moveSection(section.key, -1)}
-                                disabled={!canMoveUp}
-                                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                                aria-label={`Mover ${section.label} hacia arriba`}
-                              >
-                                ↑
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => moveSection(section.key, 1)}
-                                disabled={!canMoveDown}
-                                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                                aria-label={`Mover ${section.label} hacia abajo`}
-                              >
-                                ↓
-                              </button>
-                            </div>
+                            <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Drag</span>
                           </div>
                           <div className="space-y-2">
                             {highlightedCompetitions.map((competition) => (
@@ -693,7 +710,23 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                     }
 
                     return (
-                      <div key={section.key} className="overflow-hidden rounded-xl border border-white/15 bg-white/10">
+                      <div
+                        key={section.key}
+                        draggable
+                        onDragStart={() => {
+                          draggedSectionKeyRef.current = section.key;
+                        }}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => {
+                          const draggedKey = draggedSectionKeyRef.current;
+                          if (draggedKey) reorderSections(draggedKey, section.key);
+                          draggedSectionKeyRef.current = null;
+                        }}
+                        onDragEnd={() => {
+                          draggedSectionKeyRef.current = null;
+                        }}
+                        className="overflow-hidden rounded-xl border border-white/15 bg-white/10"
+                      >
                         <div className="flex items-center gap-2 px-3 py-2">
                           <button
                             onClick={() => setOpenGroups((prev) => ({ ...prev, [section.key]: !open }))}
@@ -712,26 +745,9 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             </div>
                             <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
                           </button>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => moveSection(section.key, -1)}
-                              disabled={!canMoveUp}
-                              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                              aria-label={`Mover ${section.label} hacia arriba`}
-                            >
-                              ↑
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveSection(section.key, 1)}
-                              disabled={!canMoveDown}
-                              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                              aria-label={`Mover ${section.label} hacia abajo`}
-                            >
-                              ↓
-                            </button>
-                          </div>
+                          <span className="shrink-0 rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/65">
+                            Drag
+                          </span>
                         </div>
 
                         {open ? (
@@ -880,7 +896,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                   {todayLocal && !isSameDay(selectedDate, todayLocal) ? (
                     <div className="mt-3 flex justify-center">
                       <button
-                        onClick={() => setSelectedISO(toISODateLocal(new Date()))}
+                        onClick={() => setSelectedISO(todayISO)}
                         className="rounded-full border border-emerald-300/30 bg-emerald-400/20 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-400/30"
                       >
                         {tr("backToToday")}

@@ -84,6 +84,16 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
     return `${row.match_date}|${competitionSlug}|${home}|${away}`;
   };
 
+  const qualityFor = (row: MatchRow) => {
+    let score = 0;
+    if (row.kickoff_time && row.kickoff_time !== "00:00:00" && row.kickoff_time !== "00:00") score += 40;
+    if (row.home_score != null && row.away_score != null) score += 20;
+    if (row.status === "FT") score += 15;
+    else if (row.status === "LIVE") score += 10;
+    else if (row.status === "NS") score += 5;
+    return score;
+  };
+
   for (const rawRow of base) {
     const row = normalizeMatchRow(rawRow);
     byLogicalKey.set(keyFor(row), row);
@@ -92,7 +102,14 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
   for (const rawRow of extra) {
     const row = normalizeMatchRow(rawRow);
     const key = keyFor(row);
-    if (!byLogicalKey.has(key)) byLogicalKey.set(key, row);
+    const current = byLogicalKey.get(key);
+    if (!current) {
+      byLogicalKey.set(key, row);
+      continue;
+    }
+    if (qualityFor(row) >= qualityFor(current)) {
+      byLogicalKey.set(key, row);
+    }
   }
 
   return Array.from(byLogicalKey.values()).sort(

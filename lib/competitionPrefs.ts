@@ -249,6 +249,39 @@ export function moveNavigationSectionKey(
   return next;
 }
 
+export function reorderNavigationSectionKeys(
+  keys: string[],
+  draggedKey: string,
+  targetKey: string,
+  availableKeys: string[]
+) {
+  if (!draggedKey || !targetKey || draggedKey === targetKey) {
+    return Array.from(
+      new Set([
+        ...keys.filter((value) => availableKeys.includes(value)),
+        ...availableKeys.filter((value) => !keys.includes(value)),
+      ])
+    );
+  }
+
+  const normalized = Array.from(
+    new Set([
+      ...keys.filter((value) => availableKeys.includes(value)),
+      ...availableKeys.filter((value) => !keys.includes(value)),
+    ])
+  );
+
+  const draggedIndex = normalized.indexOf(draggedKey);
+  const targetIndex = normalized.indexOf(targetKey);
+  if (draggedIndex === -1 || targetIndex === -1) return normalized;
+
+  const next = normalized.slice();
+  const [dragged] = next.splice(draggedIndex, 1);
+  const adjustedTargetIndex = next.indexOf(targetKey);
+  next.splice(adjustedTargetIndex, 0, dragged);
+  return next;
+}
+
 export function isArgentinaCompetition(slug: string) {
   return slug.startsWith("ar-");
 }

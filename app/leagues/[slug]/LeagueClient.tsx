@@ -12,8 +12,8 @@ import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import {
   applyNavigationSectionOrder,
   buildCompetitionNavigationSections,
-  moveNavigationSectionKey,
   readOrderedKeys,
+  reorderNavigationSectionKeys,
   readSlugList,
   toggleSlug,
   writeOrderedKeys,
@@ -24,6 +24,7 @@ import { t } from "@/lib/i18n";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
+import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
 
 type MatchStatus = "NS" | "LIVE" | "FT";
@@ -223,13 +224,6 @@ function phaseLabel(tr: (key: string) => string, phaseKey?: string | null) {
   return null;
 }
 
-function toISODateLocal(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 const LEAGUE_SIDEBAR_KEY = "rn:league-sidebar-open";
 const SIDEBAR_SECTION_ORDER_KEY = "rn:league-section-order";
 
@@ -289,7 +283,8 @@ export default function LeagueClient() {
   const sevenGroupLabel = tr("groupsSeven");
 
   const slug = params.slug;
-  const refISO = searchParams.get("date") || toISODateLocal(new Date());
+  const explicitDate = searchParams.get("date");
+  const refISO = explicitDate || getISODateInTimeZone(new Date(), mounted ? timeZone : "America/New_York");
   const roundFromUrl = searchParams.get("round");
 
   const [sidebarOpen, setSidebarOpen] = useState(getInitialLeagueSidebarOpen);
@@ -298,6 +293,7 @@ export default function LeagueClient() {
   const [favoriteSlugs, setFavoriteSlugs] = useState<string[]>([]);
   const [hiddenSlugs, setHiddenSlugs] = useState<string[]>([]);
   const [sectionOrder, setSectionOrder] = useState<string[]>([]);
+  const draggedSectionKeyRef = useRef<string | null>(null);
   const roundStripRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<LeagueTab>("overview");
   const [data, setData] = useState<LeaguePayload | null>(null);
@@ -455,10 +451,6 @@ export default function LeagueClient() {
     () => applyNavigationSectionOrder(navigationSections, sectionOrder),
     [navigationSections, sectionOrder]
   );
-  const navigationSectionKeys = useMemo(
-    () => orderedNavigationSections.map((section) => section.key),
-    [orderedNavigationSections]
-  );
 
   const favoriteCompetitions = useMemo(
     () =>
@@ -575,9 +567,9 @@ export default function LeagueClient() {
       return next;
     });
   const toggleHiddenLeague = (nextSlug: string) => setHiddenSlugs((prev) => toggleSlug(prev, nextSlug));
-  const moveSection = (sectionKey: string, direction: -1 | 1) =>
+  const reorderSections = (draggedKey: string, targetKey: string) =>
     setSectionOrder((prev) =>
-      moveNavigationSectionKey(prev, sectionKey, direction, navigationSections.map((section) => section.key))
+      reorderNavigationSectionKeys(prev, draggedKey, targetKey, navigationSections.map((section) => section.key))
     );
 
   return (
@@ -660,11 +652,9 @@ export default function LeagueClient() {
             <div>
               <div className="mb-2 hidden text-sm font-semibold text-white/90 sm:block">{tr("leagues")}</div>
                 <div className="space-y-3">
-                  {orderedNavigationSections.map((section, index) => {
+                  {orderedNavigationSections.map((section) => {
                   const open = sidebarGroups[section.key] ?? defaultSidebarGroupOpen;
                   const pinnedCount = section.competitions.filter((competition) => competition.is_featured).length;
-                  const canMoveUp = index > 0;
-                  const canMoveDown = index < navigationSectionKeys.length - 1;
 
                   if (section.key === "featured") {
                     const highlightedCompetitions = favoriteCompetitions.length ? favoriteCompetitions : section.competitions;
@@ -674,32 +664,29 @@ export default function LeagueClient() {
                     }
 
                     return (
-                      <div key={section.key} className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3">
+                      <div
+                        key={section.key}
+                        draggable
+                        onDragStart={() => {
+                          draggedSectionKeyRef.current = section.key;
+                        }}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => {
+                          const draggedKey = draggedSectionKeyRef.current;
+                          if (draggedKey) reorderSections(draggedKey, section.key);
+                          draggedSectionKeyRef.current = null;
+                        }}
+                        onDragEnd={() => {
+                          draggedSectionKeyRef.current = null;
+                        }}
+                        className="rounded-xl border border-emerald-200/20 bg-emerald-300/10 p-3"
+                      >
                         <div className="mb-2 flex items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-50/85">
                           <div className="flex min-w-0 items-center gap-2">
                             <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={16} />
                             <span>{section.label}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => moveSection(section.key, -1)}
-                              disabled={!canMoveUp}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                              aria-label={`Mover ${section.label} hacia arriba`}
-                            >
-                              ↑
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveSection(section.key, 1)}
-                              disabled={!canMoveDown}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                              aria-label={`Mover ${section.label} hacia abajo`}
-                            >
-                              ↓
-                            </button>
-                          </div>
+                          <span className="rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] tracking-[0.12em] text-white/65">Drag</span>
                         </div>
                         <div className="space-y-2">
                           {highlightedCompetitions.map((competition) => {
@@ -759,7 +746,23 @@ export default function LeagueClient() {
                   }
 
                   return (
-                    <div key={section.key} className="overflow-hidden rounded-xl border border-white/15 bg-white/10">
+                    <div
+                      key={section.key}
+                      draggable
+                      onDragStart={() => {
+                        draggedSectionKeyRef.current = section.key;
+                      }}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={() => {
+                        const draggedKey = draggedSectionKeyRef.current;
+                        if (draggedKey) reorderSections(draggedKey, section.key);
+                        draggedSectionKeyRef.current = null;
+                      }}
+                      onDragEnd={() => {
+                        draggedSectionKeyRef.current = null;
+                      }}
+                      className="overflow-hidden rounded-xl border border-white/15 bg-white/10"
+                    >
                       <div className="flex items-center gap-2 px-3 py-2">
                         <button
                           onClick={() => setSidebarGroups((prev) => ({ ...prev, [section.key]: !open }))}
@@ -777,26 +780,9 @@ export default function LeagueClient() {
                           </div>
                           <span className="text-xs text-white/70">{open ? "-" : "+"}</span>
                         </button>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => moveSection(section.key, -1)}
-                            disabled={!canMoveUp}
-                            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                            aria-label={`Mover ${section.label} hacia arriba`}
-                          >
-                            ↑
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => moveSection(section.key, 1)}
-                            disabled={!canMoveDown}
-                            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/20 text-white/80 transition hover:bg-black/30 disabled:cursor-not-allowed disabled:opacity-35"
-                            aria-label={`Mover ${section.label} hacia abajo`}
-                          >
-                            ↓
-                          </button>
-                        </div>
+                        <span className="shrink-0 rounded-md border border-white/15 bg-black/20 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/65">
+                          Drag
+                        </span>
                       </div>
 
                       {open ? (

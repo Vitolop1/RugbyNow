@@ -75,22 +75,19 @@ type CompetitionRow = {
 };
 
 function dedupeMatches(rows: MatchRow[]) {
-  const seen = new Set<string>();
-  return rows.filter((row) => {
+  return dedupeLogicalMatches(rows, (row) => {
     const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
     const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
-    const key = [
-      row.match_date,
-      String(row.kickoff_time || ""),
-      home?.id ?? 0,
-      away?.id ?? 0,
-      row.status,
-      row.home_score ?? "",
-      row.away_score ?? "",
-    ].join("|");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
+    return {
+      id: row.id,
+      matchDate: row.match_date,
+      kickoffTime: row.kickoff_time,
+      status: row.status,
+      homeScore: row.home_score,
+      awayScore: row.away_score,
+      homeTeamId: home?.id ?? null,
+      awayTeamId: away?.id ?? null,
+    };
   });
 }
 

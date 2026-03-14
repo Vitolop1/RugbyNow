@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
@@ -113,7 +113,7 @@ type LeagueTeamCard = {
 };
 
 function FormPill({ value, lang }: { value: "W" | "D" | "L"; lang: "en" | "es" | "fr" | "it" }) {
-  const tr = (key: string) => t(lang, key);
+  const tr = useCallback((key: string) => t(lang, key), [lang]);
   const cls =
     value === "W"
       ? "bg-green-500/90 text-white"

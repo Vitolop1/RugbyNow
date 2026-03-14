@@ -5,6 +5,7 @@ import type { MatchStatus } from "@/lib/matchStatus";
 import { getCountryProfile } from "@/lib/countryProfiles";
 import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
 import { getTeamProfile } from "@/lib/teamProfiles";
+import bundledSnapshotJson from "@/data/supabase-snapshot.json";
 
 type SnapshotCompetition = {
   id: number;
@@ -49,6 +50,8 @@ type SnapshotPayload = {
   matches: SnapshotMatch[];
 };
 
+let cachedSnapshot: SnapshotPayload | null | undefined;
+
 function firstString(value: string | string[] | undefined, fallback?: string) {
   if (Array.isArray(value)) return value[0] ?? fallback ?? "";
   return value ?? fallback ?? "";
@@ -58,9 +61,34 @@ function snapshotPath() {
   return path.join(process.cwd(), "data", "supabase-snapshot.json");
 }
 
+function isSnapshotPayload(value: unknown): value is SnapshotPayload {
+  if (!value || typeof value !== "object") return false;
+
+  const candidate = value as Partial<SnapshotPayload>;
+  return (
+    Array.isArray(candidate.competitions) &&
+    Array.isArray(candidate.seasons) &&
+    Array.isArray(candidate.teams) &&
+    Array.isArray(candidate.matches)
+  );
+}
+
+function bundledSnapshot(): SnapshotPayload | null {
+  return isSnapshotPayload(bundledSnapshotJson) ? bundledSnapshotJson : null;
+}
+
 function loadSnapshot() {
-  const raw = fs.readFileSync(snapshotPath(), "utf8");
-  return JSON.parse(raw) as SnapshotPayload;
+  if (cachedSnapshot !== undefined) return cachedSnapshot;
+
+  try {
+    const raw = fs.readFileSync(snapshotPath(), "utf8");
+    const parsed = JSON.parse(raw) as unknown;
+    cachedSnapshot = isSnapshotPayload(parsed) ? parsed : bundledSnapshot();
+  } catch {
+    cachedSnapshot = bundledSnapshot();
+  }
+
+  return cachedSnapshot;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -73,6 +101,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const snapshot = loadSnapshot();
+    if (!snapshot) {
+      return res.status(500).json({ error: "Team snapshot unavailable" });
+    }
     const team = snapshot.teams.find((row) => row.slug === slug);
 
     if (!team) {

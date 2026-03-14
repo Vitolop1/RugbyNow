@@ -231,6 +231,7 @@ function dedupeBlock(block: LeagueBlock) {
 }
 
 const HOME_SIDEBAR_KEY = "rn:home-sidebar-open";
+const HOME_LAST_ENTRY_DAY_KEY = "rn:home-last-entry-day";
 const SIDEBAR_SECTION_ORDER_KEY = "rn:league-section-order";
 const DEFAULT_SECTION_ORDER = [
   "featured",
@@ -375,9 +376,22 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   }, [router, selectedISO]);
 
   useEffect(() => {
-    if (!mounted || hasExplicitInitialDate) return;
+    if (!mounted || typeof window === "undefined") return;
     const nextToday = getISODateInTimeZone(new Date(), timeZone);
-    setSelectedISO((current) => (current === previousTodayISORef.current ? nextToday : current));
+    const lastEntryDay = window.localStorage.getItem(HOME_LAST_ENTRY_DAY_KEY);
+
+    if (lastEntryDay !== nextToday) {
+      window.localStorage.setItem(HOME_LAST_ENTRY_DAY_KEY, nextToday);
+      previousTodayISORef.current = nextToday;
+      setSelectedISO(nextToday);
+      return;
+    }
+
+    if (!hasExplicitInitialDate) {
+      setSelectedISO((current) => (current === previousTodayISORef.current ? nextToday : current));
+    }
+
+    window.localStorage.setItem(HOME_LAST_ENTRY_DAY_KEY, nextToday);
     previousTodayISORef.current = nextToday;
   }, [hasExplicitInitialDate, mounted, timeZone]);
 

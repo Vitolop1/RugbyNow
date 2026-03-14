@@ -736,12 +736,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                   <LeagueLogo slug={competition.slug} alt={competition.name} />
                                   <span className="truncate text-sm font-medium text-white">{competition.name}</span>
                                 </Link>
-                                <div className="flex shrink-0 items-center gap-1.5">
+                                <div className="flex shrink-0 items-center gap-1">
                                   <button
                                     type="button"
                                     onClick={() => moveFavoriteLeague(competition.slug, -1)}
                                     disabled={!isFavorite || !canMoveUp}
-                                    className={`inline-flex h-8 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
+                                    className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border text-base transition ${
                                       isFavorite && canMoveUp
                                         ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                         : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -749,13 +749,13 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                     title="Mover arriba"
                                     aria-label={`Mover ${competition.name} arriba`}
                                   >
-                                    Subir
+                                    ⬆️
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => moveFavoriteLeague(competition.slug, 1)}
                                     disabled={!isFavorite || !canMoveDown}
-                                    className={`inline-flex h-8 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
+                                    className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border text-base transition ${
                                       isFavorite && canMoveDown
                                         ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                         : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -763,7 +763,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                     title="Mover abajo"
                                     aria-label={`Mover ${competition.name} abajo`}
                                   >
-                                    Bajar
+                                    ⬇️
                                   </button>
                                 </div>
                                 <button

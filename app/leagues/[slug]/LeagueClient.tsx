@@ -727,7 +727,7 @@ export default function LeagueClient() {
                                     <LeagueLogo slug={competition.slug} alt={competition.name} />
                                     <div className="truncate text-sm font-medium text-white">{competition.name}</div>
                                   </div>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
                                     <button
                                       type="button"
                                       onClick={(event) => {
@@ -735,7 +735,7 @@ export default function LeagueClient() {
                                         moveFavoriteLeague(competition.slug, -1);
                                       }}
                                       disabled={!isFavorite || !canMoveUp}
-                                      className={`inline-flex h-8 shrink-0 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
+                                      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-base transition ${
                                         isFavorite && canMoveUp
                                           ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -743,7 +743,7 @@ export default function LeagueClient() {
                                       title="Mover arriba"
                                       aria-label={`Mover ${competition.name} arriba`}
                                     >
-                                      Subir
+                                      ⬆️
                                     </button>
                                     <button
                                       type="button"
@@ -752,7 +752,7 @@ export default function LeagueClient() {
                                         moveFavoriteLeague(competition.slug, 1);
                                       }}
                                       disabled={!isFavorite || !canMoveDown}
-                                      className={`inline-flex h-8 shrink-0 items-center justify-center rounded-xl border px-2.5 text-[11px] font-black uppercase tracking-[0.08em] transition ${
+                                      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-base transition ${
                                         isFavorite && canMoveDown
                                           ? "border-emerald-300/35 bg-emerald-300/15 text-white hover:bg-emerald-300/25"
                                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/25"
@@ -760,7 +760,7 @@ export default function LeagueClient() {
                                       title="Mover abajo"
                                       aria-label={`Mover ${competition.name} abajo`}
                                     >
-                                      Bajar
+                                      ⬇️
                                     </button>
                                     <button
                                       type="button"
@@ -1141,7 +1141,9 @@ export default function LeagueClient() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
-                                  <span className="text-xs text-white/70">{niceDate(match.match_date, lang)}</span>
+                                  <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-sm font-bold text-white/85 sm:text-[15px]">
+                                    {niceDate(match.match_date, lang)}
+                                  </span>
                                   <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
                                     {broadcasts.length ? (
                                       <div className="flex flex-wrap items-center justify-end gap-2">

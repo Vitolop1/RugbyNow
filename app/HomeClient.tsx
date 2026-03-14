@@ -121,10 +121,12 @@ function LeagueLogo({ slug, alt, size = 20 }: { slug?: string | null; alt: strin
 function StatusBadge({
   status,
   lang,
+  competitionSlug,
   resultPending = false,
 }: {
   status: MatchStatus;
   lang: "en" | "es" | "fr" | "it";
+  competitionSlug?: string;
   resultPending?: boolean;
 }) {
   const tr = (key: string) => t(lang, key);
@@ -137,10 +139,11 @@ function StatusBadge({
   }
 
   if (isActiveMatchStatus(status)) {
+    const forceLiveBadge = competitionSlug === "ar-liga-norte-grande";
     return (
       <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
         <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-        {status === "HT" ? tr("statusHt") : tr("statusLive")}
+        {forceLiveBadge ? tr("statusLive") : status === "HT" ? tr("statusHt") : tr("statusLive")}
       </span>
     );
   }
@@ -1162,7 +1165,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             <div className="w-32 shrink-0">
                               <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
                               <div className="mt-1 flex items-center gap-2">
-                                <StatusBadge status={match.status} lang={lang} resultPending={resultPending} />
+                                <StatusBadge
+                                  status={match.status}
+                                  lang={lang}
+                                  competitionSlug={block.slug}
+                                  resultPending={resultPending}
+                                />
                                 {!hideLiveMeta ? (
                                   <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
                                 ) : null}

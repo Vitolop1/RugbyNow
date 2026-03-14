@@ -106,6 +106,9 @@ export function getMatchClockLabel(input: MatchClockInput) {
     input.competitionSlug,
     input.updatedAt
   );
+  if (shouldHideLiveClockDetails(input.competitionSlug) && (effective.status === "LIVE" || effective.status === "HT")) {
+    return t(input.lang, "statusLive");
+  }
   if (effective.status === "CANC") return t(input.lang, "statusCanc");
   if (effective.status === "FT") return t(input.lang, "statusFt");
   if (effective.status === "HT") return t(input.lang, "statusHt");
@@ -156,6 +159,9 @@ export function getMatchContextLabel(input: MatchClockInput) {
     input.competitionSlug,
     input.updatedAt
   );
+  if (shouldHideLiveClockDetails(input.competitionSlug) && (effective.status === "LIVE" || effective.status === "HT")) {
+    return t(input.lang, "liveAction");
+  }
   if (effective.status === "CANC") return t(input.lang, "cancelled");
   if (effective.status === "FT") return t(input.lang, "final");
   if (effective.status === "HT") return t(input.lang, "halftime");

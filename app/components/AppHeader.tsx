@@ -275,7 +275,7 @@ export default function AppHeader({
             <div className="rn-header-card flex min-w-0 flex-1 items-center justify-between px-3 py-2">
               <div className="min-w-0">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] rn-text-muted">{tr("today")}</div>
-                <div className="truncate text-[13px] font-extrabold tracking-tight rn-text-primary">
+                <div className="truncate text-sm font-extrabold rn-text-primary">
                   {mounted && now ? formatTodayTZ(now, timeZone, effectiveLang) : ""}
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function AppHeader({
           <div className="hidden items-center gap-3 md:ml-auto md:flex">
             <div className="rn-header-card flex h-[56px] w-[190px] flex-col justify-center px-4 py-2">
               <div className="text-[11px] font-semibold rn-text-muted">{tr("today")}</div>
-              <div className="mt-1 truncate text-[15px] font-extrabold leading-tight tracking-tight">
+              <div className="mt-1 truncate text-base font-extrabold leading-tight tabular-nums">
                 {mounted && now ? formatTodayTZ(now, timeZone, effectiveLang) : ""}
               </div>
             </div>

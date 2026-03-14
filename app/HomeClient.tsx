@@ -535,13 +535,46 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     [dedupedCompetitions, hiddenSlugs]
   );
 
+  const competitionMetaBySlug = useMemo(() => {
+    const out = new Map<string, Competition>();
+    for (const competition of dedupedCompetitions) {
+      out.set(competition.slug, competition);
+    }
+    return out;
+  }, [dedupedCompetitions]);
+
   const filteredBlocks = useMemo(() => {
     const visibleBlocks = blocks.filter((block) => !hiddenSlugs.includes(block.slug));
-    if (tab !== "LIVE") return visibleBlocks;
-    return visibleBlocks
+    const blocksForTab =
+      tab !== "LIVE"
+        ? visibleBlocks
+        : visibleBlocks
       .map((block) => ({ ...block, matches: block.matches.filter((match) => match.status === "LIVE") }))
       .filter((block) => block.matches.length > 0);
-  }, [blocks, tab, hiddenSlugs]);
+
+    const favoriteRank = new Map(favoriteSlugs.map((slug, index) => [slug, index]));
+
+    return blocksForTab.slice().sort((a, b) => {
+      const aFavorite = favoriteRank.has(a.slug);
+      const bFavorite = favoriteRank.has(b.slug);
+      if (aFavorite !== bFavorite) return aFavorite ? -1 : 1;
+      if (aFavorite && bFavorite) {
+        return (favoriteRank.get(a.slug) ?? 999) - (favoriteRank.get(b.slug) ?? 999);
+      }
+
+      const aMeta = competitionMetaBySlug.get(a.slug);
+      const bMeta = competitionMetaBySlug.get(b.slug);
+      const aFeatured = Boolean(aMeta?.is_featured);
+      const bFeatured = Boolean(bMeta?.is_featured);
+      if (aFeatured !== bFeatured) return aFeatured ? -1 : 1;
+
+      const aSort = aMeta?.sort_order ?? 9999;
+      const bSort = bMeta?.sort_order ?? 9999;
+      if (aSort !== bSort) return aSort - bSort;
+
+      return a.league.localeCompare(b.league);
+    });
+  }, [blocks, competitionMetaBySlug, favoriteSlugs, hiddenSlugs, tab]);
   const hasHomeEditorialContent = !loading && filteredBlocks.some((block) => block.matches.length > 0);
 
   const isTodaySelected = Boolean(mounted && todayLocal && isSameDay(selectedDate, todayLocal));

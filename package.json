@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build --webpack",
+    "build": "opennextjs-cloudflare build --skipWranglerConfigCheck",
+    "build:next": "next build --webpack",
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint",

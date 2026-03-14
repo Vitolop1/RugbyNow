@@ -853,6 +853,19 @@ function findNearbyDirectionalCandidate(
   return pickBestCandidate(nearby, matchDate, kickoffTime);
 }
 
+function findPotentiallyLiveDirectionalCandidate(possible: DbMatchRow[], homeTeamId: number, awayTeamId: number) {
+  const sameDirection = possible.filter(
+    (candidate) =>
+      candidate.home_team_id === homeTeamId &&
+      candidate.away_team_id === awayTeamId &&
+      candidate.status !== "FT" &&
+      isPotentiallyLiveWindow(candidate.match_date, candidate.kickoff_time, candidate.status)
+  );
+
+  if (!sameDirection.length) return null;
+  return pickBestCandidate(sameDirection);
+}
+
 function dateDistanceDays(isoDate: string, referenceIsoDate?: string | null) {
   const d = new Date(`${isoDate}T00:00:00Z`).getTime();
   const ref = referenceIsoDate ? new Date(`${referenceIsoDate}T00:00:00Z`).getTime() : Date.now();
@@ -1333,22 +1346,23 @@ async function scrapeMatchDetailStatus(page: Page, rawUrl: string) {
   try {
     await gotoWithRetry(page, url, 2);
     await maybeAcceptConsent(page);
-    await page.waitForTimeout(900);
+    await page.waitForTimeout(450);
 
-    const statusText = await page.evaluate(() => {
-      const pick = (selector: string) => {
-        const node = document.querySelector(selector);
-        return String(node?.textContent ?? "").trim();
-      };
+    const selectors = [
+      ".detailScore__status",
+      ".fixedHeaderDuel__detailStatus",
+      ".detailScore__matchInfo",
+    ];
+    const parts: string[] = [];
 
-      return [
-        pick(".detailScore__status"),
-        pick(".fixedHeaderDuel__detailStatus"),
-        pick(".detailScore__matchInfo"),
-      ]
-        .filter(Boolean)
-        .join(" ");
-    });
+    for (const selector of selectors) {
+      const text = (await page.locator(selector).first().textContent().catch(() => null))?.trim();
+      if (text) {
+        parts.push(text);
+      }
+    }
+
+    const statusText = parts.join(" ");
 
     return statusText.trim() || null;
   } catch (error) {
@@ -1675,8 +1689,12 @@ async function main() {
             console.log("WARN: selector not found quickly:", url);
           }
 
-          await clickShowMore(page);
-          await page.waitForTimeout(1200);
+          if (sourcePage === "live") {
+            await page.waitForTimeout(350);
+          } else {
+            await clickShowMore(page);
+            await page.waitForTimeout(1200);
+          }
 
           const rows = dedupeScrapedRows(await scrapePage(page, sourcePage));
           console.log(`Scraped from ${url}:`, rows.length);
@@ -1722,12 +1740,40 @@ async function main() {
         const as = parseScore(row.as);
         let parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
         const round = parseRound(row.roundText || row.rawText);
+        let target: DbMatchRow | null = null;
+        let sourceKey: string | null = null;
+        let kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
 
         const inferredDate =
           inferMatchDateFromRawText(row.dateLabel, seasonMeta.seasonName) ||
           inferMatchDateFromRawText(row.rawText, seasonMeta.seasonName);
+        let matchDate = inferredDate;
 
-        if (!inferredDate) {
+        sourceKey = buildSourceEventKey({
+          compSlug,
+          seasonName: seasonMeta.seasonName,
+          matchDate: matchDate || "",
+          kickoffTime,
+          homeName: row.home,
+          awayName: row.away,
+          detailUrl: row.detailUrl,
+        });
+
+        if (sourceKey && bySourceKey.has(sourceKey)) {
+          target = bySourceKey.get(sourceKey)!;
+        }
+
+        if (!matchDate && LIVE_ONLY) {
+          const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+          target = target || findPotentiallyLiveDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId);
+
+          if (target) {
+            matchDate = target.match_date;
+            kickoffTime = kickoffTime || target.kickoff_time;
+          }
+        }
+
+        if (!matchDate) {
           if (skippedWithoutDate < 10) {
             console.log("NO DATE:", {
               home: row.home,
@@ -1739,11 +1785,6 @@ async function main() {
           skippedWithoutDate++;
           continue;
         }
-
-        let sourceKey: string | null = null;
-        let target: DbMatchRow | null = null;
-        const kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
-        const matchDate = inferredDate;
         let effectiveParsed =
           !isNonPlayedStatus(parsed.status) && matchDate > tomorrowIso
             ? ({ status: "NS", minute: null } as const)
@@ -1770,16 +1811,6 @@ async function main() {
         if (LIVE_ONLY && isNonPlayedStatus(effectiveParsed.status)) {
           continue;
         }
-
-        sourceKey = buildSourceEventKey({
-          compSlug,
-          seasonName: seasonMeta.seasonName,
-          matchDate,
-          kickoffTime,
-          homeName: row.home,
-          awayName: row.away,
-          detailUrl: row.detailUrl,
-        });
 
         if (bySourceKey.has(sourceKey)) {
           target = bySourceKey.get(sourceKey)!;

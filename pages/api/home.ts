@@ -269,7 +269,6 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
     );
     const normalizedRow: MatchRow = {
       ...row,
-      match_date: localDate,
       status: effective.status,
       minute: effective.minute,
     };
@@ -287,14 +286,14 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
       normalizedRow.minute = manualOverride.minute;
     }
 
-    if (!(normalizedRow.match_date === selectedDate || (selectedDate === todayInZone && isActiveMatchStatus(normalizedRow.status)))) {
+    if (!(localDate === selectedDate || (selectedDate === todayInZone && isActiveMatchStatus(normalizedRow.status)))) {
       continue;
     }
 
     const competitionSlug = normalizedRow.season?.competition?.slug ?? "unknown";
     const home = normalizeTeamName(normalizedRow.home_team?.name);
     const away = normalizeTeamName(normalizedRow.away_team?.name);
-    const key = `${normalizedRow.match_date}|${competitionSlug}|${home}|${away}`;
+    const key = `${localDate}|${competitionSlug}|${home}|${away}`;
     const current = byLogicalKey.get(key);
     if (!current || qualityFor(normalizedRow) > qualityFor(current)) {
       byLogicalKey.set(key, normalizedRow);

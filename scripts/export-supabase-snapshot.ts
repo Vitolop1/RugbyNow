@@ -32,7 +32,7 @@ async function main() {
     supabase
       .from("matches")
       .select(
-        "id,season_id,match_date,kickoff_time,status,minute,home_score,away_score,round,venue,home_team_id,away_team_id"
+        "id,season_id,match_date,kickoff_time,status,minute,updated_at,source_url,home_score,away_score,round,venue,home_team_id,away_team_id"
       ),
     supabase
       .from("standings_cache")

@@ -34,6 +34,8 @@ type SnapshotMatch = {
   kickoff_time: string | null;
   status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
+  updated_at?: string | null;
+  source_url?: string | null;
   home_score: number | null;
   away_score: number | null;
   round: number | null;
@@ -91,6 +93,8 @@ type LeagueMatchRow = {
   kickoff_time: string | null;
   status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
   minute: number | null;
+  updated_at?: string | null;
+  source_url?: string | null;
   home_score: number | null;
   away_score: number | null;
   round: number | null;
@@ -148,6 +152,7 @@ type RoundMeta = {
   matches: number;
   ft: number;
   phaseKey?: string | null;
+  stageLabel?: string | null;
 };
 
 let cachedSnapshot: SnapshotPayload | null | undefined;
@@ -228,7 +233,7 @@ function hydrateHomeMatch(snapshot: SnapshotPayload, match: SnapshotMatch): Home
   const home = match.home_team_id ? teams.get(match.home_team_id) ?? null : null;
   const away = match.away_team_id ? teams.get(match.away_team_id) ?? null : null;
 
-  if (!competition || !home || !away) return null;
+  if (!competition) return null;
 
   return {
     id: match.id,
@@ -238,8 +243,8 @@ function hydrateHomeMatch(snapshot: SnapshotPayload, match: SnapshotMatch): Home
     minute: match.minute,
     home_score: match.home_score,
     away_score: match.away_score,
-    home_team: { id: home.id, name: home.name, slug: home.slug || "" },
-    away_team: { id: away.id, name: away.name, slug: away.slug || "" },
+    home_team: home ? { id: home.id, name: home.name, slug: home.slug || "" } : null,
+    away_team: away ? { id: away.id, name: away.name, slug: away.slug || "" } : null,
     season: {
       competition: {
         name: competition.name,
@@ -254,24 +259,67 @@ function hydrateLeagueMatch(snapshot: SnapshotPayload, match: SnapshotMatch): Le
   const teams = getTeamMap(snapshot);
   const home = match.home_team_id ? teams.get(match.home_team_id) ?? null : null;
   const away = match.away_team_id ? teams.get(match.away_team_id) ?? null : null;
-  if (!home || !away) return null;
-
   return {
     id: match.id,
     match_date: match.match_date,
     kickoff_time: match.kickoff_time,
     status: match.status,
     minute: match.minute,
+    updated_at: match.updated_at ?? null,
+    source_url: match.source_url ?? null,
     home_score: match.home_score,
     away_score: match.away_score,
     round: match.round,
     venue: match.venue,
-    home_team: { id: home.id, name: home.name, slug: home.slug || "" },
-    away_team: { id: away.id, name: away.name, slug: away.slug || "" },
+    home_team: home ? { id: home.id, name: home.name, slug: home.slug || "" } : null,
+    away_team: away ? { id: away.id, name: away.name, slug: away.slug || "" } : null,
   };
 }
 
-function buildRoundMeta(matches: SnapshotMatch[]): RoundMeta[] {
+type PhaseKey = "round32" | "round16" | "quarterfinal" | "semifinal" | "final";
+
+function parseKnockoutMetaFromSourceUrl(sourceUrl?: string | null): { phaseKey: PhaseKey | null; stageLabel: string | null } {
+  if (!sourceUrl) return { phaseKey: null, stageLabel: null };
+
+  try {
+    const url = new URL(sourceUrl);
+    const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
+    const params = new URLSearchParams(hash);
+    return {
+      phaseKey: (params.get("rn_phase") as PhaseKey | null) ?? null,
+      stageLabel: params.get("rn_stage") ?? null,
+    };
+  } catch {
+    const params = new URLSearchParams(sourceUrl.split("#")[1] ?? "");
+    return {
+      phaseKey: (params.get("rn_phase") as PhaseKey | null) ?? null,
+      stageLabel: params.get("rn_stage") ?? null,
+    };
+  }
+}
+
+function phaseSortOrder(phaseKey: PhaseKey) {
+  if (phaseKey === "round32") return 10;
+  if (phaseKey === "round16") return 20;
+  if (phaseKey === "quarterfinal") return 30;
+  if (phaseKey === "semifinal") return 40;
+  return 50;
+}
+
+function stageSortOrder(stageLabel?: string | null) {
+  const s = (stageLabel || "").toLowerCase();
+  if (!s || /play offs?|main|cup/.test(s)) return 0;
+  if (/bronze/.test(s)) return 50;
+  if (/5th-8th/.test(s)) return 100;
+  if (/9th-12th/.test(s)) return 200;
+  if (/13th-16th/.test(s)) return 300;
+  if (/plate/.test(s)) return 400;
+  if (/bowl/.test(s)) return 500;
+  if (/shield/.test(s)) return 600;
+  return 900;
+}
+
+function deriveRoundData(matches: SnapshotMatch[]) {
   const sorted = matches
     .slice()
     .sort(
@@ -280,64 +328,59 @@ function buildRoundMeta(matches: SnapshotMatch[]): RoundMeta[] {
         String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
     );
 
-  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number }>();
+  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number; phaseKey: string | null; stageLabel: string | null }>();
+  const assignment = new Map<number, number>();
   let currentRound = 0;
   let lastDate: string | null = null;
+  let fallbackRoundBase = sorted.reduce((max, row) => Math.max(max, row.round ?? 0), 0);
 
   for (const row of sorted) {
-    const gapDays =
-      lastDate == null
-        ? Number.POSITIVE_INFINITY
-        : Math.round(
-            (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
-          );
+    const knockoutMeta = parseKnockoutMetaFromSourceUrl(row.source_url);
+    let resolvedRound = row.round ?? null;
 
-    if (lastDate == null || gapDays > 4) {
-      currentRound += 1;
-      roundMap.set(currentRound, {
+    if (knockoutMeta.phaseKey) {
+      resolvedRound = 1000 + stageSortOrder(knockoutMeta.stageLabel) + phaseSortOrder(knockoutMeta.phaseKey);
+    }
+
+    if (resolvedRound == null) {
+      const gapDays =
+        lastDate == null
+          ? Number.POSITIVE_INFINITY
+          : Math.round(
+              (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
+            );
+
+      if (lastDate == null || gapDays > 4) {
+        currentRound += 1;
+        fallbackRoundBase += 1;
+      }
+
+      resolvedRound = fallbackRoundBase;
+    }
+
+    if (!roundMap.has(resolvedRound)) {
+      roundMap.set(resolvedRound, {
         first_date: row.match_date,
         last_date: row.match_date,
         matches: 0,
         ft: 0,
+        phaseKey: knockoutMeta.phaseKey,
+        stageLabel: knockoutMeta.stageLabel,
       });
     }
 
     lastDate = row.match_date;
-    const meta = roundMap.get(currentRound)!;
+    assignment.set(row.id, resolvedRound);
+    const meta = roundMap.get(resolvedRound)!;
     meta.last_date = row.match_date;
     meta.matches += 1;
     if (row.status === "FT") meta.ft += 1;
   }
 
-  return Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta }));
-}
-
-function buildRoundAssignment(matches: SnapshotMatch[]) {
-  const sorted = matches
-    .slice()
-    .sort(
-      (a, b) =>
-        a.match_date.localeCompare(b.match_date) ||
-        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
-    );
-
-  const assignment = new Map<number, number>();
-  let currentRound = 0;
-  let lastDate: string | null = null;
-
-  for (const row of sorted) {
-    const gapDays =
-      lastDate == null
-        ? Number.POSITIVE_INFINITY
-        : Math.round(
-            (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
-          );
-    if (lastDate == null || gapDays > 4) currentRound += 1;
-    lastDate = row.match_date;
-    assignment.set(row.id, currentRound);
-  }
-
-  return assignment;
+  return {
+    assignment,
+    roundMeta: Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta })),
+  };
 }
 
 function pickSeasonForReference(snapshot: SnapshotPayload, competitionId: number, refISO: string) {
@@ -392,6 +435,7 @@ function attachKnockoutPhaseMeta(roundMeta: RoundMeta[]) {
   const hasFinal = counts.has(1);
 
   return roundMeta.map((item) => {
+    if (item.phaseKey) return item;
     const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
     const allPowerOfTwo =
       item.matches > 0 &&
@@ -610,8 +654,9 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   if (!season) return null;
 
   const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((match) => match.season_id === season.id));
-  const roundMeta = attachKnockoutPhaseMeta(buildRoundMeta(seasonMatches));
-  const roundAssignment = buildRoundAssignment(seasonMatches);
+  const derivedRounds = deriveRoundData(seasonMatches);
+  const roundMeta = attachKnockoutPhaseMeta(derivedRounds.roundMeta);
+  const roundAssignment = derivedRounds.assignment;
   const autoSelectedRound = pickAutoRound(roundMeta, refISO);
   const selectedRound = roundOverride ?? autoSelectedRound;
 

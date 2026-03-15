@@ -36,9 +36,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/leagues",
     "/weekly",
+    "/weekly/week-1",
     "/about",
     "/privacy",
     "/terms",
+    "/rugby-results",
+    "/rugby-fixtures",
+    "/rugby-live-scores",
+    "/rugby-matches",
+    "/six-nations-standings",
+    "/super-rugby-results",
   ];
 
   const staticEntries = staticRoutes.map((route) => ({

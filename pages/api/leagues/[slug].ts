@@ -56,6 +56,7 @@ type MatchRow = {
   status: MatchStatus;
   minute: number | null;
   updated_at?: string | null;
+  source_url?: string | null;
   home_score: number | null;
   away_score: number | null;
   round: number | null;
@@ -385,6 +386,178 @@ function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | n
   return normalized;
 }
 
+type PhaseKey = "round32" | "round16" | "quarterfinal" | "semifinal" | "final";
+
+function parseKnockoutMetaFromSourceUrl(sourceUrl?: string | null): { phaseKey: PhaseKey | null; stageLabel: string | null } {
+  if (!sourceUrl) return { phaseKey: null, stageLabel: null };
+
+  try {
+    const url = new URL(sourceUrl);
+    const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
+    const params = new URLSearchParams(hash);
+    const phaseKey = params.get("rn_phase") as PhaseKey | null;
+    const stageLabel = params.get("rn_stage");
+    return { phaseKey: phaseKey ?? null, stageLabel: stageLabel ?? null };
+  } catch {
+    const hash = sourceUrl.split("#")[1] ?? "";
+    const params = new URLSearchParams(hash);
+    const phaseKey = params.get("rn_phase") as PhaseKey | null;
+    const stageLabel = params.get("rn_stage");
+    return { phaseKey: phaseKey ?? null, stageLabel: stageLabel ?? null };
+  }
+}
+
+function phaseSortOrder(phaseKey: PhaseKey) {
+  if (phaseKey === "round32") return 10;
+  if (phaseKey === "round16") return 20;
+  if (phaseKey === "quarterfinal") return 30;
+  if (phaseKey === "semifinal") return 40;
+  return 50;
+}
+
+function stageSortOrder(stageLabel?: string | null) {
+  const s = (stageLabel || "").toLowerCase();
+  if (!s || /play offs?|main|cup/.test(s)) return 0;
+  if (/bronze/.test(s)) return 50;
+  if (/5th-8th/.test(s)) return 100;
+  if (/9th-12th/.test(s)) return 200;
+  if (/13th-16th/.test(s)) return 300;
+  if (/plate/.test(s)) return 400;
+  if (/bowl/.test(s)) return 500;
+  if (/shield/.test(s)) return 600;
+  return 900;
+}
+
+function nextKnockoutPhase(phaseKey: PhaseKey): PhaseKey | null {
+  if (phaseKey === "round32") return "round16";
+  if (phaseKey === "round16") return "quarterfinal";
+  if (phaseKey === "quarterfinal") return "semifinal";
+  if (phaseKey === "semifinal") return "final";
+  return null;
+}
+
+function syntheticKnockoutSeedLabel(phaseKey: PhaseKey, seed: number) {
+  const short =
+    phaseKey === "round32" ? "R32" : phaseKey === "round16" ? "R16" : phaseKey === "quarterfinal" ? "QF" : phaseKey === "semifinal" ? "SF" : "F";
+  return `Winner ${short}${seed}`;
+}
+
+function appendSyntheticKnockoutRounds(
+  roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>,
+  matches: MatchRow[]
+) {
+  if (!roundMeta.some((item) => item.phaseKey)) {
+    return { roundMeta, matches };
+  }
+
+  const nextRoundMeta = [...roundMeta];
+  const nextMatches = [...matches];
+  const existingRoundKeys = new Set(
+    roundMeta
+      .filter((item) => item.phaseKey)
+      .map((item) => `${item.stageLabel || "__main__"}::${item.phaseKey}`)
+  );
+
+  let syntheticId = -1;
+  const groups = new Map<string, Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>>();
+
+  for (const item of roundMeta) {
+    if (!item.phaseKey) continue;
+    const groupKey = item.stageLabel || "__main__";
+    const bucket = groups.get(groupKey) || [];
+    bucket.push(item);
+    groups.set(groupKey, bucket);
+  }
+
+  for (const [groupKey, items] of groups.entries()) {
+    let working = items.slice().sort((a, b) => phaseSortOrder(a.phaseKey as PhaseKey) - phaseSortOrder(b.phaseKey as PhaseKey));
+
+    for (const current of working.slice()) {
+      if (!current.phaseKey) continue;
+      const nextPhase = nextKnockoutPhase(current.phaseKey as PhaseKey);
+      if (!nextPhase) continue;
+
+      const nextKey = `${groupKey}::${nextPhase}`;
+      if (existingRoundKeys.has(nextKey)) continue;
+
+      const placeholderMatches = Math.max(1, Math.floor(current.matches / 2));
+      const stageLabel = current.stageLabel ?? null;
+      const round = 1000 + stageSortOrder(stageLabel) + phaseSortOrder(nextPhase);
+      const syntheticMeta = {
+        round,
+        first_date: current.last_date,
+        last_date: current.last_date,
+        matches: placeholderMatches,
+        ft: 0,
+        phaseKey: nextPhase,
+        stageLabel,
+      };
+
+      nextRoundMeta.push(syntheticMeta);
+      existingRoundKeys.add(nextKey);
+      working.push(syntheticMeta);
+      working = working.sort((a, b) => phaseSortOrder(a.phaseKey as PhaseKey) - phaseSortOrder(b.phaseKey as PhaseKey));
+
+      for (let index = 0; index < placeholderMatches; index += 1) {
+        const slotBase = index * 2 + 1;
+        nextMatches.push({
+          id: syntheticId--,
+          match_date: current.last_date,
+          kickoff_time: null,
+          status: "NS",
+          minute: null,
+          updated_at: null,
+          source_url: `#rn_phase=${nextPhase}${stageLabel ? `&rn_stage=${encodeURIComponent(stageLabel)}` : ""}`,
+          home_score: null,
+          away_score: null,
+          round,
+          venue: null,
+          home_team: { id: syntheticId--, name: syntheticKnockoutSeedLabel(current.phaseKey as PhaseKey, slotBase), slug: null },
+          away_team: { id: syntheticId--, name: syntheticKnockoutSeedLabel(current.phaseKey as PhaseKey, slotBase + 1), slug: null },
+        });
+      }
+    }
+  }
+
+  return {
+    roundMeta: nextRoundMeta.sort((a, b) => a.first_date.localeCompare(b.first_date) || a.round - b.round),
+    matches: nextMatches,
+  };
+}
+
+function resolveLeagueDisplayRound(row: Pick<MatchRow, "round" | "source_url">) {
+  const knockoutMeta = parseKnockoutMetaFromSourceUrl(row.source_url);
+  if (knockoutMeta.phaseKey) {
+    return 1000 + stageSortOrder(knockoutMeta.stageLabel) + phaseSortOrder(knockoutMeta.phaseKey);
+  }
+  return row.round ?? null;
+}
+
+function filterVisibleLeagueMatches(
+  matches: MatchRow[],
+  roundMeta: Array<{ round: number; phaseKey?: string | null; stageLabel?: string | null }>,
+  selectedRound: number | null
+) {
+  if (selectedRound == null) return matches;
+
+  const selectedMeta = roundMeta.find((item) => item.round === selectedRound);
+  if (!selectedMeta?.phaseKey) {
+    return matches.filter((row) => resolveLeagueDisplayRound(row) === selectedRound);
+  }
+
+  const nextPhase = nextKnockoutPhase(selectedMeta.phaseKey as PhaseKey);
+  const selectedStage = selectedMeta.stageLabel || "__main__";
+
+  return matches.filter((row) => {
+    const rowRound = resolveLeagueDisplayRound(row);
+    if (rowRound === selectedRound) return true;
+
+    if (!nextPhase) return false;
+    const rowMeta = parseKnockoutMetaFromSourceUrl(row.source_url);
+    return rowMeta.phaseKey === nextPhase && (rowMeta.stageLabel || "__main__") === selectedStage;
+  });
+}
+
 function hasUsableStandingCache(rows: StandingCacheRow[]) {
   return rows.some((row) => row.played != null || row.won != null || row.drawn != null || row.lost != null || row.points_for != null || row.points_against != null || row.points != null);
 }
@@ -427,33 +600,63 @@ function pickSeasonForReference(seasons: SeasonRow[], matches: MatchMetaRow[], r
   return summaries[0]?.season ?? seasons.slice().sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0] ?? null;
 }
 
-function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_time: string | null; status: string }>(rows: T[]) {
+function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_time: string | null; status: string; round?: number | null; source_url?: string | null }>(rows: T[]) {
   const sorted = rows.slice().sort((a, b) => a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")));
-  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number }>();
+  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number; phaseKey: string | null; stageLabel: string | null }>();
   const assignment = new Map<number, number>();
   let currentRound = 0;
   let lastDate: string | null = null;
+  let fallbackRoundBase = sorted.reduce((max, row) => Math.max(max, row.round ?? 0), 0);
   for (const row of sorted) {
-    const gapDays = lastDate == null ? Number.POSITIVE_INFINITY : Math.round((new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000);
-    if (lastDate == null || gapDays > 4) {
-      currentRound += 1;
-      roundMap.set(currentRound, { first_date: row.match_date, last_date: row.match_date, matches: 0, ft: 0 });
+    const knockoutMeta = parseKnockoutMetaFromSourceUrl(row.source_url);
+    let resolvedRound = row.round ?? null;
+
+    if (knockoutMeta.phaseKey) {
+      resolvedRound = 1000 + stageSortOrder(knockoutMeta.stageLabel) + phaseSortOrder(knockoutMeta.phaseKey);
     }
+
+    if (resolvedRound == null) {
+      const gapDays = lastDate == null ? Number.POSITIVE_INFINITY : Math.round((new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000);
+      if (lastDate == null || gapDays > 4) {
+        currentRound += 1;
+        fallbackRoundBase += 1;
+      }
+      resolvedRound = fallbackRoundBase;
+    }
+
     lastDate = row.match_date;
-    assignment.set(row.id, currentRound);
-    const meta = roundMap.get(currentRound)!;
+    assignment.set(row.id, resolvedRound);
+    if (!roundMap.has(resolvedRound)) {
+      roundMap.set(resolvedRound, {
+        first_date: row.match_date,
+        last_date: row.match_date,
+        matches: 0,
+        ft: 0,
+        phaseKey: knockoutMeta.phaseKey,
+        stageLabel: knockoutMeta.stageLabel,
+      });
+    }
+    const meta = roundMap.get(resolvedRound)!;
     meta.last_date = row.match_date;
     meta.matches += 1;
     if (row.status === "FT") meta.ft += 1;
   }
-  return { assignment, roundMeta: attachKnockoutPhaseMeta(Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta }))) };
+  return {
+    assignment,
+    roundMeta: attachKnockoutPhaseMeta(
+      Array.from(roundMap.entries())
+        .map(([round, meta]) => ({ round, ...meta }))
+        .sort((a, b) => a.first_date.localeCompare(b.first_date) || a.round - b.round)
+    ),
+  };
 }
 
-function attachKnockoutPhaseMeta(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>) {
+function attachKnockoutPhaseMeta(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>) {
   const labels: Record<number, string> = { 1: "final", 2: "semifinal", 4: "quarterfinal", 8: "round16", 16: "round32" };
   const counts = new Set(roundMeta.map((item) => item.matches));
   const hasFinal = counts.has(1);
   return roundMeta.map((item) => {
+    if (item.phaseKey) return item;
     const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
     const allPowerOfTwo = item.matches > 0 && (item.matches & (item.matches - 1)) === 0 && smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
     if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) return { ...item, phaseKey: null };
@@ -544,7 +747,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (competitionsError) throw competitionsError;
     const mergedCompetitions = mergeCompetitionCatalog<CompetitionRow>((competitions || []) as CompetitionRow[], fallback ? (fallback.competitions as CompetitionRow[]) : []);
     const { data: seasonMatches, error: seasonMatchesError } = await serverSupabase.from("matches").select(`
-        id, match_date, kickoff_time, status, minute, updated_at, home_score, away_score, round, venue,
+        id, match_date, kickoff_time, status, minute, updated_at, source_url, home_score, away_score, round, venue,
         home_team:home_team_id ( id, name, slug ),
         away_team:away_team_id ( id, name, slug )
       `).eq("season_id", season.id).order("match_date", { ascending: true });
@@ -579,8 +782,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fallbackSelectedRound == null
         ? []
         : dedupeMatches((fallback?.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug));
+    const hasStructuredKnockoutRounds = roundMeta.some((item) => Boolean(item.phaseKey || item.stageLabel));
     const useSnapshotStructure = Boolean(
       snapshot &&
+        !hasStructuredKnockoutRounds &&
         (
           (roundMeta.length === 0 && (snapshot.roundMeta?.length || 0) > 0) ||
           (!roundMatches.length && snapshotMatches.length > 0) ||
@@ -604,6 +809,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       collapseLeagueMatches(
       mergeLeagueMatches(baseMatches, fallbackMatches).map((row) => normalizeRuntimeMatchStatus(row, slug))
       )
+    );
+    const bracketAugmented = appendSyntheticKnockoutRounds(effectiveRoundMeta, matches);
+    const knockoutRoundMeta = bracketAugmented.roundMeta.filter((item) => Boolean(item.phaseKey));
+    const knockoutMatches = bracketAugmented.matches.filter((row) => Boolean(parseKnockoutMetaFromSourceUrl(row.source_url).phaseKey));
+    const visibleMatches = filterVisibleLeagueMatches(
+      bracketAugmented.matches,
+      bracketAugmented.roundMeta,
+      effectiveSelectedRound
     );
     const recentForm = buildRecentForm(detailedMatches);
     const table = new Map<number, StandingsAccumulator>();
@@ -679,9 +892,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       regionProfile,
       season,
       competitions: mergedCompetitions,
-      roundMeta: effectiveRoundMeta,
+      roundMeta: bracketAugmented.roundMeta,
+      knockoutRoundMeta,
       selectedRound: effectiveSelectedRound,
-      matches: matches || [],
+      knockoutMatches,
+      matches: visibleMatches || [],
       standings,
       standingsSource: useStandingsCache ? "cache" : "computed",
       source: "supabase",
@@ -701,16 +916,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         region: basePayload.competition.region ?? undefined,
       });
       const regionProfile = getCountryProfile(competitionProfile.country ?? basePayload.competition.region);
+      const snapshotMatches = finalizeLeagueMatches(
+        collapseLeagueMatches(
+          ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
+        )
+      );
+      const bracketAugmented = appendSyntheticKnockoutRounds(basePayload.roundMeta || [], snapshotMatches);
+      const knockoutRoundMeta = bracketAugmented.roundMeta.filter((item) => Boolean(item.phaseKey));
+      const knockoutMatches = bracketAugmented.matches.filter((row) => Boolean(parseKnockoutMetaFromSourceUrl(row.source_url).phaseKey));
+      const visibleMatches = filterVisibleLeagueMatches(
+        bracketAugmented.matches,
+        bracketAugmented.roundMeta,
+        basePayload.selectedRound
+      );
       return res.status(200).json({
         ...basePayload,
         noticeKey: getCompetitionNoticeKey(basePayload.competition.slug),
         profile: competitionProfile,
         regionProfile,
-        matches: finalizeLeagueMatches(
-          collapseLeagueMatches(
-            ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
-          )
-        ),
+        roundMeta: bracketAugmented.roundMeta,
+        knockoutRoundMeta,
+        knockoutMatches,
+        matches: visibleMatches,
         source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: describeError(error),
       });
@@ -730,6 +957,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       noticeKey: getCompetitionNoticeKey(fallback.competition.slug),
       profile: competitionProfile,
       regionProfile,
+      knockoutRoundMeta: [],
+      knockoutMatches: [],
       matches: finalizeLeagueMatches(
         collapseLeagueMatches(
           ((fallback.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))

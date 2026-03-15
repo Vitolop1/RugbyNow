@@ -1,26 +1,19 @@
-"use client";
+import type { Metadata } from "next";
+import Week1Client from "@/app/weekly/week-1/Week1Client";
+import { buildStaticMetadata } from "@/lib/seo";
 
-import AppHeader from "@/app/components/AppHeader";
-import { t } from "@/lib/i18n";
-import { usePrefs } from "@/lib/usePrefs";
+export const metadata: Metadata = buildStaticMetadata({
+  title: "Weekly Rugby Recap Week 1",
+  description:
+    "Read RugbyNow's Week 1 rugby recap with standout results, storylines and weekly context.",
+  path: "/weekly/week-1",
+  keywords: [
+    "weekly rugby recap",
+    "rugby week 1 recap",
+    "rugby results recap",
+  ],
+});
 
 export default function Week1Post() {
-  const { lang } = usePrefs();
-  const tr = (key: string) => t(lang, key);
-
-  return (
-    <div className="rn-app-bg min-h-screen">
-      <AppHeader />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-extrabold">{tr("week1Title")}</h1>
-        <p className="mt-2 text-white/60">2026-02-26</p>
-
-        <div className="mt-8 space-y-4 rounded-2xl border border-white/10 bg-black/20 p-6 text-white/80">
-          <p>{tr("week1Body1")}</p>
-          <p>{tr("week1Body2")}</p>
-          <p>{tr("week1Body3")}</p>
-        </div>
-      </div>
-    </div>
-  );
+  return <Week1Client />;
 }

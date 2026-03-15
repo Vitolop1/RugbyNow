@@ -449,7 +449,9 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       }
       setLoadError("");
 
-      const response = await fetch(`/api/home?date=${selectedISO}`, { cache: "no-store" });
+      const response = await fetch(`/api/home?date=${selectedISO}&tz=${encodeURIComponent(timeZone)}`, {
+        cache: "no-store",
+      });
       const payload = await response.json();
 
       if (cancelled) return;

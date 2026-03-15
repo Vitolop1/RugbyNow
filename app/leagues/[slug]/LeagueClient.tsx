@@ -79,6 +79,7 @@ type RoundMeta = {
   matches?: number;
   ft?: number;
   phaseKey?: string | null;
+  stageLabel?: string | null;
 };
 
 type LeaguePayload = {
@@ -106,7 +107,9 @@ type LeaguePayload = {
   season: { id: number; name: string } | null;
   competitions: Competition[];
   roundMeta: RoundMeta[];
+  knockoutRoundMeta?: RoundMeta[];
   selectedRound: number | null;
+  knockoutMatches?: LeagueMatch[];
   matches: LeagueMatch[];
   standings: StandingRow[];
   standingsSource?: "cache" | "computed";
@@ -272,6 +275,61 @@ function phaseLabel(tr: (key: string) => string, phaseKey?: string | null) {
   if (phaseKey === "semifinal") return tr("phaseSemifinal");
   if (phaseKey === "final") return tr("phaseFinal");
   return null;
+}
+
+function displayRoundLabel(item: RoundMeta, tr: (key: string) => string) {
+  const phase = phaseLabel(tr, item.phaseKey);
+  if (item.stageLabel && phase) return { title: item.stageLabel, subtitle: phase };
+  if (item.stageLabel) return { title: item.stageLabel, subtitle: null };
+  if (phase) return { title: phase, subtitle: null };
+  return { title: String(item.round), subtitle: null };
+}
+
+function parseKnockoutMetaFromSourceUrl(sourceUrl?: string | null) {
+  if (!sourceUrl) return { phaseKey: null as string | null, stageLabel: null as string | null };
+  try {
+    const url = new URL(sourceUrl, "https://rugby-now.com");
+    const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
+    const params = new URLSearchParams(hash);
+    return {
+      phaseKey: params.get("rn_phase"),
+      stageLabel: params.get("rn_stage"),
+    };
+  } catch {
+    const params = new URLSearchParams(sourceUrl.split("#")[1] ?? "");
+    return {
+      phaseKey: params.get("rn_phase"),
+      stageLabel: params.get("rn_stage"),
+    };
+  }
+}
+
+function phaseSortValue(phaseKey?: string | null) {
+  if (phaseKey === "round32") return 10;
+  if (phaseKey === "round16") return 20;
+  if (phaseKey === "quarterfinal") return 30;
+  if (phaseKey === "semifinal") return 40;
+  if (phaseKey === "final") return 50;
+  return 1000;
+}
+
+function stageSortValue(stageLabel?: string | null) {
+  const s = (stageLabel || "").toLowerCase();
+  if (!s || /play offs?|main|cup/.test(s)) return 0;
+  if (/bronze/.test(s)) return 50;
+  if (/5th-8th/.test(s)) return 100;
+  if (/9th-12th/.test(s)) return 200;
+  if (/13th-16th/.test(s)) return 300;
+  if (/plate/.test(s)) return 400;
+  if (/bowl/.test(s)) return 500;
+  if (/shield/.test(s)) return 600;
+  return 900;
+}
+
+function resolveKnockoutDisplayRound(match: LeagueMatch) {
+  const meta = parseKnockoutMetaFromSourceUrl((match as LeagueMatch & { source_url?: string | null }).source_url);
+  if (!meta.phaseKey) return match.round ?? null;
+  return 1000 + stageSortValue(meta.stageLabel) + phaseSortValue(meta.phaseKey);
 }
 
 const LEAGUE_SIDEBAR_KEY = "rn:league-sidebar-open";
@@ -547,10 +605,29 @@ export default function LeagueClient() {
     mounted && typeof window !== "undefined" && window.matchMedia("(min-width: 640px)").matches
   );
   const roundMeta = data?.roundMeta || [];
+  const knockoutRoundMeta = data?.knockoutRoundMeta || [];
   const selectedRoundMeta = roundMeta.find((item) => item.round === selectedRound) ?? null;
   const canGoPrevRound = selectedRound != null && roundMeta.some((item) => item.round < selectedRound);
   const canGoNextRound = selectedRound != null && roundMeta.some((item) => item.round > selectedRound);
   const visibleMatches = data?.competition && hiddenSlugs.includes(data.competition.slug) ? [] : data?.matches || [];
+  const knockoutMatches = data?.competition && hiddenSlugs.includes(data.competition.slug) ? [] : data?.knockoutMatches || [];
+  const knockoutGroups = useMemo(() => {
+    const groups = new Map<string, { key: string; title: string | null; rounds: RoundMeta[] }>();
+
+    for (const round of knockoutRoundMeta) {
+      const key = round.stageLabel || "__main__";
+      const current = groups.get(key) || { key, title: round.stageLabel || null, rounds: [] };
+      current.rounds.push(round);
+      groups.set(key, current);
+    }
+
+    return Array.from(groups.values())
+      .map((group) => ({
+        ...group,
+        rounds: group.rounds.slice().sort((a, b) => phaseSortValue(a.phaseKey) - phaseSortValue(b.phaseKey)),
+      }))
+      .sort((a, b) => stageSortValue(a.title) - stageSortValue(b.title));
+  }, [knockoutRoundMeta]);
   const leagueTeams = useMemo(() => {
     const byId = new Map<number, LeagueTeamCard>();
 
@@ -1112,7 +1189,9 @@ export default function LeagueClient() {
                         </div>
                         {selectedRoundMeta ? (
                           <div className="text-right text-sm text-white/75">
-                            <div className="font-bold text-white">#{selectedRoundMeta.round}</div>
+                            <div className="font-bold text-white">
+                              {selectedRoundMeta.stageLabel || phaseLabel(tr, selectedRoundMeta.phaseKey) || `#${selectedRoundMeta.round}`}
+                            </div>
                             <div>{formatRoundDate(selectedRoundMeta.first_date)}</div>
                           </div>
                         ) : null}
@@ -1140,6 +1219,7 @@ export default function LeagueClient() {
                             >
                                 {roundMeta.map((item) => {
                                   const active = item.round === selectedRound;
+                                  const label = displayRoundLabel(item, tr);
                                   return (
                                     <button
                                       key={item.round}
@@ -1151,11 +1231,11 @@ export default function LeagueClient() {
                                           : "border-white/15 bg-white/10 text-white/85 hover:bg-white/15"
                                       }`}
                                     >
-                                      <div className="text-xl font-black leading-none">{item.round}</div>
+                                      <div className="text-sm font-black leading-tight">{label.title}</div>
                                       <div className="mt-1 text-[11px] font-semibold text-white/70">{formatRoundDate(item.first_date)}</div>
-                                      {phaseLabel(tr, item.phaseKey) ? (
+                                      {label.subtitle ? (
                                         <div className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-100/80">
-                                          {phaseLabel(tr, item.phaseKey)}
+                                          {label.subtitle}
                                         </div>
                                       ) : null}
                                     </button>
@@ -1180,11 +1260,87 @@ export default function LeagueClient() {
                       ) : null}
                     </div>
 
+                    {knockoutGroups.length > 0 ? (
+                      <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
+                        <div className="border-b border-white/15 px-4 py-3">
+                          <div className="text-xl font-bold text-white">{tr("bracketTitle")}</div>
+                          <div className="mt-1 text-sm text-white/70">{data.competition.name}</div>
+                        </div>
+
+                        <div className="space-y-6 p-4">
+                          {knockoutGroups.map((group) => (
+                            <div key={group.key} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                              {group.title ? (
+                                <div className="mb-4 text-xs font-black uppercase tracking-[0.18em] text-emerald-100/80">
+                                  {group.title}
+                                </div>
+                              ) : null}
+
+                              <div
+                                className="grid min-w-max gap-4"
+                                style={{ gridTemplateColumns: `repeat(${group.rounds.length}, minmax(220px, 1fr))` }}
+                              >
+                                {group.rounds.map((round) => {
+                                  const roundMatches = knockoutMatches
+                                    .filter((match) => resolveKnockoutDisplayRound(match) === round.round)
+                                    .sort(
+                                      (a, b) =>
+                                        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")) ||
+                                        (a.home_team?.name || "").localeCompare(b.home_team?.name || "")
+                                    );
+                                  const label = displayRoundLabel(round, tr);
+
+                                  return (
+                                    <div key={round.round} className="space-y-3">
+                                      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                                        <div className="text-sm font-black text-white">{label.subtitle || label.title}</div>
+                                        {label.subtitle ? (
+                                          <div className="mt-1 text-[11px] font-semibold text-white/70">{label.title}</div>
+                                        ) : null}
+                                      </div>
+
+                                      {roundMatches.map((match) => (
+                                        <div
+                                          key={`${round.round}-${match.id}`}
+                                          className="rounded-xl border border-emerald-300/12 bg-emerald-500/10 px-3 py-3"
+                                        >
+                                          <div className="mb-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/55">
+                                            {match.kickoff_time ? match.kickoff_time.slice(0, 5) : tr("tbd")}
+                                          </div>
+                                          <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-3">
+                                              <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("tbd")} />
+                                              <span className="font-extrabold text-white">
+                                                {isScheduledMatchStatus(match.status) ? "-" : match.home_score ?? "-"}
+                                              </span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-3">
+                                              <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("tbd")} />
+                                              <span className="font-extrabold text-white">
+                                                {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
                     <div>
                       <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                       <p className="text-sm text-white/80">
                         {tr("seasonLabel")}: <span className="font-semibold text-white">{seasonName}</span>  |  {tr("round")}:{" "}
-                        <span className="font-semibold text-white">{selectedRound ?? "-"}</span>  |  {tr("tz")}:{" "}
+                        <span className="font-semibold text-white">
+                          {selectedRoundMeta?.stageLabel || phaseLabel(tr, selectedRoundMeta?.phaseKey) || selectedRound || "-"}
+                        </span>{" "}
+                        |  {tr("tz")}:{" "}
                         <span className="font-semibold text-white">{timeZone}</span>
                       </p>
                     </div>

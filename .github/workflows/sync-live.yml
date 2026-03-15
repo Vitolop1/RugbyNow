@@ -5,9 +5,12 @@ on:
   schedule:
     - cron: "*/5 * * * *"
 
+permissions:
+  contents: read
+
 concurrency:
   group: rugby-now-live
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   sync_live:
@@ -23,7 +26,18 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci --no-audit --no-fund
+      - name: Restore dependency cache
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node20-live-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: npm ci --no-audit --no-fund --prefer-offline
 
       - name: Run live sync burst
         env:
@@ -31,6 +45,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
+          echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
           npm run ensure:flashscore-competitions
           npm run sync:live
           npm run sync:live:clock

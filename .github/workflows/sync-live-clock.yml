@@ -3,6 +3,9 @@ name: sync-live-clock (manual fallback)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: rugby-now-live-clock
   cancel-in-progress: true
@@ -21,7 +24,18 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci --no-audit --no-fund
+      - name: Restore dependency cache
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node20-live-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: npm ci --no-audit --no-fund --prefer-offline
 
       - name: Run strict live clock sync
         env:

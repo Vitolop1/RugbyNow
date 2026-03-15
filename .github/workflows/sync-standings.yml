@@ -1,27 +1,40 @@
-name: sync-standings (every 30m)
+name: sync-standings (every 5m)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15,45 * * * *"
+    - cron: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"
 
 concurrency:
   group: rugby-now-sync-standings
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   sync_standings:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - run: npm ci
+      - name: Restore dependency cache
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node20-sync-standings-${{ hashFiles('package-lock.json') }}
 
-      - run: npx playwright install --with-deps chromium
+      - name: Install dependencies
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: npm ci --no-audit --no-fund --prefer-offline
 
       - name: Run standings sync
         env:
@@ -29,6 +42,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
+          echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
           npm run ensure:flashscore-competitions
           npm run sync:standings
 

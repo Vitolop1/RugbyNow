@@ -1448,29 +1448,33 @@ export default function LeagueClient() {
 
                                 <div className="min-w-0 flex-1">
                                   <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
-                                    <div className="grid w-fit max-w-full grid-cols-[minmax(0,max-content)_auto_minmax(0,max-content)] items-center gap-x-2">
-                                      <div className="min-w-0 max-w-[38vw] justify-self-end sm:max-w-[220px]">
-                                        <TeamLink
-                                          slug={match.home_team?.slug}
-                                          name={match.home_team?.name}
-                                          fallback={tr("teamHomeFallback")}
-                                          clickable={false}
-                                          side="home"
-                                        />
+                                    <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3">
+                                      <div className="flex min-w-0 justify-end">
+                                        <div className="min-w-0 max-w-[38vw] sm:max-w-[220px]">
+                                          <TeamLink
+                                            slug={match.home_team?.slug}
+                                            name={match.home_team?.name}
+                                            fallback={tr("teamHomeFallback")}
+                                            clickable={false}
+                                            side="home"
+                                          />
+                                        </div>
                                       </div>
                                       <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-1.5 text-lg font-extrabold tabular-nums text-white">
                                         {isScheduledMatchStatus(match.status) ? "-" : match.home_score ?? "-"}
                                         <span className="px-2 text-white/50">-</span>
                                         {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
                                       </div>
-                                      <div className="min-w-0 max-w-[38vw] justify-self-start sm:max-w-[220px]">
-                                        <TeamLink
-                                          slug={match.away_team?.slug}
-                                          name={match.away_team?.name}
-                                          fallback={tr("teamAwayFallback")}
-                                          clickable={false}
-                                          side="away"
-                                        />
+                                      <div className="flex min-w-0 justify-start">
+                                        <div className="min-w-0 max-w-[38vw] sm:max-w-[220px]">
+                                          <TeamLink
+                                            slug={match.away_team?.slug}
+                                            name={match.away_team?.name}
+                                            fallback={tr("teamAwayFallback")}
+                                            clickable={false}
+                                            side="away"
+                                          />
+                                        </div>
                                       </div>
                                     </div>
                                   </div>

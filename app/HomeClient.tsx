@@ -1197,7 +1197,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
                             <div className="min-w-0 flex-1">
                               <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
-                                <div className="mx-auto grid w-fit max-w-full grid-cols-[minmax(0,max-content)_auto_minmax(0,max-content)] items-center gap-x-2">
+                                <div className="grid w-fit max-w-full grid-cols-[minmax(0,max-content)_auto_minmax(0,max-content)] items-center gap-x-2">
                                   <div className="min-w-0 max-w-[38vw] justify-self-end sm:max-w-[220px]">
                                     <TeamName name={match.home} slug={match.homeSlug} clickable={false} side="home" />
                                   </div>

@@ -3,8 +3,9 @@ import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { getCompetitionProfile } from "@/lib/competitionProfiles";
 import { getCompetitionNoticeKey, getManualStatusOverride } from "@/lib/competitionMessaging";
 import { getCountryProfile } from "@/lib/countryProfiles";
+import { attachKnockoutPhaseMeta, deriveLeagueRoundData, parseKnockoutMetaFromSourceUrl, phaseSortOrder, pickAutoRound, stageSortOrder } from "@/lib/leagueRounds";
 import { getEffectiveMatchState, isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
-import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
+import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackLeagueData, isCuratedOnlyCompetition } from "@/lib/fallbackData";
 import { getSnapshotLeagueData } from "@/lib/supabaseSnapshot";
@@ -388,46 +389,6 @@ function normalizeRuntimeMatchStatus(row: MatchRow, competitionSlug?: string | n
 
 type PhaseKey = "round32" | "round16" | "quarterfinal" | "semifinal" | "final";
 
-function parseKnockoutMetaFromSourceUrl(sourceUrl?: string | null): { phaseKey: PhaseKey | null; stageLabel: string | null } {
-  if (!sourceUrl) return { phaseKey: null, stageLabel: null };
-
-  try {
-    const url = new URL(sourceUrl);
-    const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
-    const params = new URLSearchParams(hash);
-    const phaseKey = params.get("rn_phase") as PhaseKey | null;
-    const stageLabel = params.get("rn_stage");
-    return { phaseKey: phaseKey ?? null, stageLabel: stageLabel ?? null };
-  } catch {
-    const hash = sourceUrl.split("#")[1] ?? "";
-    const params = new URLSearchParams(hash);
-    const phaseKey = params.get("rn_phase") as PhaseKey | null;
-    const stageLabel = params.get("rn_stage");
-    return { phaseKey: phaseKey ?? null, stageLabel: stageLabel ?? null };
-  }
-}
-
-function phaseSortOrder(phaseKey: PhaseKey) {
-  if (phaseKey === "round32") return 10;
-  if (phaseKey === "round16") return 20;
-  if (phaseKey === "quarterfinal") return 30;
-  if (phaseKey === "semifinal") return 40;
-  return 50;
-}
-
-function stageSortOrder(stageLabel?: string | null) {
-  const s = (stageLabel || "").toLowerCase();
-  if (!s || /play offs?|main|cup/.test(s)) return 0;
-  if (/bronze/.test(s)) return 50;
-  if (/5th-8th/.test(s)) return 100;
-  if (/9th-12th/.test(s)) return 200;
-  if (/13th-16th/.test(s)) return 300;
-  if (/plate/.test(s)) return 400;
-  if (/bowl/.test(s)) return 500;
-  if (/shield/.test(s)) return 600;
-  return 900;
-}
-
 function nextKnockoutPhase(phaseKey: PhaseKey): PhaseKey | null {
   if (phaseKey === "round32") return "round16";
   if (phaseKey === "round16") return "quarterfinal";
@@ -525,70 +486,6 @@ function pickSeasonForReference(seasons: SeasonRow[], matches: MatchMetaRow[], r
     return seasonSortKey(b.season.name) - seasonSortKey(a.season.name);
   });
   return summaries[0]?.season ?? seasons.slice().sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0] ?? null;
-}
-
-function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_time: string | null; status: string; round?: number | null; source_url?: string | null }>(rows: T[]) {
-  const sorted = rows.slice().sort((a, b) => a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || "")));
-  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number; phaseKey: string | null; stageLabel: string | null }>();
-  const assignment = new Map<number, number>();
-  let currentRound = 0;
-  let lastDate: string | null = null;
-  let fallbackRoundBase = sorted.reduce((max, row) => Math.max(max, row.round ?? 0), 0);
-  for (const row of sorted) {
-    const knockoutMeta = parseKnockoutMetaFromSourceUrl(row.source_url);
-    let resolvedRound = row.round ?? null;
-
-    if (knockoutMeta.phaseKey) {
-      resolvedRound = 1000 + stageSortOrder(knockoutMeta.stageLabel) + phaseSortOrder(knockoutMeta.phaseKey);
-    }
-
-    if (resolvedRound == null) {
-      const gapDays = lastDate == null ? Number.POSITIVE_INFINITY : Math.round((new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000);
-      if (lastDate == null || gapDays > 4) {
-        currentRound += 1;
-        fallbackRoundBase += 1;
-      }
-      resolvedRound = fallbackRoundBase;
-    }
-
-    lastDate = row.match_date;
-    assignment.set(row.id, resolvedRound);
-    if (!roundMap.has(resolvedRound)) {
-      roundMap.set(resolvedRound, {
-        first_date: row.match_date,
-        last_date: row.match_date,
-        matches: 0,
-        ft: 0,
-        phaseKey: knockoutMeta.phaseKey,
-        stageLabel: knockoutMeta.stageLabel,
-      });
-    }
-    const meta = roundMap.get(resolvedRound)!;
-    meta.last_date = row.match_date;
-    meta.matches += 1;
-    if (row.status === "FT") meta.ft += 1;
-  }
-  return {
-    assignment,
-    roundMeta: attachKnockoutPhaseMeta(
-      Array.from(roundMap.entries())
-        .map(([round, meta]) => ({ round, ...meta }))
-        .sort((a, b) => a.first_date.localeCompare(b.first_date) || a.round - b.round)
-    ),
-  };
-}
-
-function attachKnockoutPhaseMeta(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>) {
-  return roundMeta.map((item) => ({ ...item, phaseKey: item.phaseKey ?? null }));
-}
-
-function pickAutoRound(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>, refISO: string) {
-  if (!roundMeta.length) return null;
-  const current = roundMeta.find((item) => item.first_date <= refISO && refISO <= item.last_date);
-  if (current) return current.round;
-  const next = roundMeta.find((item) => item.first_date >= refISO);
-  if (next) return next.round;
-  return roundMeta[roundMeta.length - 1]?.round ?? null;
 }
 
 function buildRecentForm(rows: MatchRow[]) {
@@ -693,7 +590,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       homeTeamId: Array.isArray(row.home_team) ? row.home_team[0]?.id ?? null : row.home_team?.id ?? null,
       awayTeamId: Array.isArray(row.away_team) ? row.away_team[0]?.id ?? null : row.away_team?.id ?? null,
     }));
-    const derived = deriveRoundMeta(detailedMatches);
+    const derived = deriveLeagueRoundData(detailedMatches);
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
     const selectedRound = roundOverride ?? autoSelectedRound;
@@ -791,31 +688,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
     }
-    const useStandingsCache = hasUsableStandingCache(safeStandingsCache) && hasConsistentStandingsCache(safeStandingsCache, (row) => ({
-      played: row.played,
-      won: row.won,
-      drawn: row.drawn,
-      lost: row.lost,
-    }));
-    const standings = useStandingsCache ? (safeStandingsCache.map((row, index) => {
-      const team = row.team_id ? teamsById.get(row.team_id) ?? null : null;
-      if (!team) return null;
-      return {
-        position: row.position ?? index + 1,
-        teamId: team.id,
-        team: team.name,
-        teamSlug: team.slug ?? null,
-        pj: row.played ?? 0,
-        w: row.won ?? 0,
-        d: row.drawn ?? 0,
-        l: row.lost ?? 0,
-        pf: row.points_for ?? 0,
-        pa: row.points_against ?? 0,
-        pts: row.points ?? 0,
-        badge: null,
-        form: recentForm.get(team.id) ?? [],
-      } satisfies StandingsAccumulator & { position: number; badge: null };
-    }).filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>) : computedStandings;
+    const standingsFromCache = safeStandingsCache
+      .map((row, index) => {
+        const team = row.team_id ? teamsById.get(row.team_id) ?? null : null;
+        if (!team) return null;
+        return {
+          position: row.position ?? index + 1,
+          teamId: team.id,
+          team: team.name,
+          teamSlug: team.slug ?? null,
+          pj: row.played ?? 0,
+          w: row.won ?? 0,
+          d: row.drawn ?? 0,
+          l: row.lost ?? 0,
+          pf: row.points_for ?? 0,
+          pa: row.points_against ?? 0,
+          pts: row.points ?? 0,
+          badge: null,
+          form: recentForm.get(team.id) ?? [],
+        } satisfies StandingsAccumulator & { position: number; badge: null };
+      })
+      .filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>;
+    const standingsFromSnapshot =
+      snapshot?.standingsSource === "cache" && Array.isArray(snapshot.standings) && snapshot.standings.length
+        ? snapshot.standings
+        : [];
+    const standings =
+      (hasUsableStandingCache(safeStandingsCache) && standingsFromCache.length ? standingsFromCache : null) ??
+      (standingsFromSnapshot.length ? standingsFromSnapshot : null) ??
+      computedStandings;
+    const standingsSource =
+      hasUsableStandingCache(safeStandingsCache) && standingsFromCache.length
+        ? "cache"
+        : standingsFromSnapshot.length
+          ? "cache"
+          : "computed";
     return res.status(200).json({
       competition: mergedCompetition,
       noticeKey: getCompetitionNoticeKey(mergedCompetition.slug),
@@ -829,7 +736,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       knockoutMatches,
       matches: visibleMatches || [],
       standings,
-      standingsSource: useStandingsCache ? "cache" : "computed",
+      standingsSource,
       source: "supabase",
     });
   } catch (error) {

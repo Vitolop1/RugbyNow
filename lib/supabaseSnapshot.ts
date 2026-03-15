@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
+import { attachKnockoutPhaseMeta, deriveLeagueRoundData, pickAutoRound } from "@/lib/leagueRounds";
+import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
 import bundledSnapshotJson from "@/data/supabase-snapshot.json";
 
 type SnapshotCompetition = {
@@ -276,113 +277,6 @@ function hydrateLeagueMatch(snapshot: SnapshotPayload, match: SnapshotMatch): Le
   };
 }
 
-type PhaseKey = "round32" | "round16" | "quarterfinal" | "semifinal" | "final";
-
-function parseKnockoutMetaFromSourceUrl(sourceUrl?: string | null): { phaseKey: PhaseKey | null; stageLabel: string | null } {
-  if (!sourceUrl) return { phaseKey: null, stageLabel: null };
-
-  try {
-    const url = new URL(sourceUrl);
-    const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
-    const params = new URLSearchParams(hash);
-    return {
-      phaseKey: (params.get("rn_phase") as PhaseKey | null) ?? null,
-      stageLabel: params.get("rn_stage") ?? null,
-    };
-  } catch {
-    const params = new URLSearchParams(sourceUrl.split("#")[1] ?? "");
-    return {
-      phaseKey: (params.get("rn_phase") as PhaseKey | null) ?? null,
-      stageLabel: params.get("rn_stage") ?? null,
-    };
-  }
-}
-
-function phaseSortOrder(phaseKey: PhaseKey) {
-  if (phaseKey === "round32") return 10;
-  if (phaseKey === "round16") return 20;
-  if (phaseKey === "quarterfinal") return 30;
-  if (phaseKey === "semifinal") return 40;
-  return 50;
-}
-
-function stageSortOrder(stageLabel?: string | null) {
-  const s = (stageLabel || "").toLowerCase();
-  if (!s || /play offs?|main|cup/.test(s)) return 0;
-  if (/bronze/.test(s)) return 50;
-  if (/5th-8th/.test(s)) return 100;
-  if (/9th-12th/.test(s)) return 200;
-  if (/13th-16th/.test(s)) return 300;
-  if (/plate/.test(s)) return 400;
-  if (/bowl/.test(s)) return 500;
-  if (/shield/.test(s)) return 600;
-  return 900;
-}
-
-function deriveRoundData(matches: SnapshotMatch[]) {
-  const sorted = matches
-    .slice()
-    .sort(
-      (a, b) =>
-        a.match_date.localeCompare(b.match_date) ||
-        String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))
-    );
-
-  const roundMap = new Map<number, { first_date: string; last_date: string; matches: number; ft: number; phaseKey: string | null; stageLabel: string | null }>();
-  const assignment = new Map<number, number>();
-  let currentRound = 0;
-  let lastDate: string | null = null;
-  let fallbackRoundBase = sorted.reduce((max, row) => Math.max(max, row.round ?? 0), 0);
-
-  for (const row of sorted) {
-    const knockoutMeta = parseKnockoutMetaFromSourceUrl(row.source_url);
-    let resolvedRound = row.round ?? null;
-
-    if (knockoutMeta.phaseKey) {
-      resolvedRound = 1000 + stageSortOrder(knockoutMeta.stageLabel) + phaseSortOrder(knockoutMeta.phaseKey);
-    }
-
-    if (resolvedRound == null) {
-      const gapDays =
-        lastDate == null
-          ? Number.POSITIVE_INFINITY
-          : Math.round(
-              (new Date(`${row.match_date}T00:00:00Z`).getTime() - new Date(`${lastDate}T00:00:00Z`).getTime()) / 86400000
-            );
-
-      if (lastDate == null || gapDays > 4) {
-        currentRound += 1;
-        fallbackRoundBase += 1;
-      }
-
-      resolvedRound = fallbackRoundBase;
-    }
-
-    if (!roundMap.has(resolvedRound)) {
-      roundMap.set(resolvedRound, {
-        first_date: row.match_date,
-        last_date: row.match_date,
-        matches: 0,
-        ft: 0,
-        phaseKey: knockoutMeta.phaseKey,
-        stageLabel: knockoutMeta.stageLabel,
-      });
-    }
-
-    lastDate = row.match_date;
-    assignment.set(row.id, resolvedRound);
-    const meta = roundMap.get(resolvedRound)!;
-    meta.last_date = row.match_date;
-    meta.matches += 1;
-    if (row.status === "FT") meta.ft += 1;
-  }
-
-  return {
-    assignment,
-    roundMeta: Array.from(roundMap.entries()).map(([round, meta]) => ({ round, ...meta })),
-  };
-}
-
 function pickSeasonForReference(snapshot: SnapshotPayload, competitionId: number, refISO: string) {
   const seasons = snapshot.seasons.filter((season) => season.competition_id === competitionId);
   if (!seasons.length) return null;
@@ -411,19 +305,6 @@ function pickSeasonForReference(snapshot: SnapshotPayload, competitionId: number
     });
 
   return summaries[0]?.season ?? seasons.slice().sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0];
-}
-
-function pickAutoRound(roundMeta: RoundMeta[], refISO: string) {
-  if (!roundMeta.length) return null;
-  const current = roundMeta.find((item) => item.first_date <= refISO && refISO <= item.last_date);
-  if (current) return current.round;
-  const next = roundMeta.find((item) => item.first_date >= refISO);
-  if (next) return next.round;
-  return roundMeta[roundMeta.length - 1]?.round ?? null;
-}
-
-function attachKnockoutPhaseMeta(roundMeta: RoundMeta[]) {
-  return roundMeta.map((item) => ({ ...item, phaseKey: item.phaseKey ?? null }));
 }
 
 function buildStandingsFromMatches(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {
@@ -547,16 +428,7 @@ function buildStandingsCache(snapshot: SnapshotPayload, seasonId: number, matche
       return (b.points ?? 0) - (a.points ?? 0);
     });
 
-  if (
-    !rows.length ||
-    !hasUsableStandingCacheRows(rows) ||
-    !hasConsistentStandingsCache(rows, (row) => ({
-      played: row.played,
-      won: row.won,
-      drawn: row.drawn,
-      lost: row.lost,
-    }))
-  ) {
+  if (!rows.length || !hasUsableStandingCacheRows(rows)) {
     return null;
   }
 
@@ -630,7 +502,7 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   if (!season) return null;
 
   const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((match) => match.season_id === season.id));
-  const derivedRounds = deriveRoundData(seasonMatches);
+  const derivedRounds = deriveLeagueRoundData(seasonMatches);
   const roundMeta = attachKnockoutPhaseMeta(derivedRounds.roundMeta);
   const roundAssignment = derivedRounds.assignment;
   const autoSelectedRound = pickAutoRound(roundMeta, refISO);

@@ -177,7 +177,7 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
   ],
 };
 
-const CURATED_ONLY_COMPETITIONS = new Set(["sra", "ar-liga-norte-grande"]);
+const CURATED_ONLY_COMPETITIONS = new Set(["ar-liga-norte-grande"]);
 
 function norm(s: string) {
   return (s || "")

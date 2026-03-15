@@ -1448,8 +1448,8 @@ export default function LeagueClient() {
 
                                 <div className="min-w-0 flex-1">
                                   <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
-                                    <div className="mx-auto flex w-fit max-w-full items-center justify-center gap-2">
-                                      <div className="min-w-0 w-[34vw] max-w-[170px] sm:max-w-[190px]">
+                                    <div className="mx-auto grid w-fit max-w-full grid-cols-[minmax(0,max-content)_auto_minmax(0,max-content)] items-center gap-x-2">
+                                      <div className="min-w-0 max-w-[38vw] justify-self-end sm:max-w-[220px]">
                                         <TeamLink
                                           slug={match.home_team?.slug}
                                           name={match.home_team?.name}
@@ -1463,7 +1463,7 @@ export default function LeagueClient() {
                                         <span className="px-2 text-white/50">-</span>
                                         {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
                                       </div>
-                                      <div className="min-w-0 w-[34vw] max-w-[170px] sm:max-w-[190px]">
+                                      <div className="min-w-0 max-w-[38vw] justify-self-start sm:max-w-[220px]">
                                         <TeamLink
                                           slug={match.away_team?.slug}
                                           name={match.away_team?.name}

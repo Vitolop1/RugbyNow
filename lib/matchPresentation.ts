@@ -19,10 +19,6 @@ type MatchClockInput = {
   lang: Lang;
 };
 
-function shouldUseWallClockKickoff(competitionSlug?: string | null) {
-  return Boolean(competitionSlug && competitionSlug.toLowerCase().startsWith("svns-"));
-}
-
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -80,19 +76,6 @@ export function formatKickoffTZ(
 ) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-
-  if (shouldUseWallClockKickoff(competitionSlug)) {
-    const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
-    const hour24 = Number(hourRaw);
-    const minute = Number(minuteRaw);
-    if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
-
-    return new Intl.DateTimeFormat(getDateLocale(lang), {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    }).format(new Date(Date.UTC(2000, 0, 1, hour24, minute)));
-  }
 
   return new Intl.DateTimeFormat(getDateLocale(lang), {
     hour: "2-digit",

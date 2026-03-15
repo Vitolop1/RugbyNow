@@ -244,13 +244,16 @@ function TeamLink({
   name,
   fallback,
   clickable = true,
+  side = "away",
 }: {
   slug?: string | null;
   name?: string | null;
   fallback: string;
   clickable?: boolean;
+  side?: "home" | "away";
 }) {
   const label = name || fallback;
+  const sideClass = side === "home" ? "flex-row-reverse text-right" : "";
   const content = (
     <>
       <TeamLogo slug={slug} alt={label} />
@@ -259,11 +262,14 @@ function TeamLink({
   );
 
   if (!slug || !clickable) {
-    return <span className="flex min-w-0 items-center gap-2">{content}</span>;
+    return <span className={`inline-flex min-w-0 max-w-full items-center gap-2 align-middle ${sideClass}`}>{content}</span>;
   }
 
   return (
-    <Link href={`/teams/${slug}`} className="flex min-w-0 items-center gap-2 hover:text-emerald-200">
+    <Link
+      href={`/teams/${slug}`}
+      className={`inline-flex min-w-0 max-w-full items-center gap-2 align-middle hover:text-emerald-200 ${sideClass}`}
+    >
       {content}
     </Link>
   );
@@ -1440,18 +1446,33 @@ export default function LeagueClient() {
                                   </div>
                                 </div>
 
-                                <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
-                                  <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                    <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("teamHomeFallback")} clickable={false} />
-                                    <span className="font-extrabold tabular-nums text-white">
-                                      {isScheduledMatchStatus(match.status) ? "-" : match.home_score ?? "-"}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                    <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("teamAwayFallback")} clickable={false} />
-                                    <span className="font-extrabold tabular-nums text-white">
-                                      {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
-                                    </span>
+                                <div className="min-w-0 flex-1">
+                                  <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
+                                    <div className="mx-auto flex w-fit max-w-full items-center justify-center gap-3">
+                                      <div className="min-w-0 max-w-[42vw] sm:max-w-[220px]">
+                                        <TeamLink
+                                          slug={match.home_team?.slug}
+                                          name={match.home_team?.name}
+                                          fallback={tr("teamHomeFallback")}
+                                          clickable={false}
+                                          side="home"
+                                        />
+                                      </div>
+                                      <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-1.5 text-lg font-extrabold tabular-nums text-white">
+                                        {isScheduledMatchStatus(match.status) ? "-" : match.home_score ?? "-"}
+                                        <span className="px-2 text-white/50">-</span>
+                                        {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
+                                      </div>
+                                      <div className="min-w-0 max-w-[42vw] sm:max-w-[220px]">
+                                        <TeamLink
+                                          slug={match.away_team?.slug}
+                                          name={match.away_team?.name}
+                                          fallback={tr("teamAwayFallback")}
+                                          clickable={false}
+                                          side="away"
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                                 </div>

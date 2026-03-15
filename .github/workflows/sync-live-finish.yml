@@ -2,13 +2,15 @@ name: sync-live-finish (manual fallback)
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 permissions:
   contents: read
 
 concurrency:
   group: rugby-now-live-finish
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   sync_live_finish:

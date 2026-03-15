@@ -172,7 +172,18 @@ function StatusBadge({
   );
 }
 
-function TeamName({ name, slug, clickable = true }: { name: string; slug?: string | null; clickable?: boolean }) {
+function TeamName({
+  name,
+  slug,
+  clickable = true,
+  side = "away",
+}: {
+  name: string;
+  slug?: string | null;
+  clickable?: boolean;
+  side?: "home" | "away";
+}) {
+  const sideClass = side === "home" ? "flex-row-reverse text-right" : "";
   const content = (
     <>
       <TeamLogo slug={slug} alt={name} />
@@ -181,11 +192,14 @@ function TeamName({ name, slug, clickable = true }: { name: string; slug?: strin
   );
 
   if (!slug || !clickable) {
-    return <span className="flex min-w-0 items-center gap-2">{content}</span>;
+    return <span className={`inline-flex min-w-0 max-w-full items-center gap-2 align-middle ${sideClass}`}>{content}</span>;
   }
 
   return (
-    <Link href={`/teams/${slug}`} className="flex min-w-0 items-center gap-2 hover:text-emerald-200">
+    <Link
+      href={`/teams/${slug}`}
+      className={`inline-flex min-w-0 max-w-full items-center gap-2 align-middle hover:text-emerald-200 ${sideClass}`}
+    >
       {content}
     </Link>
   );
@@ -1181,14 +1195,21 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                               </div>
                             </div>
 
-                            <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
-                              <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                <TeamName name={match.home} slug={match.homeSlug} clickable={false} />
-                                <span className="font-extrabold tabular-nums text-white">{isScheduledMatchStatus(match.status) ? "-" : match.hs ?? "-"}</span>
-                              </div>
-                              <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                <TeamName name={match.away} slug={match.awaySlug} clickable={false} />
-                                <span className="font-extrabold tabular-nums text-white">{isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}</span>
+                            <div className="min-w-0 flex-1">
+                              <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
+                                <div className="mx-auto flex w-fit max-w-full items-center justify-center gap-3">
+                                  <div className="min-w-0 max-w-[42vw] sm:max-w-[220px]">
+                                    <TeamName name={match.home} slug={match.homeSlug} clickable={false} side="home" />
+                                  </div>
+                                  <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-1.5 text-lg font-extrabold tabular-nums text-white">
+                                    {isScheduledMatchStatus(match.status) ? "-" : match.hs ?? "-"}
+                                    <span className="px-2 text-white/50">-</span>
+                                    {isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}
+                                  </div>
+                                  <div className="min-w-0 max-w-[42vw] sm:max-w-[220px]">
+                                    <TeamName name={match.away} slug={match.awaySlug} clickable={false} side="away" />
+                                  </div>
+                                </div>
                               </div>
                             </div>
 

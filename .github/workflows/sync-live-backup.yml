@@ -1,0 +1,50 @@
+name: sync-live-backup (every 5m offset)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "4,9,14,19,24,29,34,39,44,49,54,59 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rugby-now-live-backup
+  cancel-in-progress: false
+
+jobs:
+  sync_live_backup:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Restore dependency cache
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node20-live-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: npm ci --no-audit --no-fund --prefer-offline
+
+      - name: Run backup live sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FLASH_URLS: ${{ vars.FLASH_URLS }}
+        run: |
+          echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
+          npm run ensure:flashscore-competitions
+          npm run sync:live

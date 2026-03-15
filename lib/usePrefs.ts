@@ -34,9 +34,18 @@ function applyTheme(theme: ThemeMode) {
 
 export function usePrefs() {
   const [mounted, setMounted] = useState(false);
-  const [timeZone, setTimeZone] = useState<string>(DEFAULT_TZ);
-  const [lang, setLang] = useState<Lang>(DEFAULT_LANG);
-  const [theme, setTheme] = useState<ThemeMode>(DEFAULT_THEME);
+  const [timeZone, setTimeZone] = useState<string>(() => {
+    if (typeof window === "undefined") return DEFAULT_TZ;
+    return readTZ();
+  });
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window === "undefined") return DEFAULT_LANG;
+    return readLang();
+  });
+  const [theme, setTheme] = useState<ThemeMode>(() => {
+    if (typeof window === "undefined") return DEFAULT_THEME;
+    return readTheme();
+  });
 
   useEffect(() => {
     const mountId = window.requestAnimationFrame(() => setMounted(true));

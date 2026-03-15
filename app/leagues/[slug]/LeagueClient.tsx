@@ -406,7 +406,7 @@ export default function LeagueClient() {
 
   const slug = params?.slug ?? "";
   const explicitDate = searchParams?.get("date") ?? null;
-  const refISO = explicitDate || getISODateInTimeZone(new Date(), mounted ? timeZone : "America/New_York");
+  const refISO = explicitDate || getISODateInTimeZone(new Date(), timeZone);
   const roundFromUrl = searchParams?.get("round") ?? null;
 
   const [sidebarOpen, setSidebarOpen] = useState(getInitialLeagueSidebarOpen);
@@ -476,6 +476,7 @@ export default function LeagueClient() {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let isInitialFetch = true;
@@ -516,7 +517,7 @@ export default function LeagueClient() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [slug, refISO, roundFromUrl]);
+  }, [mounted, slug, refISO, roundFromUrl]);
 
   const navigationSections = useMemo(
     () =>

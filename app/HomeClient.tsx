@@ -287,7 +287,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const hasExplicitInitialDate = Boolean(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate));
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
   const [selectedISO, setSelectedISO] = useState<string>(() =>
-    hasExplicitInitialDate ? (initialDate as string) : getISODateInTimeZone(new Date(), "America/New_York")
+    hasExplicitInitialDate ? (initialDate as string) : getISODateInTimeZone(new Date(), timeZone)
   );
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
@@ -305,14 +305,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const homeBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_BANNER;
   const homeRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_RAIL;
 
-  const previousTodayISORef = useRef<string>(getISODateInTimeZone(new Date(), "America/New_York"));
+  const previousTodayISORef = useRef<string>(getISODateInTimeZone(new Date(), timeZone));
   const draggedSectionKeyRef = useRef<string | null>(null);
   const datePickerRef = useRef<HTMLInputElement | null>(null);
   const selectedDate = useMemo(() => fromISODateLocal(selectedISO), [selectedISO]);
-  const todayISO = useMemo(
-    () => getISODateInTimeZone(new Date(), mounted ? timeZone : "America/New_York"),
-    [mounted, timeZone]
-  );
+  const todayISO = useMemo(() => getISODateInTimeZone(new Date(), timeZone), [timeZone]);
   const todayLocal = useMemo(() => fromISODateLocal(todayISO), [todayISO]);
   const previousDate = useMemo(() => addDays(selectedDate, -1), [selectedDate]);
   const dateQuery = `?date=${selectedISO}`;
@@ -431,6 +428,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let isInitialFetch = true;
@@ -502,7 +500,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [selectedISO, timeZone]);
+  }, [mounted, selectedISO, timeZone]);
 
   const dedupedCompetitions = useMemo(() => {
     const pickBetter = (a: Competition, b: Competition) => {

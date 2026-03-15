@@ -683,3 +683,37 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
     generatedAt: snapshot.generatedAt,
   };
 }
+
+export function getSnapshotMatchDetail(compSlug: string, matchId: number, refISO: string) {
+  const snapshot = loadSnapshot();
+  if (!snapshot) return null;
+
+  const competition = snapshot.competitions.find((item) => item.slug === compSlug);
+  if (!competition) return null;
+
+  const match = dedupeLeagueMatches(snapshot.matches).find((item) => item.id === matchId);
+  if (!match) return null;
+
+  const season = snapshot.seasons.find((item) => item.id === match.season_id) ?? null;
+  if (!season || season.competition_id !== competition.id) return null;
+
+  const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((item) => item.season_id === season.id));
+  const cachedStandings = buildStandingsCache(snapshot, season.id, seasonMatches);
+  const standings = cachedStandings ?? buildStandingsFromMatches(snapshot, seasonMatches);
+  const hydratedMatch = hydrateLeagueMatch(snapshot, match);
+  if (!hydratedMatch) return null;
+
+  const homeStanding = standings.find((item) => item.teamId === hydratedMatch.home_team?.id) ?? null;
+  const awayStanding = standings.find((item) => item.teamId === hydratedMatch.away_team?.id) ?? null;
+
+  return {
+    competition,
+    season,
+    match: hydratedMatch,
+    standings,
+    standingsSource: cachedStandings ? ("cache" as const) : ("computed" as const),
+    homeStanding,
+    awayStanding,
+    generatedAt: snapshot.generatedAt,
+  };
+}

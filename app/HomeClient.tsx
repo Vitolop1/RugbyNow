@@ -31,6 +31,7 @@ import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
 
 type Match = {
+  id: number;
   matchDate: string;
   kickoffTime: string | null;
   home: string;
@@ -468,6 +469,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
         const region = row.season?.competition?.region ?? "";
 
         const match: Match = {
+          id: row.id,
           matchDate: row.match_date,
           kickoffTime: row.kickoff_time,
           home: row.home_team?.name ?? tr("tbd"),
@@ -1213,6 +1215,12 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                               away={match.away}
                               lang={lang}
                             />
+                            <Link
+                              href={`/matches/${block.slug}/${match.id}`}
+                              className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-white/15"
+                            >
+                              {tr("openMatch")}
+                            </Link>
                           </div>
                             </div>
                           );

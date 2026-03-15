@@ -65,6 +65,7 @@ type LeagueStandingRow = {
   pts: number;
   position?: number;
   badge?: "champions" | "europe" | "relegation" | null;
+  form?: Array<"W" | "D" | "L">;
 };
 
 type RoundMeta = {
@@ -760,6 +761,7 @@ function getFallbackRoundMeta(matches: LeagueMatchRow[]): RoundMeta[] {
 
 function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): LeagueStandingRow[] {
   const table = new Map<number, LeagueStandingRow>();
+  const recentForm = buildFallbackRecentForm(matches);
 
   for (const match of matches) {
     if (match.home_team?.id && !table.has(match.home_team.id)) {
@@ -839,7 +841,37 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
       if (b.pf !== a.pf) return b.pf - a.pf;
       return a.team.localeCompare(b.team);
     })
-    .map((row, index) => ({ ...row, position: index + 1, badge: null }));
+    .map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
+}
+
+function buildFallbackRecentForm(matches: LeagueMatchRow[]) {
+  const formMap = new Map<number, Array<"W" | "D" | "L">>();
+  const sorted = matches
+    .filter((match) => match.status === "FT" && match.home_score != null && match.away_score != null)
+    .slice()
+    .sort(
+      (a, b) =>
+        b.match_date.localeCompare(a.match_date) || String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
+    );
+
+  for (const match of sorted) {
+    if (!match.home_team?.id || !match.away_team?.id || match.home_score == null || match.away_score == null) continue;
+
+    const homeForm = formMap.get(match.home_team.id) || [];
+    const awayForm = formMap.get(match.away_team.id) || [];
+
+    if (homeForm.length < 5) {
+      homeForm.push(match.home_score > match.away_score ? "W" : match.home_score < match.away_score ? "L" : "D");
+      formMap.set(match.home_team.id, homeForm);
+    }
+
+    if (awayForm.length < 5) {
+      awayForm.push(match.away_score > match.home_score ? "W" : match.away_score < match.home_score ? "L" : "D");
+      formMap.set(match.away_team.id, awayForm);
+    }
+  }
+
+  return formMap;
 }
 
 export function getFallbackLeagueData(compSlug: string, refISO: string, roundOverride?: number | null) {
@@ -866,5 +898,34 @@ export function getFallbackLeagueData(compSlug: string, refISO: string, roundOve
     selectedRound,
     matches,
     standings,
+  };
+}
+
+export function getFallbackMatchDetail(compSlug: string, matchId: number, refISO: string) {
+  const competition = COMPETITIONS.find((item) => item.slug === compSlug) ?? null;
+  if (!competition) return null;
+
+  const season = {
+    id: competition.id,
+    name: `dry-run-${new Date().getUTCFullYear()}`,
+    competition_id: competition.id,
+  };
+
+  const allMatches = getFallbackLeagueMatches(compSlug, refISO);
+  const match = allMatches.find((item) => item.id === matchId) ?? null;
+  if (!match) return null;
+
+  const standings = getFallbackStandings(compSlug, allMatches);
+  const homeStanding = standings.find((item) => item.teamId === match.home_team?.id) ?? null;
+  const awayStanding = standings.find((item) => item.teamId === match.away_team?.id) ?? null;
+
+  return {
+    competition,
+    season,
+    match,
+    standings,
+    standingsSource: "computed" as const,
+    homeStanding,
+    awayStanding,
   };
 }

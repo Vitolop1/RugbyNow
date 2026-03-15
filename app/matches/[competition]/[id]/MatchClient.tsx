@@ -196,7 +196,7 @@ export default function MatchClient() {
 
   const kickoffLabel = useMemo(() => {
     if (!data) return null;
-    return formatKickoffTZ(data.match.match_date, data.match.kickoff_time, timeZone, lang) ?? tr("tbd");
+    return formatKickoffTZ(data.match.match_date, data.match.kickoff_time, timeZone, lang, data.competition.slug) ?? tr("tbd");
   }, [data, lang, timeZone, tr]);
 
   const clockLabel = useMemo(() => {

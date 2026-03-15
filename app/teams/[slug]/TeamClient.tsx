@@ -114,17 +114,24 @@ function formatKickoffTZ(
   matchDate: string,
   kickoffTime: string | null,
   timeZone: string,
-  lang: "en" | "es" | "fr" | "it"
+  lang: "en" | "es" | "fr" | "it",
+  competitionSlug?: string | null
 ) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
-  const hour24 = Number(hourRaw);
-  const minute = Number(minuteRaw);
-  if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
+  if (competitionSlug?.toLowerCase().startsWith("svns-")) {
+    const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
+    const hour24 = Number(hourRaw);
+    const minute = Number(minuteRaw);
+    if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
 
-  return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(
-    new Date(Date.UTC(2000, 0, 1, hour24, minute))
+    return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(
+      new Date(Date.UTC(2000, 0, 1, hour24, minute))
+    );
+  }
+
+  return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone }).format(
+    new Date(`${matchDate}T${normalized}Z`)
   );
 }
 
@@ -350,7 +357,7 @@ export default function TeamClient({ slug }: { slug: string }) {
                         data.upcomingMatches.map((match) => (
                           <div key={match.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
                             <div className="text-xs text-white/60">
-                              {niceDate(match.match_date, lang)} | {formatKickoffTZ(match.match_date, match.kickoff_time, timeZone, lang) || tr("tbd")}
+                              {niceDate(match.match_date, lang)} | {formatKickoffTZ(match.match_date, match.kickoff_time, timeZone, lang, match.competition?.slug) || tr("tbd")}
                             </div>
                             <div className="mt-2 text-sm font-semibold text-white">
                               {match.home_team?.name || tr("teamHomeFallback")} {tr("versus")} {match.away_team?.name || tr("teamAwayFallback")}

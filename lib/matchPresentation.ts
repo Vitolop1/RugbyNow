@@ -19,6 +19,10 @@ type MatchClockInput = {
   lang: Lang;
 };
 
+function shouldUseWallClockKickoff(competitionSlug?: string | null) {
+  return Boolean(competitionSlug && competitionSlug.toLowerCase().startsWith("svns-"));
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -67,21 +71,34 @@ function getMaxDisplayMinute(competitionSlug?: string | null) {
   return competitionSlug && isSevenCompetition(competitionSlug.toLowerCase()) ? 14 : 80;
 }
 
-export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string, lang: Lang) {
+export function formatKickoffTZ(
+  matchDate: string,
+  kickoffTime: string | null,
+  timeZone: string,
+  lang: Lang,
+  competitionSlug?: string | null
+) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
-  const hour24 = Number(hourRaw);
-  const minute = Number(minuteRaw);
-  if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
 
-  // Flashscore kickoff rows currently arrive as wall-clock times, so converting
-  // them as UTC shifts the displayed hour by the viewer timezone.
+  if (shouldUseWallClockKickoff(competitionSlug)) {
+    const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
+    const hour24 = Number(hourRaw);
+    const minute = Number(minuteRaw);
+    if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
+
+    return new Intl.DateTimeFormat(getDateLocale(lang), {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    }).format(new Date(Date.UTC(2000, 0, 1, hour24, minute)));
+  }
+
   return new Intl.DateTimeFormat(getDateLocale(lang), {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(2000, 0, 1, hour24, minute)));
+    timeZone,
+  }).format(new Date(`${matchDate}T${normalized}Z`));
 }
 
 export function getLivePhase(lang: Lang, status: MatchStatus, minute?: number | null, competitionSlug?: string | null) {
@@ -149,7 +166,10 @@ export function getMatchClockLabel(input: MatchClockInput) {
     return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
   }
 
-  return formatKickoffTZ(input.matchDate, input.kickoffTime ?? null, input.timeZone, input.lang) ?? t(input.lang, "tbd");
+  return (
+    formatKickoffTZ(input.matchDate, input.kickoffTime ?? null, input.timeZone, input.lang, input.competitionSlug) ??
+    t(input.lang, "tbd")
+  );
 }
 
 export function getMatchContextLabel(input: MatchClockInput) {

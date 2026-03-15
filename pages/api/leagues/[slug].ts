@@ -430,7 +430,7 @@ function filterVisibleLeagueMatches(
 
   const selectedMeta = roundMeta.find((item) => item.round === selectedRound);
   if (!selectedMeta?.phaseKey) {
-    return matches.filter((row) => resolveLeagueDisplayRound(row) === selectedRound);
+    return matches;
   }
 
   const nextPhase = nextKnockoutPhase(selectedMeta.phaseKey as PhaseKey);

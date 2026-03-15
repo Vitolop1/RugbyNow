@@ -128,7 +128,7 @@ export function deriveLeagueRoundData<T extends RoundInput>(rows: T[]) {
                 86400000
             );
 
-      if (lastRegularDate == null || gapDays > 4) {
+      if (lastRegularDate == null || gapDays >= 4) {
         derivedRound += 1;
       }
 

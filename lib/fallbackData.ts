@@ -947,7 +947,7 @@ export function getFallbackMatchDetail(compSlug: string, matchId: number, refISO
     season,
     match,
     standings,
-    standingsSource: "computed" as const,
+    standingsSource: compSlug === "ar-liga-norte-grande" ? ("curated" as const) : ("computed" as const),
     homeStanding,
     awayStanding,
   };

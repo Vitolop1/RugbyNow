@@ -112,7 +112,7 @@ type LeaguePayload = {
   knockoutMatches?: LeagueMatch[];
   matches: LeagueMatch[];
   standings: StandingRow[];
-  standingsSource?: "cache" | "computed";
+  standingsSource?: "cache" | "computed" | "curated";
   source?: string;
   noticeKey?: string | null;
   warning?: string;
@@ -614,6 +614,7 @@ export default function LeagueClient() {
   const canGoNextRound = selectedRound != null && roundMeta.some((item) => item.round > selectedRound);
   const visibleMatches = data?.competition && hiddenSlugs.includes(data.competition.slug) ? [] : data?.matches || [];
   const knockoutMatches = data?.competition && hiddenSlugs.includes(data.competition.slug) ? [] : data?.knockoutMatches || [];
+  const isCuratedStandings = data?.standingsSource === "curated";
   const knockoutGroups = useMemo(() => {
     const groups = new Map<string, { key: string; title: string | null; rounds: RoundMeta[] }>();
 
@@ -1500,7 +1501,11 @@ export default function LeagueClient() {
                         <div>
                           <div className="text-xl font-bold text-white">{tr("standings")}</div>
                           <div className="mt-1 text-sm text-white/70">
-                            {data.standingsSource === "cache" ? tr("scrapedStandings") : tr("computedFromFT")}
+                            {data.standingsSource === "cache"
+                              ? tr("scrapedStandings")
+                              : data.standingsSource === "curated"
+                                ? tr("curatedStandings")
+                                : tr("computedFromFT")}
                           </div>
                         </div>
                         <div className="text-sm text-white/70">
@@ -1514,13 +1519,13 @@ export default function LeagueClient() {
                             <tr>
                               <th className="px-4 py-3 text-left">#</th>
                               <th className="px-4 py-3 text-left">{tr("teamLabel")}</th>
-                              <th className="px-3 py-3 text-right">PJ</th>
-                              <th className="px-3 py-3 text-right">W</th>
-                              <th className="px-3 py-3 text-right">D</th>
-                              <th className="px-3 py-3 text-right">L</th>
-                              <th className="px-3 py-3 text-right">PF</th>
-                              <th className="px-3 py-3 text-right">PA</th>
-                              <th className="px-3 py-3 text-center">{tr("recentForm")}</th>
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-right">PJ</th> : null}
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-right">W</th> : null}
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-right">D</th> : null}
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-right">L</th> : null}
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-right">PF</th> : null}
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-right">PA</th> : null}
+                              {!isCuratedStandings ? <th className="px-3 py-3 text-center">{tr("recentForm")}</th> : null}
                               <th className="px-4 py-3 text-right">PTS</th>
                             </tr>
                           </thead>
@@ -1531,19 +1536,21 @@ export default function LeagueClient() {
                                 <td className="px-4 py-3">
                                   <TeamLink slug={row.teamSlug} name={row.team} fallback={tr("teamLabel")} />
                                 </td>
-                                <td className="px-3 py-3 text-right">{row.pj}</td>
-                                <td className="px-3 py-3 text-right">{row.w}</td>
-                                <td className="px-3 py-3 text-right">{row.d}</td>
-                                <td className="px-3 py-3 text-right">{row.l}</td>
-                                <td className="px-3 py-3 text-right">{row.pf}</td>
-                                <td className="px-3 py-3 text-right">{row.pa}</td>
-                                <td className="px-3 py-3">
-                                  <div className="flex items-center justify-center gap-1">
-                                    {(row.form || []).map((value, index) => (
-                                      <FormPill key={`${row.teamId}-${index}-${value}`} value={value} lang={lang} />
-                                    ))}
-                                  </div>
-                                </td>
+                                {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.pj}</td> : null}
+                                {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.w}</td> : null}
+                                {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.d}</td> : null}
+                                {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.l}</td> : null}
+                                {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.pf}</td> : null}
+                                {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.pa}</td> : null}
+                                {!isCuratedStandings ? (
+                                  <td className="px-3 py-3">
+                                    <div className="flex items-center justify-center gap-1">
+                                      {(row.form || []).map((value, index) => (
+                                        <FormPill key={`${row.teamId}-${index}-${value}`} value={value} lang={lang} />
+                                      ))}
+                                    </div>
+                                  </td>
+                                ) : null}
                                 <td className="px-4 py-3 text-right font-extrabold text-white">{row.pts}</td>
                               </tr>
                             ))}

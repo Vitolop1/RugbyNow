@@ -61,7 +61,7 @@ type MatchPayload = {
     away_team: TeamRef | null;
   };
   standings: StandingRow[];
-  standingsSource?: "cache" | "computed";
+  standingsSource?: "cache" | "computed" | "curated";
   homeStanding: StandingRow | null;
   awayStanding: StandingRow | null;
   source?: string;
@@ -122,9 +122,11 @@ function StatCard({ label, value }: { label: string; value: string | number | nu
 function TeamContextCard({
   label,
   standing,
+  compact = false,
 }: {
   label: string;
   standing: StandingRow | null;
+  compact?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -138,12 +140,14 @@ function TeamContextCard({
               <div className="text-lg font-extrabold text-white">#{standing.position}</div>
               <div className="text-xs text-white/65">PTS {standing.pts}</div>
             </div>
-            <div className="text-right text-xs text-white/70">
-              <div>PJ {standing.pj}</div>
-              <div>W {standing.w} / D {standing.d} / L {standing.l}</div>
-            </div>
+            {!compact ? (
+              <div className="text-right text-xs text-white/70">
+                <div>PJ {standing.pj}</div>
+                <div>W {standing.w} / D {standing.d} / L {standing.l}</div>
+              </div>
+            ) : null}
           </div>
-          {standing.form?.length ? (
+          {!compact && standing.form?.length ? (
             <div className="mt-3 flex gap-1.5">
               {standing.form.map((value, index) => (
                 <FormPill key={`${standing.teamId}-${index}-${value}`} value={value} />
@@ -238,6 +242,7 @@ export default function MatchClient() {
     if (!data?.competition.slug) return [];
     return getBroadcastsForCompetition(data.competition.slug);
   }, [data?.competition.slug]);
+  const isCuratedStandings = data?.standingsSource === "curated";
 
   return (
     <div className="rn-app-bg min-h-screen">
@@ -344,8 +349,16 @@ export default function MatchClient() {
                       : `${data.competition.name} ${data.match.round != null ? `${tr("round")} ${data.match.round}` : ""}`}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <TeamContextCard label={data.match.home_team?.name || tr("teamHomeFallback")} standing={data.homeStanding} />
-                    <TeamContextCard label={data.match.away_team?.name || tr("teamAwayFallback")} standing={data.awayStanding} />
+                    <TeamContextCard
+                      label={data.match.home_team?.name || tr("teamHomeFallback")}
+                      standing={data.homeStanding}
+                      compact={isCuratedStandings}
+                    />
+                    <TeamContextCard
+                      label={data.match.away_team?.name || tr("teamAwayFallback")}
+                      standing={data.awayStanding}
+                      compact={isCuratedStandings}
+                    />
                   </div>
                 </div>
               </div>
@@ -355,7 +368,11 @@ export default function MatchClient() {
                   <div>
                     <div className="text-xl font-bold text-white">{tr("standings")}</div>
                     <div className="mt-1 text-sm text-white/70">
-                      {data.standingsSource === "cache" ? tr("scrapedStandings") : tr("computedFromFT")}
+                      {data.standingsSource === "cache"
+                        ? tr("scrapedStandings")
+                        : data.standingsSource === "curated"
+                          ? tr("curatedStandings")
+                          : tr("computedFromFT")}
                     </div>
                   </div>
                   <Link href={`/leagues/${data.competition.slug}`} className="text-sm font-semibold text-emerald-200 hover:text-emerald-100">
@@ -369,7 +386,7 @@ export default function MatchClient() {
                       <tr>
                         <th className="px-4 py-3 text-left">#</th>
                         <th className="px-4 py-3 text-left">{tr("teamLabel")}</th>
-                        <th className="px-3 py-3 text-right">PJ</th>
+                        {!isCuratedStandings ? <th className="px-3 py-3 text-right">PJ</th> : null}
                         <th className="px-4 py-3 text-right">PTS</th>
                       </tr>
                     </thead>
@@ -391,7 +408,7 @@ export default function MatchClient() {
                                 {row.team}
                               </Link>
                             </td>
-                            <td className="px-3 py-3 text-right">{row.pj}</td>
+                            {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.pj}</td> : null}
                             <td className="px-4 py-3 text-right font-extrabold text-white">{row.pts}</td>
                           </tr>
                         );

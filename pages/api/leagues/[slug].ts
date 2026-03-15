@@ -664,6 +664,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         regionProfile,
         knockoutRoundMeta: [],
         knockoutMatches: [],
+        standingsSource: slug === "ar-liga-norte-grande" ? "curated" : "computed",
         source: "fallback-curated",
       });
     }

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "RugbyNow",
-    template: "%s | RugbyNow",
+    template: "RugbyNow | %s",
   },
   description:
     "Live rugby scores, fixtures, tables, standings, weekly recaps, and competition coverage from RugbyNow.",

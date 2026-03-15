@@ -91,6 +91,26 @@ function loadSnapshot() {
   return cachedSnapshot;
 }
 
+function filterCuratedTeamMatches(slug: string, matches: SnapshotMatch[], seasonsById: Map<number, SnapshotSeason>, competitionsById: Map<number, SnapshotCompetition>) {
+  if (slug === "old-lions-rc") {
+    return matches.filter((match) => {
+      const season = seasonsById.get(match.season_id);
+      const competition = season ? competitionsById.get(season.competition_id) : null;
+      return competition?.slug !== "int-united-rugby-championship";
+    });
+  }
+
+  if (slug === "lions") {
+    return matches.filter((match) => {
+      const season = seasonsById.get(match.season_id);
+      const competition = season ? competitionsById.get(season.competition_id) : null;
+      return competition?.slug !== "ar-liga-norte-grande";
+    });
+  }
+
+  return matches;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -112,9 +132,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const seasonsById = new Map(snapshot.seasons.map((season) => [season.id, season]));
     const competitionsById = new Map(snapshot.competitions.map((competition) => [competition.id, competition]));
+    const teamMatches = filterCuratedTeamMatches(
+      slug,
+      snapshot.matches.filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),
+      seasonsById,
+      competitionsById
+    );
 
     const allMatches = dedupeLogicalMatches(
-      snapshot.matches.filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),
+      teamMatches,
       (match) => ({
         id: match.id,
         matchDate: match.match_date,

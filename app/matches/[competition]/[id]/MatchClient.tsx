@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
+import BroadcastPill from "@/app/components/BroadcastPill";
+import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
+import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import { t } from "@/lib/i18n";
 import { formatKickoffTZ, getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
@@ -231,6 +234,11 @@ export default function MatchClient() {
     });
   }, [data, lang, timeZone]);
 
+  const broadcasts = useMemo(() => {
+    if (!data?.competition.slug) return [];
+    return getBroadcastsForCompetition(data.competition.slug);
+  }, [data?.competition.slug]);
+
   return (
     <div className="rn-app-bg min-h-screen">
       <AppHeader subtitle={data ? `${data.competition.name}  |  ${data.season.name}` : tr("matchDetails")} />
@@ -298,6 +306,32 @@ export default function MatchClient() {
               <StatCard label={tr("kickoffLocal")} value={kickoffLabel} />
               <StatCard label={tr("venue")} value={data.match.venue || tr("tbd")} />
               <StatCard label={tr("source")} value={data.source || "supabase"} />
+            </section>
+
+            <section className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-black text-white">{tr("watchOn")}</h2>
+                  <p className="mt-2 text-sm text-white/75">
+                    {data.match.home_team?.name || tr("teamHomeFallback")} vs {data.match.away_team?.name || tr("teamAwayFallback")}
+                  </p>
+                </div>
+                <SuggestedWatchButton
+                  competitionSlug={data.competition.slug}
+                  competitionName={data.competition.name}
+                  home={data.match.home_team?.name}
+                  away={data.match.away_team?.name}
+                  lang={lang}
+                />
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {broadcasts.length ? (
+                  broadcasts.map((provider) => <BroadcastPill key={`${data.match.id}-${provider.id}`} provider={provider} compact />)
+                ) : (
+                  <div className="text-sm text-white/65">{tr("tbd")}</div>
+                )}
+              </div>
             </section>
 
             <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">

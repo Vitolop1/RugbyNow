@@ -118,8 +118,13 @@ function formatKickoffTZ(
 ) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
-  return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone }).format(
-    new Date(`${matchDate}T${normalized}Z`)
+  const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
+  const hour24 = Number(hourRaw);
+  const minute = Number(minuteRaw);
+  if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
+
+  return new Intl.DateTimeFormat(getDateLocale(lang), { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(
+    new Date(Date.UTC(2000, 0, 1, hour24, minute))
   );
 }
 

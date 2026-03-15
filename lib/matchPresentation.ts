@@ -70,11 +70,18 @@ function getMaxDisplayMinute(competitionSlug?: string | null) {
 export function formatKickoffTZ(matchDate: string, kickoffTime: string | null, timeZone: string, lang: Lang) {
   if (!kickoffTime) return null;
   const normalized = kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime;
+  const [hourRaw = "00", minuteRaw = "00"] = normalized.split(":");
+  const hour24 = Number(hourRaw);
+  const minute = Number(minuteRaw);
+  if (Number.isNaN(hour24) || Number.isNaN(minute)) return null;
+
+  // Flashscore kickoff rows currently arrive as wall-clock times, so converting
+  // them as UTC shifts the displayed hour by the viewer timezone.
   return new Intl.DateTimeFormat(getDateLocale(lang), {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone,
-  }).format(new Date(`${matchDate}T${normalized}Z`));
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(2000, 0, 1, hour24, minute)));
 }
 
 export function getLivePhase(lang: Lang, status: MatchStatus, minute?: number | null, competitionSlug?: string | null) {

@@ -102,6 +102,12 @@ function isPlaceholderKickoffTime(kickoffTime?: string | null) {
   return !kickoffTime || kickoffTime === "00:00:00" || kickoffTime === "00:00";
 }
 
+function updatedAtMs(value?: string | null) {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
 function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
   const normalizedTime = kickoffTime && kickoffTime.length === 5 ? `${kickoffTime}:00` : kickoffTime || "00:00:00";
   const parsed = new Date(`${matchDate}T${normalizedTime}Z`);
@@ -211,7 +217,10 @@ function mergeMatches(base: RawMatchRow[], extra: RawMatchRow[]) {
       return;
     }
 
-    if (qualityFor(row) > qualityFor(current.row)) {
+    if (
+      qualityFor(row) > qualityFor(current.row) ||
+      (qualityFor(row) === qualityFor(current.row) && updatedAtMs(row.updated_at) > updatedAtMs(current.row.updated_at))
+    ) {
       bucket[currentIndex] = { row, isPrimary };
       byBucket.set(key, bucket);
     }
@@ -295,7 +304,12 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
     const away = normalizeTeamName(normalizedRow.away_team?.name);
     const key = `${localDate}|${competitionSlug}|${home}|${away}`;
     const current = byLogicalKey.get(key);
-    if (!current || qualityFor(normalizedRow) > qualityFor(current)) {
+    if (
+      !current ||
+      qualityFor(normalizedRow) > qualityFor(current) ||
+      (qualityFor(normalizedRow) === qualityFor(current) &&
+        updatedAtMs(normalizedRow.updated_at) > updatedAtMs(current.updated_at))
+    ) {
       byLogicalKey.set(key, normalizedRow);
     }
   }
@@ -327,7 +341,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const candidateDates = [addDaysISO(date, -1), date, addDaysISO(date, 1)];
-  res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120");
+  res.setHeader("Cache-Control", "no-store, max-age=0");
 
   try {
     const serverSupabase = getServerSupabase();

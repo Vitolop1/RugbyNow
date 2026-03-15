@@ -1,9 +1,7 @@
-name: sync-live-finish (every 5m for final result detection)
+name: sync-live-finish (manual fallback)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "4,9,14,19,24,29,34,39,44,49,54,59 * * * *"
 
 concurrency:
   group: rugby-now-live-finish
@@ -12,6 +10,9 @@ concurrency:
 jobs:
   sync_live_finish:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -20,9 +21,7 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
-
-      - run: npx playwright install --with-deps chromium
+      - run: npm ci --no-audit --no-fund
 
       - name: Run fast finalization sync
         env:

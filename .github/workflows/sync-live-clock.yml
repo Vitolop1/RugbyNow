@@ -1,9 +1,7 @@
-name: sync-live-clock (every 5m for live score/time changes)
+name: sync-live-clock (manual fallback)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 concurrency:
   group: rugby-now-live-clock
@@ -12,6 +10,9 @@ concurrency:
 jobs:
   sync_live_clock:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -20,22 +21,13 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
 
-      - run: npx playwright install --with-deps chromium
-
-      - name: Run strict live clock sync burst
+      - name: Run strict live clock sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
         run: |
           npm run ensure:flashscore-competitions
-          for pass in 1 2 3 4 5; do
-            echo "Live clock pass ${pass}/5"
-            npm run sync:live:clock
-            if [ "$pass" -lt 5 ]; then
-              echo "Sleeping 60s before the next live clock pass"
-              sleep 60
-            fi
-          done
+          npm run sync:live:clock

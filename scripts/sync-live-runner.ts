@@ -100,24 +100,6 @@ function competitionSlugFromUrl(raw: string) {
   return null;
 }
 
-function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
-  if (!matchDate) return null;
-  const time = kickoffTime && kickoffTime.trim() ? kickoffTime.trim() : "00:00";
-  const normalized = time.length === 5 ? `${time}:00` : time;
-  const value = new Date(`${matchDate}T${normalized}Z`);
-  return Number.isNaN(value.getTime()) ? null : value;
-}
-
-function isPotentiallyLiveWindow(matchDate: string, kickoffTime?: string | null, status?: MatchStatus | null) {
-  if (status === "LIVE" || status === "HT") return true;
-
-  const kickoff = parseMatchDateTime(matchDate, kickoffTime);
-  if (!kickoff) return false;
-
-  const diffMinutes = Math.floor((Date.now() - kickoff.getTime()) / 60000);
-  return diffMinutes >= -15 && diffMinutes <= 130;
-}
-
 async function buildLiveOnlyFlashUrls() {
   const flashInputs = parseFlashInputs(readRuntimeEnv("FLASH_URLS") ?? process.env.FLASH_URLS);
   const supabaseUrl = readRuntimeEnv("SUPABASE_URL") ?? process.env.SUPABASE_URL;
@@ -148,9 +130,7 @@ async function buildLiveOnlyFlashUrls() {
 
   if (matchesError) throw matchesError;
 
-  const candidates = ((rawMatches as LiveMatchCandidate[] | null) ?? []).filter((row) =>
-    isPotentiallyLiveWindow(row.match_date, row.kickoff_time, row.status ?? "NS")
-  );
+  const candidates = (rawMatches as LiveMatchCandidate[] | null) ?? [];
 
   if (!candidates.length) {
     return [];

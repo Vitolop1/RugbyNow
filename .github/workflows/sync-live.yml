@@ -1,9 +1,9 @@
-name: sync-live (every 5m if LIVE)
+name: sync-live (every 5m)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"
+    - cron: "*/5 * * * *"
 
 concurrency:
   group: rugby-now-live
@@ -12,6 +12,9 @@ concurrency:
 jobs:
   sync_live:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -20,11 +23,9 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
 
-      - run: npx playwright install --with-deps chromium
-
-      - name: Run sync (live-only mode)
+      - name: Run live sync burst
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -32,3 +33,5 @@ jobs:
         run: |
           npm run ensure:flashscore-competitions
           npm run sync:live
+          npm run sync:live:clock
+          npm run sync:live:finish

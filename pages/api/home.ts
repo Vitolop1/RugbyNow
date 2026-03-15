@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSupabase } from "@/lib/serverSupabase";
-import { getFallbackMatchesByDate } from "@/lib/fallbackData";
+import { getFallbackMatchesByDate, isCuratedOnlyCompetition } from "@/lib/fallbackData";
 import { getManualStatusOverride } from "@/lib/competitionMessaging";
 import {
   getEffectiveMatchState,
@@ -309,6 +309,10 @@ function normalizeMatchesForDate(rows: MatchRow[], selectedDate: string, timeZon
   );
 }
 
+function excludeCuratedCompetitions(rows: RawMatchRow[]) {
+  return rows.filter((row) => !isCuratedOnlyCompetition(unwrapFirst(row.season)?.competition?.slug ?? ""));
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -355,8 +359,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       matches: normalizeMatchesForDate(
         mergeMatches(
           mergeMatches(
-            (data || []) as unknown as RawMatchRow[],
-            snapshotMatches as unknown as RawMatchRow[]
+            excludeCuratedCompetitions((data || []) as unknown as RawMatchRow[]),
+            excludeCuratedCompetitions(snapshotMatches as unknown as RawMatchRow[])
           ) as unknown as RawMatchRow[],
           candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
         ),
@@ -372,7 +376,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         matches: normalizeMatchesForDate(
           mergeMatches(
-            snapshotMatches as unknown as RawMatchRow[],
+            excludeCuratedCompetitions(snapshotMatches as unknown as RawMatchRow[]),
             candidateDates.flatMap((candidateDate) => getFallbackMatchesByDate(candidateDate)) as unknown as RawMatchRow[]
           ),
           date,

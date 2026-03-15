@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
-import { getFallbackMatchDetail } from "@/lib/fallbackData";
+import { getFallbackMatchDetail, isCuratedOnlyCompetition } from "@/lib/fallbackData";
 import { getSnapshotMatchDetail } from "@/lib/supabaseSnapshot";
 
 type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
@@ -233,6 +233,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!Number.isInteger(matchId) || matchId <= 0) {
     return res.status(400).json({ error: "Invalid match id" });
+  }
+
+  if (competitionSlug && isCuratedOnlyCompetition(competitionSlug)) {
+    const fallbackDetail = getFallbackMatchDetail(competitionSlug, matchId, refISO);
+    if (fallbackDetail) {
+      return res.status(200).json({
+        ...fallbackDetail,
+        source: "fallback-curated",
+      });
+    }
   }
 
   try {

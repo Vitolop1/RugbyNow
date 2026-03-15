@@ -134,6 +134,10 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
     { round: 4, home: "Penarol", away: "Cobras", home_score: 40, away_score: 20, status: "FT", kickoff_time: "22:00:00", match_date: "2026-03-13" },
     { round: 4, home: "Dogos XV", away: "Selknam", home_score: null, away_score: null, status: "NS", kickoff_time: "23:30:00", match_date: "2026-03-14" },
     { round: 4, home: "Yacare XV", away: "Capibaras XV", home_score: null, away_score: null, status: "NS", kickoff_time: "21:30:00", match_date: "2026-03-14" },
+    { round: 5, home: "Dogos XV", away: "Penarol", home_score: null, away_score: null, status: "NS", kickoff_time: "15:00:00", match_date: "2026-03-20" },
+    { round: 5, home: "Selknam", away: "Capibaras XV", home_score: null, away_score: null, status: "NS", kickoff_time: "15:00:00", match_date: "2026-03-21" },
+    { round: 5, home: "Yacare XV", away: "Tarucas", home_score: null, away_score: null, status: "NS", kickoff_time: "15:00:00", match_date: "2026-03-21" },
+    { round: 5, home: "Cobras Brasil Rugby", away: "Pampas XV", home_score: null, away_score: null, status: "NS", kickoff_time: "15:00:00", match_date: "2026-03-22" },
   ],
   "ar-liga-norte-grande": [
     { round: 1, home: "Universitario de Salta", away: "Tiro Federal de Salta", home_score: 31, away_score: 24, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-07" },
@@ -146,20 +150,30 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
     { round: 2, home: "Gimnasia y Tiro", away: "Jockey Club de Salta", home_score: 28, away_score: 41, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-14" },
     { round: 2, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: 12, away_score: 12, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-14" },
 
-    { round: 3, home: "Old Lions RC", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
-    { round: 3, home: "Jockey Club de Salta", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
+    { round: 3, home: "Jockey Club de Salta", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
     { round: 3, home: "Tigres RC", away: "Gimnasia y Tiro", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
-    { round: 3, home: "Tiro Federal de Salta", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
+    { round: 3, home: "Tiro Federal de Salta", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
+    { round: 3, home: "Universitario de Salta", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
 
-    { round: 4, home: "Universitario de Salta", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-28" },
-    { round: 4, home: "Santiago Lawn Tennis Club", away: "Gimnasia y Tiro", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-28" },
-    { round: 4, home: "Tigres RC", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-28" },
-    { round: 4, home: "Tiro Federal de Salta", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-28" },
+    { round: 4, home: "Santiago Rugby Club", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
+    { round: 4, home: "Old Lions RC", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
+    { round: 4, home: "Gimnasia y Tiro", away: "Tiro Federal de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
+    { round: 4, home: "Santiago Lawn Tennis Club", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
 
-    { round: 5, home: "Old Lions RC", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
-    { round: 5, home: "Jockey Club de Salta", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
-    { round: 5, home: "Gimnasia y Tiro", away: "Tiro Federal de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
-    { round: 5, home: "Santiago Rugby Club", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
+    { round: 5, home: "Santiago Lawn Tennis Club", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-11" },
+    { round: 5, home: "Universitario de Salta", away: "Gimnasia y Tiro", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-11" },
+    { round: 5, home: "Tiro Federal de Salta", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-11" },
+    { round: 5, home: "Tigres RC", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-11" },
+
+    { round: 6, home: "Santiago Rugby Club", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-18" },
+    { round: 6, home: "Jockey Club de Salta", away: "Tiro Federal de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-18" },
+    { round: 6, home: "Old Lions RC", away: "Universitario de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-18" },
+    { round: 6, home: "Gimnasia y Tiro", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-18" },
+
+    { round: 7, home: "Gimnasia y Tiro", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-05-02" },
+    { round: 7, home: "Santiago Lawn Tennis Club", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-05-02" },
+    { round: 7, home: "Universitario de Salta", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-05-02" },
+    { round: 7, home: "Tiro Federal de Salta", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-05-02" },
   ],
 };
 
@@ -283,30 +297,7 @@ function pickAutoRound(meta: RoundMeta[], refISO: string) {
 }
 
 function attachKnockoutPhaseMeta(meta: RoundMeta[]) {
-  const labels: Record<number, string> = {
-    1: "final",
-    2: "semifinal",
-    4: "quarterfinal",
-    8: "round16",
-    16: "round32",
-  };
-
-  const counts = new Set(meta.map((item) => item.matches));
-  const hasFinal = counts.has(1);
-
-  return meta.map((item) => {
-    const smallerRounds = meta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
-    const allPowerOfTwo =
-      item.matches > 0 &&
-      (item.matches & (item.matches - 1)) === 0 &&
-      smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
-
-    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) {
-      return { ...item, phaseKey: null };
-    }
-
-    return { ...item, phaseKey: labels[item.matches] };
-  });
+  return meta.map((item) => ({ ...item, phaseKey: item.phaseKey ?? null }));
 }
 
 function pointsForResult(home: number, away: number) {
@@ -672,7 +663,6 @@ export function getFallbackSeasons() {
 
 export function getFallbackMatchesByDate(date: string): HomeMatchRow[] {
   const rows: HomeMatchRow[] = [];
-  let id = 1;
   const teamIds = new Map<string, number>();
 
   const getTeamRef = (name: string) => {
@@ -688,7 +678,7 @@ export function getFallbackMatchesByDate(date: string): HomeMatchRow[] {
       if (row.match_date !== date) continue;
 
       rows.push({
-        id: id++,
+        id: row.id,
         match_date: row.match_date,
         kickoff_time: row.kickoff_time,
         status: row.status,
@@ -832,6 +822,35 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
     }
   }
 
+  if (compSlug === "ar-liga-norte-grande") {
+    const officialOrder = [
+      { slug: "jockey-club-de-salta", pts: 10 },
+      { slug: "universitario-de-salta", pts: 9 },
+      { slug: "old-lions-rc", pts: 7 },
+      { slug: "santiago-lawn-tennis-club", pts: 4 },
+      { slug: "tiro-federal-de-salta", pts: 4 },
+      { slug: "santiago-rugby-club", pts: 2 },
+      { slug: "tigres-rc", pts: 1 },
+      { slug: "gimnasia-y-tiro", pts: 0 },
+    ];
+    const bySlug = new Map(Array.from(table.values()).map((row) => [row.teamSlug ?? "", row]));
+
+    const curatedRows: LeagueStandingRow[] = [];
+    for (const [index, item] of officialOrder.entries()) {
+      const row = bySlug.get(item.slug);
+      if (!row) continue;
+      curatedRows.push({
+        ...row,
+        pts: item.pts,
+        position: index + 1,
+        badge: null,
+        form: recentForm.get(row.teamId) ?? [],
+      });
+    }
+
+    return curatedRows;
+  }
+
   return Array.from(table.values())
     .sort((a, b) => {
       if (b.pts !== a.pts) return b.pts - a.pts;
@@ -842,6 +861,10 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
       return a.team.localeCompare(b.team);
     })
     .map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
+}
+
+export function isCuratedOnlyCompetition(compSlug: string) {
+  return CURATED_ONLY_COMPETITIONS.has(compSlug);
 }
 
 function buildFallbackRecentForm(matches: LeagueMatchRow[]) {

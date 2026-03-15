@@ -6,7 +6,7 @@ import { getCountryProfile } from "@/lib/countryProfiles";
 import { getEffectiveMatchState, isActiveMatchStatus, type MatchStatus } from "@/lib/matchStatus";
 import { dedupeLogicalMatches, hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
-import { getFallbackLeagueData } from "@/lib/fallbackData";
+import { getFallbackLeagueData, isCuratedOnlyCompetition } from "@/lib/fallbackData";
 import { getSnapshotLeagueData } from "@/lib/supabaseSnapshot";
 
 type StandingsAccumulator = {
@@ -446,82 +446,9 @@ function appendSyntheticKnockoutRounds(
   roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>,
   matches: MatchRow[]
 ) {
-  if (!roundMeta.some((item) => item.phaseKey)) {
-    return { roundMeta, matches };
-  }
-
-  const nextRoundMeta = [...roundMeta];
-  const nextMatches = [...matches];
-  const existingRoundKeys = new Set(
-    roundMeta
-      .filter((item) => item.phaseKey)
-      .map((item) => `${item.stageLabel || "__main__"}::${item.phaseKey}`)
-  );
-
-  let syntheticId = -1;
-  const groups = new Map<string, Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>>();
-
-  for (const item of roundMeta) {
-    if (!item.phaseKey) continue;
-    const groupKey = item.stageLabel || "__main__";
-    const bucket = groups.get(groupKey) || [];
-    bucket.push(item);
-    groups.set(groupKey, bucket);
-  }
-
-  for (const [groupKey, items] of groups.entries()) {
-    let working = items.slice().sort((a, b) => phaseSortOrder(a.phaseKey as PhaseKey) - phaseSortOrder(b.phaseKey as PhaseKey));
-
-    for (const current of working.slice()) {
-      if (!current.phaseKey) continue;
-      const nextPhase = nextKnockoutPhase(current.phaseKey as PhaseKey);
-      if (!nextPhase) continue;
-
-      const nextKey = `${groupKey}::${nextPhase}`;
-      if (existingRoundKeys.has(nextKey)) continue;
-
-      const placeholderMatches = Math.max(1, Math.floor(current.matches / 2));
-      const stageLabel = current.stageLabel ?? null;
-      const round = 1000 + stageSortOrder(stageLabel) + phaseSortOrder(nextPhase);
-      const syntheticMeta = {
-        round,
-        first_date: current.last_date,
-        last_date: current.last_date,
-        matches: placeholderMatches,
-        ft: 0,
-        phaseKey: nextPhase,
-        stageLabel,
-      };
-
-      nextRoundMeta.push(syntheticMeta);
-      existingRoundKeys.add(nextKey);
-      working.push(syntheticMeta);
-      working = working.sort((a, b) => phaseSortOrder(a.phaseKey as PhaseKey) - phaseSortOrder(b.phaseKey as PhaseKey));
-
-      for (let index = 0; index < placeholderMatches; index += 1) {
-        const slotBase = index * 2 + 1;
-        nextMatches.push({
-          id: syntheticId--,
-          match_date: current.last_date,
-          kickoff_time: null,
-          status: "NS",
-          minute: null,
-          updated_at: null,
-          source_url: `#rn_phase=${nextPhase}${stageLabel ? `&rn_stage=${encodeURIComponent(stageLabel)}` : ""}`,
-          home_score: null,
-          away_score: null,
-          round,
-          venue: null,
-          home_team: { id: syntheticId--, name: syntheticKnockoutSeedLabel(current.phaseKey as PhaseKey, slotBase), slug: null },
-          away_team: { id: syntheticId--, name: syntheticKnockoutSeedLabel(current.phaseKey as PhaseKey, slotBase + 1), slug: null },
-        });
-      }
-    }
-  }
-
   return {
-    roundMeta: nextRoundMeta.sort((a, b) => a.first_date.localeCompare(b.first_date) || a.round - b.round),
-    matches: nextMatches,
+    roundMeta: roundMeta.slice().sort((a, b) => a.first_date.localeCompare(b.first_date) || a.round - b.round),
+    matches,
   };
 }
 
@@ -652,16 +579,7 @@ function deriveRoundMeta<T extends { id: number; match_date: string; kickoff_tim
 }
 
 function attachKnockoutPhaseMeta(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number; phaseKey?: string | null; stageLabel?: string | null }>) {
-  const labels: Record<number, string> = { 1: "final", 2: "semifinal", 4: "quarterfinal", 8: "round16", 16: "round32" };
-  const counts = new Set(roundMeta.map((item) => item.matches));
-  const hasFinal = counts.has(1);
-  return roundMeta.map((item) => {
-    if (item.phaseKey) return item;
-    const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
-    const allPowerOfTwo = item.matches > 0 && (item.matches & (item.matches - 1)) === 0 && smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
-    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) return { ...item, phaseKey: null };
-    return { ...item, phaseKey: labels[item.matches] };
-  });
+  return roundMeta.map((item) => ({ ...item, phaseKey: item.phaseKey ?? null }));
 }
 
 function pickAutoRound(roundMeta: Array<{ round: number; first_date: string; last_date: string; matches: number; ft: number }>, refISO: string) {
@@ -737,6 +655,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       region: mergedCompetition.region ?? undefined,
     });
     const regionProfile = getCountryProfile(competitionProfile.country ?? mergedCompetition.region);
+    if (isCuratedOnlyCompetition(slug) && fallback) {
+      return res.status(200).json({
+        ...fallback,
+        competition: mergedCompetition,
+        noticeKey: getCompetitionNoticeKey(mergedCompetition.slug),
+        profile: competitionProfile,
+        regionProfile,
+        knockoutRoundMeta: [],
+        knockoutMatches: [],
+        source: "fallback-curated",
+      });
+    }
     const { data: seasons, error: seasonsError } = await serverSupabase.from("seasons").select("id,name,competition_id").eq("competition_id", competition.id).order("name", { ascending: false });
     if (seasonsError || !seasons?.length) throw new Error(`No season found for: ${slug}`);
     const { data: seasonMatchMeta, error: seasonMetaError } = await serverSupabase.from("matches").select("id,season_id,match_date,kickoff_time,status").in("season_id", seasons.map((row) => row.id)).order("match_date", { ascending: true }).order("kickoff_time", { ascending: true });

@@ -423,31 +423,7 @@ function pickAutoRound(roundMeta: RoundMeta[], refISO: string) {
 }
 
 function attachKnockoutPhaseMeta(roundMeta: RoundMeta[]) {
-  const labels: Record<number, string> = {
-    1: "final",
-    2: "semifinal",
-    4: "quarterfinal",
-    8: "round16",
-    16: "round32",
-  };
-
-  const counts = new Set(roundMeta.map((item) => item.matches));
-  const hasFinal = counts.has(1);
-
-  return roundMeta.map((item) => {
-    if (item.phaseKey) return item;
-    const smallerRounds = roundMeta.filter((candidate) => candidate.round > item.round && candidate.matches < item.matches);
-    const allPowerOfTwo =
-      item.matches > 0 &&
-      (item.matches & (item.matches - 1)) === 0 &&
-      smallerRounds.every((candidate) => candidate.matches > 0 && (candidate.matches & (candidate.matches - 1)) === 0);
-
-    if (!hasFinal || !allPowerOfTwo || !labels[item.matches]) {
-      return { ...item, phaseKey: null };
-    }
-
-    return { ...item, phaseKey: labels[item.matches] };
-  });
+  return roundMeta.map((item) => ({ ...item, phaseKey: item.phaseKey ?? null }));
 }
 
 function buildStandingsFromMatches(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {

@@ -58,6 +58,8 @@ const TEAM_LOGO_ALIASES: Record<string, string> = {
   "south-africa-7s": "south-africa",
   spain: "spain",
   "spain-7s": "spain",
+  "santiago-rugby": "santiago-rugby-club",
+  "santiago-rugby-club": "santiago-rugby-club",
   "stade-francais-paris": "stade-francais",
   ulster: "ulster",
   uruguay: "uruguay",

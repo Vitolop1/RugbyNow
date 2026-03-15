@@ -1480,13 +1480,6 @@ export default function LeagueClient() {
                                         lang={lang}
                                       />
                                     </div>
-                                    <Link
-                                      href={`/matches/${data.competition.slug}/${match.id}`}
-                                      onClick={(event) => event.stopPropagation()}
-                                      className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-white/15"
-                                    >
-                                      {tr("openMatch")}
-                                    </Link>
                                   </div>
                                 </div>
                               </div>

@@ -1226,13 +1226,6 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 lang={lang}
                               />
                             </div>
-                            <Link
-                              href={`/matches/${block.slug}/${match.id}`}
-                              onClick={(event) => event.stopPropagation()}
-                              className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-white/15"
-                            >
-                              {tr("openMatch")}
-                            </Link>
                           </div>
                             </div>
                           );

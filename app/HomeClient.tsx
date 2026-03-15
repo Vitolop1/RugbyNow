@@ -1198,7 +1198,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                             <div className="min-w-0 flex-1">
                               <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
                                 <div className="mx-auto flex w-fit max-w-full items-center justify-center gap-3">
-                                  <div className="min-w-0 max-w-[42vw] sm:max-w-[220px]">
+                                  <div className="min-w-0 w-[42vw] max-w-[220px]">
                                     <TeamName name={match.home} slug={match.homeSlug} clickable={false} side="home" />
                                   </div>
                                   <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-1.5 text-lg font-extrabold tabular-nums text-white">
@@ -1206,7 +1206,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                     <span className="px-2 text-white/50">-</span>
                                     {isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}
                                   </div>
-                                  <div className="min-w-0 max-w-[42vw] sm:max-w-[220px]">
+                                  <div className="min-w-0 w-[42vw] max-w-[220px]">
                                     <TeamName name={match.away} slug={match.awaySlug} clickable={false} side="away" />
                                   </div>
                                 </div>

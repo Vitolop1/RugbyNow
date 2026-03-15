@@ -353,6 +353,40 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const sevenGroupLabel = tr("groupsSeven");
 
   useEffect(() => {
+    if (!mounted || typeof window === "undefined" || hasExplicitInitialDate) return;
+
+    const syncHomeDateToToday = () => {
+      const nextToday = getISODateInTimeZone(new Date(), timeZone);
+      const lastEntryDay = window.localStorage.getItem(HOME_LAST_ENTRY_DAY_KEY);
+
+      if (lastEntryDay !== nextToday) {
+        window.localStorage.setItem(HOME_LAST_ENTRY_DAY_KEY, nextToday);
+        previousTodayISORef.current = nextToday;
+        setSelectedISO(nextToday);
+        return;
+      }
+
+      window.localStorage.setItem(HOME_LAST_ENTRY_DAY_KEY, nextToday);
+      previousTodayISORef.current = nextToday;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        syncHomeDateToToday();
+      }
+    };
+
+    syncHomeDateToToday();
+    window.addEventListener("pageshow", syncHomeDateToToday);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pageshow", syncHomeDateToToday);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasExplicitInitialDate, mounted, timeZone]);
+
+  useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
     const desktopSidebar = window.matchMedia("(min-width: 1024px)");
     const syncSidebar = () => {
@@ -401,26 +435,6 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     const id = window.setInterval(() => setClockTick(Date.now()), 60000);
     return () => window.clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    if (!mounted || typeof window === "undefined") return;
-    const nextToday = getISODateInTimeZone(new Date(), timeZone);
-    const lastEntryDay = window.localStorage.getItem(HOME_LAST_ENTRY_DAY_KEY);
-
-    if (lastEntryDay !== nextToday) {
-      window.localStorage.setItem(HOME_LAST_ENTRY_DAY_KEY, nextToday);
-      previousTodayISORef.current = nextToday;
-      setSelectedISO(nextToday);
-      return;
-    }
-
-    if (!hasExplicitInitialDate) {
-      setSelectedISO((current) => (current === previousTodayISORef.current ? nextToday : current));
-    }
-
-    window.localStorage.setItem(HOME_LAST_ENTRY_DAY_KEY, nextToday);
-    previousTodayISORef.current = nextToday;
-  }, [hasExplicitInitialDate, mounted, timeZone]);
 
   useEffect(() => {
     const loadCompetitions = async () => {
@@ -1179,57 +1193,57 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 }
                               }}
                             >
-                              <div className="flex items-start gap-4">
-                            <div className="w-32 shrink-0">
-                              <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
-                              <div className="mt-1 flex items-center gap-2">
-                                <StatusBadge
-                                  status={match.status}
-                                  lang={lang}
-                                  competitionSlug={block.slug}
-                                  resultPending={resultPending}
-                                />
-                                {!hideLiveMeta ? (
-                                  <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
-                                ) : null}
-                              </div>
-                            </div>
+                              <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
+                                <div className="flex w-full flex-wrap items-center gap-2 md:block md:w-32 md:shrink-0">
+                                  <div className="text-lg font-extrabold tracking-tight text-white">{clockLabel}</div>
+                                  <div className="flex items-center gap-2 md:mt-1">
+                                    <StatusBadge
+                                      status={match.status}
+                                      lang={lang}
+                                      competitionSlug={block.slug}
+                                      resultPending={resultPending}
+                                    />
+                                    {!hideLiveMeta ? (
+                                      <span className="text-[11px] font-semibold text-white/70">{contextLabel}</span>
+                                    ) : null}
+                                  </div>
+                                </div>
 
-                            <div className="min-w-0 flex-1">
-                              <div className="rounded-xl border border-white/15 bg-white/10 px-3 py-3">
-                                <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3">
-                                  <div className="flex min-w-0 justify-end">
-                                    <div className="min-w-0 max-w-[38vw] sm:max-w-[220px]">
-                                      <TeamName name={match.home} slug={match.homeSlug} clickable={false} side="home" />
-                                    </div>
-                                  </div>
-                                  <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-1.5 text-lg font-extrabold tabular-nums text-white">
-                                    {isScheduledMatchStatus(match.status) ? "-" : match.hs ?? "-"}
-                                    <span className="px-2 text-white/50">-</span>
-                                    {isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}
-                                  </div>
-                                  <div className="flex min-w-0 justify-start">
-                                    <div className="min-w-0 max-w-[38vw] sm:max-w-[220px]">
-                                      <TeamName name={match.away} slug={match.awaySlug} clickable={false} side="away" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="rounded-xl border border-white/15 bg-white/10 px-2.5 py-3 sm:px-3">
+                                    <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 sm:gap-x-3">
+                                      <div className="flex min-w-0 justify-end">
+                                        <div className="min-w-0 max-w-[41vw] sm:max-w-[220px]">
+                                          <TeamName name={match.home} slug={match.homeSlug} clickable={false} side="home" />
+                                        </div>
+                                      </div>
+                                      <div className="rounded-lg border border-white/10 bg-black/25 px-2.5 py-1.5 text-base font-extrabold tabular-nums text-white sm:px-3 sm:text-lg">
+                                        {isScheduledMatchStatus(match.status) ? "-" : match.hs ?? "-"}
+                                        <span className="px-1.5 text-white/50 sm:px-2">-</span>
+                                        {isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}
+                                      </div>
+                                      <div className="flex min-w-0 justify-start">
+                                        <div className="min-w-0 max-w-[41vw] sm:max-w-[220px]">
+                                          <TeamName name={match.away} slug={match.awaySlug} clickable={false} side="away" />
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </div>
 
-                            <div className="hidden w-36 shrink-0 text-right text-xs text-white/70 md:block">
-                              {resultPending
-                                ? tr("resultPending")
-                                : isActiveMatchStatus(match.status)
-                                ? tr("liveAction")
-                                : match.status === "FT"
-                                  ? tr("final")
-                                  : match.status === "CANC"
-                                    ? tr("cancelled")
-                                    : tr("upcoming")}
-                            </div>
+                                <div className="hidden w-36 shrink-0 text-right text-xs text-white/70 md:block">
+                                  {resultPending
+                                    ? tr("resultPending")
+                                    : isActiveMatchStatus(match.status)
+                                      ? tr("liveAction")
+                                      : match.status === "FT"
+                                        ? tr("final")
+                                        : match.status === "CANC"
+                                          ? tr("cancelled")
+                                          : tr("upcoming")}
+                                </div>
                               </div>
-                          <div className="flex flex-wrap items-center justify-between gap-3 pl-0 sm:pl-32">
+                          <div className="flex flex-wrap items-center justify-between gap-3 pl-0 md:pl-32">
                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
                               {broadcasts.length ? (
                                 <>

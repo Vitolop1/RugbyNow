@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
 import BrandWordmark from "@/app/components/BrandWordmark";
@@ -283,7 +282,6 @@ function readSidebarPreference(storageKey: string) {
 }
 
 export default function HomeClient({ initialDate }: { initialDate?: string }) {
-  const router = useRouter();
   const { timeZone, mounted, lang, theme } = usePrefs();
   const hasExplicitInitialDate = Boolean(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate));
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
@@ -306,7 +304,6 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const homeBannerSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_BANNER;
   const homeRailSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_RAIL;
 
-  const lastPushedISO = useRef<string>("");
   const previousTodayISORef = useRef<string>(getISODateInTimeZone(new Date(), "America/New_York"));
   const draggedSectionKeyRef = useRef<string | null>(null);
   const datePickerRef = useRef<HTMLInputElement | null>(null);
@@ -390,12 +387,6 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
     const id = window.setInterval(() => setClockTick(Date.now()), 60000);
     return () => window.clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    if (lastPushedISO.current === selectedISO) return;
-    lastPushedISO.current = selectedISO;
-    router.replace(`/?date=${selectedISO}`, { scroll: false });
-  }, [router, selectedISO]);
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;

@@ -243,10 +243,12 @@ function TeamLink({
   slug,
   name,
   fallback,
+  clickable = true,
 }: {
   slug?: string | null;
   name?: string | null;
   fallback: string;
+  clickable?: boolean;
 }) {
   const label = name || fallback;
   const content = (
@@ -256,7 +258,7 @@ function TeamLink({
     </>
   );
 
-  if (!slug) {
+  if (!slug || !clickable) {
     return <span className="flex min-w-0 items-center gap-2">{content}</span>;
   }
 
@@ -1408,9 +1410,18 @@ export default function LeagueClient() {
                             return (
                               <div
                                 key={match.id}
-                                className={`flex flex-col gap-3 px-4 py-3 transition ${
+                                className={`flex cursor-pointer flex-col gap-3 px-4 py-3 transition ${
                                   isActiveMatchStatus(match.status) ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
                                 }`}
+                                role="link"
+                                tabIndex={0}
+                                onClick={() => router.push(`/matches/${data.competition.slug}/${match.id}`)}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    router.push(`/matches/${data.competition.slug}/${match.id}`);
+                                  }
+                                }}
                               >
                                 <div className="flex items-start gap-4">
                                 <div className="w-32 shrink-0">
@@ -1430,13 +1441,13 @@ export default function LeagueClient() {
 
                                 <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                    <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("teamHomeFallback")} />
+                                    <TeamLink slug={match.home_team?.slug} name={match.home_team?.name} fallback={tr("teamHomeFallback")} clickable={false} />
                                     <span className="font-extrabold tabular-nums text-white">
                                       {isScheduledMatchStatus(match.status) ? "-" : match.home_score ?? "-"}
                                     </span>
                                   </div>
                                   <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                    <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("teamAwayFallback")} />
+                                    <TeamLink slug={match.away_team?.slug} name={match.away_team?.name} fallback={tr("teamAwayFallback")} clickable={false} />
                                     <span className="font-extrabold tabular-nums text-white">
                                       {isScheduledMatchStatus(match.status) ? "-" : match.away_score ?? "-"}
                                     </span>
@@ -1459,15 +1470,18 @@ export default function LeagueClient() {
                                         ))}
                                       </div>
                                     ) : null}
-                                    <SuggestedWatchButton
-                                      competitionSlug={data.competition.slug}
-                                      competitionName={data.competition.name}
-                                      home={match.home_team?.name}
-                                      away={match.away_team?.name}
-                                      lang={lang}
-                                    />
+                                    <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                                      <SuggestedWatchButton
+                                        competitionSlug={data.competition.slug}
+                                        competitionName={data.competition.name}
+                                        home={match.home_team?.name}
+                                        away={match.away_team?.name}
+                                        lang={lang}
+                                      />
+                                    </div>
                                     <Link
                                       href={`/matches/${data.competition.slug}/${match.id}`}
+                                      onClick={(event) => event.stopPropagation()}
                                       className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-white/15"
                                     >
                                       {tr("openMatch")}

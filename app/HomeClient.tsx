@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
 import AdSlot from "@/app/components/AdSlot";
@@ -171,7 +172,7 @@ function StatusBadge({
   );
 }
 
-function TeamName({ name, slug }: { name: string; slug?: string | null }) {
+function TeamName({ name, slug, clickable = true }: { name: string; slug?: string | null; clickable?: boolean }) {
   const content = (
     <>
       <TeamLogo slug={slug} alt={name} />
@@ -179,7 +180,7 @@ function TeamName({ name, slug }: { name: string; slug?: string | null }) {
     </>
   );
 
-  if (!slug) {
+  if (!slug || !clickable) {
     return <span className="flex min-w-0 items-center gap-2">{content}</span>;
   }
 
@@ -283,6 +284,7 @@ function readSidebarPreference(storageKey: string) {
 }
 
 export default function HomeClient({ initialDate }: { initialDate?: string }) {
+  const router = useRouter();
   const { timeZone, mounted, lang, theme } = usePrefs();
   const hasExplicitInitialDate = Boolean(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate));
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
@@ -1150,9 +1152,18 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                           return (
                             <div
                               key={`${block.slug}-${index}-${match.matchDate}-${match.kickoffTime ?? ""}-${match.home}-${match.away}`}
-                              className={`flex flex-col gap-3 px-4 py-3 transition ${
+                              className={`flex cursor-pointer flex-col gap-3 px-4 py-3 transition ${
                                 isActiveMatchStatus(match.status) ? "bg-red-400/10 ring-1 ring-red-300/40" : "hover:bg-white/5"
                               }`}
+                              role="link"
+                              tabIndex={0}
+                              onClick={() => router.push(`/matches/${block.slug}/${match.id}`)}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  router.push(`/matches/${block.slug}/${match.id}`);
+                                }
+                              }}
                             >
                               <div className="flex items-start gap-4">
                             <div className="w-32 shrink-0">
@@ -1172,11 +1183,11 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
 
                             <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                               <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                <TeamName name={match.home} slug={match.homeSlug} />
+                                <TeamName name={match.home} slug={match.homeSlug} clickable={false} />
                                 <span className="font-extrabold tabular-nums text-white">{isScheduledMatchStatus(match.status) ? "-" : match.hs ?? "-"}</span>
                               </div>
                               <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-2">
-                                <TeamName name={match.away} slug={match.awaySlug} />
+                                <TeamName name={match.away} slug={match.awaySlug} clickable={false} />
                                 <span className="font-extrabold tabular-nums text-white">{isScheduledMatchStatus(match.status) ? "-" : match.as ?? "-"}</span>
                               </div>
                             </div>
@@ -1206,15 +1217,18 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
                                 </>
                               ) : null}
                             </div>
-                            <SuggestedWatchButton
-                              competitionSlug={block.slug}
-                              competitionName={block.league}
-                              home={match.home}
-                              away={match.away}
-                              lang={lang}
-                            />
+                            <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                              <SuggestedWatchButton
+                                competitionSlug={block.slug}
+                                competitionName={block.league}
+                                home={match.home}
+                                away={match.away}
+                                lang={lang}
+                              />
+                            </div>
                             <Link
                               href={`/matches/${block.slug}/${match.id}`}
+                              onClick={(event) => event.stopPropagation()}
                               className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-white/15"
                             >
                               {tr("openMatch")}

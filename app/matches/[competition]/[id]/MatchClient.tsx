@@ -180,7 +180,7 @@ export default function MatchClient() {
 
       if (!response.ok) {
         setData(null);
-        setError(payload.error ?? tr("unknownMatchError"));
+        setError(payload.error ?? t(lang, "unknownMatchError"));
       } else {
         setData(payload as MatchPayload);
       }
@@ -192,12 +192,12 @@ export default function MatchClient() {
     return () => {
       cancelled = true;
     };
-  }, [competitionSlug, matchId, tr]);
+  }, [competitionSlug, matchId, lang]);
 
   const kickoffLabel = useMemo(() => {
     if (!data) return null;
-    return formatKickoffTZ(data.match.match_date, data.match.kickoff_time, timeZone, lang, data.competition.slug) ?? tr("tbd");
-  }, [data, lang, timeZone, tr]);
+    return formatKickoffTZ(data.match.match_date, data.match.kickoff_time, timeZone, lang, data.competition.slug) ?? t(lang, "tbd");
+  }, [data, lang, timeZone]);
 
   const clockLabel = useMemo(() => {
     if (!data) return "";

@@ -297,14 +297,11 @@ function readSidebarPreference(storageKey: string) {
   return null;
 }
 
-export default function HomeClient({ initialDate }: { initialDate?: string }) {
+export default function HomeClient() {
   const router = useRouter();
   const { timeZone, mounted, lang, theme } = usePrefs();
-  const hasExplicitInitialDate = Boolean(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate));
   const [tab, setTab] = useState<"ALL" | "LIVE">("ALL");
-  const [selectedISO, setSelectedISO] = useState<string>(() =>
-    hasExplicitInitialDate ? (initialDate as string) : getISODateInTimeZone(new Date(), timeZone)
-  );
+  const [selectedISO, setSelectedISO] = useState<string>(() => getISODateInTimeZone(new Date(), timeZone));
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [compLoading, setCompLoading] = useState(true);
   const [compError, setCompError] = useState("");
@@ -353,7 +350,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
   const sevenGroupLabel = tr("groupsSeven");
 
   useEffect(() => {
-    if (!mounted || typeof window === "undefined" || hasExplicitInitialDate) return;
+    if (!mounted || typeof window === "undefined") return;
 
     const syncHomeDateToToday = () => {
       const nextToday = getISODateInTimeZone(new Date(), timeZone);
@@ -384,7 +381,7 @@ export default function HomeClient({ initialDate }: { initialDate?: string }) {
       window.removeEventListener("pageshow", syncHomeDateToToday);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [hasExplicitInitialDate, mounted, timeZone]);
+  }, [mounted, timeZone]);
 
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;

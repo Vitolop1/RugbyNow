@@ -20,15 +20,10 @@ export const metadata: Metadata = buildStaticMetadata({
   ],
 });
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams?: Promise<{ date?: string }>;
-}) {
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+export default async function Page() {
   return (
     <Suspense fallback={<LoadingScreen />}>
-      <HomeClient initialDate={resolvedSearchParams?.date} />
+      <HomeClient />
     </Suspense>
   );
 }

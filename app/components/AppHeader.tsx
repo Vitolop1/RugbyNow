@@ -75,6 +75,7 @@ function ThemeGlyph({ theme }: { theme: ThemeMode }) {
         aria-hidden="true"
         width={18}
         height={18}
+        unoptimized
         className="h-full w-full scale-[1.14] object-cover object-[52%_48%]"
       />
     </span>
@@ -167,6 +168,7 @@ export default function AppHeader({
                   alt="RugbyNow logo"
                   width={54}
                   height={54}
+                  unoptimized
                   className="h-full w-full scale-[1.14] object-cover object-[52%_48%]"
                   onError={() => setLogoOk(false)}
                   priority

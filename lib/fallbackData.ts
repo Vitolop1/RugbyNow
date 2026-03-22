@@ -23,7 +23,7 @@ type HomeMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC" | "DELAY";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -42,7 +42,7 @@ type LeagueMatchRow = {
   id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC" | "DELAY";
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
@@ -102,7 +102,7 @@ type JsonlRow = {
   away: string;
   home_score: number | null;
   away_score: number | null;
-  status: "NS" | "LIVE" | "HT" | "FT" | "CANC";
+  status: "NS" | "LIVE" | "HT" | "FT" | "CANC" | "DELAY";
   kickoff_time: string | null;
   match_date: string;
   source_event_key?: string | null;
@@ -150,10 +150,10 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
     { round: 2, home: "Gimnasia y Tiro", away: "Jockey Club de Salta", home_score: 28, away_score: 41, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-14" },
     { round: 2, home: "Santiago Rugby Club", away: "Old Lions RC", home_score: 12, away_score: 12, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-14" },
 
-    { round: 3, home: "Jockey Club de Salta", away: "Old Lions RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
-    { round: 3, home: "Tigres RC", away: "Gimnasia y Tiro", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
+    { round: 3, home: "Jockey Club de Salta", away: "Old Lions RC", home_score: 29, away_score: 14, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-21" },
+    { round: 3, home: "Tigres RC", away: "Gimnasia y Tiro", home_score: 27, away_score: 24, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-21" },
     { round: 3, home: "Tiro Federal de Salta", away: "Santiago Lawn Tennis Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
-    { round: 3, home: "Universitario de Salta", away: "Santiago Rugby Club", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-03-21" },
+    { round: 3, home: "Universitario de Salta", away: "Santiago Rugby Club", home_score: 78, away_score: 5, status: "FT", kickoff_time: "19:30:00", match_date: "2026-03-21" },
 
     { round: 4, home: "Santiago Rugby Club", away: "Jockey Club de Salta", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
     { round: 4, home: "Old Lions RC", away: "Tigres RC", home_score: null, away_score: null, status: "NS", kickoff_time: "19:30:00", match_date: "2026-04-04" },
@@ -824,13 +824,13 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
 
   if (compSlug === "ar-liga-norte-grande") {
     const officialOrder = [
-      { slug: "jockey-club-de-salta", pts: 10 },
-      { slug: "universitario-de-salta", pts: 9 },
+      { slug: "jockey-club-de-salta", pts: 14 },
+      { slug: "universitario-de-salta", pts: 13 },
       { slug: "old-lions-rc", pts: 7 },
+      { slug: "tigres-rc", pts: 5 },
       { slug: "santiago-lawn-tennis-club", pts: 4 },
       { slug: "tiro-federal-de-salta", pts: 4 },
       { slug: "santiago-rugby-club", pts: 2 },
-      { slug: "tigres-rc", pts: 1 },
       { slug: "gimnasia-y-tiro", pts: 0 },
     ];
     const bySlug = new Map(Array.from(table.values()).map((row) => [row.teamSlug ?? "", row]));

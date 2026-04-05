@@ -7,7 +7,7 @@ type SnapshotMatch = {
   season_id: number;
   match_date: string;
   kickoff_time: string | null;
-  status: "NS" | "LIVE" | "FT" | "CANC";
+  status: "NS" | "LIVE" | "FT" | "CANC" | "DELAY";
   home_score: number | null;
   away_score: number | null;
   home_team_id: number | null;
@@ -58,7 +58,7 @@ export type WeeklyArticle = {
 export type WeeklyMatchNote = {
   id: number;
   matchDate: string;
-  status: "NS" | "LIVE" | "FT" | "CANC";
+  status: "NS" | "LIVE" | "FT" | "CANC" | "DELAY";
   home: string;
   away: string;
   homeScore: number | null;
@@ -174,6 +174,7 @@ const LEAGUE_CONFIGS: LeagueConfig[] = [
   { slug: "int-six-nations", aliases: ["six nations", "england", "wales", "ireland", "scotland", "france", "italy"] },
   { slug: "sra", aliases: ["super rugby americas", "sra", "pampas", "dogos", "selknam", "peñarol", "penarol", "tarucas", "yacare", "capibaras", "cobras"] },
   { slug: "en-premiership-rugby", aliases: ["premiership rugby", "leicester tigers", "saracens", "harlequins", "sale sharks", "northampton saints"] },
+  { slug: "eu-challenge-cup", aliases: ["challenge cup", "stade francais", "zebre", "dragons", "ulster", "montpellier"] },
   { slug: "eu-champions-cup", aliases: ["champions cup", "european rugby champions cup"] },
   { slug: "int-world-cup", aliases: ["rugby world cup", "world cup rugby"] },
   { slug: "int-nations-championship", aliases: ["nations championship"] },
@@ -478,6 +479,7 @@ export async function buildWeeklyDigest() {
     "int-six-nations",
     "sra",
     "en-premiership-rugby",
+    "eu-challenge-cup",
     "eu-champions-cup",
     "int-world-cup",
     "int-nations-championship",

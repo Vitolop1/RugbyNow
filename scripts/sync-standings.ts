@@ -47,7 +47,7 @@ function normalizeStandingsUrl(raw: string) {
 
 function competitionSlugFromUrl(url: string) {
   const parts = new URL(url).pathname.split("/").filter(Boolean);
-  if (parts.length < 4 || parts[0] !== "rugby-union") return null;
+  if (parts.length < 4 || (parts[0] !== "rugby-union" && parts[0] !== "rugby")) return null;
 
   const compSlug = parts[2];
   if (compSlug === "top-14") return "fr-top14";
@@ -55,6 +55,7 @@ function competitionSlugFromUrl(url: string) {
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
   if (compSlug === "premiership-rugby") return "en-premiership-rugby";
+  if (compSlug === "challenge-cup") return "eu-challenge-cup";
   return null;
 }
 

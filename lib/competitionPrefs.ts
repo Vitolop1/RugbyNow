@@ -129,6 +129,7 @@ const FEATURED_COMPETITION_SLUGS = new Set([
 ]);
 
 const EUROPE_COMPETITION_SLUGS = new Set([
+  "eu-challenge-cup",
   "eu-champions-cup",
   "int-united-rugby-championship",
 ]);
@@ -579,6 +580,7 @@ export function getCompetitionSortPriority(competition: {
     "fr-top14": 10,
     "it-serie-a-elite": 20,
     "int-united-rugby-championship": 30,
+    "eu-challenge-cup": 35,
     "eu-champions-cup": 40,
     "int-super-rugby-pacific": 50,
     "en-premiership-rugby": 60,

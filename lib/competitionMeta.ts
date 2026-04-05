@@ -25,6 +25,7 @@ export function getCompetitionEmoji(slug?: string | null, groupName?: string | n
   if (s === "int-six-nations") return TROPHY;
   if (s === "int-world-cup") return GLOBE;
   if (s === "int-nations-championship") return WORLD;
+  if (s === "eu-challenge-cup") return STAR;
   if (s === "eu-champions-cup") return STAR;
   if (s === "int-super-rugby-pacific") return RUGBY;
   if (s === "int-united-rugby-championship") return flag("EU");

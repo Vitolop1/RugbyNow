@@ -1,0 +1,109 @@
+{
+  "generatedAt": "2026-04-05T01:50:51.406Z",
+  "source": "instagram",
+  "profileUrl": "https://www.instagram.com/norterugby/",
+  "postUrls": [
+    "https://www.instagram.com/norterugby/p/DWuhGF4la_C/",
+    "https://www.instagram.com/norterugby/p/DWnX3YWjW9o/"
+  ],
+  "matches": [
+    {
+      "home": "Gimnasia y Tiro",
+      "away": "Tiro Federal de Salta",
+      "home_score": 41,
+      "away_score": 11,
+      "status": "FT",
+      "round": 4
+    },
+    {
+      "home": "Old Lions RC",
+      "away": "Tigres RC",
+      "home_score": 22,
+      "away_score": 23,
+      "status": "FT",
+      "round": 4
+    },
+    {
+      "home": "Santiago Lawn Tennis Club",
+      "away": "Universitario de Salta",
+      "home_score": 20,
+      "away_score": 24,
+      "status": "FT",
+      "round": 4
+    },
+    {
+      "home": "Santiago Rugby Club",
+      "away": "Jockey Club de Salta",
+      "home_score": 5,
+      "away_score": 85,
+      "status": "FT",
+      "round": 4
+    }
+  ],
+  "standings": [
+    {
+      "team": "Jockey Club de Salta",
+      "pts": 19,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Universitario de Salta",
+      "pts": 18,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Tigres RC",
+      "pts": 9,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Old Lions RC",
+      "pts": 8,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Tiro Federal de Salta",
+      "pts": 8,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Gimnasia y Tiro",
+      "pts": 6,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Santiago Lawn Tennis Club",
+      "pts": 6,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    },
+    {
+      "team": "Santiago Rugby Club",
+      "pts": 2,
+      "pj": null,
+      "w": null,
+      "d": null,
+      "l": null
+    }
+  ]
+}

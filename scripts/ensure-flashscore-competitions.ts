@@ -87,6 +87,16 @@ const COMPETITION_SEEDS: Record<string, CompetitionSeed> = {
     is_featured: true,
     season_name: "2025/2026",
   },
+  "eu-challenge-cup": {
+    slug: "eu-challenge-cup",
+    name: "Challenge Cup",
+    region: "Europe",
+    country_code: null,
+    group_name: "Europe",
+    sort_order: 5,
+    is_featured: false,
+    season_name: "2025/2026",
+  },
   "int-world-cup": {
     slug: "int-world-cup",
     name: "World Cup",

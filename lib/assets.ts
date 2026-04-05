@@ -73,6 +73,7 @@ const LEAGUE_LOGO_ALIASES: Record<string, string> = {
   "ar-liga-norte-grande": "ar-liga-norte-grande",
   "ar-urba-top14": "ar-urba-top14",
   "en-premiership-rugby": "en-premiership-rugby",
+  "eu-challenge-cup": "eu-champions-cup",
   "eu-champions-cup": "eu-champions-cup",
   "int-nations-championship": "int-nations-championship",
   "int-world-cup": "int-world-cup",

@@ -62,6 +62,15 @@ const COMPETITION_PROFILES: Record<string, CompetitionProfile> = {
     history:
       "Es el torneo que mide de manera directa a las potencias del Top 14, URC y Premiership. Su valor esta en el cruce internacional y en el peso historico que tiene ganar Europa.",
   },
+  "eu-challenge-cup": {
+    slug: "eu-challenge-cup",
+    region: "Europe",
+    founded: "1996",
+    summary:
+      "Challenge Cup es la segunda gran copa europea de clubes y mantiene cruces internacionales entre equipos de las principales ligas del norte.",
+    history:
+      "Funciona como una via continental para clubes de URC, Premiership y Top 14 que buscan recorrido europeo. En RugbyNow la tratamos como una copa internacional de clubes con valor propio y calendario de playoff.",
+  },
   "int-six-nations": {
     slug: "int-six-nations",
     region: "International",

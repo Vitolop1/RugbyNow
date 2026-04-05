@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "sync:flashscore": "tsx scripts/sync-flashscore.ts",
+    "sync:norterugby": "tsx scripts/sync-norterugby.ts",
     "sync:matches": "tsx scripts/sync-matches.ts",
     "sync:standings": "tsx scripts/sync-standings-runner.ts",
     "rebuild:flashscore": "tsx scripts/rebuild-flashscore.ts",

@@ -1,5 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+import norteRugbyInstagramJson from "@/data/norte-rugby-instagram.json";
+import {
+  isNorteRugbyInstagramPayload,
+  normalizeNorteGrandeTeamName,
+  type NorteRugbyInstagramPayload,
+} from "@/lib/norteRugbyInstagram";
 
 type Competition = {
   id: number;
@@ -115,17 +121,18 @@ const COMPETITIONS: Competition[] = [
   { id: 4, name: "Super Rugby Americas", slug: "sra", region: "South America", country_code: null, group_name: "South America", sort_order: 2, is_featured: true },
   { id: 5, name: "Premiership Rugby", slug: "en-premiership-rugby", region: "England", country_code: "GB", group_name: "Europe", sort_order: 3, is_featured: true },
   { id: 6, name: "European Rugby Champions Cup", slug: "eu-champions-cup", region: "Europe", country_code: null, group_name: "Europe", sort_order: 4, is_featured: true },
-  { id: 7, name: "World Cup", slug: "int-world-cup", region: "World", country_code: null, group_name: "International", sort_order: 5, is_featured: false },
-  { id: 8, name: "Nations Championship", slug: "int-nations-championship", region: "World", country_code: null, group_name: "International", sort_order: 6, is_featured: false },
-  { id: 9, name: "Super Rugby Pacific", slug: "int-super-rugby-pacific", region: "World", country_code: null, group_name: "International", sort_order: 7, is_featured: true },
-  { id: 10, name: "URBA Top 14", slug: "ar-urba-top14", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 1, is_featured: true },
-  { id: 11, name: "Major League Rugby", slug: "us-mlr", region: "USA", country_code: "US", group_name: "USA", sort_order: 1, is_featured: true },
-  { id: 12, name: "Norte Grande", slug: "ar-liga-norte-grande", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 2, is_featured: false },
-  { id: 13, name: "United Rugby Championship", slug: "int-united-rugby-championship", region: "Europe", country_code: null, group_name: "Europe", sort_order: 5, is_featured: false },
-  { id: 14, name: "SVNS Australia", slug: "svns-australia", region: "World", country_code: null, group_name: "Seven", sort_order: 1, is_featured: false },
-  { id: 15, name: "SVNS USA", slug: "svns-usa", region: "World", country_code: null, group_name: "Seven", sort_order: 2, is_featured: false },
-  { id: 16, name: "SVNS Hong Kong", slug: "svns-hong-kong", region: "World", country_code: null, group_name: "Seven", sort_order: 3, is_featured: false },
-  { id: 17, name: "SVNS Singapore", slug: "svns-singapore", region: "World", country_code: null, group_name: "Seven", sort_order: 4, is_featured: false },
+  { id: 7, name: "Challenge Cup", slug: "eu-challenge-cup", region: "Europe", country_code: null, group_name: "Europe", sort_order: 5, is_featured: false },
+  { id: 8, name: "World Cup", slug: "int-world-cup", region: "World", country_code: null, group_name: "International", sort_order: 5, is_featured: false },
+  { id: 9, name: "Nations Championship", slug: "int-nations-championship", region: "World", country_code: null, group_name: "International", sort_order: 6, is_featured: false },
+  { id: 10, name: "Super Rugby Pacific", slug: "int-super-rugby-pacific", region: "World", country_code: null, group_name: "International", sort_order: 7, is_featured: true },
+  { id: 11, name: "URBA Top 14", slug: "ar-urba-top14", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 1, is_featured: true },
+  { id: 12, name: "Major League Rugby", slug: "us-mlr", region: "USA", country_code: "US", group_name: "USA", sort_order: 1, is_featured: true },
+  { id: 13, name: "Norte Grande", slug: "ar-liga-norte-grande", region: "Argentina", country_code: "AR", group_name: "Argentina", sort_order: 2, is_featured: false },
+  { id: 14, name: "United Rugby Championship", slug: "int-united-rugby-championship", region: "Europe", country_code: null, group_name: "Europe", sort_order: 5, is_featured: false },
+  { id: 15, name: "SVNS Australia", slug: "svns-australia", region: "World", country_code: null, group_name: "Seven", sort_order: 1, is_featured: false },
+  { id: 16, name: "SVNS USA", slug: "svns-usa", region: "World", country_code: null, group_name: "Seven", sort_order: 2, is_featured: false },
+  { id: 17, name: "SVNS Hong Kong", slug: "svns-hong-kong", region: "World", country_code: null, group_name: "Seven", sort_order: 3, is_featured: false },
+  { id: 18, name: "SVNS Singapore", slug: "svns-singapore", region: "World", country_code: null, group_name: "Seven", sort_order: 4, is_featured: false },
 ];
 
 const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
@@ -178,6 +185,9 @@ const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
 };
 
 const CURATED_ONLY_COMPETITIONS = new Set(["ar-liga-norte-grande"]);
+const norteRugbyInstagramData: NorteRugbyInstagramPayload | null = isNorteRugbyInstagramPayload(norteRugbyInstagramJson)
+  ? norteRugbyInstagramJson
+  : null;
 
 function norm(s: string) {
   return (s || "")
@@ -190,6 +200,50 @@ function norm(s: string) {
 
 function slugify(s: string) {
   return norm(s).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function canonicalNorteGrandeName(name: string) {
+  return normalizeNorteGrandeTeamName(name) ?? name;
+}
+
+function getNorteRugbyMatchOverrides() {
+  return norteRugbyInstagramData?.matches ?? [];
+}
+
+function getNorteRugbyStandingsOverrides() {
+  return norteRugbyInstagramData?.standings ?? [];
+}
+
+function applyNorteRugbyOverrides(rows: JsonlRow[]) {
+  const overrides = getNorteRugbyMatchOverrides();
+  if (!overrides.length) return rows.slice();
+
+  const byRoundAndTeams = new Map(
+    overrides.map((row) => [
+      `${row.round ?? ""}|${norm(canonicalNorteGrandeName(row.home))}|${norm(canonicalNorteGrandeName(row.away))}`,
+      row,
+    ])
+  );
+  const byTeams = new Map(
+    overrides.map((row) => [`${norm(canonicalNorteGrandeName(row.home))}|${norm(canonicalNorteGrandeName(row.away))}`, row])
+  );
+
+  return rows.map((row) => {
+    const rowKey = `${row.round ?? ""}|${norm(canonicalNorteGrandeName(row.home))}|${norm(canonicalNorteGrandeName(row.away))}`;
+    const pairKey = `${norm(canonicalNorteGrandeName(row.home))}|${norm(canonicalNorteGrandeName(row.away))}`;
+    const override = byRoundAndTeams.get(rowKey) ?? byTeams.get(pairKey);
+    if (!override) return { ...row };
+
+    return {
+      ...row,
+      round: override.round ?? row.round,
+      home: override.home,
+      away: override.away,
+      home_score: override.home_score,
+      away_score: override.away_score,
+      status: override.status,
+    };
+  });
 }
 
 function parseScore(x: string) {
@@ -360,7 +414,10 @@ function loadDryRunDumps(): DryRunDump[] {
 function loadJsonlRowsByCompetition() {
   const logsDir = path.join(process.cwd(), "logs");
   const out = new Map<string, JsonlRow[]>(
-    Object.entries(STATIC_JSONL_ROWS).map(([competition, rows]) => [competition, rows.slice()])
+    Object.entries(STATIC_JSONL_ROWS).map(([competition, rows]) => [
+      competition,
+      competition === "ar-liga-norte-grande" ? applyNorteRugbyOverrides(rows) : rows.slice(),
+    ])
   );
 
   if (!fs.existsSync(logsDir)) return out;
@@ -823,16 +880,27 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
   }
 
   if (compSlug === "ar-liga-norte-grande") {
-    const officialOrder = [
-      { slug: "jockey-club-de-salta", pts: 14 },
-      { slug: "universitario-de-salta", pts: 13 },
-      { slug: "old-lions-rc", pts: 7 },
-      { slug: "tigres-rc", pts: 5 },
-      { slug: "santiago-lawn-tennis-club", pts: 4 },
-      { slug: "tiro-federal-de-salta", pts: 4 },
-      { slug: "santiago-rugby-club", pts: 2 },
-      { slug: "gimnasia-y-tiro", pts: 0 },
-    ];
+    const instagramStandings = getNorteRugbyStandingsOverrides();
+    const officialOrder =
+      instagramStandings.length > 0
+        ? instagramStandings.map((row) => ({
+            slug: slugify(canonicalNorteGrandeName(row.team)),
+            pts: row.pts,
+            pj: row.pj ?? null,
+            w: row.w ?? null,
+            d: row.d ?? null,
+            l: row.l ?? null,
+          }))
+        : [
+            { slug: "jockey-club-de-salta", pts: 14, pj: null, w: null, d: null, l: null },
+            { slug: "universitario-de-salta", pts: 13, pj: null, w: null, d: null, l: null },
+            { slug: "old-lions-rc", pts: 7, pj: null, w: null, d: null, l: null },
+            { slug: "tigres-rc", pts: 5, pj: null, w: null, d: null, l: null },
+            { slug: "santiago-lawn-tennis-club", pts: 4, pj: null, w: null, d: null, l: null },
+            { slug: "tiro-federal-de-salta", pts: 4, pj: null, w: null, d: null, l: null },
+            { slug: "santiago-rugby-club", pts: 2, pj: null, w: null, d: null, l: null },
+            { slug: "gimnasia-y-tiro", pts: 0, pj: null, w: null, d: null, l: null },
+          ];
     const bySlug = new Map(Array.from(table.values()).map((row) => [row.teamSlug ?? "", row]));
 
     const curatedRows: LeagueStandingRow[] = [];
@@ -841,6 +909,10 @@ function getFallbackStandings(compSlug: string, matches: LeagueMatchRow[]): Leag
       if (!row) continue;
       curatedRows.push({
         ...row,
+        pj: item.pj ?? row.pj,
+        w: item.w ?? row.w,
+        d: item.d ?? row.d,
+        l: item.l ?? row.l,
         pts: item.pts,
         position: index + 1,
         badge: null,

@@ -351,7 +351,7 @@ function competitionSlugFromUrl(url: string) {
   const parts = u.pathname.split("/").filter(Boolean);
 
   if (parts.length < 3) return null;
-  if (parts[0] !== "rugby-union") return null;
+  if (parts[0] !== "rugby-union" && parts[0] !== "rugby") return null;
 
   const regionOrCountry = parts[1];
   const compSlug = parts[2];
@@ -362,6 +362,7 @@ function competitionSlugFromUrl(url: string) {
   if (compSlug === "super-rugby-americas") return "sra";
   if (compSlug === "premiership-rugby") return "en-premiership-rugby";
   if (compSlug === "european-rugby-champions-cup") return "eu-champions-cup";
+  if (compSlug === "challenge-cup") return "eu-challenge-cup";
   if (compSlug === "world-cup") return "int-world-cup";
   if (compSlug === "nations-championship") return "int-nations-championship";
   if (compSlug === "super-rugby") return "int-super-rugby-pacific";
@@ -470,9 +471,7 @@ function pickSeasonForScrapedRows(seasons: SeasonRow[], rows: ScrapedRow[]) {
     let parsedCount = 0;
 
     for (const row of rows) {
-      const inferred =
-        inferMatchDateFromRawText(row.dateLabel, season.name) ||
-        inferMatchDateFromRawText(row.rawText, season.name);
+      const inferred = inferMatchDateFromScrapedRow(row, season.name);
       if (!inferred) continue;
 
       parsedCount += 1;
@@ -1014,6 +1013,13 @@ function parseKickoffTime(raw: string): string | null {
 function inferMatchDateFromRawText(rawText: string, seasonName: string): string | null {
   const txt = rawText || "";
   const { startYear, endYear } = seasonYearBounds(seasonName);
+  const isValidDayMonth = (day: number, month: number) =>
+    Number.isInteger(day) && Number.isInteger(month) && day >= 1 && day <= 31 && month >= 1 && month <= 12;
+  const normalized = txt
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const stageSlashLabel = /\b\d{1,2}\/\d{1,2}\b/.test(normalized) && /\bde final\b|\bplayoffs?\b|\bplay-offs?\b/.test(normalized);
 
   const months: Record<string, number> = {
     jan: 1,
@@ -1034,6 +1040,7 @@ function inferMatchDateFromRawText(rawText: string, seasonName: string): string 
   if (m1) {
     const mon = months[m1[1].slice(0, 3).toLowerCase()];
     const day = Number.parseInt(m1[2], 10);
+    if (!isValidDayMonth(day, mon)) return null;
     const year = mon >= 7 ? startYear : endYear;
     return `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
@@ -1042,19 +1049,55 @@ function inferMatchDateFromRawText(rawText: string, seasonName: string): string 
   if (m2) {
     const day = Number.parseInt(m2[1], 10);
     const mon = Number.parseInt(m2[2], 10);
+    if (!isValidDayMonth(day, mon)) return null;
     const year = mon >= 7 ? startYear : endYear;
     return `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
   const m3 = txt.match(/\b(\d{1,2})\/(\d{1,2})\b/);
-  if (m3) {
+  if (m3 && !stageSlashLabel) {
     const mon = Number.parseInt(m3[1], 10);
     const day = Number.parseInt(m3[2], 10);
+    if (!isValidDayMonth(day, mon)) return null;
     const year = mon >= 7 ? startYear : endYear;
     return `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
   return null;
+}
+
+function inferRelativeDateFromContext(rawText: string) {
+  const txt = (rawText || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (!txt) return null;
+
+  const isoForOffset = (offsetDays: number) => {
+    const value = new Date();
+    value.setUTCDate(value.getUTCDate() + offsetDays);
+    return value.toISOString().slice(0, 10);
+  };
+
+  if (/\b(today|hoy|oggi|aujourd'hui)\b/i.test(txt) || txt.includes("partidos de hoy")) return isoForOffset(0);
+  if (/\b(yesterday|ayer|ieri|hier)\b/i.test(txt)) return isoForOffset(-1);
+  if (/\b(tomorrow|manana|demain|domani)\b/i.test(txt)) return isoForOffset(1);
+
+  return null;
+}
+
+function inferMatchDateFromScrapedRow(
+  row: Pick<ScrapedRow, "dateLabel" | "statusOrTime" | "rawText" | "sectionText">,
+  seasonName: string
+) {
+  for (const candidate of [row.statusOrTime, row.rawText, row.dateLabel, row.sectionText]) {
+    const inferred = inferMatchDateFromRawText(candidate || "", seasonName);
+    if (inferred) return inferred;
+  }
+
+  return inferRelativeDateFromContext(
+    [row.dateLabel, row.statusOrTime, row.rawText, row.sectionText].filter(Boolean).join(" | ")
+  );
 }
 
 async function maybeAcceptConsent(page: Page) {
@@ -1292,9 +1335,15 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures" | "live
     if (currentMeta || !previousMeta) continue;
 
     const currentDate =
-      inferMatchDateFromRawText(current.dateLabel, "2026") || inferDateFingerprint(current.rawText);
+      inferMatchDateFromRawText(current.statusOrTime, "2026") ||
+      inferMatchDateFromRawText(current.rawText, "2026") ||
+      inferMatchDateFromRawText(current.dateLabel, "2026") ||
+      inferDateFingerprint(current.rawText);
     const previousDate =
-      inferMatchDateFromRawText(previous.dateLabel, "2026") || inferDateFingerprint(previous.rawText);
+      inferMatchDateFromRawText(previous.statusOrTime, "2026") ||
+      inferMatchDateFromRawText(previous.rawText, "2026") ||
+      inferMatchDateFromRawText(previous.dateLabel, "2026") ||
+      inferDateFingerprint(previous.rawText);
     const currentKickoff = parseKickoffTime(current.statusOrTime || current.rawText);
     const previousKickoff = parseKickoffTime(previous.statusOrTime || previous.rawText);
 
@@ -1512,7 +1561,7 @@ function dedupeScrapedRows(rows: ScrapedRow[]) {
   const out: ScrapedRow[] = [];
 
   for (const r of rows) {
-    const inferredDate = norm(r.dateLabel) || inferDateFingerprint(r.rawText);
+    const inferredDate = norm(r.dateLabel) || inferDateFingerprint(r.statusOrTime) || inferDateFingerprint(r.rawText);
 
     const key = [
       r.sourcePage,
@@ -1960,9 +2009,7 @@ async function main() {
         let sourceKey: string | null = null;
         let kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
 
-        const inferredDate =
-          inferMatchDateFromRawText(row.dateLabel, seasonMeta.seasonName) ||
-          inferMatchDateFromRawText(row.rawText, seasonMeta.seasonName);
+        const inferredDate = inferMatchDateFromScrapedRow(row, seasonMeta.seasonName);
         let matchDate = inferredDate;
 
         sourceKey = buildSourceEventKey({

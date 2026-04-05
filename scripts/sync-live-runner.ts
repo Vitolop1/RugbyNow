@@ -72,7 +72,7 @@ function competitionSlugFromUrl(raw: string) {
   const url = new URL(normalized);
   const parts = url.pathname.split("/").filter(Boolean);
 
-  if (parts.length < 3 || parts[0] !== "rugby-union") return null;
+  if (parts.length < 3 || (parts[0] !== "rugby-union" && parts[0] !== "rugby")) return null;
 
   const regionOrCountry = parts[1];
   const compSlug = parts[2];
@@ -83,6 +83,7 @@ function competitionSlugFromUrl(raw: string) {
   if (compSlug === "super-rugby-americas") return "sra";
   if (compSlug === "premiership-rugby") return "en-premiership-rugby";
   if (compSlug === "european-rugby-champions-cup") return "eu-champions-cup";
+  if (compSlug === "challenge-cup") return "eu-challenge-cup";
   if (compSlug === "world-cup") return "int-world-cup";
   if (compSlug === "nations-championship") return "int-nations-championship";
   if (compSlug === "super-rugby") return "int-super-rugby-pacific";

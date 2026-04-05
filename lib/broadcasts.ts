@@ -84,6 +84,7 @@ const BROADCASTS_BY_COMPETITION: Partial<Record<string, BroadcastProviderId[]>> 
   "ar-liga-norte-grande": ["tercer-tiempo-salta", "noa-sports-go", "quiero-deporte"],
   "ar-urba-top14": ["disney-plus", "espn"],
   "en-premiership-rugby": ["disney-plus", "espn"],
+  "eu-challenge-cup": ["disney-plus", "espn"],
   "eu-champions-cup": ["disney-plus", "espn"],
   "fr-top14": ["disney-plus", "espn"],
   "it-serie-a-elite": ["the-rugby-channel", "rai-sport"],

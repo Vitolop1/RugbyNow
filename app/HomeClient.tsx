@@ -1109,6 +1109,9 @@ export default function HomeClient() {
                 </div>
 
                 <div>
+                  <Link href="/agenda" className="mb-4 flex items-center justify-between rounded-xl border border-emerald-200/30 bg-emerald-300/15 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-300/25">
+                    <span>{tr("agenda")}</span><span aria-hidden="true">↗</span>
+                  </Link>
                   <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                   <p className="text-sm text-white/80">
                     {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate, lang)}</span>  | {" "}

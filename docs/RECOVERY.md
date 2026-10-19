@@ -5,6 +5,7 @@ The public GitHub API reported all six scheduled refresh workflows as `disabled_
 ## Changes in this repair
 
 - Parse complete source dates before yearless labels. Reject impossible dates and ambiguous editions instead of assigning today's year to `Current`.
+- Request source pages in UTC and English so parsed kickoff times and relative dates agree on one timezone on local and hosted runners.
 - Read the source page's season, create a missing explicitly identified season, and process historical results and upcoming fixtures in separate groups. Existing stable source event IDs can move incorrectly dated records into the corrected edition on the next successful sync.
 - Seed the men's World Cup as 2027. Records lacking stable source IDs may need a separate audited reconciliation; do not reset the database to repair these.
 - Fail the job when a full match feed cannot be read or writes fail, instead of reporting success with no updates. Remove the global TLS-verification bypass from the main importer.
@@ -27,3 +28,13 @@ The repository uses Cloudflare Workers/OpenNext. Runtime credentials stay in Clo
 Use monitoring outside these GitHub schedules for disabled workflows, missing refreshes and expected results remaining unresolved. A scheduled workflow inside the same inactive repository cannot reliably warn about its own inactivity suspension. Configure the external monitor before treating data freshness as continuously supervised. No external monitor or new paid service is provisioned by this repair.
 
 The existing generic transmission links still need territorial verification. The analytics events only measure use of the existing interface; they do not establish broadcast availability or licensing.
+
+## Interactive agenda
+
+`/agenda` adds search, date/type/region filters, locally saved events, calendar downloads and share links that resolve the event in the recipient's timezone. Its interface supports English, Spanish, French and Italian. The homepage and desktop navigation link to it.
+
+The first editorial selection contains 52 entries (24 matches and 28 programmes), explicitly dated 15–22 October 2026 and attributed to the user-provided Norte Rugby guide. Argentina timestamps are stored as UTC instants. This selection is not a recurring feed, international broadcast-rights database or live score service. Do not move these entries into another week. Future coverage needs a maintained source and verification process.
+
+Provider names without confirmed URLs remain marked pending. Known channel and platform destinations are labeled separately from event-specific streams. Calendar and favourite actions send optional GA4 events only when an existing property is configured; no analytics account or review backend is created.
+
+Local validation on 2026-10-19: 11 tests and TypeScript passed; the agenda was checked in a 390px mobile viewport and a 1440px desktop viewport. Search, favourites, a downloaded ICS and cross-timezone event links were checked through the browser.

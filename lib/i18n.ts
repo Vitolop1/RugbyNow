@@ -2,6 +2,7 @@ import type { Lang } from "@/lib/usePrefs";
 
 export const UI_TEXT: Record<Lang, Record<string, string>> = {
   en: {
+    agenda: "Agenda & where to watch",
     leagues: "Leagues",
     weekly: "Weekly",
     about: "About",
@@ -222,6 +223,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     resultsAtFinalNotice: "Final result only.",
   },
   es: {
+    agenda: "Agenda y dónde ver",
     leagues: "Ligas",
     weekly: "Semanal",
     about: "Info",
@@ -442,6 +444,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     resultsAtFinalNotice: "Solo resultado final.",
   },
   fr: {
+    agenda: "Agenda et diffusions",
     leagues: "Ligues",
     weekly: "Hebdo",
     about: "Infos",
@@ -662,6 +665,7 @@ export const UI_TEXT: Record<Lang, Record<string, string>> = {
     resultsAtFinalNotice: "Resultat final uniquement.",
   },
   it: {
+    agenda: "Agenda e dove vedere",
     leagues: "Leghe",
     weekly: "Settimanale",
     about: "Info",

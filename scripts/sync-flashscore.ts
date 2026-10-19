@@ -1719,11 +1719,15 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
+    timezoneId: "UTC",
+    locale: "en-US",
     userAgent:
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
   });
   const detailPage = LIVE_ONLY
     ? await browser.newPage({
+        timezoneId: "UTC",
+        locale: "en-US",
         userAgent:
           "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
       })
@@ -1760,6 +1764,7 @@ async function main() {
           seasonCandidates = await getSeasonCandidatesByCompSlug(compSlug);
         } catch (error) {
           console.log(`Skip ${compSlug}: ${describeError(error)}`);
+          totalFailures++;
           continue;
         }
       }

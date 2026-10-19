@@ -14,26 +14,69 @@ on:
   schedule:
     - cron: "*/5 * * * *"
 
+permissions:
+  contents: read
+
 concurrency:
   group: rugby-now-sync-full
   cancel-in-progress: false
 
 jobs:
-  sync_scores:
-    # Resume scheduled writes only after a manual validation and reconciliation.
+  prepare:
     if: github.event_name == 'workflow_dispatch' || vars.DATA_SYNC_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Plan bounded feed groups
+        id: plan
+        env:
+          FLASH_URLS: ${{ inputs.flash_urls || vars.FLASH_URLS }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const feeds = [...new Set((process.env.FLASH_URLS || '').split(/\r?\n|,/).map(s => s.trim()).filter(Boolean))];
+          if (!feeds.length) throw new Error('No competition feeds configured.');
+          const groups = Array.from({length: Math.min(4, feeds.length)}, (_, index) => ({group: index + 1, urls: []}));
+          feeds.forEach((feed, index) => groups[index % groups.length].urls.push(feed));
+          const matrix = {include: groups.map(group => ({group: group.group, urls: group.urls.join('\n')}))};
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify(matrix)}\n`);
+          console.log(`Planned ${feeds.length} feeds in ${groups.length} groups.`);
+          NODE
+      - name: Install dependencies for competition setup
+        if: github.event_name != 'workflow_dispatch' || !inputs.dry_run
+        run: npm ci --no-audit --no-fund --prefer-offline
+      - name: Ensure configured competitions once
+        if: github.event_name != 'workflow_dispatch' || !inputs.dry_run
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run ensure:flashscore-competitions
+
+  sync_scores:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    name: Feed group ${{ matrix.group }}
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-
       - name: Restore dependency cache
         id: deps-cache
         uses: actions/cache@v4
@@ -42,39 +85,47 @@ jobs:
             node_modules
             ~/.npm
           key: ${{ runner.os }}-node20-sync-full-${{ hashFiles('package-lock.json') }}
-
       - name: Install dependencies
         if: steps.deps-cache.outputs.cache-hit != 'true'
         run: npm ci --no-audit --no-fund --prefer-offline
-
       - name: Run matches sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          FLASH_URLS: ${{ inputs.flash_urls || vars.FLASH_URLS }}
+          FLASH_URLS: ${{ matrix.urls }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
-        run: |
-          echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
-          if [ "$DRY_RUN" != "1" ]; then npm run ensure:flashscore-competitions; fi
-          npm run sync:matches
-
-      - name: Save import validation report
-        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+          DRY_RUN_REPORT_DIR: logs/import-validation
+        run: npm run sync:matches
+      - name: Save current import validation reports
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.dry_run
         uses: actions/upload-artifact@v4
         with:
-          name: import-validation
-          path: logs/flashscore-dry-run-*.json
+          name: import-validation-${{ matrix.group }}
+          path: logs/import-validation/*.json
           retention-days: 7
 
-      - name: Export Supabase snapshot
-        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run
+  snapshot:
+    needs: [prepare, sync_scores]
+    if: github.event_name == 'workflow_dispatch' && !inputs.dry_run && github.ref == 'refs/heads/main' && needs.sync_scores.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund --prefer-offline
+      - name: Export complete Supabase snapshot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run export:supabase-snapshot
-
       - name: Commit snapshot if changed
-        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -86,8 +137,7 @@ jobs:
             git add data/supabase-snapshot.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
             git commit -m "Update Supabase snapshot [skip ci]"
-            git push && exit 0
-            echo "Snapshot push retry $attempt failed, retrying..."
+            git push origin HEAD:main && exit 0
             sleep 5
           done
           echo "Failed to push snapshot after 3 attempts."

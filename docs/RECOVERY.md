@@ -49,4 +49,16 @@ Analytics loads only after the optional analytics choice is allowed; rejection p
 
 Enhanced Measurement already has page-load and browser-history views enabled in the property. Initialization now queues before the SDK loads and uses the automatic page view path; a separate manual route config no longer races initialization or duplicates history views. Localhost uses debug mode for validation. Verify actual `page_view` and product events in DebugView/Realtime before treating measurement as operational. This is not a full advertising CMP implementation.
 
-Local validation on 2026-10-19: 11 tests and TypeScript passed; the agenda was checked in a 390px mobile viewport and a 1440px desktop viewport. Search, favourites, a downloaded ICS and cross-timezone event links were checked through the browser.
+Local validation on 2026-10-19: 13 tests and TypeScript passed; the agenda was checked in a 390px mobile viewport and a 1440px desktop viewport. Search, favourites, a downloaded ICS and cross-timezone event links were checked through the browser. The full Cloudflare build also passed.
+
+## Monitored recovery on 2026-10-19
+
+PR #1 was merged and the public `/agenda` deployment was verified. DebugView received a real `page_view` and `agenda_favorite`; the public tag was checked after allowing optional analytics. Search Console accepted the updated sitemap with 170 URLs.
+
+Manual read-only import run 39302531611 passed: URBA 2026 produced 114 dated matches and World Cup 2027 produced 36 dated fixtures. Alumni–CASI was 14–22 and France–Samoa was dated 2027-10-17.
+
+The subsequent live import updated 148 records and inserted 2; the public API confirmed all seven URBA October 17 scores and no World Cup matches on that 2026 date. France–Samoa retained its stable ID 15593 and moved to 2027. Teams remained at 139. No duplicate-cleanup deletion was enabled.
+
+That run failed after the successful data import/export, in the container's Git snapshot commit step (`fatal: not in a git directory`). Snapshot publication now runs once in a separate Ubuntu job with an explicitly scoped write token. Browser scraping jobs retain read-only repository access. The 16 configured feeds are distributed into up to four bounded groups instead of one long serial job. Current dry-run reports use a dedicated directory so committed historical dumps cannot be mistaken for fresh output.
+
+Scheduled primary writes remain gated by `DATA_SYNC_ENABLED` until the complete configured feed set passes validation and monitored reconciliation. Other dormant schedules remain disabled during this recovery.

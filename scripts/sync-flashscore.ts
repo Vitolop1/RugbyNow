@@ -104,7 +104,7 @@ function ensureSupabase() {
 }
 
 function ensureLogsDir() {
-  const dir = path.join(process.cwd(), "logs");
+  const dir = path.resolve(process.cwd(), process.env.DRY_RUN_REPORT_DIR || "logs");
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }

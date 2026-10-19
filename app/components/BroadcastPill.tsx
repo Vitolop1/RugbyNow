@@ -1,6 +1,7 @@
 "use client";
 
 import { getBroadcastLogo, type BroadcastProvider } from "@/lib/broadcasts";
+import { trackProductEvent } from "@/lib/analytics";
 
 type Props = {
   provider: BroadcastProvider;
@@ -29,7 +30,12 @@ export default function BroadcastPill({ provider, compact = false }: Props) {
   if (!provider.href) return content;
 
   return (
-    <a href={provider.href} target="_blank" rel="noreferrer" className="hover:opacity-90">
+    <a href={provider.href} target="_blank" rel="noreferrer" className="hover:opacity-90"
+      onClick={(event) => {
+        event.stopPropagation();
+        trackProductEvent("watch_provider_click", { provider_id: provider.id });
+      }}
+      onKeyDown={(event) => event.stopPropagation()}>
       {content}
     </a>
   );

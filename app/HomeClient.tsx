@@ -30,6 +30,7 @@ import { isActiveMatchStatus, isResultPendingMatch, isScheduledMatchStatus, type
 import { getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { getISODateInTimeZone } from "@/lib/timeZoneDate";
 import { usePrefs } from "@/lib/usePrefs";
+import { trackProductEvent } from "@/lib/analytics";
 
 type Match = {
   id: number;
@@ -438,17 +439,22 @@ export default function HomeClient() {
       setCompLoading(true);
       setCompError("");
 
-      const response = await fetch("/api/competitions", { cache: "no-store" });
-      const payload = await response.json();
+      try {
+        const response = await fetch("/api/competitions", { cache: "no-store" });
+        const payload = await response.json();
 
-      if (!response.ok) {
-        setCompetitions([]);
-        setCompError(payload.error ?? tr("unknownCompetitionsError"));
-      } else {
-        setCompetitions((payload.competitions || []) as Competition[]);
+        if (!response.ok) {
+          setCompetitions([]);
+          setCompError(payload.error ?? tr("unknownCompetitionsError"));
+        } else {
+          setCompetitions((payload.competitions || []) as Competition[]);
+        }
+
+      } catch {
+        setCompError(tr("unknownCompetitionsError"));
+      } finally {
+        setCompLoading(false);
       }
-
-      setCompLoading(false);
     };
 
     loadCompetitions();
@@ -466,59 +472,67 @@ export default function HomeClient() {
       }
       setLoadError("");
 
-      const response = await fetch(`/api/home?date=${selectedISO}&tz=${encodeURIComponent(timeZone)}`, {
-        cache: "no-store",
-      });
-      const payload = await response.json();
+      try {
+        const response = await fetch(`/api/home?date=${selectedISO}&tz=${encodeURIComponent(timeZone)}`, {
+          cache: "no-store",
+        });
+        const payload = await response.json();
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (!response.ok) {
-        setBlocks([]);
-        setLoadError(payload.error ?? tr("unknownMatchesError"));
+        if (!response.ok) {
+          setBlocks([]);
+          setLoadError(payload.error ?? tr("unknownMatchesError"));
+          setLoading(false);
+          isInitialFetch = false;
+          timer = setTimeout(loadMatches, 60000);
+          return;
+        }
+
+        const rows = (payload.matches || []) as DbMatchRow[];
+        const byLeague = new Map<string, LeagueBlock>();
+        let hasLive = false;
+
+        for (const row of rows) {
+          if (isActiveMatchStatus(row.status)) hasLive = true;
+
+          const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
+          const leagueSlug = row.season?.competition?.slug ?? "unknown";
+          const region = row.season?.competition?.region ?? "";
+
+          const match: Match = {
+            id: row.id,
+            matchDate: row.match_date,
+            kickoffTime: row.kickoff_time,
+            home: row.home_team?.name ?? tr("tbd"),
+            away: row.away_team?.name ?? tr("tbd"),
+            homeSlug: row.home_team?.slug ?? null,
+            awaySlug: row.away_team?.slug ?? null,
+            minute: row.minute,
+            updatedAt: row.updated_at ?? null,
+            hs: isScheduledMatchStatus(row.status) ? null : row.home_score,
+            as: isScheduledMatchStatus(row.status) ? null : row.away_score,
+            status: row.status,
+          };
+
+          if (!byLeague.has(leagueSlug)) {
+            byLeague.set(leagueSlug, { league: leagueName, region, slug: leagueSlug, matches: [] });
+          }
+
+          byLeague.get(leagueSlug)!.matches.push(match);
+        }
+
+        setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
+        setLoading(false);
+        isInitialFetch = false;
+        timer = setTimeout(loadMatches, hasLive ? 60000 : 300000);
+      } catch {
+        if (cancelled) return;
+        setLoadError(tr("unknownMatchesError"));
         setLoading(false);
         isInitialFetch = false;
         timer = setTimeout(loadMatches, 60000);
-        return;
       }
-
-      const rows = (payload.matches || []) as DbMatchRow[];
-      const byLeague = new Map<string, LeagueBlock>();
-      let hasLive = false;
-
-      for (const row of rows) {
-        if (isActiveMatchStatus(row.status)) hasLive = true;
-
-        const leagueName = row.season?.competition?.name ?? tr("unknownCompetition");
-        const leagueSlug = row.season?.competition?.slug ?? "unknown";
-        const region = row.season?.competition?.region ?? "";
-
-        const match: Match = {
-          id: row.id,
-          matchDate: row.match_date,
-          kickoffTime: row.kickoff_time,
-          home: row.home_team?.name ?? tr("tbd"),
-          away: row.away_team?.name ?? tr("tbd"),
-          homeSlug: row.home_team?.slug ?? null,
-          awaySlug: row.away_team?.slug ?? null,
-          minute: row.minute,
-          updatedAt: row.updated_at ?? null,
-          hs: isScheduledMatchStatus(row.status) ? null : row.home_score,
-          as: isScheduledMatchStatus(row.status) ? null : row.away_score,
-          status: row.status,
-        };
-
-        if (!byLeague.has(leagueSlug)) {
-          byLeague.set(leagueSlug, { league: leagueName, region, slug: leagueSlug, matches: [] });
-        }
-
-        byLeague.get(leagueSlug)!.matches.push(match);
-      }
-
-      setBlocks(Array.from(byLeague.values()).map(dedupeBlock));
-      setLoading(false);
-      isInitialFetch = false;
-      timer = setTimeout(loadMatches, hasLive ? 60000 : 300000);
     };
 
     loadMatches();
@@ -1095,6 +1109,9 @@ export default function HomeClient() {
                 </div>
 
                 <div>
+                  <Link href="/agenda" className="mb-4 flex items-center justify-between rounded-xl border border-emerald-200/30 bg-emerald-300/15 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-300/25">
+                    <span>{tr("agenda")}</span><span aria-hidden="true">↗</span>
+                  </Link>
                   <h2 className="text-xl font-bold text-white">{tr("matches")}</h2>
                   <p className="text-sm text-white/80">
                     {tr("selectedAt")}: <span className="font-semibold text-white">{niceDate(selectedDate, lang)}</span>  | {" "}
@@ -1182,10 +1199,14 @@ export default function HomeClient() {
                               }`}
                               role="link"
                               tabIndex={0}
-                              onClick={() => router.push(`/matches/${block.slug}/${match.id}`)}
+                              onClick={() => {
+                                trackProductEvent("match_open", { competition_slug: block.slug, match_id: match.id });
+                                router.push(`/matches/${block.slug}/${match.id}`);
+                              }}
                               onKeyDown={(event) => {
                                 if (event.key === "Enter" || event.key === " ") {
                                   event.preventDefault();
+                                  trackProductEvent("match_open", { competition_slug: block.slug, match_id: match.id });
                                   router.push(`/matches/${block.slug}/${match.id}`);
                                 }
                               }}

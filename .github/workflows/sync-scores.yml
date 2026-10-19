@@ -2,6 +2,15 @@ name: sync-matches (every 5m)
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate the feed without database writes
+        type: boolean
+        default: true
+      flash_urls:
+        description: Optional competition URLs; leave empty for the configured feeds
+        type: string
+        required: false
   schedule:
     - cron: "*/5 * * * *"
 
@@ -11,6 +20,8 @@ concurrency:
 
 jobs:
   sync_scores:
+    # Resume scheduled writes only after a manual validation and reconciliation.
+    if: github.event_name == 'workflow_dispatch' || vars.DATA_SYNC_ENABLED == 'true'
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
@@ -40,21 +51,30 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          FLASH_URLS: ${{ vars.FLASH_URLS }}
+          FLASH_URLS: ${{ inputs.flash_urls || vars.FLASH_URLS }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
         run: |
           echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
-          npm run ensure:flashscore-competitions
+          if [ "$DRY_RUN" != "1" ]; then npm run ensure:flashscore-competitions; fi
           npm run sync:matches
 
+      - name: Save import validation report
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        uses: actions/upload-artifact@v4
+        with:
+          name: import-validation
+          path: logs/flashscore-dry-run-*.json
+          retention-days: 7
+
       - name: Export Supabase snapshot
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run export:supabase-snapshot
 
       - name: Commit snapshot if changed
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

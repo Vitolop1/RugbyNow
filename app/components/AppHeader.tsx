@@ -198,6 +198,12 @@ export default function AppHeader({
 
           <div className="ml-auto flex items-center gap-2">
             <Link
+              href="/agenda"
+              className="rn-header-pill hidden h-9 items-center px-3 text-xs font-extrabold sm:inline-flex"
+            >
+              {tr("agenda")}
+            </Link>
+            <Link
               href="/leagues"
               className="rn-header-pill hidden h-9 items-center px-3 text-xs font-extrabold sm:inline-flex"
             >

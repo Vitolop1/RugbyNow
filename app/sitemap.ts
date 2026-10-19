@@ -35,6 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
     "/leagues",
+    "/agenda",
     "/weekly",
     "/weekly/week-1",
     "/about",
@@ -50,7 +51,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticEntries = staticRoutes.map((route) => ({
     url: `${siteUrl}${route}`,
-    lastModified,
+    lastModified: route === "/agenda" ? new Date("2026-10-19T00:00:00Z") : lastModified,
     changeFrequency: route === "" ? "hourly" : "daily",
     priority: route === "" ? 1 : 0.8,
   })) satisfies MetadataRoute.Sitemap;

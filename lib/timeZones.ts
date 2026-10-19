@@ -12,7 +12,14 @@ const BASE_TIME_ZONE_OPTIONS: TimeZoneOption[] = [
   { value: "America/Denver", short: "DEN (MT)", long: "Denver (MT)" },
   { value: "America/Los_Angeles", short: "LA (PT)", long: "Los Angeles (PT)" },
   { value: "America/Argentina/Buenos_Aires", short: "ARG", long: "Argentina (ART)" },
-  { value: "Europe/London", short: "LON", long: "London (GMT)" },
+  { value: "Europe/London", short: "LON", long: "London" },
+  { value: "Europe/Paris", short: "PAR", long: "Paris" },
+  { value: "Europe/Rome", short: "ROM", long: "Rome" },
+  { value: "Africa/Johannesburg", short: "JHB", long: "Johannesburg" },
+  { value: "Australia/Sydney", short: "SYD", long: "Sydney" },
+  { value: "Pacific/Auckland", short: "AKL", long: "Auckland" },
+  { value: "Asia/Tokyo", short: "TYO", long: "Tokyo" },
+  { value: "Pacific/Fiji", short: "FIJI", long: "Fiji" },
 ];
 
 export function isValidTimeZone(value?: string | null) {

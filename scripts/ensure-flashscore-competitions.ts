@@ -105,7 +105,7 @@ const COMPETITION_SEEDS: Record<string, CompetitionSeed> = {
     group_name: "International",
     sort_order: 5,
     is_featured: false,
-    season_name: "2025/2026",
+    season_name: "2027",
   },
   "int-nations-championship": {
     slug: "int-nations-championship",

@@ -23,6 +23,8 @@ The public GitHub API reported all six scheduled refresh workflows as `disabled_
 
 The repository uses Cloudflare Workers/OpenNext. Runtime credentials stay in Cloudflare and GitHub Secrets. Never commit or print them. Do not use the destructive rebuild workflow for this recovery.
 
+The importer no longer deletes presumed midnight duplicates by default. The legacy cleanup requires explicit `CLEANUP_PLACEHOLDER_DUPLICATES=1`; review a backup and candidate records before opting in. Dry-run reports include parsed kickoff times and scores for official-source comparisons.
+
 ## Prevent a repeat
 
 Use monitoring outside these GitHub schedules for disabled workflows, missing refreshes and expected results remaining unresolved. A scheduled workflow inside the same inactive repository cannot reliably warn about its own inactivity suspension. Configure the external monitor before treating data freshness as continuously supervised. No external monitor or new paid service is provisioned by this repair.

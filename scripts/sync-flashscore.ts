@@ -82,6 +82,7 @@ const LIVE_ONLY = process.env.LIVE_ONLY === "1";
 const MATCHES_ONLY = process.env.MATCHES_ONLY === "1";
 const STANDINGS_ONLY = process.env.STANDINGS_ONLY === "1";
 const DRY_RUN = process.env.DRY_RUN === "1";
+const CLEANUP_PLACEHOLDER_DUPLICATES = process.env.CLEANUP_PLACEHOLDER_DUPLICATES === "1";
 
 if (!DRY_RUN && (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)) {
   throw new Error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY");
@@ -1868,6 +1869,9 @@ async function main() {
             sourceSeasonName: row.sourceSeasonName,
             matchDate: inferMatchDateFromScrapedRow(row, seasonMeta.seasonName),
             statusOrTime: row.statusOrTime,
+            kickoffTime: parseKickoffTime(row.statusOrTime || row.rawText),
+            homeScore: parseScore(row.hs), awayScore: parseScore(row.as),
+            detailUrl: row.detailUrl,
           })),
         });
 
@@ -2094,7 +2098,7 @@ async function main() {
           }
         }
 
-        if (!LIVE_ONLY) {
+        if (!LIVE_ONLY && CLEANUP_PLACEHOLDER_DUPLICATES) {
           const cleanedHere = await cleanupPlaceholderMidnightDuplicates(seasonMeta.seasonId);
           if (cleanedHere > 0) {
             console.log(`Cleaned placeholder midnight duplicates in ${compSlug}: ${cleanedHere}`);

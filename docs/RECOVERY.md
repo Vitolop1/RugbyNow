@@ -25,6 +25,8 @@ The repository uses Cloudflare Workers/OpenNext. Runtime credentials stay in Clo
 
 The importer no longer deletes presumed midnight duplicates by default. The legacy cleanup requires explicit `CLEANUP_PLACEHOLDER_DUPLICATES=1`; review a backup and candidate records before opting in. Dry-run reports include parsed kickoff times and scores for official-source comparisons.
 
+Snapshot exports paginate with a stable ordering. The live database held 1,160 matches during recovery, exceeding the default 1,000-row response limit; a single unpaginated query could silently truncate the fallback dataset. A failure on any page rejects the export before a new file is written.
+
 ## Prevent a repeat
 
 Use monitoring outside these GitHub schedules for disabled workflows, missing refreshes and expected results remaining unresolved. A scheduled workflow inside the same inactive repository cannot reliably warn about its own inactivity suspension. Configure the external monitor before treating data freshness as continuously supervised. No external monitor or new paid service is provisioned by this repair.

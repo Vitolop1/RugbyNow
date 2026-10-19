@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { t } from "@/lib/i18n";
 import { WATCH_PLACEHOLDER_OPTIONS } from "@/lib/watchPlaceholderOptions";
 import type { Lang } from "@/lib/usePrefs";
+import { trackProductEvent } from "@/lib/analytics";
 
 type Props = {
   competitionSlug?: string | null;
@@ -101,7 +102,10 @@ export default function SuggestedWatchButton({
       <button
         ref={buttonRef}
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => {
+          if (!open) trackProductEvent("watch_options_open", { competition_slug: competitionSlug || "unknown" });
+          setOpen((prev) => !prev);
+        }}
         className="inline-flex items-center gap-2 rounded-full border border-sky-200/30 bg-sky-300/20 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-sky-300/30"
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -145,6 +149,7 @@ export default function SuggestedWatchButton({
                     href={option.placeholderHref}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => trackProductEvent("watch_provider_click", { provider_id: option.id, competition_slug: competitionSlug || "unknown" })}
                     className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                   >
                     <span>{option.name}</span>

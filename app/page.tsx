@@ -4,6 +4,9 @@ import HomeClient from "./HomeClient";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import { buildStaticMetadata } from "@/lib/seo";
 
+// Dates must be evaluated per request, not frozen into the deployment's HTML.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = buildStaticMetadata({
   title: "Rugby Results, Fixtures, Live Scores and Standings",
   description:

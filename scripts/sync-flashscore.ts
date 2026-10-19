@@ -1,12 +1,11 @@
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
 import fs from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chromium, Page, Route } from "playwright";
+import { inferMatchDateFromRawText, inferMatchDateFromScrapedRow, seasonYearBounds, selectSeasonForScrapedRow } from "../lib/scrapedMatchDate";
 
 type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
 
@@ -62,6 +61,7 @@ type ScrapedRow = {
   dateLabel: string;
   detailUrl: string | null;
   sourcePage: "results" | "fixtures" | "live";
+  sourceSeasonName?: string;
 };
 
 type ScrapedStandingRow = {
@@ -400,30 +400,6 @@ function seasonSortKey(name: string) {
   return 0;
 }
 
-function seasonYearBounds(seasonName: string) {
-  const s = (seasonName || "").trim();
-  const mRange = s.match(/\b(\d{4})\s*\/\s*(\d{2,4})\b/);
-
-  if (mRange) {
-    const y1 = Number.parseInt(mRange[1], 10);
-    const y2raw = mRange[2];
-    const y2 =
-      y2raw.length === 2
-        ? Number.parseInt(`${mRange[1].slice(0, 2)}${y2raw}`, 10)
-        : Number.parseInt(y2raw, 10);
-    return { startYear: y1, endYear: y2 };
-  }
-
-  const mYear = s.match(/\b(19\d{2}|20\d{2})\b/);
-  if (mYear) {
-    const y = Number.parseInt(mYear[1], 10);
-    return { startYear: y, endYear: y };
-  }
-
-  const now = new Date().getUTCFullYear();
-  return { startYear: now, endYear: now };
-}
-
 async function getSeasonCandidatesByCompSlug(compSlug: string) {
   const { data: comp, error: compErr } = await ensureSupabase()
     .from("competitions")
@@ -447,6 +423,33 @@ async function getSeasonCandidatesByCompSlug(compSlug: string) {
     .sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name)) as SeasonRow[];
 }
 
+async function ensureSourceSeasons(compSlug: string, seasons: SeasonRow[], sourceNames: string[]) {
+  const names = [...new Set(sourceNames)];
+  const result = [...seasons];
+  for (const name of names) {
+    const bounds = seasonYearBounds(name);
+    if (!bounds || result.some((season) => {
+      const existing = seasonYearBounds(season.name);
+      return existing?.startYear === bounds.startYear && existing.endYear === bounds.endYear;
+    })) continue;
+    if (DRY_RUN) {
+      result.push({ id: -(result.length + 1), name });
+      continue;
+    }
+    const { data: competition, error: compError } = await ensureSupabase().from("competitions").select("id").eq("slug", compSlug).single();
+    if (compError) throw compError;
+    const { data: existing, error: lookupError } = await ensureSupabase().from("seasons").select("id,name").eq("competition_id", competition.id).eq("name", name).maybeSingle();
+    if (lookupError) throw lookupError;
+    if (existing) result.push(existing as SeasonRow);
+    else {
+      const { data: created, error } = await ensureSupabase().from("seasons").insert({ competition_id: competition.id, name }).select("id,name").single();
+      if (error) throw error;
+      result.push(created as SeasonRow);
+    }
+  }
+  return result;
+}
+
 function describeError(error: unknown) {
   if (error instanceof Error) {
     return error.message;
@@ -457,41 +460,6 @@ function describeError(error: unknown) {
   }
 
   return String(error);
-}
-
-function pickSeasonForScrapedRows(seasons: SeasonRow[], rows: ScrapedRow[]) {
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const nowMs = Date.now();
-
-  let best = seasons[0];
-  let bestScore = Number.NEGATIVE_INFINITY;
-
-  for (const season of seasons) {
-    let score = 0;
-    let parsedCount = 0;
-
-    for (const row of rows) {
-      const inferred = inferMatchDateFromScrapedRow(row, season.name);
-      if (!inferred) continue;
-
-      parsedCount += 1;
-      const distanceDays = Math.abs(new Date(`${inferred}T00:00:00Z`).getTime() - nowMs) / (1000 * 60 * 60 * 24);
-      score += Math.max(0, 365 - distanceDays);
-
-      if (inferred <= todayIso) {
-        score += 20;
-      }
-    }
-
-    score += parsedCount * 100;
-
-    if (score > bestScore) {
-      bestScore = score;
-      best = season;
-    }
-  }
-
-  return { seasonId: best.id, seasonName: best.name };
 }
 
 async function getTeamsMap() {
@@ -831,38 +799,6 @@ async function getMatchesBySeason(seasonId: number) {
   return (data || []) as DbMatchRow[];
 }
 
-async function pickSeasonWithExistingMatches(
-  seasons: SeasonRow[],
-  preferredSeasonId: number
-): Promise<{ seasonId: number; seasonName: string; matches: DbMatchRow[] }> {
-  const ordered = [
-    ...seasons.filter((season) => season.id === preferredSeasonId),
-    ...seasons.filter((season) => season.id !== preferredSeasonId),
-  ];
-
-  let bestSeason = ordered[0];
-  let bestMatches = await getMatchesBySeason(bestSeason.id);
-
-  for (const season of ordered.slice(1)) {
-    const matches = await getMatchesBySeason(season.id);
-
-    if (matches.length > bestMatches.length) {
-      bestSeason = season;
-      bestMatches = matches;
-    }
-
-    if (bestMatches.length > 0 && bestSeason.name.toLowerCase() === "current") {
-      break;
-    }
-  }
-
-  return {
-    seasonId: bestSeason.id,
-    seasonName: bestSeason.name,
-    matches: bestMatches,
-  };
-}
-
 function buildSourceEventKey(params: {
   compSlug: string;
   seasonName: string;
@@ -1008,96 +944,6 @@ function parseKickoffTime(raw: string): string | null {
   if (meridiem === "A" && hour === 12) hour = 0;
   const hh = String(hour).padStart(2, "0");
   return `${hh}:${minute}:00`;
-}
-
-function inferMatchDateFromRawText(rawText: string, seasonName: string): string | null {
-  const txt = rawText || "";
-  const { startYear, endYear } = seasonYearBounds(seasonName);
-  const isValidDayMonth = (day: number, month: number) =>
-    Number.isInteger(day) && Number.isInteger(month) && day >= 1 && day <= 31 && month >= 1 && month <= 12;
-  const normalized = txt
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  const stageSlashLabel = /\b\d{1,2}\/\d{1,2}\b/.test(normalized) && /\bde final\b|\bplayoffs?\b|\bplay-offs?\b/.test(normalized);
-
-  const months: Record<string, number> = {
-    jan: 1,
-    feb: 2,
-    mar: 3,
-    apr: 4,
-    may: 5,
-    jun: 6,
-    jul: 7,
-    aug: 8,
-    sep: 9,
-    oct: 10,
-    nov: 11,
-    dec: 12,
-  };
-
-  const m1 = txt.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\b/i);
-  if (m1) {
-    const mon = months[m1[1].slice(0, 3).toLowerCase()];
-    const day = Number.parseInt(m1[2], 10);
-    if (!isValidDayMonth(day, mon)) return null;
-    const year = mon >= 7 ? startYear : endYear;
-    return `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
-  const m2 = txt.match(/\b(\d{1,2})\.(\d{1,2})\.?\b/);
-  if (m2) {
-    const day = Number.parseInt(m2[1], 10);
-    const mon = Number.parseInt(m2[2], 10);
-    if (!isValidDayMonth(day, mon)) return null;
-    const year = mon >= 7 ? startYear : endYear;
-    return `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
-  const m3 = txt.match(/\b(\d{1,2})\/(\d{1,2})\b/);
-  if (m3 && !stageSlashLabel) {
-    const mon = Number.parseInt(m3[1], 10);
-    const day = Number.parseInt(m3[2], 10);
-    if (!isValidDayMonth(day, mon)) return null;
-    const year = mon >= 7 ? startYear : endYear;
-    return `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
-  return null;
-}
-
-function inferRelativeDateFromContext(rawText: string) {
-  const txt = (rawText || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  if (!txt) return null;
-
-  const isoForOffset = (offsetDays: number) => {
-    const value = new Date();
-    value.setUTCDate(value.getUTCDate() + offsetDays);
-    return value.toISOString().slice(0, 10);
-  };
-
-  if (/\b(today|hoy|oggi|aujourd'hui)\b/i.test(txt) || txt.includes("partidos de hoy")) return isoForOffset(0);
-  if (/\b(yesterday|ayer|ieri|hier)\b/i.test(txt)) return isoForOffset(-1);
-  if (/\b(tomorrow|manana|demain|domani)\b/i.test(txt)) return isoForOffset(1);
-
-  return null;
-}
-
-function inferMatchDateFromScrapedRow(
-  row: Pick<ScrapedRow, "dateLabel" | "statusOrTime" | "rawText" | "sectionText">,
-  seasonName: string
-) {
-  for (const candidate of [row.statusOrTime, row.rawText, row.dateLabel, row.sectionText]) {
-    const inferred = inferMatchDateFromRawText(candidate || "", seasonName);
-    if (inferred) return inferred;
-  }
-
-  return inferRelativeDateFromContext(
-    [row.dateLabel, row.statusOrTime, row.rawText, row.sectionText].filter(Boolean).join(" | ")
-  );
 }
 
 async function maybeAcceptConsent(page: Page) {
@@ -1250,6 +1096,8 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures" | "live
   };
 
   const out = [];
+  const seasonText = pickText(document.querySelector(".heading__info"));
+  const sourceSeasonName = seasonText.match(/\\b(?:19|20)\\d{2}(?:\\s*[/-]\\s*(?:(?:19|20)\\d{2}|\\d{2}))?\\b/)?.[0] || "";
   const rows = Array.from(document.querySelectorAll(rowLikeSelector));
 
   for (const r of rows) {
@@ -1316,6 +1164,7 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures" | "live
       rawText,
       dateLabel,
       detailUrl,
+      sourceSeasonName,
     });
   }
 
@@ -1893,6 +1742,7 @@ async function main() {
 
   let totalUpdates = 0;
   let totalInsertedOrUpserted = 0;
+  let totalFailures = 0;
 
   try {
     for (const item of inputs) {
@@ -1956,271 +1806,314 @@ async function main() {
 
       const scraped = dedupeScrapedRows(scrapedAll);
       console.log("Scraped rows total (deduped):", scraped.length);
-
-      let seasonMeta = DRY_RUN
-        ? { seasonId: 0, seasonName: `dry-run-${new Date().getUTCFullYear()}` }
-        : pickSeasonForScrapedRows(seasonCandidates, scraped);
-      let existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
-
-      if (!DRY_RUN && LIVE_ONLY && existingMatches.length === 0 && seasonCandidates.length > 1) {
-        const fallbackSeason = await pickSeasonWithExistingMatches(seasonCandidates, seasonMeta.seasonId);
-        if (fallbackSeason.matches.length > 0) {
-          console.log(
-            `LIVE season fallback for ${compSlug}: ${seasonMeta.seasonName} -> ${fallbackSeason.seasonName} (${fallbackSeason.matches.length} matches)`
-          );
-          seasonMeta = {
-            seasonId: fallbackSeason.seasonId,
-            seasonName: fallbackSeason.seasonName,
-          };
-          existingMatches = fallbackSeason.matches;
-        }
+      if (!scraped.length && !STANDINGS_ONLY && !LIVE_ONLY) {
+        console.error(`No results or fixtures could be read for ${compSlug}.`);
+        totalFailures++;
+        continue;
       }
 
-      const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
-
-      console.log(`\n== ${compSlug} (${seasonMeta.seasonName}) ==`);
-      console.log(`Existing matches in season: ${existingMatches.length}`);
-
-      let updatedHere = 0;
-      let insertedHere = 0;
-      let skippedWithoutDate = 0;
-      let resetFutureScores = 0;
-
-      const touchedIds = new Set<number>();
-      const unresolvedTeams = new Set<string>();
-      const tomorrowIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-
-      for (const row of STANDINGS_ONLY ? [] : scraped) {
-        const homeId = row.home ? await getOrCreateTeamId(row.home, teamsMap, teamNamesNorm) : null;
-        const awayId = row.away ? await getOrCreateTeamId(row.away, teamsMap, teamNamesNorm) : null;
-
-        if ((row.home && !homeId) || (row.away && !awayId)) {
-          console.log("UNRESOLVED TEAM:", row.home || "TBD", "vs", row.away || "TBD");
-          unresolvedTeams.add(`${row.home || "TBD"} vs ${row.away || "TBD"}`);
+      let standingsSeasonName = "";
+      if (STANDINGS_ONLY) {
+        await gotoWithRetry(page, variants.standings, 3);
+        await maybeAcceptConsent(page);
+        const heading = await page.locator(".heading__info").first().textContent({ timeout: 10000 });
+        standingsSeasonName = heading?.match(/\b(?:19|20)\d{2}(?:\s*[/-]\s*(?:(?:19|20)\d{2}|\d{2}))?\b/)?.[0] ?? "";
+        if (!standingsSeasonName) throw new Error(`Cannot establish standings edition for ${compSlug}; no standings were written.`);
+      }
+      const sourceSeasonNames = scraped.flatMap((row) => {
+        if (row.sourceSeasonName) return [row.sourceSeasonName];
+        const fullDate = inferMatchDateFromScrapedRow(row, "Current");
+        return fullDate ? [fullDate.slice(0, 4)] : [];
+      });
+      seasonCandidates = await ensureSourceSeasons(compSlug, seasonCandidates, [...sourceSeasonNames, standingsSeasonName].filter(Boolean));
+      const seasonGroups = new Map<number, { season: SeasonRow; rows: ScrapedRow[] }>();
+      let skippedAmbiguousSeason = 0;
+      for (const row of scraped) {
+        const season = selectSeasonForScrapedRow(seasonCandidates, row);
+        if (!season) {
+          skippedAmbiguousSeason++;
           continue;
         }
+        const group = seasonGroups.get(season.id) ?? { season, rows: [] };
+        group.rows.push(row);
+        seasonGroups.set(season.id, group);
+      }
+      if (STANDINGS_ONLY) {
+        const season = selectSeasonForScrapedRow(seasonCandidates, { sourceSeasonName: standingsSeasonName, statusOrTime: "", rawText: "", dateLabel: "", sectionText: "" });
+        if (!season) throw new Error(`No matching standings season for ${compSlug}`);
+        seasonGroups.set(season.id, { season, rows: [] });
+      }
+      if (skippedAmbiguousSeason) console.warn(`Skipped ${skippedAmbiguousSeason} rows in ${compSlug}: edition could not be established safely.`);
+      if (scraped.length && !seasonGroups.size) {
+        console.error(`No unambiguous season for ${compSlug}; no matches were written.`);
+        totalFailures++;
+        continue;
+      }
+      const groups = [...seasonGroups.values()].sort((a, b) => seasonSortKey(b.season.name) - seasonSortKey(a.season.name));
 
-        const hs = parseScore(row.hs);
-        const as = parseScore(row.as);
-        let parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
-        const round = parseRound(row.roundText || row.rawText);
-        const knockoutMeta = extractKnockoutMeta(row);
-        let target: DbMatchRow | null = null;
-        let sourceKey: string | null = null;
-        let kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
+      for (const [groupIndex, group] of groups.entries()) {
+        const seasonMeta = { seasonId: group.season.id, seasonName: group.season.name };
+        const existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
 
-        const inferredDate = inferMatchDateFromScrapedRow(row, seasonMeta.seasonName);
-        let matchDate = inferredDate;
-
-        sourceKey = buildSourceEventKey({
-          compSlug,
+        if (DRY_RUN) writeDryRunDump(`${compSlug}-${slugify(seasonMeta.seasonName)}`, {
+          competition: compSlug,
           seasonName: seasonMeta.seasonName,
-          matchDate: matchDate || "",
-          kickoffTime,
-          homeName: row.home,
-          awayName: row.away,
-          detailUrl: row.detailUrl,
-          phaseKey: knockoutMeta?.phaseKey ?? null,
-          stageLabel: knockoutMeta?.stageLabel ?? null,
+          matches: group.rows.map((row) => ({
+            home: row.home, away: row.away, sourcePage: row.sourcePage,
+            sourceSeasonName: row.sourceSeasonName,
+            matchDate: inferMatchDateFromScrapedRow(row, seasonMeta.seasonName),
+            statusOrTime: row.statusOrTime,
+          })),
         });
 
-        if (sourceKey && bySourceKey.has(sourceKey)) {
-          target = bySourceKey.get(sourceKey)!;
-        }
+        const { byTeams, bySourceKey } = buildExistingIndexes(existingMatches);
 
-        if (!matchDate && LIVE_ONLY) {
-          if (homeId != null && awayId != null) {
-            const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
-            target = target || findPotentiallyLiveDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId);
-          }
+        console.log(`\n== ${compSlug} (${seasonMeta.seasonName}) ==`);
+        console.log(`Existing matches in season: ${existingMatches.length}`);
 
-          if (target) {
-            matchDate = target.match_date;
-            kickoffTime = kickoffTime || target.kickoff_time;
-          }
-        }
+        let updatedHere = 0;
+        let insertedHere = 0;
+        let skippedWithoutDate = 0;
+        let resetFutureScores = 0;
 
-        if (!matchDate) {
-          if (skippedWithoutDate < 10) {
-            console.log("NO DATE:", {
-              home: row.home,
-              away: row.away,
-              dateLabel: row.dateLabel,
-              rawText: row.rawText,
-            });
-          }
-          skippedWithoutDate++;
-          continue;
-        }
-        let effectiveParsed =
-          !isNonPlayedStatus(parsed.status) && matchDate > tomorrowIso
-            ? ({ status: "NS", minute: null } as const)
-            : parsed;
+        const touchedIds = new Set<number>();
+        const unresolvedTeams = new Set<string>();
+        const tomorrowIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-        if (effectiveParsed !== parsed) {
-          resetFutureScores++;
-        }
+        for (const row of STANDINGS_ONLY ? [] : group.rows) {
+          const homeId = row.home ? await getOrCreateTeamId(row.home, teamsMap, teamNamesNorm) : null;
+          const awayId = row.away ? await getOrCreateTeamId(row.away, teamsMap, teamNamesNorm) : null;
 
-        if (LIVE_ONLY && (effectiveParsed.status === "LIVE" || effectiveParsed.status === "HT") && effectiveParsed.minute == null && row.detailUrl && detailPage) {
-          const detailStatus = await scrapeMatchDetailStatus(detailPage, row.detailUrl);
-          if (detailStatus) {
-            const detailParsed = detectStatusAndMinute(detailStatus, hs, as, "live");
-            if (detailParsed.status === "LIVE" || detailParsed.status === "HT" || detailParsed.status === "FT") {
-              parsed = detailParsed;
-              effectiveParsed =
-                matchDate > tomorrowIso
-                  ? ({ status: "NS", minute: null } as const)
-                  : detailParsed;
-            }
-          }
-        }
-
-        if (LIVE_ONLY && isNonPlayedStatus(effectiveParsed.status)) {
-          continue;
-        }
-
-        if (bySourceKey.has(sourceKey)) {
-          target = bySourceKey.get(sourceKey)!;
-        }
-
-        if (!target) {
-          if (homeId != null && awayId != null) {
-            const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
-            const possible = (byTeams.get(pairKey) || []).filter((candidate) => {
-              if (candidate.home_team_id !== homeId || candidate.away_team_id !== awayId) return false;
-              if (candidate.match_date !== matchDate) return false;
-              if (!kickoffTime || !candidate.kickoff_time) return true;
-              return candidate.kickoff_time.slice(0, 5) === kickoffTime.slice(0, 5);
-            });
-
-            if (possible.length > 0) {
-              target = pickBestCandidate(possible, matchDate, kickoffTime);
-            }
-          }
-        }
-
-        if (!target) {
-          if (homeId != null && awayId != null) {
-            const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
-            target = findNearbyDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId, matchDate, kickoffTime);
-          }
-        }
-
-        if (target?.status === "FT" && isNonPlayedStatus(effectiveParsed.status)) {
-          continue;
-        }
-
-        const payload: Record<string, unknown> = {
-          season_id: seasonMeta.seasonId,
-          match_date: matchDate,
-          kickoff_time: kickoffTime,
-          status: effectiveParsed.status,
-          minute: effectiveParsed.minute,
-          home_team_id: homeId,
-          away_team_id: awayId,
-          round: round ?? target?.round ?? null,
-          source: "flashscore",
-          source_event_key: sourceKey,
-          source_url: appendKnockoutMetaToSourceUrl(normalizeFlashUrl(item.url), knockoutMeta),
-          updated_at: new Date().toISOString(),
-        };
-
-        if (isNonPlayedStatus(effectiveParsed.status)) {
-          payload.home_score = null;
-          payload.away_score = null;
-        } else {
-          payload.home_score = hs;
-          payload.away_score = as;
-        }
-
-        if (target?.id && !touchedIds.has(target.id)) {
-          const patch: Record<string, unknown> = { ...payload };
-
-          if (target.status === "FT" && isNonPlayedStatus(patch.status as MatchStatus)) {
+          if ((row.home && !homeId) || (row.away && !awayId)) {
+            console.log("UNRESOLVED TEAM:", row.home || "TBD", "vs", row.away || "TBD");
+            unresolvedTeams.add(`${row.home || "TBD"} vs ${row.away || "TBD"}`);
             continue;
           }
 
-          const { error } = await ensureSupabase()
-            .from("matches")
-            .update(patch)
-            .eq("id", target.id);
+          const hs = parseScore(row.hs);
+          const as = parseScore(row.as);
+          let parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
+          const round = parseRound(row.roundText || row.rawText);
+          const knockoutMeta = extractKnockoutMeta(row);
+          let target: DbMatchRow | null = null;
+          let sourceKey: string | null = null;
+          let kickoffTime = parseKickoffTime(row.statusOrTime || row.rawText);
 
-          if (error) {
-            console.log(`WARN: update failed for id=${target.id}:`, error.message);
-          } else {
-            touchedIds.add(target.id);
-            updatedHere++;
-            totalUpdates++;
+          const inferredDate = inferMatchDateFromScrapedRow(row, seasonMeta.seasonName);
+          let matchDate = inferredDate;
+
+          sourceKey = buildSourceEventKey({
+            compSlug,
+            seasonName: seasonMeta.seasonName,
+            matchDate: matchDate || "",
+            kickoffTime,
+            homeName: row.home,
+            awayName: row.away,
+            detailUrl: row.detailUrl,
+            phaseKey: knockoutMeta?.phaseKey ?? null,
+            stageLabel: knockoutMeta?.stageLabel ?? null,
+          });
+
+          if (sourceKey && bySourceKey.has(sourceKey)) {
+            target = bySourceKey.get(sourceKey)!;
           }
-        } else {
-          try {
-            const action = await saveMatchBySourceKey(payload);
 
-            if (action === "updated") {
+          if (!matchDate && LIVE_ONLY) {
+            if (homeId != null && awayId != null) {
+              const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+              target = target || findPotentiallyLiveDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId);
+            }
+
+            if (target) {
+              matchDate = target.match_date;
+              kickoffTime = kickoffTime || target.kickoff_time;
+            }
+          }
+
+          if (!matchDate) {
+            if (skippedWithoutDate < 10) {
+              console.log("NO DATE:", {
+                home: row.home,
+                away: row.away,
+                dateLabel: row.dateLabel,
+                rawText: row.rawText,
+              });
+            }
+            skippedWithoutDate++;
+            continue;
+          }
+          let effectiveParsed =
+            !isNonPlayedStatus(parsed.status) && matchDate > tomorrowIso
+              ? ({ status: "NS", minute: null } as const)
+              : parsed;
+
+          if (effectiveParsed !== parsed) {
+            resetFutureScores++;
+          }
+
+          if (LIVE_ONLY && (effectiveParsed.status === "LIVE" || effectiveParsed.status === "HT") && effectiveParsed.minute == null && row.detailUrl && detailPage) {
+            const detailStatus = await scrapeMatchDetailStatus(detailPage, row.detailUrl);
+            if (detailStatus) {
+              const detailParsed = detectStatusAndMinute(detailStatus, hs, as, "live");
+              if (detailParsed.status === "LIVE" || detailParsed.status === "HT" || detailParsed.status === "FT") {
+                parsed = detailParsed;
+                effectiveParsed =
+                  matchDate > tomorrowIso
+                    ? ({ status: "NS", minute: null } as const)
+                    : detailParsed;
+              }
+            }
+          }
+
+          if (LIVE_ONLY && isNonPlayedStatus(effectiveParsed.status)) {
+            continue;
+          }
+
+          if (bySourceKey.has(sourceKey)) {
+            target = bySourceKey.get(sourceKey)!;
+          }
+
+          if (!target) {
+            if (homeId != null && awayId != null) {
+              const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+              const possible = (byTeams.get(pairKey) || []).filter((candidate) => {
+                if (candidate.home_team_id !== homeId || candidate.away_team_id !== awayId) return false;
+                if (candidate.match_date !== matchDate) return false;
+                if (!kickoffTime || !candidate.kickoff_time) return true;
+                return candidate.kickoff_time.slice(0, 5) === kickoffTime.slice(0, 5);
+              });
+
+              if (possible.length > 0) {
+                target = pickBestCandidate(possible, matchDate, kickoffTime);
+              }
+            }
+          }
+
+          if (!target) {
+            if (homeId != null && awayId != null) {
+              const pairKey = homeId < awayId ? `${homeId}__${awayId}` : `${awayId}__${homeId}`;
+              target = findNearbyDirectionalCandidate(byTeams.get(pairKey) || [], homeId, awayId, matchDate, kickoffTime);
+            }
+          }
+
+          if (target?.status === "FT" && isNonPlayedStatus(effectiveParsed.status)) {
+            continue;
+          }
+
+          const payload: Record<string, unknown> = {
+            season_id: seasonMeta.seasonId,
+            match_date: matchDate,
+            kickoff_time: kickoffTime,
+            status: effectiveParsed.status,
+            minute: effectiveParsed.minute,
+            home_team_id: homeId,
+            away_team_id: awayId,
+            round: round ?? target?.round ?? null,
+            source: "flashscore",
+            source_event_key: sourceKey,
+            source_url: appendKnockoutMetaToSourceUrl(normalizeFlashUrl(item.url), knockoutMeta),
+            updated_at: new Date().toISOString(),
+          };
+
+          if (isNonPlayedStatus(effectiveParsed.status)) {
+            payload.home_score = null;
+            payload.away_score = null;
+          } else {
+            payload.home_score = hs;
+            payload.away_score = as;
+          }
+
+          if (target?.id && !touchedIds.has(target.id)) {
+            const patch: Record<string, unknown> = { ...payload };
+
+            if (target.status === "FT" && isNonPlayedStatus(patch.status as MatchStatus)) {
+              continue;
+            }
+
+            const { error } = await ensureSupabase()
+              .from("matches")
+              .update(patch)
+              .eq("id", target.id);
+
+            if (error) {
+              totalFailures++;
+              console.log(`WARN: update failed for id=${target.id}:`, error.message);
+            } else {
+              touchedIds.add(target.id);
               updatedHere++;
               totalUpdates++;
-            } else if (action === "inserted") {
-              insertedHere++;
-              totalInsertedOrUpserted++;
             }
-          } catch (e: unknown) {
-            console.log("WARN: save by source_event_key failed:", e instanceof Error ? e.message : e);
+          } else {
+            try {
+              const action = await saveMatchBySourceKey(payload);
+
+              if (action === "updated") {
+                updatedHere++;
+                totalUpdates++;
+              } else if (action === "inserted") {
+                insertedHere++;
+                totalInsertedOrUpserted++;
+              }
+            } catch (e: unknown) {
+              totalFailures++;
+              console.log("WARN: save by source_event_key failed:", e instanceof Error ? e.message : e);
+            }
           }
         }
-      }
 
-      if (!MATCHES_ONLY && !LIVE_ONLY) {
-        try {
-        console.log("Open standings:", variants.standings);
-        await gotoWithRetry(page, variants.standings, 3);
-        await maybeAcceptConsent(page);
-        await page.waitForTimeout(1500);
+        if (!MATCHES_ONLY && !LIVE_ONLY && groupIndex === 0) {
+          try {
+          console.log("Open standings:", variants.standings);
+          await gotoWithRetry(page, variants.standings, 3);
+          await maybeAcceptConsent(page);
+          await page.waitForTimeout(1500);
 
-        const standings = await scrapeStandingsPage(page);
-        console.log(`Standings scraped: ${standings.length}`);
+          const standings = await scrapeStandingsPage(page);
+          console.log(`Standings scraped: ${standings.length}`);
 
-        if (standings.length > 0) {
-          await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
+          if (standings.length > 0) {
+            await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
+          }
+
+          if (DRY_RUN) {
+            writeDryRunDump(compSlug, {
+              competition: compSlug,
+              seasonName: seasonMeta.seasonName,
+              sourceUrl: normalizeFlashUrl(item.url),
+              scrapedMatches: scraped,
+              standings,
+            });
+          }
+          } catch (e: unknown) {
+            console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+          }
         }
 
-        if (DRY_RUN) {
-          writeDryRunDump(compSlug, {
-            competition: compSlug,
-            seasonName: seasonMeta.seasonName,
-            sourceUrl: normalizeFlashUrl(item.url),
-            scrapedMatches: scraped,
-            standings,
-          });
+        if (!LIVE_ONLY) {
+          const cleanedHere = await cleanupPlaceholderMidnightDuplicates(seasonMeta.seasonId);
+          if (cleanedHere > 0) {
+            console.log(`Cleaned placeholder midnight duplicates in ${compSlug}: ${cleanedHere}`);
+          }
         }
-        } catch (e: unknown) {
-          console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+
+        if (unresolvedTeams.size > 0) {
+          console.log(`Unresolved teams in ${compSlug}:`);
+          for (const s of Array.from(unresolvedTeams).slice(0, 20)) {
+            console.log(" -", s);
+          }
         }
-      }
 
-      if (!LIVE_ONLY) {
-        const cleanedHere = await cleanupPlaceholderMidnightDuplicates(seasonMeta.seasonId);
-        if (cleanedHere > 0) {
-          console.log(`Cleaned placeholder midnight duplicates in ${compSlug}: ${cleanedHere}`);
+        if (skippedWithoutDate > 0) {
+          console.log(`Skipped without inferable date in ${compSlug}: ${skippedWithoutDate}`);
         }
-      }
 
-      if (unresolvedTeams.size > 0) {
-        console.log(`Unresolved teams in ${compSlug}:`);
-        for (const s of Array.from(unresolvedTeams).slice(0, 20)) {
-          console.log(" -", s);
+        if (resetFutureScores > 0) {
+          console.log(`Future score resets in ${compSlug}: ${resetFutureScores}`);
         }
-      }
 
-      if (skippedWithoutDate > 0) {
-        console.log(`Skipped without inferable date in ${compSlug}: ${skippedWithoutDate}`);
+        console.log(`Updated in ${compSlug}: ${updatedHere}`);
+        console.log(`Inserted/upserted in ${compSlug}: ${insertedHere}`);
       }
-
-      if (resetFutureScores > 0) {
-        console.log(`Future score resets in ${compSlug}: ${resetFutureScores}`);
-      }
-
-      console.log(`Updated in ${compSlug}: ${updatedHere}`);
-      console.log(`Inserted/upserted in ${compSlug}: ${insertedHere}`);
     }
   } finally {
     await browser.close();
@@ -2228,6 +2121,7 @@ async function main() {
 
   console.log("\nTOTAL updated matches:", totalUpdates);
   console.log("TOTAL inserted/upserted matches:", totalInsertedOrUpserted);
+  if (totalFailures) throw new Error(`Sync completed with ${totalFailures} failures; review the competition logs.`);
   console.log("DONE ✅");
 }
 

@@ -48,6 +48,10 @@ export function usePrefs() {
   });
 
   useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
     const mountId = window.requestAnimationFrame(() => setMounted(true));
 
     const syncPrefs = () => {

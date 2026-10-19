@@ -20,6 +20,8 @@ concurrency:
 
 jobs:
   sync_scores:
+    # Resume scheduled writes only after a manual validation and reconciliation.
+    if: github.event_name == 'workflow_dispatch' || vars.DATA_SYNC_ENABLED == 'true'
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble

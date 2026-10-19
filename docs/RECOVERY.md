@@ -16,7 +16,7 @@ The public GitHub API reported all six scheduled refresh workflows as `disabled_
 ## Recovery verification
 
 1. Run `npm test`, `npm run typecheck` and `npm run build:next`.
-2. After the repair is on the default branch, re-enable and manually run the primary matches workflow in GitHub Actions. Inspect its conclusion and per-competition logs. A warning or a successful job with no relevant fresh matches is not sufficient evidence of recovery.
+2. After the repair is on the default branch, re-enable and manually run the primary matches workflow with `dry_run: true` and selected competition URLs. Scheduled primary imports require repository variable `DATA_SYNC_ENABLED=true`; leave it unset until the validation and a monitored live import pass. Inspect the conclusion and per-competition logs. A warning or a successful job with no relevant fresh matches is not sufficient evidence of recovery.
 3. Compare the public API and UI against official sources. The audit examples were Alumni–CASI (2026-10-17, final 14–22) and France–Samoa (World Cup, 2027-10-17, not 2026).
 4. Re-enable the live and standings schedules once their logs are healthy. The live workflow already runs clock and finalization passes; backup jobs are separate and need not all run concurrently during recovery.
 5. Verify the deployed homepage separately. Pushing application code to GitHub does not by itself confirm a Cloudflare deployment.

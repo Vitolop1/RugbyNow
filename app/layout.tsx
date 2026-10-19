@@ -18,7 +18,8 @@ const geistMono = Geist_Mono({
 
 const siteUrl = getSiteUrl();
 const googleSiteVerification = readRuntimeEnv("GOOGLE_SITE_VERIFICATION");
-const googleAnalyticsId = readRuntimeEnv("NEXT_PUBLIC_GA_ID");
+// Public measurement ID verified in the owner's rugby-now.com web stream.
+const googleAnalyticsId = readRuntimeEnv("NEXT_PUBLIC_GA_ID") ?? "G-FXNKQ0MK41";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -94,24 +95,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="theme-rugby">
       <head>
         <script id="theme-init" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        {googleAnalyticsId ? (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${googleAnalyticsId}', {
-                  send_page_view: false,
-                });
-              `}
-            </Script>
-          </>
-        ) : null}
         <Script
           id="adsense-loader"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4088690490762441"

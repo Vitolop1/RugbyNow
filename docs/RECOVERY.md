@@ -11,7 +11,7 @@ The public GitHub API reported all six scheduled refresh workflows as `disabled_
 - Fail the job when a full match feed cannot be read or writes fail, instead of reporting success with no updates. Remove the global TLS-verification bypass from the main importer.
 - Evaluate the homepage date per request and recover from failed or non-JSON requests with an error and retry.
 - Update the document language after selection and offer time zones for additional rugby markets. Separate indexable language URLs remain a later change.
-- Record `match_open`, `watch_options_open` and `watch_provider_click` through the existing optional GA4 integration. This requires a real configured GA4 property and the applicable consent setup. It does not confirm a stream was watched, a purchase occurred, or a review was submitted.
+- Record `match_open`, `watch_options_open` and `watch_provider_click` through the owner's existing GA4 web stream, verified in Analytics. It does not confirm a stream was watched, a purchase occurred, or a review was submitted.
 
 ## Recovery verification
 
@@ -39,6 +39,14 @@ The existing generic transmission links still need territorial verification. The
 
 The first editorial selection contains 52 entries (24 matches and 28 programmes), explicitly dated 15–22 October 2026 and attributed to the user-provided Norte Rugby guide. Argentina timestamps are stored as UTC instants. This selection is not a recurring feed, international broadcast-rights database or live score service. Do not move these entries into another week. Future coverage needs a maintained source and verification process.
 
-Provider names without confirmed URLs remain marked pending. Known channel and platform destinations are labeled separately from event-specific streams. Calendar and favourite actions send optional GA4 events only when an existing property is configured; no analytics account or review backend is created.
+Provider names without confirmed URLs remain marked pending. Known channel and platform destinations are labeled separately from event-specific streams. Calendar and favourite actions send optional GA4 events after the visitor allows analytics; no analytics account or review backend is created.
+
+## Analytics recovery
+
+The owner confirmed an existing Analytics/Search Console setup. The web stream for `https://rugby-now.com` was verified in their signed-in Analytics session: `G-FXNKQ0MK41`. The inspected public homepage had no Google Analytics tag. The verified public measurement ID is the fallback when `NEXT_PUBLIC_GA_ID` is absent.
+
+Analytics loads only after the optional analytics choice is allowed; rejection persists and visitors can reopen the choice. Product event dispatch is also gated. Revocation disables this GA property. The banner controls this analytics integration, not the existing AdSense or Cloudflare services.
+
+Enhanced Measurement already has page-load and browser-history views enabled in the property. Initialization now queues before the SDK loads and uses the automatic page view path; a separate manual route config no longer races initialization or duplicates history views. Localhost uses debug mode for validation. Verify actual `page_view` and product events in DebugView/Realtime before treating measurement as operational. This is not a full advertising CMP implementation.
 
 Local validation on 2026-10-19: 11 tests and TypeScript passed; the agenda was checked in a 390px mobile viewport and a 1440px desktop viewport. Search, favourites, a downloaded ICS and cross-timezone event links were checked through the browser.

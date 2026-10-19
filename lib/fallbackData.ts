@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { inferMatchDateFromScrapedRow } from "@/lib/scrapedMatchDate";
 import norteRugbyInstagramJson from "@/data/norte-rugby-instagram.json";
 import {
   isNorteRugbyInstagramPayload,
@@ -93,6 +94,8 @@ type DryRunRow = {
   rawText: string;
   dateLabel: string;
   sourcePage: "results" | "fixtures";
+  sourceSeasonName?: string;
+  sectionText?: string;
 };
 
 type DryRunDump = {
@@ -268,48 +271,6 @@ function detectStatus(raw: string, hs: number | null, as: number | null, sourceP
 
   if (sourcePage === "results" && hs !== null && as !== null) return { status: "FT" as const, minute: null };
   return { status: "NS" as const, minute: null };
-}
-
-function inferDate(text: string, fallbackYear = new Date().getUTCFullYear()) {
-  const value = text || "";
-
-  const dotMatch = value.match(/\b(\d{1,2})\.(\d{1,2})\.?\b/);
-  if (dotMatch) {
-    const day = Number.parseInt(dotMatch[1], 10);
-    const month = Number.parseInt(dotMatch[2], 10);
-    return `${fallbackYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
-  const slashMatch = value.match(/\b(\d{1,2})\/(\d{1,2})\b/);
-  if (slashMatch) {
-    const month = Number.parseInt(slashMatch[1], 10);
-    const day = Number.parseInt(slashMatch[2], 10);
-    return `${fallbackYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
-  const monthMap: Record<string, number> = {
-    jan: 1,
-    feb: 2,
-    mar: 3,
-    apr: 4,
-    may: 5,
-    jun: 6,
-    jul: 7,
-    aug: 8,
-    sep: 9,
-    oct: 10,
-    nov: 11,
-    dec: 12,
-  };
-
-  const monthNameMatch = value.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\b/i);
-  if (monthNameMatch) {
-    const month = monthMap[monthNameMatch[1].slice(0, 3).toLowerCase()];
-    const day = Number.parseInt(monthNameMatch[2], 10);
-    return `${fallbackYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
-
-  return null;
 }
 
 function inferKickoffTime(text: string) {
@@ -675,7 +636,10 @@ function buildMergedLeagueRows(
       away_team: getTeamRef(row.away),
     })),
     ...dedupeRows(dump?.scrapedMatches || []).flatMap((row, index) => {
-      const matchDate = inferDate(row.dateLabel || row.statusOrTime || row.rawText);
+      // Archived dumps must never become this year's fixtures, or turn "Today"
+      // from an old capture into a match on the visitor's current date.
+      const archiveSeason = row.sourceSeasonName || (dump?.seasonName?.startsWith("dry-run") ? "Current" : dump?.seasonName || "Current");
+      const matchDate = inferMatchDateFromScrapedRow({ ...row, sectionText: row.sectionText || "" }, archiveSeason, new Date(), false);
       if (!matchDate) return [];
 
       const hs = parseScore(row.hs);

@@ -61,7 +61,7 @@ export function inferMatchDateFromRawText(text: string, seasonName: string) {
   return parseDate(text, seasonName);
 }
 
-export function inferMatchDateFromScrapedRow(row: ScrapedDateContext, seasonName: string, now = new Date()) {
+export function inferMatchDateFromScrapedRow(row: ScrapedDateContext, seasonName: string, now = new Date(), allowRelativeDates = true) {
   const contexts = [row.statusOrTime, row.rawText, row.dateLabel, row.sectionText];
   // A complete date elsewhere in the row must beat a yearless time/date label.
   for (const context of contexts) {
@@ -72,6 +72,7 @@ export function inferMatchDateFromScrapedRow(row: ScrapedDateContext, seasonName
     const date = parseDate(context, row.sourceSeasonName || seasonName);
     if (date) return date;
   }
+  if (!allowRelativeDates) return null;
   const text = contexts.join(" | ").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let offset: number;
   if (/\b(today|hoy|oggi|aujourd'hui)\b/i.test(text)) offset = 0;

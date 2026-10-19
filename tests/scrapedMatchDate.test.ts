@@ -45,3 +45,10 @@ test("keeps historical results and future fixtures in separate seasons", () => {
   assert.equal(selectSeasonForScrapedRow(seasons, { ...row, sourceSeasonName: "2027", dateLabel: "17.10.2023" }), null);
   assert.equal(selectSeasonForScrapedRow([{id: 4, name: "2026"}], row)?.id, 4);
 });
+
+test("does not roll archived relative or yearless dates onto today's calendar", () => {
+  const row = { statusOrTime: "Today 19:45", rawText: "France Samoa", dateLabel: "", sectionText: "" };
+  assert.equal(inferMatchDateFromScrapedRow(row, "Current", new Date("2026-10-19T12:00:00Z"), false), null);
+  assert.equal(inferMatchDateFromScrapedRow({ ...row, statusOrTime: "17.10." }, "Current", new Date(), false), null);
+  assert.equal(inferMatchDateFromScrapedRow({ ...row, statusOrTime: "17.10.2025" }, "Current", new Date(), false), "2025-10-17");
+});

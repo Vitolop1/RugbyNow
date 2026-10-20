@@ -614,6 +614,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const hasStructuredKnockoutRounds = roundMeta.some((item) => Boolean(item.phaseKey || item.stageLabel));
     const useSnapshotStructure = Boolean(
       snapshot &&
+        snapshot.season.name === season.name &&
         !hasStructuredKnockoutRounds &&
         (
           (roundMeta.length === 0 && (snapshot.roundMeta?.length || 0) > 0) ||
@@ -623,6 +624,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
     const useFallbackStructure = Boolean(
       fallback &&
+        fallback.season.name === season.name &&
         (
           (((useSnapshotStructure ? snapshot?.roundMeta || roundMeta : roundMeta).length === 0) && (fallback.roundMeta?.length || 0) > 0) ||
           (!(useSnapshotStructure ? snapshotMatches : roundMatches).length && fallbackMatches.length > 0) ||
@@ -744,7 +746,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar);
     if (snapshot) {
       const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
-      const preferFallback = shouldPreferMoreCompleteRound(
+      const preferFallback = !fullCalendar && fallback?.season.name === snapshot.season.name && shouldPreferMoreCompleteRound(
         dedupeMatches((snapshot.matches || []) as MatchRow[]),
         dedupeMatches((fallback?.matches || []) as MatchRow[])
       );

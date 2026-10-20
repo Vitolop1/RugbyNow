@@ -2,9 +2,13 @@ name: sync-live (every 5m)
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        type: boolean
+        default: true
+        description: Read source data without writing results
   schedule:
     - cron: "*/5 * * * *"
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
 
 permissions:
   contents: read
@@ -15,6 +19,7 @@ concurrency:
 
 jobs:
   sync_live:
+    if: github.event_name == 'workflow_dispatch' || vars.LIVE_SYNC_ENABLED == 'true'
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
@@ -45,9 +50,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ vars.FLASH_URLS }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
         run: |
           echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
-          npm run ensure:flashscore-competitions
           npm run sync:live
-          npm run sync:live:clock
-          npm run sync:live:finish

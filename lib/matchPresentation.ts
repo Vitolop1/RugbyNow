@@ -36,31 +36,9 @@ export function estimateLiveMinute(
   const effective = getEffectiveMatchState(status, matchDate, kickoffTime, explicitMinute, competitionSlug, updatedAt);
   if (effective.status !== "LIVE") return null;
   if (effective.minute != null && effective.minute > 0) {
-    return clamp(effective.minute, 1, maxMinute);
+    return clamp(effective.minute, 0, 130);
   }
   return null;
-}
-
-function estimateMinuteFromScrapeTimestamp(
-  minute: number,
-  updatedAt?: string | null,
-  competitionSlug?: string | null,
-  now = new Date()
-) {
-  if (!updatedAt) return minute;
-
-  const parsedUpdatedAt = new Date(updatedAt);
-  if (Number.isNaN(parsedUpdatedAt.getTime())) return minute;
-
-  const elapsedMinutes = Math.floor((now.getTime() - parsedUpdatedAt.getTime()) / 60000);
-  if (elapsedMinutes <= 0) return minute;
-
-  const isSeven = competitionSlug && isSevenCompetition(competitionSlug.toLowerCase());
-  const firstHalfLimit = isSeven ? 7 : 40;
-  const maxMinute = isSeven ? 14 : 80;
-  const halfCap = minute <= firstHalfLimit ? firstHalfLimit : maxMinute;
-
-  return clamp(minute + elapsedMinutes, 1, halfCap);
 }
 
 function getMaxDisplayMinute(competitionSlug?: string | null) {
@@ -139,14 +117,9 @@ export function getMatchClockLabel(input: MatchClockInput) {
     );
     const minute =
       estimatedMinute != null
-        ? estimateMinuteFromScrapeTimestamp(estimatedMinute, input.updatedAt, input.competitionSlug)
+        ? estimatedMinute
         : null;
-    const phase = getLivePhase(input.lang, effective.status, minute, input.competitionSlug);
-    const maxMinute = getMaxDisplayMinute(input.competitionSlug);
-    if (minute != null && minute >= maxMinute) {
-      return [t(input.lang, "statusLive"), phase, `MIN ${maxMinute}`].filter(Boolean).join(" ");
-    }
-    return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
+    return [t(input.lang,"statusLive"),minute!=null?`${minute}'`:""].filter(Boolean).join(" ");
   }
 
   return (
@@ -199,7 +172,7 @@ export function getMatchContextLabel(input: MatchClockInput) {
     );
     const minute =
       estimatedMinute != null
-        ? estimateMinuteFromScrapeTimestamp(estimatedMinute, input.updatedAt, input.competitionSlug)
+        ? estimatedMinute
         : null;
     return getLivePhase(input.lang, effective.status, minute, input.competitionSlug) ?? t(input.lang, "liveAction");
   }

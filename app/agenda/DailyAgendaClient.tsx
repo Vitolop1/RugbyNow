@@ -1,4 +1,5 @@
 "use client";
+import {isLiveDataDelayed} from "@/lib/liveRefresh";
 
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
@@ -41,7 +42,7 @@ function ProviderMark({id}:{id:string}) {
 type AgendaViewContext = {
   c: typeof DAILY_COPY[Lang]; tvCountry:string; timeZone:string; now:number;
   formatDay:(day:string,full?:boolean)=>string; formatTime:(entry:DailyEntry)=>string;
-  statusLabel:(entry:DailyEntry)=>string; isSaved:(entry:DailyEntry)=>boolean;
+  statusLabel:(entry:DailyEntry)=>string;lang:Lang; isSaved:(entry:DailyEntry)=>boolean;
   toggleSaved:(entry:DailyEntry)=>void; calendar:(entry:DailyEntry)=>void;
   share:(entry:DailyEntry)=>Promise<void>;
 };
@@ -58,12 +59,12 @@ function Watch({entry,context}:{entry:DailyEntry;context:AgendaViewContext}){
     </details>;
   }
 function MatchRow({entry,withDate=false,context}:{entry:DailyEntry;withDate?:boolean;context:AgendaViewContext}){
-    const {c,isSaved,toggleSaved,formatDay,formatTime,statusLabel,timeZone,calendar,now}=context;
+    const {c,isSaved,toggleSaved,formatDay,formatTime,statusLabel,timeZone,calendar,now,lang}=context;
     const active=entry.status==="LIVE"||entry.status==="HT";
     const fixture=<><span className={s.homeTeam}><span>{entry.home}</span><Crest slug={entry.homeSlug} name={entry.home}/></span><strong className={`${s.score} ${active?s.liveScore:""}`}>{entry.homeScore!=null&&entry.awayScore!=null?<>{entry.homeScore}<i>–</i>{entry.awayScore}</>:<i>vs</i>}</strong><span className={s.awayTeam}><Crest slug={entry.awaySlug} name={entry.away || ""}/><span>{entry.away}</span></span></>;
     return <article id={entry.id} className={`${s.matchRow} ${active?s.liveRow:""}`}>
       <button className={`${s.star} ${isSaved(entry)?s.saved:""}`} title={isSaved(entry)?c.unsave:c.save} aria-label={`${isSaved(entry)?c.unsave:c.save}: ${entry.home} ${entry.away || ""}`} aria-pressed={isSaved(entry)} onClick={()=>toggleSaved(entry)}><Glyph name="star" filled={isSaved(entry)}/></button>
-      <div className={s.matchTime}>{withDate&&<span className={s.smallDate}>{formatDay(dailyEntryDate(entry,timeZone))}</span>}<time dateTime={entry.startsAt || entry.date}>{formatTime(entry)}</time><span className={active?s.liveState:""} title={dailyEntryState(entry,now)==="pending"?c.noResult:undefined}>{statusLabel(entry)}</span></div>
+      <div className={s.matchTime}>{withDate&&<span className={s.smallDate}>{formatDay(dailyEntryDate(entry,timeZone))}</span>}<time dateTime={entry.startsAt || entry.date}>{formatTime(entry)}</time><span className={active?s.liveState:""} title={dailyEntryState(entry,now)==="pending"?c.noResult:undefined}>{statusLabel(entry)}</span>{isLiveDataDelayed(entry.status,entry.updatedAt,now)&&<small className="rn-live-delayed" title={entry.updatedAt||undefined}>{({es:"Datos demorados",en:"Delayed data",fr:"Données retardées",it:"Dati in ritardo"})[lang]}</small>}</div>
       {entry.matchId&&entry.competitionSlug?<Link className={s.fixture} title={c.details} href={`/matches/${entry.competitionSlug}/${entry.matchId}`} onClick={()=>trackProductEvent("match_open",{match_id:entry.matchId!,competition:entry.competitionSlug!})}>{fixture}</Link>:<div className={s.fixture}>{fixture}</div>}
       <Watch entry={entry} context={context}/>
       <button className={s.calendar} disabled={!entry.startsAt} title={c.calendar} aria-label={`${c.calendar}: ${entry.home} ${entry.away || ""}`} onClick={()=>calendar(entry)}><Glyph name="calendar"/></button>
@@ -112,6 +113,7 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
     const url = new URL(location.href);url.searchParams.set("date",date);
     history.replaceState(null,"",url);
   },[date,mounted]);
+  const livePolling=data.entries.some(e=>(e.status==="LIVE"||e.status==="HT")&&dailyEntryDate(e,timeZone)===date);
   // Background refresh never replaces a failed request with an empty success.
   useEffect(()=>{
     if(!mounted)return;
@@ -130,9 +132,9 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
       finally{if(id===request.current && !disposed)setBusy(false);}
     };
     void load();
-    const timer=setInterval(()=>void load(),60000);
+    const timer=setInterval(()=>{if(document.visibilityState!=="hidden")void load();},livePolling?15000:60000);
     return()=>{disposed=true;controller.abort();clearInterval(timer);};
-  },[date,refresh,mounted]);
+  },[date,refresh,mounted,livePolling]);
 
   const formatDay=(day:string,full=false)=>new Intl.DateTimeFormat(locale,{weekday:full?"long":"short",day:"numeric",month:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`));
   const formatTime=(entry:DailyEntry)=>entry.startsAt ? new Intl.DateTimeFormat(locale,{hour:"2-digit",minute:"2-digit",hourCycle:"h23",timeZone}).format(new Date(entry.startsAt)) : c.unknownTime;
@@ -184,7 +186,7 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
     const url=new URL(location.href);url.searchParams.delete("event");url.hash="";
     history.replaceState(null,"",url);setDate(next);
   }
-  const view:AgendaViewContext={c,tvCountry,timeZone,now,formatDay,formatTime,statusLabel,isSaved,toggleSaved,calendar,share};
+  const view:AgendaViewContext={c,lang,tvCountry,timeZone,now,formatDay,formatTime,statusLabel,isSaved,toggleSaved,calendar,share};
   return <div className={`${s.page} ${prefs.density==="comfortable"?"rn-comfortable":""}`}>
     <SiteHeader/>
     <main className={s.main}>

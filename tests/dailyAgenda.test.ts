@@ -17,6 +17,14 @@ test("broadcast rights never propagate to other fixtures or editions",()=>{
   const entries=buildDailyEntries([{...row,match_date:"2026-10-24"}],EDITORIAL_AGENDA);
   assert.deepEqual(entries.find(entry=>entry.matchId===row.id)!.providers,[]);
 });
+test("editorial crests use exact clubs and preserve youth team names",()=>{
+  const entries=buildDailyEntries([],EDITORIAL_AGENDA);
+  const club=entries.find(entry=>entry.home==="Pueyrredón");
+  assert.equal(club?.homeSlug,"pueyrredon");assert.equal(club?.awaySlug,"san-luis");
+  const youth=entries.find(entry=>entry.home==="Hong Kong China M-19");
+  assert.equal(youth?.homeSlug,"hong-kong");assert.equal(youth?.awaySlug,"namibia");
+  assert.equal(entries.find(entry=>entry.home==="Universitario")?.homeSlug,undefined);
+});
 test("elapsed kickoff never creates a live state or a final score",()=>{
   const entry=buildDailyEntries([{...row,status:"NS",home_score:null,away_score:null}],[])[0];
   assert.equal(dailyEntryState(entry,Date.parse("2026-10-17T18:40:00Z")),"pending");

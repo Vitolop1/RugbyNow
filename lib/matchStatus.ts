@@ -75,7 +75,7 @@ export function shouldAutoFinalizeMatch(
   competitionSlug?: string | null,
   now = new Date()
 ) {
-  if (status === "FT" || status === "CANC") return false;
+  if (status !== "NS") return false;
   if (homeScore == null || awayScore == null) return false;
 
   const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
@@ -97,7 +97,7 @@ export function isResultPendingMatch(
   competitionSlug?: string | null,
   now = new Date()
 ) {
-  if (status === "FT" || status === "CANC") return false;
+  if (status !== "NS") return false;
   if (homeScore != null || awayScore != null) return false;
 
   const kickoff = parseKickoffDateTime(matchDate, kickoffTime);

@@ -1,3 +1,5 @@
+import {readAllRows} from "../lib/readAllRows";
+import {isLiveRefreshCandidate} from "../lib/liveRefresh";
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import { readRuntimeEnv } from "../lib/runtimeEnv";
@@ -77,7 +79,7 @@ function competitionSlugFromUrl(raw: string) {
   const regionOrCountry = parts[1];
   const compSlug = parts[2];
 
-  if (compSlug === "top-14") return "fr-top14";
+  if (compSlug === "top-14") return regionOrCountry === "argentina" ? "ar-urba-top14" : "fr-top14";
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
   if (compSlug === "super-rugby-americas") return "sra";
@@ -121,17 +123,8 @@ async function buildLiveOnlyFlashUrls() {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
-  const { data: rawMatches, error: matchesError } = await supabase
-    .from("matches")
-    .select("season_id,source_url,status,match_date,kickoff_time")
-    .gte("match_date", yesterday.toISOString().slice(0, 10))
-    .lte("match_date", tomorrow.toISOString().slice(0, 10))
-    .neq("status", "FT")
-    .limit(80);
-
-  if (matchesError) throw matchesError;
-
-  const candidates = (rawMatches as LiveMatchCandidate[] | null) ?? [];
+  const rawMatches=await readAllRows<LiveMatchCandidate>((offset,size)=>supabase.from("matches").select("season_id,source_url,status,match_date,kickoff_time").gte("match_date",yesterday.toISOString().slice(0,10)).lte("match_date",tomorrow.toISOString().slice(0,10)).neq("status","FT").order("id").range(offset,offset+size-1));
+  const candidates=rawMatches.filter(row=>isLiveRefreshCandidate(row));
 
   if (!candidates.length) {
     return [];

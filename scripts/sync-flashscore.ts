@@ -1,3 +1,6 @@
+import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
+import {validateSourceStandings} from "../lib/sourceStandings";
+import {readAllRows} from "../lib/readAllRows";
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
@@ -209,62 +212,6 @@ function appendKnockoutMetaToSourceUrl(
   return url.toString();
 }
 
-function detectStatusAndMinute(
-  raw: string,
-  hs: number | null,
-  as: number | null,
-  sourcePage: "results" | "fixtures" | "live"
-) {
-  const s = (raw || "").toUpperCase().trim();
-  const halfMinuteMatch =
-    s.match(
-      /(?:1ST HALF|FIRST HALF|2ND HALF|SECOND HALF|LIVE)\s*(\d{1,3})\b|\b(\d{1,3})\s*(?:1ST HALF|FIRST HALF|2ND HALF|SECOND HALF|LIVE)\b/
-    ) ??
-    (sourcePage === "live" ? s.match(/^\s*(\d{1,3})\s*$/) : null);
-
-  if (halfMinuteMatch) {
-    const minuteText = halfMinuteMatch[1] || halfMinuteMatch[2] || halfMinuteMatch[3];
-    const minute = Number.parseInt(minuteText, 10);
-    if (Number.isFinite(minute) && minute > 0 && minute <= 130) {
-      return { status: "LIVE" as MatchStatus, minute };
-    }
-  }
-
-  if (/(POSTP|CANC|CANCEL|ABAND|ABD|AWD|WO)/.test(s)) {
-    return { status: "CANC" as MatchStatus, minute: null as number | null };
-  }
-
-  if (/(FT|FINAL|AET|AFTER EXTRA TIME)/.test(s)) {
-    return { status: "FT" as MatchStatus, minute: null as number | null };
-  }
-
-  if (/(HT|HALF TIME|BREAK)/.test(s)) {
-    return { status: "HT" as MatchStatus, minute: null as number | null };
-  }
-
-  if (/(LIVE|1ST HALF|2ND HALF|SECOND HALF)/.test(s)) {
-    return { status: "LIVE" as MatchStatus, minute: null as number | null };
-  }
-
-  const minuteMatch = s.match(/\b(\d{1,3})\s*'\b/);
-  if (minuteMatch) {
-    return {
-      status: "LIVE" as MatchStatus,
-      minute: Number.parseInt(minuteMatch[1], 10),
-    };
-  }
-
-  if (sourcePage === "results" && hs !== null && as !== null) {
-    return { status: "FT" as MatchStatus, minute: null as number | null };
-  }
-
-  const timeMatch = s.match(/\b\d{1,2}:\d{2}\b/);
-  if (timeMatch) {
-    return { status: "NS" as MatchStatus, minute: null as number | null };
-  }
-
-  return { status: "NS" as MatchStatus, minute: null as number | null };
-}
 
 function urlsFromEnv(): FlashInput[] {
   const raw = process.env.FLASH_URLS;
@@ -358,7 +305,7 @@ function competitionSlugFromUrl(url: string) {
   const regionOrCountry = parts[1];
   const compSlug = parts[2];
 
-  if (compSlug === "top-14") return "fr-top14";
+  if (compSlug === "top-14") return regionOrCountry === "argentina" ? "ar-urba-top14" : "fr-top14";
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
   if (compSlug === "super-rugby-americas") return "sra";
@@ -917,6 +864,10 @@ function parseKickoffTime(raw: string): string | null {
 
 async function maybeAcceptConsent(page: Page) {
   const selectors = [
+    'button:has-text("Reject All")',
+    'button:has-text("Rechazar todo")',
+    '#onetrust-reject-all-handler',
+    'button:has-text("I Accept")',
     'button:has-text("Aceptar")',
     'button:has-text("Acepto")',
     'button:has-text("I Agree")',
@@ -1600,7 +1551,7 @@ async function upsertStandingsCache(
   teamNamesNorm: string[],
   rows: ScrapedStandingRow[]
 ) {
-  if (!rows.length) return;
+  validateSourceStandings(rows);
   if (DRY_RUN) return;
 
   const payloadByTeam = new Map<number, Record<string, unknown>>();
@@ -1633,7 +1584,7 @@ async function upsertStandingsCache(
     .upsert(payload, { onConflict: "season_id,team_id" });
 
   if (error) {
-    console.log("WARN: standings_cache upsert failed:", error.message);
+    throw new Error(`Standings write failed: ${error.message}`);
   } else {
     console.log(`Standings upserted: ${payload.length}`);
   }
@@ -1657,21 +1608,7 @@ async function main() {
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
-    const { data, error } = await ensureSupabase()
-      .from("matches")
-      .select("id,status,match_date,kickoff_time")
-      .gte("match_date", yesterday.toISOString().slice(0, 10))
-      .lte("match_date", tomorrow.toISOString().slice(0, 10))
-      .neq("status", "FT")
-      .limit(40);
-
-    if (error) throw error;
-    const candidates = (data || []) as Array<{
-      id: number;
-      status: MatchStatus | null;
-      match_date: string;
-      kickoff_time: string | null;
-    }>;
+    const candidates=await readAllRows<{id:number;status:MatchStatus|null;match_date:string;kickoff_time:string|null}>((offset,size)=>ensureSupabase().from("matches").select("id,status,match_date,kickoff_time").gte("match_date",yesterday.toISOString().slice(0,10)).lte("match_date",tomorrow.toISOString().slice(0,10)).neq("status","FT").order("id").range(offset,offset+size-1));
     const hasRelevantWindow = candidates.some((row) =>
       isPotentiallyLiveWindow(row.match_date, row.kickoff_time, row.status ?? "NS")
     );
@@ -2043,11 +1980,24 @@ async function main() {
           console.log("Open standings:", variants.standings);
           await gotoWithRetry(page, variants.standings, 3);
           await maybeAcceptConsent(page);
-          await page.waitForTimeout(1500);
+          // Finished competitions often open the playoff draw rather than the points table.
+          // Select the source's explicit Main phase; do not derive ranks from a knockout bracket.
+          const mainPhase=page.getByText(/^main$/i,{exact:true}).first();
+          await mainPhase.waitFor({state:"visible",timeout:8000}).catch(()=>{});
+          if(await mainPhase.count()){
+            await maybeAcceptConsent(page);
+            await mainPhase.click({timeout:8000});
+          }
+          try {await page.waitForSelector('.table__row, .ui-table__row, [class*="tableRow"], [class*="standing"] [class*="row"]',{timeout:20000});}catch{}
+          await page.waitForTimeout(1200);
 
           const standings = await scrapeStandingsPage(page);
           console.log(`Standings scraped: ${standings.length}`);
 
+          if (!standings.length && STANDINGS_ONLY) {
+            console.log("Standings diagnostic:", (await page.locator("body").innerText()).slice(-6000));
+            throw new Error(`Empty standings for ${compSlug}`);
+          }
           if (standings.length > 0) {
             await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
           }
@@ -2063,6 +2013,7 @@ async function main() {
           }
           } catch (e: unknown) {
             console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+            if(STANDINGS_ONLY)totalFailures++;
           }
         }
 

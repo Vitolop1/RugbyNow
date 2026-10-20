@@ -246,7 +246,7 @@ export default function MatchClient() {
   const hasListedStandings = data?.standingsSource === "cache" || isCuratedStandings;
 
   return (
-    <div className="rn-app-bg min-h-screen">
+    <div className="rn-app-bg rn-compact min-h-screen">
       <AppHeader subtitle={data ? `${data.competition.name}  |  ${data.season.name}` : tr("matchDetails")} />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {loading ? (

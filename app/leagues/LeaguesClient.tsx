@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import AppHeader from "@/app/components/AppHeader";
+import PortalShell from "@/app/components/PortalShell";
+import {usePersonalization} from "@/lib/usePersonalization";
+import {toggleSlug} from "@/lib/competitionPrefs";
 import CompetitionSectionBadge from "@/app/components/CompetitionSectionBadge";
 import { getLeagueLogo } from "@/lib/assets";
 import {
@@ -46,6 +48,9 @@ function LeagueLogo({ slug, alt, size = 22 }: { slug?: string | null; alt: strin
 
 export default function LeaguesClient() {
   const { lang } = usePrefs();
+  const {prefs,update}=usePersonalization();
+  const [query,setQuery]=useState("");
+  const [error,setError]=useState(false);
   const tr = (key: string) => t(lang, key);
   const otherGroupLabel = tr("groupsOther");
   const featuredGroupLabel = tr("groupsFeatured");
@@ -69,6 +74,7 @@ export default function LeaguesClient() {
   const usaGroupLabel = tr("groupsUSA");
   const sevenGroupLabel = tr("groupsSeven");
   const [leagues, setLeagues] = useState<League[]>([]);
+  const [populatedSeasonIds,setPopulatedSeasonIds]=useState<number[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,18 +82,21 @@ export default function LeaguesClient() {
     const load = async () => {
       setLoading(true);
 
+      try {
       const response = await fetch("/api/leagues", { cache: "no-store" });
       const payload = await response.json();
 
       if (!response.ok) {
-        console.error(payload.error);
+        setError(true);
         setLeagues([]);
         setSeasons([]);
       } else {
         setLeagues((payload.competitions || []) as League[]);
         setSeasons((payload.seasons || []) as Season[]);
+        setPopulatedSeasonIds(payload.populatedSeasonIds || []);
       }
 
+      }catch{setError(true);}
       setLoading(false);
     };
 
@@ -98,6 +107,7 @@ export default function LeaguesClient() {
     const map = new Map<number, Season>();
 
     for (const season of seasons) {
+      if(populatedSeasonIds.length && !populatedSeasonIds.includes(season.id))continue;
       const previous = map.get(season.competition_id);
       if (
         !previous ||
@@ -110,7 +120,7 @@ export default function LeaguesClient() {
     }
 
     return map;
-  }, [seasons]);
+  }, [seasons,populatedSeasonIds]);
 
   const sections = useMemo(
     () =>
@@ -163,71 +173,12 @@ export default function LeaguesClient() {
     ]
   );
 
-  return (
-    <div className="rn-app-bg relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-green-300/10 blur-3xl" />
-      </div>
-
-      <AppHeader subtitle={tr("pickCompetition")} />
-
-      <div className="relative mx-auto max-w-6xl px-4 py-8">
-        <h1 className="text-2xl font-extrabold">{tr("pickCompetition")}</h1>
-        <p className="mt-1 text-sm text-white/80">{tr("pickCompetitionSub")}</p>
-
-        {loading ? (
-          <div className="mt-6 text-white/80">{tr("loading")}</div>
-        ) : (
-          <div className="mt-6 space-y-6">
-            {sections.map((section) => (
-              <section key={section.key}>
-                <div className="mb-3 flex items-center gap-2">
-                  <CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={20} />
-                  <h2 className="text-lg font-bold">{section.label}</h2>
-                  <span className="text-xs text-white/60">
-                    {section.competitions.length} {tr("leagues").toLowerCase()}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {section.competitions.map((league) => {
-                    const season = latestSeasonByCompetition.get(league.id);
-
-                    return (
-                      <Link
-                        key={league.id}
-                        href={`/leagues/${league.slug}`}
-                        className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur transition hover:bg-white/15"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex min-w-0 items-center gap-3">
-                            <LeagueLogo slug={league.slug} alt={league.name} />
-                            <div className="min-w-0">
-                              <div className="truncate font-semibold">{league.name}</div>
-                              <div className="mt-1 text-xs text-white/75">{league.region || "-"}</div>
-                            </div>
-                          </div>
-
-                          {league.is_featured ? (
-                            <span className="rounded-full border border-emerald-200/30 bg-emerald-300/25 px-2 py-1 text-[10px] font-extrabold text-white">
-                              {tr("pinned")}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <div className="mt-3 text-xs text-white/70">
-                          {tr("seasonLabel")}: <span className="font-semibold text-white">{season?.name || "-"}</span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return <PortalShell title={tr("pickCompetition")} subtitle={tr("pickCompetitionSub")}>
+    <label className="rn-search"><span>{lang==="es"?"Buscar competición":"Search competitions"}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)}/></label>
+    {error&&<p role="alert">{lang==="es"?"No se pudo cargar el catálogo. Recargá para reintentar.":"Could not load the directory. Reload to retry."}</p>}
+    {loading?<p>{tr("loading")}</p>:sections.map(section=>{const visible=section.competitions.filter(l=>l.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()));return visible.length?<section className="rn-panel" key={section.key}>
+      <h2><CompetitionSectionBadge badgeKey={section.badgeKey} alt={section.label} size={20}/>{section.label}<small>{visible.length}</small></h2>
+      {visible.map(league=><div className="rn-directory-row" key={league.id}><button aria-label={`${prefs.leagues.includes(league.slug)?"Unfollow":"Follow"}: ${league.name}`} aria-pressed={prefs.leagues.includes(league.slug)} className={prefs.leagues.includes(league.slug)?"rn-selected":""} onClick={()=>update({leagues:toggleSlug(prefs.leagues,league.slug)})}>{prefs.leagues.includes(league.slug)?"★":"☆"}</button><Link href={`/leagues/${league.slug}`} className="rn-directory-link"><LeagueLogo slug={league.slug} alt=""/><strong>{league.name}</strong><span>{league.region}</span><small>{latestSeasonByCompetition.get(league.id)?.name || "—"}</small><b>›</b></Link></div>)}
+    </section>:null;})}
+  </PortalShell>;
 }

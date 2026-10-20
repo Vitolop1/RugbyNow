@@ -47,3 +47,6 @@ next-env.d.ts
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+/logs/import-health/
+/logs/provider-validation/

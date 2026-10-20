@@ -9,7 +9,7 @@ export default function Week1Client() {
   const tr = (key: string) => t(lang, key);
 
   return (
-    <div className="rn-app-bg min-h-screen">
+    <div className="rn-app-bg rn-compact min-h-screen">
       <AppHeader />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="text-3xl font-extrabold">{tr("week1Title")}</h1>

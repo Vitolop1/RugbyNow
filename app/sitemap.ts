@@ -35,6 +35,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
     "/leagues",
+    "/news",
+    "/sources",
     "/agenda",
     "/weekly",
     "/weekly/week-1",

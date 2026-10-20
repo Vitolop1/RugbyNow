@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import SiteHeader from "@/app/components/SiteHeader";
+import ExternalWatchOptions from "@/app/components/ExternalWatchOptions";
+import {usePersonalization} from "@/lib/usePersonalization";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
 import { agendaCalendar, type AgendaEvent } from "@/lib/agenda";
@@ -50,7 +53,7 @@ function Watch({entry,context}:{entry:DailyEntry;context:AgendaViewContext}){
       <summary title={entry.editorial ? `${c.tvGuide} · ${entry.editorial.sourceDate}` : c.tv}><span>{providers.length>0?<><ProviderMark id={providers[0].id}/><b>{providers[0].name}</b>{providers.length>1&&<small>+{providers.length-1}</small>}</>:<><Glyph name="tv"/><span>{c.tvPending}</span></>}</span><span className={s.chevron}>⌄</span></summary>
       <div className={s.watchPanel}><strong>{c.tv} · {tvCountry==="AR"?c.argentina:c.otherRegions}</strong>
         {!providers.length?<p>{c.noTv}</p>:<><p>{c.guideNote}</p>{providers.map(provider=><div key={provider.id} className={s.provider}><span><ProviderMark id={provider.id}/><b>{provider.name}</b></span>{provider.href && !entry.transmissionPending ? <a href={provider.href} target="_blank" rel="noopener noreferrer" onClick={()=>trackProductEvent("watch_provider_click",{provider_id:provider.id,event_id:entry.id,link_type:provider.linkType || "channel"})}>{provider.linkType==="event"?c.direct:provider.linkType==="platform"?c.platform:c.channel} ↗</a>:<small>{c.tvPending}</small>}</div>)}<p>{c.tvNote}</p></>}
-        <div className={s.watchActions}>{entry.startsAt&&<button onClick={()=>calendar(entry)}><Glyph name="calendar"/>{c.calendar}</button>}<button onClick={()=>void share(entry)}><Glyph name="share"/>{c.share}</button></div>
+        <ExternalWatchOptions/><div className={s.watchActions}>{entry.startsAt&&<button onClick={()=>calendar(entry)}><Glyph name="calendar"/>{c.calendar}</button>}<button onClick={()=>void share(entry)}><Glyph name="share"/>{c.share}</button></div>
       </div>
     </details>;
   }
@@ -69,8 +72,11 @@ function MatchRow({entry,withDate=false,context}:{entry:DailyEntry;withDate?:boo
 
 
 export default function DailyAgendaClient({initialData,initialDate,explicitDate=false,initialEventId}:{initialData:DailyAgendaData;initialDate:string;explicitDate?:boolean;initialEventId?:string}) {
-  const {lang,timeZone,mounted,setLangEverywhere,setTZEverywhere} = usePrefs();
+  const {lang,timeZone,mounted,setTZEverywhere} = usePrefs();
   const c = DAILY_COPY[lang];
+  const {prefs}=usePersonalization();
+  const sidebarLeagues=[...prefs.leagues.map(slug=>({slug,name:dataName(slug)})),...featured.filter(l=>!prefs.leagues.includes(l.slug))].filter(l=>!prefs.hidden.includes(l.slug));
+  function dataName(slug:string){return initialData.entries.find(e=>e.competitionSlug===slug)?.competition || featured.find(l=>l.slug===slug)?.name || slug;}
   const locale = getDateLocale(lang);
   const [data,setData] = useState(initialData);
   const [date,setDate] = useState(initialDate);
@@ -133,6 +139,8 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
   const isSaved=(entry:DailyEntry)=>saved.includes(entry.id) || !!entry.editorial && saved.includes(entry.editorial.id);
   const matchesFilter=(entry:DailyEntry)=>{
     if(competition && entry.competitionSlug!==competition)return false;
+    if(entry.competitionSlug && prefs.hidden.includes(entry.competitionSlug))return false;
+    if(filter==="following" && !prefs.leagues.includes(entry.competitionSlug || "") && !prefs.clubs.includes(entry.homeSlug || "") && !prefs.clubs.includes(entry.awaySlug || ""))return false;
     if(region==="pumas" && entry.homeSlug!=="argentina" && entry.awaySlug!=="argentina")return false;
     if(region==="argentina" && entry.region!=="argentina")return false;
     if(region==="international" && entry.region!=="international")return false;
@@ -151,8 +159,9 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
   const groups=useMemo(()=>{
     const grouped=new Map<string,DailyEntry[]>();
     for(const entry of matches){const key=entry.competitionSlug || entry.competition;grouped.set(key,[...(grouped.get(key)||[]),entry]);}
-    return [...grouped.entries()].sort((a,b)=>Math.min(...a[1].map(agendaPriority))-Math.min(...b[1].map(agendaPriority)) || a[1][0].competition.localeCompare(b[1][0].competition));
-  },[matches]);
+    const priority=(entries:DailyEntry[])=>{const rank=prefs.leagues.indexOf(entries[0].competitionSlug || "");return rank<0?1000+Math.min(...entries.map(agendaPriority)):rank;};
+    return [...grouped.entries()].sort((a,b)=>priority(a[1])-priority(b[1]) || Math.min(...a[1].map(agendaPriority))-Math.min(...b[1].map(agendaPriority)) || a[1][0].competition.localeCompare(b[1][0].competition));
+  },[matches,prefs.leagues]);
   const nextMatches=data.entries.filter(entry=>entry.kind==="match" && dailyEntryDate(entry,timeZone)>date && matchesFilter(entry)).slice(0,5);
   const recentDay=data.entries.filter(entry=>entry.kind==="match" && entry.status==="FT" && dailyEntryDate(entry,timeZone)<date).map(entry=>dailyEntryDate(entry,timeZone)).sort().at(-1);
   const reset=()=>{setQuery("");setCompetition("");setRegion("all");setFilter("all");};
@@ -176,24 +185,24 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
     history.replaceState(null,"",url);setDate(next);
   }
   const view:AgendaViewContext={c,tvCountry,timeZone,now,formatDay,formatTime,statusLabel,isSaved,toggleSaved,calendar,share};
-  return <div className={s.page}>
-    <header className={s.header}><div className={s.headerInner}><Link href="/" className={s.brand} aria-label="RugbyNOW"><img src="/logo.png" alt="" width={36} height={36}/><span>RUGBY<b>NOW</b></span></Link><nav aria-label={c.agenda}><Link href="/" className={s.current}>{c.agenda}</Link><Link href="/leagues">{c.leagues}</Link></nav><label className={s.language}><span className={s.srOnly}>Language</span><select value={lang} onChange={event=>setLangEverywhere(event.target.value as Lang)} aria-label="Language"><option value="es">ES</option><option value="en">EN</option><option value="fr">FR</option><option value="it">IT</option></select></label></div></header>
+  return <div className={`${s.page} ${prefs.density==="comfortable"?"rn-comfortable":""}`}>
+    <SiteHeader/>
     <main className={s.main}>
       <div className={s.titleRow}><div><p className={s.eyebrow}>RUGBYNOW / {c.agenda}</p><h1>{c.title}<span className={s.titleDot}>.</span></h1><p>{c.subtitle}</p></div><div className={s.update}><span className={`${s.dot} ${data.source==="snapshot"?s.backupDot:""}`}/><span>{data.source==="snapshot"?c.backup:c.checked}<time dateTime={data.source==="snapshot"?data.snapshotAt:data.checkedAt}>{new Intl.DateTimeFormat(locale,{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23",timeZone}).format(new Date(data.source==="snapshot"?data.snapshotAt:data.checkedAt))}</time></span><button onClick={()=>setRefresh(value=>value+1)} aria-label={c.retry} disabled={busy}><Glyph name="refresh"/></button></div></div>
       <div className={s.layout}>
-        <aside className={s.sidebar}><h2>{c.featured}</h2><button className={region==="pumas"?s.selectedLeague:""} onClick={()=>{setRegion(region==="pumas"?"all":"pumas");setCompetition("");}}><Crest slug="argentina" name="Los Pumas"/><b>Los Pumas</b></button><div className={s.sidebarDivider}/>{featured.map(league=><div key={league.slug} className={s.leagueNav}><button className={competition===league.slug?s.selectedLeague:""} onClick={()=>{setCompetition(competition===league.slug?"":league.slug);setRegion("all");}}><Crest slug={league.slug} league name={league.name}/><span>{league.name}</span></button><Link href={`/leagues/${league.slug}`} aria-label={`${c.leagues}: ${league.name}`}>›</Link></div>)}<Link href="/leagues" className={s.allLeagues}>{c.allLeagues} →</Link><p className={s.sidebarNote}>{c.savedHint}</p></aside>
+        <aside className={s.sidebar}><h2>{c.featured}</h2><button className={region==="pumas"?s.selectedLeague:""} onClick={()=>{setRegion(region==="pumas"?"all":"pumas");setCompetition("");}}><Crest slug="argentina" name="Los Pumas"/><b>Los Pumas</b></button><div className={s.sidebarDivider}/>{sidebarLeagues.map(league=><div key={league.slug} className={s.leagueNav}><button className={competition===league.slug?s.selectedLeague:""} onClick={()=>{setCompetition(competition===league.slug?"":league.slug);setRegion("all");}}><Crest slug={league.slug} league name={league.name}/><span>{league.name}</span></button><Link href={`/leagues/${league.slug}`} aria-label={`${c.leagues}: ${league.name}`}>›</Link></div>)}<Link href="/leagues" className={s.allLeagues}>{c.allLeagues} →</Link><p className={s.sidebarNote}>{c.savedHint}</p></aside>
         <div className={s.content}>
           <section className={s.board} aria-label={c.agenda}>
             <div className={s.dateBar}><button className={s.dayArrow} aria-label={c.previous} onClick={()=>chooseDate(shiftAgendaDate(date,-1))}><Glyph name="left"/></button><div className={s.selectedDate}><strong>{date===today?`${c.today} · `:""}{formatDay(date,true)}</strong><label title={c.chooseDate}><Glyph name="calendar"/><input type="date" value={date} aria-label={c.chooseDate} onClick={event=>{try{event.currentTarget.showPicker?.();}catch{event.currentTarget.focus();}}} onChange={event=>{if(event.target.value)chooseDate(event.target.value);}}/></label></div><button className={s.dayArrow} aria-label={c.next} onClick={()=>chooseDate(shiftAgendaDate(date,1))}><Glyph name="right"/></button></div>
             <div className={s.quickDates}>{[[-1,c.yesterday],[0,c.today],[1,c.tomorrow]].map(([offset,label])=><button key={offset} className={date===shiftAgendaDate(today,Number(offset))?s.activeQuick:""} onClick={()=>chooseDate(shiftAgendaDate(today,Number(offset)))}>{label}</button>)}<label className={s.zone}><span>{c.timeZone}</span><select aria-label={c.timeZone} value={timeZone} onChange={event=>setTZEverywhere(event.target.value)}>{buildTimeZoneOptions(timeZone).map(option=><option key={option.value} value={option.value}>{option.long}</option>)}</select></label></div>
-            <div className={s.filters}><div className={s.statusTabs}>{[["all",c.all],["live",c.live],["upcoming",c.upcoming],["finished",c.finished],["saved",c.saved]].map(([value,label])=><button key={value} aria-pressed={filter===value} className={filter===value?s.activeTab:""} onClick={()=>setFilter(value)}>{value==="live"&&<span className={s.liveDot}/>}{value==="saved"&&<Glyph name="star"/>}{label}{value==="live"&&<small>{dayMatches.filter(entry=>entry.status==="LIVE"||entry.status==="HT").length}</small>}</button>)}</div><label className={s.search}><Glyph name="search"/><input type="search" value={query} placeholder={c.search} aria-label={c.search} onChange={event=>setQuery(event.target.value)}/></label></div>
+            <div className={s.filters}><div className={s.statusTabs}>{[["all",c.all],["live",c.live],["upcoming",c.upcoming],["finished",c.finished],["saved",c.saved],["following",lang==="es"?"Siguiendo":lang==="fr"?"Suivis":lang==="it"?"Seguiti":"Following"]].map(([value,label])=><button key={value} aria-pressed={filter===value} className={filter===value?s.activeTab:""} onClick={()=>setFilter(value)}>{value==="live"&&<span className={s.liveDot}/>}{value==="saved"&&<Glyph name="star"/>}{label}{value==="live"&&<small>{dayMatches.filter(entry=>entry.status==="LIVE"||entry.status==="HT").length}</small>}</button>)}</div><label className={s.search}><Glyph name="search"/><input type="search" value={query} placeholder={c.search} aria-label={c.search} onChange={event=>setQuery(event.target.value)}/></label></div>
             <div className={s.minorFilters}><label><span className={s.srOnly}>{c.allRegions}</span><select aria-label={c.allRegions} value={region} onChange={event=>{setRegion(event.target.value);setCompetition("");}}><option value="all">{c.allRegions}</option><option value="argentina">{c.argentina}</option><option value="international">{c.international}</option><option value="pumas">Los Pumas</option></select></label><span>{matches.length} {matches.length===1?c.match:c.matches}{busy&&<small className={s.loading}>{c.loading}</small>}</span><label className={s.tvCountry}><Glyph name="tv"/><select aria-label={c.tvRegion} value={tvCountry} onChange={event=>setTvCountry(event.target.value)}><option value="AR">TV: {c.argentina}</option><option value="other">TV: {c.otherRegions}</option></select></label></div>
             {error&&<div className={s.error} role="alert">{c.error}<button onClick={()=>setRefresh(value=>value+1)}>{c.retry}</button></div>}
             <div className={s.tableLabels}><span/><span>{c.time}</span><span>{c.teams}</span><span>{c.tv}</span><span/></div>
             {groups.length?groups.map(([key,entries])=><section key={key} className={s.competition}><div className={s.competitionHeading}><Crest slug={entries[0].competitionSlug} league name={entries[0].competition}/><h2>{entries[0].competitionSlug?<Link href={`/leagues/${entries[0].competitionSlug}`}>{entries[0].competition}</Link>:entries[0].competition}</h2><small>{entries.length}</small></div>{entries.map(entry=><MatchRow key={entry.id} entry={entry} context={view}/>)}</section>):<div className={s.empty}><Glyph name="ball"/><strong>{dayMatches.length || filter!=="all" || query || competition || region!=="all"?c.filteredEmpty:c.empty}</strong><p>{c.emptyHint}</p><div>{(filter!=="all"||query||competition||region!=="all")&&<button onClick={reset}>{c.reset}</button>}{recentDay&&<button onClick={()=>{reset();chooseDate(recentDay);}}>{c.recent} · {formatDay(recentDay)} →</button>}</div></div>}
           </section>
           {!matches.length&&nextMatches.length>0&&<section className={s.nextBoard}><div className={s.sectionTitle}><h2>{c.nextMatches}</h2><button onClick={()=>chooseDate(dailyEntryDate(nextMatches[0],timeZone))}>{c.showAgenda} →</button></div>{nextMatches.map(entry=><MatchRow key={entry.id} entry={entry} withDate context={view}/>)}</section>}
-          {shows.length>0&&<details className={s.programmes}><summary><Glyph name="tv"/><strong>{c.programmes}</strong><span>{shows.length}</span><small>{c.editorial} · 15–22 OCT</small><span>⌄</span></summary><div className={s.programmeList}>{shows.map(entry=><article key={entry.id} id={entry.id} className={s.showRow}><time dateTime={entry.startsAt!}>{formatTime(entry)}</time><div><strong>{entry.home}</strong><span>{entry.competition}</span></div><Watch entry={entry} context={view}/><button title={c.calendar} aria-label={`${c.calendar}: ${entry.home}`} onClick={()=>calendar(entry)}><Glyph name="calendar"/></button></article>)}</div><p className={s.programmeNote}>{c.guideNote}</p></details>}
+          {prefs.guides&&shows.length>0&&<details className={s.programmes}><summary><Glyph name="tv"/><strong>{c.programmes}</strong><span>{shows.length}</span><small>{c.editorial} · 15–22 OCT</small><span>⌄</span></summary><div className={s.programmeList}>{shows.map(entry=><article key={entry.id} id={entry.id} className={s.showRow}><time dateTime={entry.startsAt!}>{formatTime(entry)}</time><div><strong>{entry.home}</strong><span>{entry.competition}</span></div><Watch entry={entry} context={view}/><button title={c.calendar} aria-label={`${c.calendar}: ${entry.home}`} onClick={()=>calendar(entry)}><Glyph name="calendar"/></button></article>)}</div><p className={s.programmeNote}>{c.guideNote}</p></details>}
           <p className={s.coverage}>{c.coverage}</p>
           <footer className={s.footer}><b>RUGBYNOW</b><Link href="/about">{c.about}</Link><Link href="/privacy">{c.privacy}</Link><a href={`mailto:lopresttivito@gmail.com?subject=RugbyNOW%20${encodeURIComponent(date)}`}>{c.contact}</a></footer>
         </div>

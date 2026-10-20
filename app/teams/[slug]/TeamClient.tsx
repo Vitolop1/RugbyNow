@@ -22,7 +22,7 @@ import type {TeamSquad} from "@/lib/squads";
 import type {PlayerUpdate} from "@/lib/playerUpdates";
 import s from "@/app/agenda/daily.module.css";
 type MatchStatus="NS"|"LIVE"|"HT"|"FT"|"CANC";
-type TeamPayload = {
+export type TeamPayload = {
   discipline: {selected:string;available:string[]};
   squads: TeamSquad[];
   pendingFixtures: PendingProD2Fixture[];
@@ -90,10 +90,10 @@ type TeamPayload = {
   }>;
 };
 
-export default function TeamClient({slug}:{slug:string}){
+export default function TeamClient({slug,initialData=null}:{slug:string;initialData?:TeamPayload|null}){
  const searchParams=useSearchParams();const discipline=searchParams?.get("discipline")||"";
  const {lang,timeZone}=usePrefs();const {prefs,update}=usePersonalization();const {country,setCountry}=useBroadcastCountry(getProD2Team(slug)?"FR":"AR");
- const [data,setData]=useState<TeamPayload|null>(null),[error,setError]=useState(false),[retry,setRetry]=useState(0);
+ const [data,setData]=useState<TeamPayload|null>(initialData),[error,setError]=useState(false),[retry,setRetry]=useState(0);
  const c={es:["Seguir club","Siguiendo","Últimos resultados","Próximos partidos","Datos del equipo","Resumen de los partidos disponibles","No hay encuentros disponibles.","No se pudo cargar la ficha.","Reintentar","Partidos","Ganados","Empatados","Perdidos","Puntos a favor / en contra","Competiciones"],en:["Follow team","Following","Recent results","Upcoming matches","Team information","Summary of available matches","No available matches.","Could not load this team.","Retry","Played","Won","Drawn","Lost","Points for / against","Competitions"],fr:["Suivre le club","Suivi","Derniers résultats","Prochains matchs","Informations du club","Résumé des matchs disponibles","Aucun match disponible.","Impossible de charger la fiche.","Réessayer","Joués","Victoires","Nuls","Défaites","Points pour / contre","Compétitions"],it:["Segui club","Seguito","Ultimi risultati","Prossime partite","Informazioni squadra","Riepilogo delle partite disponibili","Nessuna partita disponibile.","Impossibile caricare la squadra.","Riprova","Giocate","Vinte","Pareggiate","Perse","Punti fatti / subiti","Competizioni"]}[lang];
  useEffect(()=>{const controller=new AbortController();void(async()=>{try{const r=await fetch(`/api/teams/${encodeURIComponent(slug)}?discipline=${encodeURIComponent(discipline)}`,{signal:controller.signal,cache:"no-store"});if(!r.ok)throw Error();const body=await r.json();if(!body.team)throw Error();setData(body);setError(false);}catch{if(!controller.signal.aborted)setError(true);}})();return()=>controller.abort();},[slug,retry,discipline]);
  const title=data?.profile.displayName||data?.team.name||t(lang,"teamLabel");

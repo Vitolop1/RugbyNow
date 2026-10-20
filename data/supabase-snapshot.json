@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T23:54:49.576Z",
+  "generatedAt": "2026-10-19T23:59:12.738Z",
   "competitions": [
     {
       "id": 3,
@@ -1147,6 +1147,11 @@
       "id": 222,
       "name": "Parabiago",
       "slug": "parabiago"
+    },
+    {
+      "id": 223,
+      "name": "Lions",
+      "slug": "lions"
     }
   ],
   "matches": [
@@ -15275,7 +15280,7 @@
       "away_score": 10,
       "round": 28,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 146
     },
     {
@@ -15323,7 +15328,7 @@
       "away_score": 22,
       "round": 21,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 147
     },
     {
@@ -15419,7 +15424,7 @@
       "away_score": 52,
       "round": 31,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 149
     },
     {
@@ -15580,7 +15585,7 @@
       "round": 23,
       "venue": null,
       "home_team_id": 203,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 15945,
@@ -15660,7 +15665,7 @@
       "round": 3,
       "venue": null,
       "home_team_id": 147,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 15950,
@@ -15900,7 +15905,7 @@
       "round": 20,
       "venue": null,
       "home_team_id": 146,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 15965,
@@ -16028,7 +16033,7 @@
       "round": 29,
       "venue": null,
       "home_team_id": 149,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 15973,
@@ -16171,7 +16176,7 @@
       "away_score": 31,
       "round": 25,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 204
     },
     {
@@ -16267,7 +16272,7 @@
       "away_score": 18,
       "round": 18,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 143
     },
     {
@@ -16396,7 +16401,7 @@
       "round": 11,
       "venue": null,
       "home_team_id": 206,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 15996,
@@ -16460,7 +16465,7 @@
       "round": 5,
       "venue": null,
       "home_team_id": 207,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16000,
@@ -16556,7 +16561,7 @@
       "round": 27,
       "venue": null,
       "home_team_id": 209,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16006,
@@ -16747,7 +16752,7 @@
       "away_score": 17,
       "round": 21,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 148
     },
     {
@@ -16907,7 +16912,7 @@
       "away_score": 26,
       "round": 28,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 205
     },
     {
@@ -17019,7 +17024,7 @@
       "away_score": 12,
       "round": 18,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 142
     },
     {
@@ -17147,7 +17152,7 @@
       "away_score": 21,
       "round": 25,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 208
     },
     {
@@ -17276,7 +17281,7 @@
       "round": 9,
       "venue": null,
       "home_team_id": 145,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16051,
@@ -17452,7 +17457,7 @@
       "round": 16,
       "venue": null,
       "home_team_id": 144,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16062,
@@ -19452,7 +19457,7 @@
       "round": 17,
       "venue": null,
       "home_team_id": 53,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16189,
@@ -23804,7 +23809,7 @@
       "round": 17,
       "venue": null,
       "home_team_id": 50,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16461,
@@ -23947,7 +23952,7 @@
       "away_score": null,
       "round": 12,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 41
     },
     {
@@ -24540,7 +24545,7 @@
       "round": 10,
       "venue": null,
       "home_team_id": 121,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16507,
@@ -24667,7 +24672,7 @@
       "away_score": null,
       "round": 16,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 119
     },
     {
@@ -26044,7 +26049,7 @@
       "round": 10,
       "venue": null,
       "home_team_id": 149,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16601,
@@ -26155,7 +26160,7 @@
       "away_score": 19,
       "round": 3,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 203
     },
     {
@@ -26283,7 +26288,7 @@
       "away_score": 26,
       "round": 26,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 145
     },
     {
@@ -26380,7 +26385,7 @@
       "round": 23,
       "venue": null,
       "home_team_id": 148,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16622,
@@ -26492,7 +26497,7 @@
       "round": 30,
       "venue": null,
       "home_team_id": 142,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16629,
@@ -26635,7 +26640,7 @@
       "away_score": null,
       "round": 5,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 149
     },
     {
@@ -26780,7 +26785,7 @@
       "round": 19,
       "venue": null,
       "home_team_id": 146,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16647,
@@ -26972,7 +26977,7 @@
       "round": 2,
       "venue": null,
       "home_team_id": 147,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16659,
@@ -27115,7 +27120,7 @@
       "away_score": null,
       "round": 23,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 207
     },
     {
@@ -27243,7 +27248,7 @@
       "away_score": null,
       "round": 30,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 209
     },
     {
@@ -27339,7 +27344,7 @@
       "away_score": null,
       "round": 20,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 147
     },
     {
@@ -27403,7 +27408,7 @@
       "away_score": null,
       "round": 27,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 146
     },
     {
@@ -27900,7 +27905,7 @@
       "round": 20,
       "venue": null,
       "home_team_id": 143,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16717,
@@ -28156,7 +28161,7 @@
       "round": 27,
       "venue": null,
       "home_team_id": 208,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16733,
@@ -28539,7 +28544,7 @@
       "away_score": null,
       "round": 17,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 144
     },
     {
@@ -28907,7 +28912,7 @@
       "away_score": null,
       "round": 24,
       "venue": null,
-      "home_team_id": 200,
+      "home_team_id": 223,
       "away_team_id": 206
     },
     {
@@ -29100,7 +29105,7 @@
       "round": 7,
       "venue": null,
       "home_team_id": 205,
-      "away_team_id": 200
+      "away_team_id": 223
     },
     {
       "id": 16792,
@@ -32164,20 +32169,6 @@
     },
     {
       "season_id": 44,
-      "team_id": 200,
-      "position": 7,
-      "played": 18,
-      "won": 10,
-      "drawn": 1,
-      "lost": 7,
-      "points_for": 532,
-      "points_against": 473,
-      "points": 54,
-      "source": "flashscore",
-      "updated_at": "2026-05-16T21:31:00.793+00:00"
-    },
-    {
-      "season_id": 44,
       "team_id": 203,
       "position": 11,
       "played": 18,
@@ -32271,6 +32262,20 @@
       "points_for": 353,
       "points_against": 372,
       "points": 55,
+      "source": "flashscore",
+      "updated_at": "2026-05-16T21:31:00.793+00:00"
+    },
+    {
+      "season_id": 44,
+      "team_id": 223,
+      "position": 7,
+      "played": 18,
+      "won": 10,
+      "drawn": 1,
+      "lost": 7,
+      "points_for": 532,
+      "points_against": 473,
+      "points": 54,
       "source": "flashscore",
       "updated_at": "2026-05-16T21:31:00.793+00:00"
     },

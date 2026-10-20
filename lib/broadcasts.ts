@@ -80,26 +80,6 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
   },
 };
 
-const BROADCASTS_BY_COMPETITION: Partial<Record<string, BroadcastProviderId[]>> = {
-  "ar-liga-norte-grande": ["tercer-tiempo-salta", "noa-sports-go", "quiero-deporte"],
-  "ar-urba-top14": ["disney-plus", "espn"],
-  "en-premiership-rugby": ["disney-plus", "espn"],
-  "eu-challenge-cup": ["disney-plus", "espn"],
-  "eu-champions-cup": ["disney-plus", "espn"],
-  "fr-top14": ["disney-plus", "espn"],
-  "it-serie-a-elite": ["the-rugby-channel", "rai-sport"],
-  "int-six-nations": ["disney-plus", "espn"],
-  "int-super-rugby-pacific": ["disney-plus", "espn"],
-  "int-united-rugby-championship": ["disney-plus", "espn", "urc-tv"],
-  "int-world-cup": ["disney-plus", "espn"],
-  sra: ["disney-plus", "espn"],
-  "svns-australia": ["disney-plus", "espn", "rugbypass-tv"],
-  "svns-hong-kong": ["disney-plus", "espn", "rugbypass-tv"],
-  "svns-singapore": ["disney-plus", "espn", "rugbypass-tv"],
-  "svns-usa": ["disney-plus", "espn", "rugbypass-tv"],
-  "us-mlr": ["disney-plus", "espn-plus"],
-};
-
 const SUGGESTED_PROVIDER_PRIORITY: BroadcastProviderId[] = [
   "espn",
   "espn-plus",
@@ -121,15 +101,10 @@ export function getBroadcastLogo(id: BroadcastProviderId) {
   return `/broadcast-logos/${id}.png`;
 }
 
-export function getBroadcastsForCompetition(slug?: string | null): BroadcastProvider[] {
-  if (!slug) return [];
-
-  const ids = BROADCASTS_BY_COMPETITION[slug] || [];
-  return ids.map((id) => {
-    const provider = PROVIDERS[id];
-
-    return provider;
-  });
+// A competition does not establish event-specific rights in the visitor's country.
+// Confirmed dated listings are supplied by the agenda, not inferred here.
+export function getBroadcastsForCompetition(_slug?: string | null): BroadcastProvider[] {
+  return [];
 }
 
 function buildWatchSearchLink(home?: string | null, away?: string | null): SuggestedWatchLink | null {

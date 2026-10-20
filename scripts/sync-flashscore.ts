@@ -6,6 +6,7 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chromium, Page, Route } from "playwright";
 import { inferMatchDateFromRawText, inferMatchDateFromScrapedRow, seasonYearBounds, selectSeasonForScrapedRow } from "../lib/scrapedMatchDate";
+import { resolveExactSourceTeam } from "../lib/sourceTeamIdentity";
 
 type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
 
@@ -707,41 +708,8 @@ async function getTeamsMap() {
   return { teamsMap: map, teamNamesNorm: names };
 }
 
-function resolveTeamId(rawName: string, teamsMap: Map<string, number>, teamNamesNorm: string[]) {
-  const n = norm(rawName);
-  if (!n) return null;
-
-  const direct = teamsMap.get(n);
-  if (direct) return direct;
-
-  const tokens = n.split(" ").filter(Boolean);
-
-  let bestName: string | null = null;
-  let bestScore = 0;
-
-  for (const candidate of teamNamesNorm) {
-    let score = 0;
-
-    if (candidate === n) score += 100;
-    if (candidate.includes(n) || n.includes(candidate)) score += 2;
-
-    for (const tok of tokens) {
-      if (tok.length < 3) continue;
-      if (candidate.includes(tok)) score += 1;
-    }
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestName = candidate;
-    }
-  }
-
-  if (!bestName || bestScore < 2) return null;
-  return teamsMap.get(bestName) ?? null;
-}
-
 async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>, teamNamesNorm: string[]) {
-  const existing = resolveTeamId(rawName, teamsMap, teamNamesNorm);
+  const existing = resolveExactSourceTeam(rawName, teamsMap);
   if (existing) return existing;
 
   const cleanName = rawName.trim();

@@ -12,7 +12,13 @@ export const AGENDA_SOURCE = {
 
 const disney: AgendaProvider = { id: "disney-plus", name: "Disney+", href: "https://www.disneyplus.com/", linkType: "platform" };
 const tryTV: AgendaProvider = { id: "try-tv-tucuman", name: "Try TV Tucumán", href: "https://www.youtube.com/channel/UCSbw1LvjkErbu62IEP9c2cQ", linkType: "channel" };
-const provider = (name: string): AgendaProvider => ({ id: name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-"), name });
+// Channel identities verified from the publishers; these are not event/live URLs.
+const programmeChannels:Record<string,string>={
+  "Somos La Plata · Flow":"https://www.youtube.com/channel/UC294dkvc88KFZkkHsBLMAFQ",
+  "Mía Tucumán HD":"https://www.youtube.com/@miatucumanhd",
+  "LaRzRadio":"https://www.youtube.com/channel/UCYhdNotH35a31FoptmQj3Tg",
+};
+const provider = (name: string): AgendaProvider => ({ ...(programmeChannels[name]?{href:programmeChannels[name],linkType:"channel" as const}:{}), id: name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-"), name });
 
 function event(day: number, time: string, kind: AgendaEvent["kind"], region: AgendaRegion, title: string, competition: string, providers: AgendaProvider[], transmissionPending = false): AgendaEvent {
   const date = `2026-10-${String(day).padStart(2, "0")}`;

@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import AppHeader from "@/app/components/AppHeader";
-import BroadcastPill from "@/app/components/BroadcastPill";
+import PortalShell from "@/app/components/PortalShell";
+import RugbyBall from "@/app/components/RugbyBall";
+import HeadToHead from "@/app/components/HeadToHead";
+import type { HeadToHeadData } from "@/lib/headToHead";
+import BroadcastCountrySelect from "@/app/components/BroadcastCountrySelect";
+import BroadcasterLogo from "@/app/components/BroadcasterLogo";
+import { useBroadcastCountry, broadcastCountryLabel } from "@/lib/useBroadcastCountry";
+import { getMatchTelevision } from "@/lib/matchBroadcasts";
+import { trackProductEvent } from "@/lib/analytics";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
 import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
-import { getBroadcastsForCompetition } from "@/lib/broadcasts";
 import { t } from "@/lib/i18n";
 import { formatKickoffTZ, getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
@@ -60,6 +66,7 @@ type MatchPayload = {
     home_team: TeamRef | null;
     away_team: TeamRef | null;
   };
+  headToHead?: HeadToHeadData | null;
   standings: StandingRow[];
   standingsSource?: "cache" | "computed" | "curated";
   homeStanding: StandingRow | null;
@@ -166,40 +173,33 @@ export default function MatchClient() {
   const matchId = params?.id ?? "";
   const { lang, timeZone } = usePrefs();
   const tr = (key: string) => t(lang, key);
+  const {country:tvCountry,setCountry:setTvCountry}=useBroadcastCountry(competitionSlug==="fr-pro-d2"?"FR":"AR");
   const [data, setData] = useState<MatchPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
-
-    const load = async () => {
-      setLoading(true);
-      setError("");
-
-      const response = await fetch(
-        `/api/matches/${matchId}?competition=${encodeURIComponent(competitionSlug)}`,
-        { cache: "no-store" }
-      );
-      const payload = await response.json();
-
-      if (cancelled) return;
-
-      if (!response.ok) {
-        setData(null);
-        setError(payload.error ?? t(lang, "unknownMatchError"));
-      } else {
-        setData(payload as MatchPayload);
+    const controller=new AbortController();let timer:ReturnType<typeof setTimeout>;
+    const load=async(initial=false)=>{
+      if(initial){setData(null);setLoading(true);setError("");}
+      let delay=60000;
+      try{
+        const response=await fetch(`/api/matches/${matchId}?competition=${encodeURIComponent(competitionSlug)}`,{cache:"no-store",signal:controller.signal});
+        const payload=await response.json();
+        if(!response.ok)throw new Error(payload.error || t(lang,"unknownMatchError"));
+        if(controller.signal.aborted)return;
+        setData(payload as MatchPayload);setError("");
+        if(payload.match?.status==="LIVE"||payload.match?.status==="HT")delay=15000;
+      }catch(error){
+        if(controller.signal.aborted)return;
+        setError(error instanceof Error?error.message:t(lang,"unknownMatchError"));
+      }finally{
+        if(!controller.signal.aborted){setLoading(false);timer=setTimeout(()=>load(),delay);}
       }
-
-      setLoading(false);
     };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [competitionSlug, matchId, lang]);
+    load(true);
+    return()=>{controller.abort();clearTimeout(timer);};
+  },[competitionSlug,matchId,lang]);
 
   const kickoffLabel = useMemo(() => {
     if (!data) return null;
@@ -238,27 +238,26 @@ export default function MatchClient() {
     });
   }, [data, lang, timeZone]);
 
-  const broadcasts = useMemo(() => {
-    if (!data?.competition.slug) return [];
-    return getBroadcastsForCompetition(data.competition.slug);
-  }, [data?.competition.slug]);
+  const startsAt=data?.match.kickoff_time?`${data.match.match_date}T${data.match.kickoff_time.length===5?`${data.match.kickoff_time}:00`:data.match.kickoff_time}Z`:null;
+  const television=data?getMatchTelevision({competitionSlug:data.competition.slug,home:data.match.home_team?.name,away:data.match.away_team?.name,startsAt,country:tvCountry}):null;
+  const tvCopy={es:{pending:"Transmisión por confirmar para este país.",source:"Fuente",note:"Acceso al canal o plataforma. Puede requerir suscripción."},en:{pending:"Broadcast unconfirmed for this country.",source:"Source",note:"Channel or platform link. A subscription may be required."},fr:{pending:"Diffusion à confirmer dans ce pays.",source:"Source",note:"Lien vers la chaîne ou plateforme. Abonnement possible."},it:{pending:"Trasmissione da confermare in questo paese.",source:"Fonte",note:"Link al canale o piattaforma. Potrebbe richiedere un abbonamento."}}[lang];
   const isCuratedStandings = data?.standingsSource === "curated";
   const hasListedStandings = data?.standingsSource === "cache" || isCuratedStandings;
 
   return (
-    <div className="rn-app-bg rn-compact min-h-screen">
-      <AppHeader subtitle={data ? `${data.competition.name}  |  ${data.season.name}` : tr("matchDetails")} />
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <PortalShell title={tr("matchDetails")} subtitle={data?`${data.competition.name} · ${data.season.name}`:undefined}>
+      <div className="rn-match-detail">
         {loading ? (
-          <div className="rounded-2xl border border-white/15 bg-black/20 p-8 text-white/80">{tr("loading")}</div>
-        ) : error || !data ? (
+          <div className="rn-notice" role="status"><RugbyBall spinning/>{tr("loading")}</div>
+        ) : !data ? (
           <div className="rounded-2xl border border-red-200/30 bg-black/20 p-6 text-white">
             <div className="font-bold">{tr("matchNotFound")}</div>
             <div className="mt-2 text-sm text-white/80">{error || tr("unknownMatchError")}</div>
           </div>
         ) : (
-          <div className="space-y-6">
-            <section className="rounded-3xl border border-white/15 bg-black/20 p-6 backdrop-blur sm:p-8">
+          <div className="space-y-4">
+            {error&&<p className="rn-notice" role="status">{error}</p>}
+            <section className="rounded-md border border-white/15 bg-black/20 p-4">
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/70">
                 <Link href={`/leagues/${data.competition.slug}`} className="flex items-center gap-2 hover:text-emerald-200">
                   <LeagueLogo slug={data.competition.slug} alt={data.competition.name} />
@@ -274,19 +273,19 @@ export default function MatchClient() {
                 ) : null}
               </div>
 
-              <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-                <div className="flex items-center gap-4">
-                  <TeamLogo slug={data.match.home_team?.slug} alt={data.match.home_team?.name || tr("teamHomeFallback")} size={56} />
+              <div className="mt-4 grid gap-3 grid-cols-[1fr_auto_1fr] items-center">
+                <div className="flex items-center gap-2">
+                  <TeamLogo slug={data.match.home_team?.slug} alt={data.match.home_team?.name || tr("teamHomeFallback")} size={32} />
                   <div className="min-w-0">
-                    <Link href={data.match.home_team?.slug ? `/teams/${data.match.home_team.slug}` : "#"} className="text-2xl font-black text-white hover:text-emerald-200">
+                    <Link href={data.match.home_team?.slug ? `/teams/${data.match.home_team.slug}` : "#"} className="text-sm font-bold text-white hover:text-emerald-200">
                       {data.match.home_team?.name || tr("teamHomeFallback")}
                     </Link>
                     <div className="mt-1 text-sm text-white/65">{hasListedStandings && data.homeStanding ? `#${data.homeStanding.position}  |  PTS ${data.homeStanding.pts}` : data.competition.region || "RugbyNow"}</div>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-white/15 bg-white/5 px-6 py-5 text-center">
-                  <div className="text-3xl font-black tracking-tight text-white">
+                <div className="rounded-md border border-white/15 bg-white/5 px-3 py-3 text-center">
+                  <div className="text-2xl font-black tracking-tight text-white">
                     {isScheduledMatchStatus(data.match.status) ? "-" : (data.match.home_score ?? "-")}{" "}
                     <span className="text-white/50">-</span>{" "}
                     {isScheduledMatchStatus(data.match.status) ? "-" : (data.match.away_score ?? "-")}
@@ -295,23 +294,23 @@ export default function MatchClient() {
                   <div className="mt-1 text-xs uppercase tracking-[0.16em] text-white/55">{contextLabel}</div>
                 </div>
 
-                <div className="flex items-center justify-start gap-4 lg:justify-end">
+                <div className="flex items-center justify-end gap-2">
                   <div className="min-w-0 text-right">
-                    <Link href={data.match.away_team?.slug ? `/teams/${data.match.away_team.slug}` : "#"} className="text-2xl font-black text-white hover:text-emerald-200">
+                    <Link href={data.match.away_team?.slug ? `/teams/${data.match.away_team.slug}` : "#"} className="text-sm font-bold text-white hover:text-emerald-200">
                       {data.match.away_team?.name || tr("teamAwayFallback")}
                     </Link>
                     <div className="mt-1 text-sm text-white/65">{hasListedStandings && data.awayStanding ? `#${data.awayStanding.position}  |  PTS ${data.awayStanding.pts}` : data.competition.region || "RugbyNow"}</div>
                   </div>
-                  <TeamLogo slug={data.match.away_team?.slug} alt={data.match.away_team?.name || tr("teamAwayFallback")} size={56} />
+                  <TeamLogo slug={data.match.away_team?.slug} alt={data.match.away_team?.name || tr("teamAwayFallback")} size={32} />
                 </div>
               </div>
             </section>
 
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <StatCard label={tr("date")} value={data.match.match_date} />
+              <StatCard label={tr("date")} value={new Intl.DateTimeFormat(lang,{day:"numeric",month:"short",year:"numeric",timeZone:startsAt?timeZone:"UTC"}).format(new Date(startsAt || `${data.match.match_date}T12:00:00Z`))} />
               <StatCard label={tr("kickoffLocal")} value={kickoffLabel} />
               <StatCard label={tr("venue")} value={data.match.venue || tr("tbd")} />
-              <StatCard label={tr("source")} value={data.source || "supabase"} />
+              <StatCard label={tr("seasonLabel")} value={data.season.name} />
             </section>
 
             <section className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
@@ -332,16 +331,17 @@ export default function MatchClient() {
                 />
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {broadcasts.length ? (
-                  broadcasts.map((provider) => <BroadcastPill key={`${data.match.id}-${provider.id}`} provider={provider} compact />)
-                ) : (
-                  <div className="text-sm text-white/65">{tr("tbd")}</div>
-                )}
+              <div className="rn-detail-tv">
+                <BroadcastCountrySelect value={tvCountry} onChange={setTvCountry}/>
+                <span>{broadcastCountryLabel(tvCountry,lang)}</span>
+                {television?.pending&&<strong className="rn-tv-pending">{tvCopy.pending}</strong>}
+                <div className="rn-detail-tv-providers">{television?television.providers.map(provider=>provider.href&&!television.pending?<a key={provider.id} href={provider.href} target="_blank" rel="noopener noreferrer" onClick={()=>trackProductEvent("watch_provider_click",{match_id:data.match.id,provider_id:provider.id,link_type:provider.linkType||"channel"})}><BroadcasterLogo id={provider.id} name={provider.name}/>{provider.name} ↗</a>:<span key={provider.id}><BroadcasterLogo id={provider.id} name={provider.name}/>{provider.name}</span>):<p>{tvCopy.pending}</p>}</div>
+                {television&&<p>{tvCopy.source}: {television.sourceUrl?<a href={television.sourceUrl} target="_blank" rel="noopener noreferrer">{television.sourceName} ↗</a>:television.sourceName}. {tvCopy.note}</p>}
               </div>
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+            <HeadToHead data={data.headToHead} lang={lang} timeZone={timeZone}/>
+            <section className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
               <div className="space-y-4">
                 <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
                   <h2 className="text-xl font-black text-white">{tr("matchContext")}</h2>
@@ -422,7 +422,7 @@ export default function MatchClient() {
             </section>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </PortalShell>
   );
 }

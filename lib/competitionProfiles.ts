@@ -14,6 +14,13 @@ export type CompetitionProfile = {
 };
 
 const COMPETITION_PROFILES: Record<string, CompetitionProfile> = {
+  "fr-pro-d2": {
+    slug: "fr-pro-d2",
+    country: "France",
+    region: "Europe",
+    summary: "Pro D2 es la segunda división profesional del rugby francés, con 16 clubes y ascenso al Top 14.",
+    history: "Organizada por la Ligue Nationale de Rugby, combina una fase regular con eliminatorias por el título y el ascenso. RugbyNOW mantiene separadas las ediciones de su calendario, resultados y tabla de posiciones.",
+  },
   "fr-top14": {
     slug: "fr-top14",
     country: "France",

@@ -50,7 +50,7 @@ jobs:
           const fs = require('node:fs');
           let feeds = [...new Set((process.env.FLASH_URLS || '').split(/\r?\n|,/).map(s => s.trim()).filter(Boolean))];
           if (process.env.STANDINGS_ONLY === '1') {
-            const supported = new Set(['ar-urba-top14','fr-top14','en-premiership-rugby','it-serie-a-elite','int-united-rugby-championship','sra','us-mlr']);
+            const supported = new Set(['ar-urba-top14','fr-top14','fr-pro-d2','en-premiership-rugby','it-serie-a-elite','int-united-rugby-championship','sra','us-mlr']);
             feeds = feeds.filter(feed => supported.has(feed.split('=')[0]));
           }
           if (!feeds.length) throw new Error('No supported competition feeds configured.');
@@ -66,6 +66,7 @@ jobs:
       - name: Ensure configured competitions once
         if: github.event_name != 'workflow_dispatch' || !inputs.dry_run
         env:
+          FLASH_URLS: ${{ inputs.flash_urls || vars.FLASH_URLS }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run ensure:flashscore-competitions
@@ -145,6 +146,9 @@ jobs:
       - name: Refresh independent news feeds
         continue-on-error: true
         run: npm run sync:news
+      - name: Refresh confirmed match broadcasts
+        continue-on-error: true
+        run: npm run sync:broadcasts
       - name: Export complete Supabase snapshot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -157,13 +161,15 @@ jobs:
           cp data/supabase-snapshot.json /tmp/supabase-snapshot.json
           cp data/news-snapshot.json /tmp/news-snapshot.json
           cp data/official-standings.json /tmp/official-standings.json
+          cp data/match-broadcasts.json /tmp/match-broadcasts.json
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/supabase-snapshot.json data/supabase-snapshot.json
             cp /tmp/news-snapshot.json data/news-snapshot.json
             cp /tmp/official-standings.json data/official-standings.json
-            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json
+            cp /tmp/match-broadcasts.json data/match-broadcasts.json
+            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json data/match-broadcasts.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
             git commit -m "Update complete score and news snapshots"
             git push origin HEAD:main && exit 0

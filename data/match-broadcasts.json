@@ -1,0 +1,126 @@
+{
+  "updatedAt": "2026-10-20T04:38:44.752Z",
+  "listings": [
+    {
+      "id": "lnr-12068-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Montauban",
+      "away": "Oyonnax",
+      "startsAt": "2026-10-22T19:00:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-sport"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12068-montauban-oyonnax",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12069-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Narbonne",
+      "away": "Brive",
+      "startsAt": "2026-10-23T17:00:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-sport-360"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12069-narbonne-brive",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12063-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Agen",
+      "away": "Nice",
+      "startsAt": "2026-10-23T17:30:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12063-agen-nice",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12065-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Soyaux Angouleme",
+      "away": "Dax",
+      "startsAt": "2026-10-23T17:30:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12065-angouleme-dax",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12066-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Aurillac",
+      "away": "Nevers",
+      "startsAt": "2026-10-23T17:30:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12066-aurillac-nevers",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12070-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Valence Romans",
+      "away": "Colomiers",
+      "startsAt": "2026-10-23T17:30:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12070-valence-romans-colomiers",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12064-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Provence Rugby",
+      "away": "Beziers",
+      "startsAt": "2026-10-23T19:00:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-sport-plus",
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12064-provence-rugby-beziers",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    },
+    {
+      "id": "lnr-12067-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Grenoble",
+      "away": "Biarritz",
+      "startsAt": "2026-10-23T19:00:00.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-sport-360"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12067-grenoble-biarritz",
+      "checkedAt": "2026-10-20T04:38:44.752Z"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
 import { createClient } from "@supabase/supabase-js";
+import { PRO_D2_COMPETITION } from "../lib/proD2";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -27,6 +28,7 @@ type CompetitionSeed = {
 };
 
 const COMPETITION_SEEDS: Record<string, CompetitionSeed> = {
+  "fr-pro-d2": PRO_D2_COMPETITION,
   "fr-top14": {
     slug: "fr-top14",
     name: "Top 14",

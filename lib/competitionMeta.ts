@@ -31,7 +31,7 @@ export function getCompetitionEmoji(slug?: string | null, groupName?: string | n
   if (s === "int-united-rugby-championship") return flag("EU");
   if (s === "sra") return RUGBY;
   if (s === "us-mlr") return flag("US");
-  if (s === "fr-top14") return flag("FR");
+  if (s === "fr-top14" || s === "fr-pro-d2") return flag("FR");
   if (s === "it-serie-a-elite") return flag("IT");
   if (s === "en-premiership-rugby") return RUGBY;
   if (s.startsWith("ar-")) return flag("AR");

@@ -307,7 +307,7 @@ export function isArgentinaCompetition(slug: string) {
 }
 
 export function isEuropeCompetition(slug: string) {
-  return new Set(["en-premiership-rugby", "it-serie-a-elite", "fr-top14"]).has(slug);
+  return new Set(["en-premiership-rugby", "it-serie-a-elite", "fr-top14", "fr-pro-d2"]).has(slug);
 }
 
 export function isSevenCompetition(slug: string) {
@@ -578,6 +578,7 @@ export function getCompetitionSortPriority(competition: {
 
   const explicitPriority: Record<string, number> = {
     "fr-top14": 10,
+    "fr-pro-d2": 11,
     "it-serie-a-elite": 20,
     "int-united-rugby-championship": 30,
     "eu-challenge-cup": 35,

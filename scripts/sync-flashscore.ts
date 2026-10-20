@@ -1,5 +1,7 @@
+import { applyProD2TeamAliases, canonicalProD2TeamName } from "../lib/proD2";
+import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
-import {validateSourceStandings} from "../lib/sourceStandings";
+import {validateResolvedStandingsTeamIds,validateSourceStandings} from "../lib/sourceStandings";
 import {readAllRows} from "../lib/readAllRows";
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
@@ -294,40 +296,7 @@ function isPotentiallyLiveWindow(matchDate: string, kickoffTime?: string | null,
   return diffMinutes >= -15 && diffMinutes <= 130;
 }
 
-function competitionSlugFromUrl(url: string) {
-  const normalized = normalizeFlashUrl(url);
-  const u = new URL(normalized);
-  const parts = u.pathname.split("/").filter(Boolean);
-
-  if (parts.length < 3) return null;
-  if (parts[0] !== "rugby-union" && parts[0] !== "rugby") return null;
-
-  const regionOrCountry = parts[1];
-  const compSlug = parts[2];
-
-  if (compSlug === "top-14") return regionOrCountry === "argentina" ? "ar-urba-top14" : "fr-top14";
-  if (compSlug === "serie-a-elite") return "it-serie-a-elite";
-  if (compSlug === "six-nations") return "int-six-nations";
-  if (compSlug === "super-rugby-americas") return "sra";
-  if (compSlug === "premiership-rugby") return "en-premiership-rugby";
-  if (compSlug === "european-rugby-champions-cup") return "eu-champions-cup";
-  if (compSlug === "challenge-cup") return "eu-challenge-cup";
-  if (compSlug === "world-cup") return "int-world-cup";
-  if (compSlug === "nations-championship") return "int-nations-championship";
-  if (compSlug === "super-rugby") return "int-super-rugby-pacific";
-  if (compSlug === "united-rugby-championship") return "int-united-rugby-championship";
-  if (compSlug === "major-league-rugby") return "us-mlr";
-  if (compSlug === "svns-australia") return "svns-australia";
-  if (compSlug === "svns-usa") return "svns-usa";
-  if (compSlug === "svns-hong-kong") return "svns-hong-kong";
-  if (compSlug === "svns-singapore") return "svns-singapore";
-
-  if (regionOrCountry === "argentina" && compSlug === "top-14") {
-    return "ar-urba-top14";
-  }
-
-  return null;
-}
+const competitionSlugFromUrl = competitionSlugFromFlashscoreUrl;
 
 function seasonSortKey(name: string) {
   const s = (name || "").trim();
@@ -652,14 +621,15 @@ async function getTeamsMap() {
   const brazilId = map.get(norm("Brazil"));
   if (brazilId) map.set(norm("Brasil"), brazilId);
 
+  applyProD2TeamAliases(map);
   return { teamsMap: map, teamNamesNorm: names };
 }
 
 async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>, teamNamesNorm: string[]) {
-  const existing = resolveExactSourceTeam(rawName, teamsMap);
+  const existing = resolveExactSourceTeam(rawName, teamsMap) ?? resolveExactSourceTeam(canonicalProD2TeamName(rawName), teamsMap);
   if (existing) return existing;
 
-  const cleanName = rawName.trim();
+  const cleanName = canonicalProD2TeamName(rawName);
   if (!cleanName) return null;
 
   const slug = slugify(cleanName);
@@ -1549,9 +1519,10 @@ async function upsertStandingsCache(
   seasonId: number,
   teamsMap: Map<string, number>,
   teamNamesNorm: string[],
-  rows: ScrapedStandingRow[]
+  rows: ScrapedStandingRow[],
+  compSlug: string
 ) {
-  validateSourceStandings(rows);
+  validateSourceStandings(rows, compSlug === "fr-pro-d2" ? 16 : undefined);
   if (DRY_RUN) return;
 
   const payloadByTeam = new Map<number, Record<string, unknown>>();
@@ -1577,6 +1548,9 @@ async function upsertStandingsCache(
   }
 
   const payload = Array.from(payloadByTeam.values());
+  if (compSlug === "fr-pro-d2") {
+    validateResolvedStandingsTeamIds(payload.map(row => row.team_id as number), 16);
+  }
   if (!payload.length) return;
 
   const { error } = await ensureSupabase()
@@ -1999,7 +1973,7 @@ async function main() {
             throw new Error(`Empty standings for ${compSlug}`);
           }
           if (standings.length > 0) {
-            await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
+            await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings, compSlug);
           }
 
           if (DRY_RUN) {

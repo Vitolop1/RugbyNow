@@ -1,6 +1,6 @@
 # Contexto de RugbyNOW
 
-Última consolidación: 19 de octubre de 2026, a partir de pedidos del dueño y cambios verificados. Este documento guarda decisiones duraderas; los valores, URLs, credenciales, cifras de cobertura y estados de servicios deben verificarse en sus fuentes actuales.
+Última consolidación: 20 de octubre de 2026, a partir de pedidos del dueño y cambios verificados. Este documento guarda decisiones duraderas; los valores, URLs, credenciales, cifras de cobertura y estados de servicios deben verificarse en sus fuentes actuales.
 
 ## Producto y forma de trabajar
 
@@ -9,6 +9,10 @@ RugbyNOW quiere ser una referencia de rugby como Promiedos lo es de fútbol: age
 Preferencias confirmadas:
 
 - Interfaz verde, deportiva, compacta y legible, inspirada en Promiedos y El Nine: filas alineadas, horarios, marcador, escudos y competiciones reconocibles. Evitar grandes bloques decorativos y tarjetas gigantes. La noticia sí lleva tarjeta compacta con foto.
+- Referencia visual más reciente: navegación lateral de competiciones, resultados centrados y banner publicitario vertical como El Nine; mantener el verde y la densidad de Promiedos. Monetización híbrida con AdSense existente y consulta de patrocinio directo; rendimiento y entrega de anuncios todavía no verificados.
+- Pro D2 de Francia es una prioridad explícita, con sus 16 clubes, partidos y tabla. Mostrar el logo de la señal real por encuentro y país (ej. Disney+, ESPN o CANAL+), sin asignar derechos por la sola pertenencia a una liga. Rugbyrama es un medio, no una señal confirmada.
+- Pelota de rugby giratoria durante carga y quieta cuando no hay encuentros; respetar movimiento reducido. Configuración lleva tuerquita y el selector de idioma muestra banderas.
+- Historial entre ambos equipos con resultados reales y cobertura explícita. El dueño también pidió formaciones: publicarlas cuando exista una fuente verificable, no como predicción inventada. Desafíos de rugby inspirados en Futbol11: primera versión con preguntas diarias, práctica y explicaciones; acceso desde la agenda vacía.
 - Mismo estilo entre todas las páginas. Prioridad de Los Pumas, URBA y rugby argentino junto al internacional; ES/EN/FR/IT y zona horaria independiente del país de transmisión.
 - Poder seguir clubes, elegir y ordenar ligas y cambiar la apariencia desde Configuración. Temas verde/claro/oscuro, texto normal/grande y espaciado compacto/cómodo. Preferencias locales funcionales; una cuenta es opcional y todavía no hay sincronización entre dispositivos.
 - Noticias con fotografía, fecha, fuente y acceso al original; tablas de puntos y últimos resultados desplegables. No inventar cinco resultados si la edición solo tiene menos disponibles.
@@ -37,6 +41,10 @@ Mapa de entrada:
 | Tabla oficial URBA y bonus | `lib/officialStandings.ts`, `lib/standingsOverlay.ts`, `scripts/update-official-standings.ts` |
 | Noticias y fotos originales | `lib/news.ts`, `lib/newsServer.ts`, `scripts/update-news.ts`, `app/news/NewsClient.tsx` |
 | Navegación, preferencias y apariencia | `app/components/SiteHeader.tsx`, `app/settings/AppearanceSettings.tsx`, `lib/usePrefs.ts`, `lib/usePersonalization.ts`, `app/components/AppearanceSync.tsx` |
+| TV exacta por encuentro y país | `lib/matchBroadcasts.ts`, `data/match-broadcasts.json`, `scripts/update-match-broadcasts.ts`, `app/components/BroadcasterLogo.tsx` |
+| Historial entre equipos | `lib/headToHead.ts`, `lib/headToHeadServer.ts`, `app/components/HeadToHead.tsx`, `pages/api/matches/[id].ts` |
+| Desafíos diarios y práctica | `app/games/`, `lib/rugbyQuiz.ts`, `data/rugby-quiz.ts` |
+| Publicidad | `app/components/AdvertisingPlacement.tsx`, `lib/advertising.ts`, `app/advertise/` |
 | Alternativas para ver y medición | `lib/watchPlaceholderOptions.ts`, `app/components/ExternalWatchOptions.tsx`, `lib/analytics.ts` |
 | Escudos y recursos | `lib/assets.ts`, `public/team-logos/`, `data/visual-assets.json`, `docs/VISUAL-ASSETS.md` |
 | Importación, ejecución y respaldo | `scripts/sync-flashscore.ts`, `scripts/sync-matches.ts`, `scripts/sync-live-runner.ts`, `.github/workflows/`, `scripts/export-supabase-snapshot.ts` |
@@ -47,6 +55,8 @@ Mapa de entrada:
 - Una competición terminada puede abrir un cuadro de playoffs en lugar de posiciones. Esperar la tabla, seleccionar su fase regular y resolver el consentimiento que bloquee esa selección. Validar filas completas antes de reemplazar datos.
 - Una copia con más partidos no necesariamente es mejor: puede pertenecer a otra edición o a un dump de prueba. No desplazar la temporada y tabla verificadas para rellenar un calendario.
 - Supabase limita resultados por defecto; los respaldos y consultas amplias necesitan paginación estable. Una importación puede haber guardado datos aunque un paso posterior falle: inspeccionar la etapa antes de repetir escrituras.
+- Validar también los IDs resueltos antes de guardar una tabla: 16 filas de fuente pueden convertirse en 15 si falla un club o dos aliases convergen. Pro D2 rechaza escrituras incompletas antes del upsert.
+- El bootstrap de competiciones debe recibir los mismos FLASH_URLS seleccionados para el importador; el workflow ya pasa esa variable a Ensure configured competitions.
 - Los nombres parecidos no identifican el mismo club: Lions no es Old Lions; Lobos de Uruguay no es Lobos de México; un Universitario sin contexto puede ser ambiguo. Conservar IDs, edición y procedencia.
 - La grilla de Horacio/Norte Rugby es una referencia editorial fechada, en hora argentina. No es un feed recurrente ni prueba de transmisiones de otra semana o país.
 

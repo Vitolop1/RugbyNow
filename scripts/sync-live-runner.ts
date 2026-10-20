@@ -1,3 +1,4 @@
+import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {readAllRows} from "../lib/readAllRows";
 import {isLiveRefreshCandidate} from "../lib/liveRefresh";
 import { loadEnvConfig } from "@next/env";
@@ -69,39 +70,7 @@ function parseFlashInputs(raw: string | undefined) {
   return inputs;
 }
 
-function competitionSlugFromUrl(raw: string) {
-  const normalized = normalizeFlashUrl(raw);
-  const url = new URL(normalized);
-  const parts = url.pathname.split("/").filter(Boolean);
-
-  if (parts.length < 3 || (parts[0] !== "rugby-union" && parts[0] !== "rugby")) return null;
-
-  const regionOrCountry = parts[1];
-  const compSlug = parts[2];
-
-  if (compSlug === "top-14") return regionOrCountry === "argentina" ? "ar-urba-top14" : "fr-top14";
-  if (compSlug === "serie-a-elite") return "it-serie-a-elite";
-  if (compSlug === "six-nations") return "int-six-nations";
-  if (compSlug === "super-rugby-americas") return "sra";
-  if (compSlug === "premiership-rugby") return "en-premiership-rugby";
-  if (compSlug === "european-rugby-champions-cup") return "eu-champions-cup";
-  if (compSlug === "challenge-cup") return "eu-challenge-cup";
-  if (compSlug === "world-cup") return "int-world-cup";
-  if (compSlug === "nations-championship") return "int-nations-championship";
-  if (compSlug === "super-rugby") return "int-super-rugby-pacific";
-  if (compSlug === "united-rugby-championship") return "int-united-rugby-championship";
-  if (compSlug === "major-league-rugby") return "us-mlr";
-  if (compSlug === "svns-australia") return "svns-australia";
-  if (compSlug === "svns-usa") return "svns-usa";
-  if (compSlug === "svns-hong-kong") return "svns-hong-kong";
-  if (compSlug === "svns-singapore") return "svns-singapore";
-
-  if (regionOrCountry === "argentina" && compSlug === "top-14") {
-    return "ar-urba-top14";
-  }
-
-  return null;
-}
+const competitionSlugFromUrl = competitionSlugFromFlashscoreUrl;
 
 async function buildLiveOnlyFlashUrls() {
   const flashInputs = parseFlashInputs(readRuntimeEnv("FLASH_URLS") ?? process.env.FLASH_URLS);

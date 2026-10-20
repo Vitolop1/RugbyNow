@@ -2,6 +2,10 @@ export type BroadcastProviderId =
   | "disney-plus"
   | "espn"
   | "espn-plus"
+  | "canal-plus-sport"
+  | "canal-plus-sport-360"
+  | "canal-plus-live"
+  | "canal-sport-plus"
   | "noa-sports-go"
   | "quiero-deporte"
   | "rai-sport"
@@ -37,6 +41,26 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
     id: "espn-plus",
     label: "ESPN+",
     href: "https://plus.espn.com",
+  },
+  "canal-plus-sport": {
+    id: "canal-plus-sport",
+    label: "CANAL+ SPORT",
+    href: "https://www.canalplus.com/pro-d2",
+  },
+  "canal-plus-sport-360": {
+    id: "canal-plus-sport-360",
+    label: "CANAL+ SPORT 360",
+    href: "https://www.canalplus.com/pro-d2",
+  },
+  "canal-plus-live": {
+    id: "canal-plus-live",
+    label: "CANAL+ LIVE",
+    href: "https://www.canalplus.com/pro-d2",
+  },
+  "canal-sport-plus": {
+    id: "canal-sport-plus",
+    label: "SPORT+ · CANAL+",
+    href: "https://www.canalplus.com/pro-d2",
   },
   "noa-sports-go": {
     id: "noa-sports-go",
@@ -94,11 +118,17 @@ const SUGGESTED_PROVIDER_PRIORITY: BroadcastProviderId[] = [
   "urc-tv",
 ];
 
-export function getBroadcastLogo(id: BroadcastProviderId) {
+export function getBroadcastProvider(id: string): BroadcastProvider | undefined {
+  return Object.hasOwn(PROVIDERS, id) ? PROVIDERS[id as BroadcastProviderId] : undefined;
+}
+
+export function getBroadcastLogo(id: string): string | undefined {
+  // LNR lists the new SPORT+ service without a supplied brand asset.
+  if (id === "canal-sport-plus") return undefined;
   if (id === "tercer-tiempo-salta" || id === "noa-sports-go" || id === "quiero-deporte") {
     return "/broadcast-logos/youtube.png";
   }
-  return `/broadcast-logos/${id}.png`;
+  return getBroadcastProvider(id) ? `/broadcast-logos/${id}.png` : undefined;
 }
 
 // A competition does not establish event-specific rights in the visitor's country.

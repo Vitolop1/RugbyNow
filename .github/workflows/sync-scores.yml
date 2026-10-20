@@ -137,7 +137,7 @@ jobs:
             cp /tmp/supabase-snapshot.json data/supabase-snapshot.json
             git add data/supabase-snapshot.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
-            git commit -m "Update Supabase snapshot [skip ci]"
+            git commit -m "Update complete Supabase snapshot"
             git push origin HEAD:main && exit 0
             sleep 5
           done

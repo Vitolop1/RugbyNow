@@ -1654,7 +1654,8 @@ async function main() {
             console.log("WARN: selector not found quickly:", url);
           }
 
-          if (sourcePage === "live") {
+          // Live passes need current/recent rows, not the entire season archive.
+          if (LIVE_ONLY || sourcePage === "live") {
             await page.waitForTimeout(350);
           } else {
             await clickShowMore(page);

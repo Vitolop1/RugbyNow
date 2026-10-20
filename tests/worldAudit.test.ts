@@ -68,6 +68,14 @@ test("World Cup 2027 contains all 52 official fixtures, correct venue time zones
  assert.equal(matches.filter(m=>m.conditional).length,16);assert.ok(matches.filter(m=>m.conditional).every(m=>m.home_team.slug===null&&m.away_team.slug===null&&m.home_score===null));
  assert.equal(matches[11].match_date+"T"+matches[11].kickoff_time+"Z","2027-10-04T08:45:00Z");assert.equal(matches[27].kickoff_time,"02:45:00");assert.equal(matches[51].kickoff_time,"09:00:00");
 });
+
+test("official calendar enrichment preserves a real live observation and zero score",()=>{
+ const first=worldCup2027Matches()[0];
+ const observed=worldCup2027Matches([{id:first.id,status:"LIVE",minute:12,home_score:7,away_score:0,updated_at:"2027-10-01T11:00:00.000Z",source_url:"https://example.com/live"}])[0];
+ assert.equal(observed.status,"LIVE");assert.equal(observed.minute,12);assert.equal(observed.away_score,0);assert.equal(observed.source_url,"https://example.com/live");assert.equal(observed.kickoff_time,first.kickoff_time);
+ const suspended=appendSourceStatusDetail("https://example.com/live","suspended");
+ validateMatchObservation({status:"LIVE",source_url:suspended,updated_at:"2026-10-20T12:00:00.000Z"});
+});
 test("player directory retains namespaced identity and country without fabricating a season",()=>{
  const block=(i:number)=>`<a href="https://prod2.lnr.fr/joueur/${i}-player" class="player-block "><img alt="Player ${i}" class="player-block__player-img"/><img alt="France" class="player-block__country player-block__small-img"/><p class="player-block__name">Player ${i}</p><p class="player-block__position">Centre</p></a>`;
  const html="Effectif et staff du club"+Array.from({length:20},(_,i)=>block(i+1)).join("");const squad=parseLnrSquad(html,"oyonnax","https://prod2.lnr.fr/club/oyonnax/effectif-staff");

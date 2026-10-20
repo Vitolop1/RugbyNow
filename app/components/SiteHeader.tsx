@@ -5,10 +5,10 @@ import { usePrefs, type Lang } from "@/lib/usePrefs";
 import s from "@/app/agenda/daily.module.css";
 
 export const NAV_COPY = {
-  es: {agenda:"Agenda",leagues:"Competiciones",news:"Noticias",settings:"Mi Rugby",sources:"Fuentes y cobertura"},
-  en: {agenda:"Schedule",leagues:"Competitions",news:"News",settings:"My Rugby",sources:"Sources & coverage"},
-  fr: {agenda:"Agenda",leagues:"Compétitions",news:"Actualités",settings:"Mon Rugby",sources:"Sources et couverture"},
-  it: {agenda:"Agenda",leagues:"Competizioni",news:"Notizie",settings:"Il mio Rugby",sources:"Fonti e copertura"},
+  es: {agenda:"Agenda",leagues:"Competiciones",news:"Noticias",settings:"Configuración",sources:"Fuentes y cobertura"},
+  en: {agenda:"Schedule",leagues:"Competitions",news:"News",settings:"Settings",sources:"Sources & coverage"},
+  fr: {agenda:"Agenda",leagues:"Compétitions",news:"Actualités",settings:"Réglages",sources:"Sources et couverture"},
+  it: {agenda:"Agenda",leagues:"Competizioni",news:"Notizie",settings:"Impostazioni",sources:"Fonti e copertura"},
 };
 export default function SiteHeader(){
   const {lang,setLangEverywhere}=usePrefs(); const path=usePathname(); const c=NAV_COPY[lang];

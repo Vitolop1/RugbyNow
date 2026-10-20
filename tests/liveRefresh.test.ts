@@ -1,3 +1,4 @@
+import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
 import assert from "node:assert/strict";
 import test from "node:test";
 import {isLiveRefreshCandidate,isLiveDataDelayed} from "../lib/liveRefresh";
@@ -8,4 +9,12 @@ test("refresh selection includes imminent and source-live matches without invent
 });
 test("the live minute remains the last source minute rather than advancing from an old scrape",()=>{
  const label=getMatchClockLabel({status:"LIVE",minute:23,updatedAt:"2026-10-17T18:00:00Z",matchDate:"2026-10-17",kickoffTime:"17:30:00",timeZone:"UTC",lang:"en"});assert.ok(label.includes("23'"));assert.ok(!label.includes("40"));
+});
+
+test("source clock accepts apostrophe, unicode minute marks, stoppage time and zero scores",()=>{
+ assert.deepEqual(detectStatusAndMinute("23'",0,0,"live"),{status:"LIVE",minute:23});
+ assert.deepEqual(detectStatusAndMinute("80+3′",21,21,"live"),{status:"LIVE",minute:83});
+ assert.deepEqual(detectStatusAndMinute("HT",0,0,"live"),{status:"HT",minute:null});
+ assert.deepEqual(detectStatusAndMinute("15:30",null,null,"fixtures"),{status:"NS",minute:null});
+ assert.deepEqual(detectStatusAndMinute("FT",0,0,"live"),{status:"FT",minute:null});
 });

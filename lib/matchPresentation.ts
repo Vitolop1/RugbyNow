@@ -36,7 +36,7 @@ export function estimateLiveMinute(
   const effective = getEffectiveMatchState(status, matchDate, kickoffTime, explicitMinute, competitionSlug, updatedAt);
   if (effective.status !== "LIVE") return null;
   if (effective.minute != null && effective.minute > 0) {
-    return clamp(effective.minute, 1, maxMinute);
+    return clamp(effective.minute, 0, 130);
   }
   return null;
 }
@@ -119,12 +119,7 @@ export function getMatchClockLabel(input: MatchClockInput) {
       estimatedMinute != null
         ? estimatedMinute
         : null;
-    const phase = getLivePhase(input.lang, effective.status, minute, input.competitionSlug);
-    const maxMinute = getMaxDisplayMinute(input.competitionSlug);
-    if (minute != null && minute >= maxMinute) {
-      return [t(input.lang, "statusLive"), phase, `MIN ${maxMinute}`].filter(Boolean).join(" ");
-    }
-    return [t(input.lang, "statusLive"), phase, minute != null ? `${minute}'` : ""].filter(Boolean).join(" ");
+    return [t(input.lang,"statusLive"),minute!=null?`${minute}'`:""].filter(Boolean).join(" ");
   }
 
   return (

@@ -10,3 +10,20 @@ Logos identify teams, competitions and listed broadcasters. They do not imply a 
 - Broadcast logos already in the repository are used only for providers listed against that dated editorial event. There is no competition-wide automatic provider assignment on the new agenda. Listing territory is Argentina, independently selected from the time zone. Other countries show no confirmed provider until researched.
 
 The 15–22 October 2026 guide is a bounded editorial input. A channel/platform link is labeled as such; missing or tentative destinations remain pending. Do not copy a listing to another match/week or present it as a verified direct stream.
+
+
+## Complete catalogue audit, 2026-10-20 UTC
+
+All 142 teams in the current snapshot resolve to a real local resource (zero neutral fallbacks in the team catalogue). Six Spanish sevens slugs now resolve to their existing national union images: Fiyi, Sudáfrica, Nueva Zelanda, España, Gran Bretaña and Francia. These are union identifiers, not invented separate seven-team brands.
+
+New verified resources:
+
+- Black Lion: [EPCR club page](https://www.epcrugby.com/challenge-cup/clubs/black-lion/latest), the club's dark SVG from its published logoDark data: <https://media-cdn.incrowdsports.com/05e48a83-232e-4485-a449-b965b1f6d247.svg>. The companion light PNG is also preserved.
+- Cheetahs: [official club](https://www.fscheetahs.co.za/), <https://www.fscheetahs.co.za/images/logo.png>.
+- Rugby Deutschland: [official federation](https://www.rugbydeutschland.org/), <https://d28kyj1r8oju1l.cloudfront.net/4253/logo/480x480_rugby-deutschland_1770568906.png>.
+- Parabiago: the official website's old image URLs returned 404. Used the club crest from its [title sponsor's partnership page](https://www.vivienergia.it/rugby-parabiago): <https://vivienergia.imgix.net/uploads/2022/10/18142221/Logo-Parabiago.png?auto=format&width=320>.
+- Kenya Rugby Union: the federation site was unavailable and its old social profile image returned 404. Used the union's press logo supplied in the [KRU-issued release](https://www.africanews.it/english/rugby-books-entrepreneurship/): <https://www.africa-newsroom.com/files/large/b1c3acf07ba1b7f>.
+
+New logos were visually inspected. Existing assets were checked for local resolution, not all re-downloaded or independently relicensed. Logos identify teams; ownership remains with their respective clubs/unions.
+
+News illustrations are publisher-provided Open Graph/RSS preview images hosted by UAR or ESPN. Only the preview, headline, date and original source link appear; no full articles are copied. Twenty-four image endpoints returned HTTP 200 and an image content type during validation. Broken or unavailable previews fall back to a neutral RugbyNOW tile.

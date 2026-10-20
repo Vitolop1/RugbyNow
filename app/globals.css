@@ -356,3 +356,8 @@ span.rn-rugby-loader>svg{width:94px;height:100px}span.rn-rugby-small>svg{width:2
 
 .rn-tv-pending{color:#d49c51!important;font-weight:700}.rn-match-tv>summary:has(.rn-tv-pending){flex-wrap:wrap}.rn-match-tv>summary .rn-tv-pending{max-width:80px;font-size:8px;line-height:1.25}
 @media(max-width:600px){.rn-ad-leaderboard .rn-ad-message p{display:none}}
+/* Google may collapse an unfilled slot's parent with inline !important styles.
+   Put the house creative back in normal flow so it reserves its own space. */
+.rn-ad-inventory[data-delivery="unfilled"]>a.rn-ad-house{position:relative!important;inset:auto;min-height:600px!important}
+.rn-ad-leaderboard .rn-ad-inventory[data-delivery="unfilled"]>a.rn-ad-house{min-height:106px!important}
+@media(max-width:800px){.rn-ad-leaderboard .rn-ad-inventory[data-delivery="unfilled"]>a.rn-ad-house{min-height:90px!important}}

@@ -1,3 +1,4 @@
+import { PRO_D2_COMPETITION } from "./proD2";
 import fs from "node:fs";
 import path from "node:path";
 import { inferMatchDateFromScrapedRow } from "@/lib/scrapedMatchDate";
@@ -136,6 +137,7 @@ const COMPETITIONS: Competition[] = [
   { id: 16, name: "SVNS USA", slug: "svns-usa", region: "World", country_code: null, group_name: "Seven", sort_order: 2, is_featured: false },
   { id: 17, name: "SVNS Hong Kong", slug: "svns-hong-kong", region: "World", country_code: null, group_name: "Seven", sort_order: 3, is_featured: false },
   { id: 18, name: "SVNS Singapore", slug: "svns-singapore", region: "World", country_code: null, group_name: "Seven", sort_order: 4, is_featured: false },
+  { id: -19, ...PRO_D2_COMPETITION },
 ];
 
 const STATIC_JSONL_ROWS: Record<string, JsonlRow[]> = {
@@ -677,7 +679,7 @@ export function getFallbackCompetitions() {
 export function getFallbackSeasons() {
   return COMPETITIONS.map((competition, index): Season => ({
     id: index + 1,
-    name: `dry-run-${new Date().getUTCFullYear()}`,
+    name: competition.slug === PRO_D2_COMPETITION.slug ? PRO_D2_COMPETITION.season_name : `dry-run-${new Date().getUTCFullYear()}`,
     competition_id: competition.id,
   }));
 }
@@ -939,7 +941,7 @@ export function getFallbackLeagueData(compSlug: string, refISO: string, roundOve
 
   const season = {
     id: competition.id,
-    name: `dry-run-${new Date().getUTCFullYear()}`,
+    name: competition.slug === PRO_D2_COMPETITION.slug ? PRO_D2_COMPETITION.season_name : `dry-run-${new Date().getUTCFullYear()}`,
     competition_id: competition.id,
   };
 
@@ -966,7 +968,7 @@ export function getFallbackMatchDetail(compSlug: string, matchId: number, refISO
 
   const season = {
     id: competition.id,
-    name: `dry-run-${new Date().getUTCFullYear()}`,
+    name: competition.slug === PRO_D2_COMPETITION.slug ? PRO_D2_COMPETITION.season_name : `dry-run-${new Date().getUTCFullYear()}`,
     competition_id: competition.id,
   };
 

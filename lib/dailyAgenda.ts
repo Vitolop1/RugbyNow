@@ -32,7 +32,7 @@ export function shiftAgendaDate(date: string, days: number) {
   next.setUTCDate(next.getUTCDate() + days);
   return next.toISOString().slice(0, 10);
 }
-function normalizedTeam(value: string) {
+export function normalizedTeam(value: string) {
   const clean = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
   return ({belgranoathletic:"belgrano",buenosairescrc:"buenosaires",nuevazelanda:"newzealand",atldelrosario:"atleticodelrosario",regatas:"regatasbellavista"} as Record<string,string>)[clean] || clean;
 }

@@ -1,5 +1,6 @@
 type SourceStanding={pos:number|null;team:string;played:number|null;won:number|null;drawn:number|null;lost:number|null;pointsFor:number|null;pointsAgainst:number|null;points:number|null};
-export function validateSourceStandings(rows:SourceStanding[]){
+export function validateSourceStandings(rows:SourceStanding[],expectedCount?:number){
+ if(expectedCount != null && rows.length !== expectedCount) throw Error(`Expected ${expectedCount} standings teams, received ${rows.length}`);
  if(rows.length<2)throw Error("Standings table is empty or incomplete");
  const names=new Set<string>(),positions=new Set<number>();
  for(const row of rows){const name=row.team.trim().toLowerCase();if(!name||names.has(name))throw Error("Duplicate standings team");names.add(name);

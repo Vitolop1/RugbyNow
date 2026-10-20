@@ -41,6 +41,12 @@ const TEAM_SLUGS: Record<string,string> = {
   sic:"sic", cuba:"cuba", newman:"newman", alumni:"alumni", casi:"casi", hindu:"hindu", champagnat:"champagnat",
   lostilos:"los-tilos", laplata:"la-plata", regatasbellavista:"regatas-bella-vista", belgrano:"belgrano",
   losmatreros:"los-matreros", buenosaires:"buenos-aires", atleticodelrosario:"atletico-del-rosario",
+  curupayti:"curupayti", lomas:"lomas", pueyrredon:"pueyrredon", sanandres:"san-andres", sanluis:"san-luis",
+  universitariolaplata:"universitario-la-plata", jockeysalta:"jockey-club-de-salta",
+  northland:"northland", taranaki:"taranaki", cordobaathletic:"cordoba-athletic", tucumanrugby:"tucuman-rugby",
+  huirapuca:"huirapuca", cardenalesrc:"cardenales-rc", natacion:"natacion-y-gimnasia", loscuervosrugby:"los-cuervos-uruguay",
+  hongkongchinam19:"hong-kong", namibiam19:"namibia", brasilm20:"brazil", canadam20:"canada",
+  uruguaym17:"uruguay", chilem20:"chile", belgicam20:"belgium",
 };
 const pairKey = (home: string, away: string) => `${normalizedTeam(home)}|${normalizedTeam(away)}`;
 

@@ -81,3 +81,16 @@ The subsequent live import updated 148 records and inserted 2; the public API co
 That run failed after the successful data import/export, in the container's Git snapshot commit step (`fatal: not in a git directory`). Snapshot publication now runs once in a separate Ubuntu job with an explicitly scoped write token. Browser scraping jobs retain read-only repository access. The 16 configured feeds are distributed into up to four bounded groups instead of one long serial job. Current dry-run reports use a dedicated directory so committed historical dumps cannot be mistaken for fresh output.
 
 Scheduled primary writes remain gated by `DATA_SYNC_ENABLED` until the complete configured feed set passes validation and monitored reconciliation. Other dormant schedules remain disabled during this recovery.
+
+
+## Points, form, news photos and live refresh — PR #8
+
+- Seven regular-season standings feeds passed read-only validation run 39358399611: URBA 14 rows, France 14, Italy 10, MLR 6, URC 16, Super Rugby Americas 8, Premiership 10. Selecting the regular Main phase avoids accidentally reading a playoff draw; asynchronous table rendering is awaited and incomplete rows are rejected.
+- URBA's official 2026 table is independently read from urba.org.ar, validates all 14 exact clubs and includes actual bonus points. Newman: 26 played, 110 points. The edition-bound overlay preserves available recent form and never applies the 2026 table to another year.
+- League pages open with points tables and offer the five available confirmed results, expandable to opponents, scores, dates and details. Incomplete historical match coverage is not silently described as a complete season.
+- Twenty-four news previews have publisher images, compact cards and original source links. All 24 image endpoints were checked successfully.
+- All 142 database-catalogue teams resolve locally. Additional editorial-only clubs were researched separately; see VISUAL-ASSETS.md for coverage and remaining unverified identities.
+- TV, radio y streams has a dedicated route. Previous external directory destinations remain labeled as external options, not verified per-match broadcasts.
+- The new live workflow removes synthetic clock/finalization steps, paginates candidates and refuses to infer LIVE or FT from elapsed time. Frontend polling is 15 seconds while source-live games are shown, 60 otherwise; upstream workflows are scheduled every 5 minutes and GitHub scheduling can be delayed. A no-candidate run does not demonstrate a score changing during a match.
+- Supersedes the older recovery instruction above mentioning clock/finalization passes: do not re-enable those legacy steps.
+- 36 tests and TypeScript passed. The local browser controller is disabled by Work settings and exposes no tool to enable it, so the current additions still need an interactive desktop/mobile pass when that setting is available. HTTP/API, source images and production build checks are separate evidence, not a substitute claim of browser QA.

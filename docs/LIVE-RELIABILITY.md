@@ -46,3 +46,12 @@ Las pruebas de parser/reconciliación pasan de forma aislada; no sustituyen obse
 [Prueba de vivo 39375484676](https://github.com/Vitolop1/RugbyNow/actions/runs/39375484676) terminada con éxito. Su artefacto live-source-health contiene status=idle, dryRun=true, candidates=0, entre 05:33:48.264 y 05:33:48.996 UTC: verifica la consulta/selección y el informe, no el scraping de un vivo ni escrituras. La prueba antigua 39359653728 devolvía queued pero GitHub rechazó cancel y force-cancel con HTTP 409; no afirmar que fue cancelada. Esto no impidió ejecutar la nueva prueba.
 
 Los checks de aplicación y Cloudflare de 442a3db terminaron con success. Estos checks y el informe idle no son una medición del retraso de un marcador en producción. La cadencia programada y una actualización real deben observarse después de la publicación, según el criterio de aceptación anterior.
+
+
+## Auditoría ampliada — 20/10/2026
+
+Run programado 39407746051: informe 10:25:35.810–10:25:36.961 UTC, status=idle, candidates=0, dryRun=false. General 39412099072: 11:02–11:09 UTC, 18 informes; Pro D2 168 encuentros y URBA 114. Se observaron intervalos superiores a los cinco minutos nominales. Estas ejecuciones no validan latencia de un partido real.
+
+`conditionalMatchWrite.ts` aplica updated_at <= observedAt (o null) en el UPDATE y bloquea vuelta de FT a estados no finales. Scores activos/finales requieren enteros >=0; una suspensión sin marcador conserva el último marcador. POSTP, DELAY, SUSP, abandono, W/O, adjudicado, ET/AET y penales se guardan como calificador en source_url junto con los metadatos de fase existentes. No requieren ampliar la restricción instalada de estados. Pruebas controladas verifican filtros de escritura, ceros y preservación de calificadores; no sustituyen una escritura observada en producción.
+
+Consulta de pantalla, ejecución del job, observación de proveedor y edad del dato siguen siendo tiempos diferentes. Pendiente: encuentro real con varias lecturas consecutivas fuente → base/API → pantalla, error/reintento real y medición de demora. Continúa la dependencia del scraping; no se activó una API paga ni un segundo proveedor automático.

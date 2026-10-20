@@ -1,3 +1,7 @@
+import {getProD2CalendarData} from "@/lib/proD2CalendarData";
+import {officialWorldCupFixture} from "@/lib/worldCup2027";
+import {withOfficialStandings} from "@/lib/standingsOverlay";
+import {usableCachedStandings} from "@/lib/sourceStandings";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
@@ -241,6 +245,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ? firstString(req.query.date)
     : new Date().toISOString().slice(0, 10);
 
+  const proD2Pending=competitionSlug==="fr-pro-d2"?getProD2CalendarData().pending.find(m=>m.id===matchId):null;
+  if(proD2Pending)return res.status(200).json({pendingFixture:proD2Pending,source:"official-lnr"});
+  const officialFixture=competitionSlug==="int-world-cup"?officialWorldCupFixture(matchId):null;
+  if(officialFixture&&matchId<0)return res.status(200).json({competition:{id:21,name:"Rugby World Cup 2027 · Men",slug:"int-world-cup",region:"International"},season:{id:29,name:"2027"},match:officialFixture,standings:[],standingsSource:"unavailable",homeStanding:null,awayStanding:null,headToHead:null,source:"official-world-rugby"});
   if (!Number.isInteger(matchId) || matchId <= 0) {
     return res.status(400).json({ error: "Invalid match id" });
   }
@@ -248,11 +256,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (competitionSlug && isCuratedOnlyCompetition(competitionSlug)) {
     const fallbackDetail = getFallbackMatchDetail(competitionSlug, matchId, refISO);
     if (fallbackDetail) {
-      return res.status(200).json({
+      return res.status(200).json(withOfficialStandings({
         ...fallbackDetail,
         source: "fallback-curated",
         headToHead: null,
-      });
+      }));
     }
   }
 
@@ -287,6 +295,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (matchError || !match) throw new Error("Match not found in Supabase");
 
     const typedMatch = match as unknown as MatchRow;
+    const officialSlot=competitionSlug==="fr-pro-d2"?getProD2CalendarData().matches.find(m=>m.id===matchId):officialFixture;
+    if(officialSlot){typedMatch.match_date=officialSlot.match_date;typedMatch.kickoff_time=officialSlot.kickoff_time;typedMatch.venue=officialSlot.venue||typedMatch.venue;}
     const season = unwrapSeason(typedMatch.season);
     const competition = season?.competition ?? null;
     if (!season || !competition) throw new Error("Competition context missing for match");
@@ -325,7 +335,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .order("position", { ascending: true });
 
     let standings: StandingRow[] = [];
-    let standingsSource: "cache" | "computed" = "computed";
+    let standingsSource: "cache" | "unavailable" = "unavailable";
 
     if (!standingsError && hasUsableStandingCache((standingsCache || []) as StandingCacheRow[]) && hasConsistentStandingsCache((standingsCache || []) as StandingCacheRow[], (row) => ({
       played: row.played,
@@ -360,9 +370,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           } satisfies StandingRow;
         })
         .filter(Boolean) as StandingRow[];
-      standingsSource = "cache";
+      if(usableCachedStandings((standingsCache||[]) as StandingCacheRow[],teamsById,competition.slug,season.name))standingsSource = "cache";
+      else standings=[];
     } else {
-      standings = buildComputedStandings((seasonMatches || []) as MatchRow[]);
+      standings = [];
     }
 
     const homeTeam = unwrapTeam(typedMatch.home_team);
@@ -370,7 +381,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const reference = historyReference(typedMatch, competition.slug);
     const headToHead = reference ? await getDatabaseHeadToHead(serverSupabase, reference) : null;
 
-    return res.status(200).json({
+    return res.status(200).json(withOfficialStandings({
       competition,
       season: { id: season.id, name: season.name },
       match: {
@@ -384,17 +395,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       awayStanding: standings.find((item) => item.teamId === awayTeam?.id) ?? null,
       source: "supabase",
       headToHead,
-    });
+    }));
   } catch (error) {
     const snapshot = competitionSlug ? getSnapshotMatchDetail(competitionSlug, matchId, refISO) : null;
     if (snapshot) {
       const reference = historyReference(snapshot.match, snapshot.competition.slug);
-      return res.status(200).json({ ...snapshot, source: "snapshot", headToHead: reference ? getSnapshotHeadToHead(reference) : null });
+      return res.status(200).json(withOfficialStandings({ ...snapshot, source: "snapshot", headToHead: reference ? getSnapshotHeadToHead(reference) : null }));
     }
 
     const fallback = competitionSlug ? getFallbackMatchDetail(competitionSlug, matchId, refISO) : null;
     if (fallback) {
-      return res.status(200).json({ ...fallback, source: "fallback", headToHead: null });
+      return res.status(200).json(withOfficialStandings({ ...fallback, source: "fallback", headToHead: null }));
     }
 
     return res.status(404).json({ error: error instanceof Error ? error.message : "Match not found" });

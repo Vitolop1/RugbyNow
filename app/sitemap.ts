@@ -1,3 +1,5 @@
+import {getSquadPlayerIndex} from "@/lib/teamSquads";
+import bundledSnapshot from "@/data/supabase-snapshot.json";
 import fs from "node:fs";
 import path from "node:path";
 import type { MetadataRoute } from "next";
@@ -23,7 +25,7 @@ function readSnapshot(): SnapshotData {
   try {
     return JSON.parse(fs.readFileSync(snapshotPath, "utf8")) as SnapshotData;
   } catch {
-    return {};
+    return bundledSnapshot;
   }
 }
 
@@ -81,5 +83,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     }));
 
-  return [...staticEntries, ...leagueEntries, ...teamEntries];
+  const playerEntries=getSquadPlayerIndex().map(p=>({url:`${siteUrl}/players/${p.id}`,lastModified:new Date(p.checkedAt),changeFrequency:"weekly" as const,priority:0.5}));
+  return [...staticEntries, ...leagueEntries, ...teamEntries,...playerEntries];
 }

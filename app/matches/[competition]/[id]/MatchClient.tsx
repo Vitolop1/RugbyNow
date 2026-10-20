@@ -1,5 +1,8 @@
 "use client";
 
+import PendingCalendar from "@/app/components/PendingCalendar";
+import type {PendingProD2Fixture} from "@/lib/proD2CalendarData";
+import {sourceStatusLabel} from "@/lib/sourceStatusDetail";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
@@ -36,8 +39,10 @@ type StandingRow = {
   w: number;
   d: number;
   l: number;
-  pf: number;
-  pa: number;
+  pf: number|null;
+  pa: number|null;
+  difference?:number;
+  group?:string;
   pts: number;
   form?: Array<"W" | "D" | "L">;
 };
@@ -70,7 +75,7 @@ type MatchPayload = {
   };
   headToHead?: HeadToHeadData | null;
   standings: StandingRow[];
-  standingsSource?: "cache" | "computed" | "curated";
+  standingsSource?: "cache" | "computed" | "curated" | "official" | "unavailable";
   homeStanding: StandingRow | null;
   awayStanding: StandingRow | null;
   source?: string;
@@ -176,6 +181,7 @@ export default function MatchClient() {
   const { lang, timeZone } = usePrefs();
   const tr = (key: string) => t(lang, key);
   const {country:tvCountry,setCountry:setTvCountry}=useBroadcastCountry(competitionSlug==="fr-pro-d2"?"FR":"AR");
+  const [pending,setPending]=useState<PendingProD2Fixture|null>(null);
   const [data, setData] = useState<MatchPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -183,13 +189,15 @@ export default function MatchClient() {
   useEffect(() => {
     const controller=new AbortController();let timer:ReturnType<typeof setTimeout>;
     const load=async(initial=false)=>{
-      if(initial){setData(null);setLoading(true);setError("");}
+      if(initial){setPending(null);setData(null);setLoading(true);setError("");}
       let delay=60000;
       try{
         const response=await fetch(`/api/matches/${matchId}?competition=${encodeURIComponent(competitionSlug)}`,{cache:"no-store",signal:controller.signal});
         const payload=await response.json();
         if(!response.ok)throw new Error(payload.error || t(lang,"unknownMatchError"));
         if(controller.signal.aborted)return;
+        if(payload.pendingFixture){setPending(payload.pendingFixture);setData(null);setError("");return;}
+        if(!payload.match)throw new Error(t(lang,"unknownMatchError"));
         setData(previous=>({...payload,match:preferNewerReading(previous&&previous.match.id===payload.match.id?previous.match:undefined,payload.match as MatchPayload["match"],row=>row.updated_at)} as MatchPayload));setError("");
         if(payload.match?.status==="LIVE"||payload.match?.status==="HT")delay=15000;
       }catch(error){
@@ -210,6 +218,7 @@ export default function MatchClient() {
 
   const clockLabel = useMemo(() => {
     if (!data) return "";
+    const sourceLabel=sourceStatusLabel(data.match.source_url,lang);if(sourceLabel)return sourceLabel;
     return getMatchClockLabel({
       competitionSlug: data.competition.slug,
       status: data.match.status,
@@ -244,8 +253,9 @@ export default function MatchClient() {
   const television=data?getMatchTelevision({competitionSlug:data.competition.slug,home:data.match.home_team?.name,away:data.match.away_team?.name,startsAt,country:tvCountry}):null;
   const tvCopy={es:{pending:"Transmisión por confirmar para este país.",source:"Fuente",note:"Acceso al canal o plataforma. Puede requerir suscripción."},en:{pending:"Broadcast unconfirmed for this country.",source:"Source",note:"Channel or platform link. A subscription may be required."},fr:{pending:"Diffusion à confirmer dans ce pays.",source:"Source",note:"Lien vers la chaîne ou plateforme. Abonnement possible."},it:{pending:"Trasmissione da confermare in questo paese.",source:"Fonte",note:"Link al canale o piattaforma. Potrebbe richiedere un abbonamento."}}[lang];
   const isCuratedStandings = data?.standingsSource === "curated";
-  const hasListedStandings = data?.standingsSource === "cache" || isCuratedStandings;
+  const hasListedStandings = data?.standingsSource === "cache" || data?.standingsSource === "official" || isCuratedStandings;
 
+  if(pending)return <PortalShell title={`${pending.home} vs ${pending.away}`} subtitle={`Pro D2 · ${pending.season}`}><PendingCalendar fixtures={[pending]} compact/><p className="rn-notice"><Link href="/leagues/fr-pro-d2">Pro D2 →</Link></p></PortalShell>;
   return (
     <PortalShell title={tr("matchDetails")} subtitle={data?`${data.competition.name} · ${data.season.name}`:undefined}>
       <div className="rn-match-detail">
@@ -371,13 +381,13 @@ export default function MatchClient() {
               <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/20 backdrop-blur">
                 <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
                   <div>
-                    <div className="text-xl font-bold text-white">{tr("standings")}</div>
+                    <div className="text-xl font-bold text-white">{tr("standings")} {data.homeStanding?.group&&<small>· {data.homeStanding.group}</small>}</div>
                     <div className="mt-1 text-sm text-white/70">
                       {data.standingsSource === "cache"
                         ? tr("scrapedStandings")
                         : data.standingsSource === "curated"
                           ? tr("curatedStandings")
-                          : tr("computedFromFT")}
+                          : data.standingsSource === "official" ? ({es:"Tabla oficial",en:"Official table",fr:"Classement officiel",it:"Classifica ufficiale"})[lang] : ({es:"Tabla todavía sin verificar para esta edición y fase",en:"Standings not yet verified for this edition and phase",fr:"Classement non vérifié pour cette édition et phase",it:"Classifica non verificata per questa edizione e fase"})[lang]}
                     </div>
                   </div>
                   <Link href={`/leagues/${data.competition.slug}`} className="text-sm font-semibold text-emerald-200 hover:text-emerald-100">
@@ -396,7 +406,7 @@ export default function MatchClient() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.standings.map((row) => {
+                      {data.standings.filter(row=>!row.group||!data.homeStanding?.group||row.group===data.homeStanding.group).map((row) => {
                         const isHighlighted =
                           row.teamId === data.match.home_team?.id || row.teamId === data.match.away_team?.id;
                         return (

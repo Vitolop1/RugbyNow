@@ -8,6 +8,8 @@ RugbyNOW quiere ser una referencia de rugby como Promiedos lo es de fútbol: age
 
 Preferencias confirmadas:
 
+- Sección inicial compacta de Destacados: partidos reales recomendados para ver, con horario local y transmisión solo cuando esté confirmada. Selección progresiva sin agrandar la portada.
+
 - Interfaz verde, deportiva, compacta y legible, inspirada en Promiedos y El Nine: filas alineadas, horarios, marcador, escudos y competiciones reconocibles. Evitar grandes bloques decorativos y tarjetas gigantes. La noticia sí lleva tarjeta compacta con foto.
 - Referencia visual más reciente: navegación lateral de competiciones, resultados centrados y banner publicitario vertical como El Nine; mantener el verde y la densidad de Promiedos. Monetización híbrida con AdSense existente y consulta de patrocinio directo; rendimiento y entrega de anuncios todavía no verificados.
 - Pro D2 de Francia es una prioridad explícita, con sus 16 clubes, partidos y tabla. Mostrar el logo de la señal real por encuentro y país (ej. Disney+, ESPN o CANAL+), sin asignar derechos por la sola pertenencia a una liga. Rugbyrama es un medio, no una señal confirmada.
@@ -20,7 +22,7 @@ Preferencias confirmadas:
 - TV, radio y streams es el nombre de la sección. Las alternativas externas actuales fueron indicadas expresamente por el dueño; su lista canónica está en `lib/watchPlaceholderOptions.ts`. Cambiarla allí conserva todos los accesos coherentes y la medición de clics. No volver a dominios históricos de documentación antigua.
 - Respuestas en español claro con voseo, actualizaciones breves y decisiones concretas. Trabajar con autonomía dentro del pedido, conservar lo útil, comprobar el resultado y explicar pendientes reales. No detener cada decisión menor para pedir permiso.
 
-Noticias fueron solicitadas e implementadas después del pedido inicial que las reservaba para el futuro. IA dentro de la web, jugadores/lesiones, YouTube y nuevos micro-SaaS siguen siendo ideas; no agregarlos solo por estar mencionados aquí.
+Plantillas de temporada, fichas deportivas de jugadores, lesiones públicas verificadas y fichajes/renovaciones/préstamos/salidas están expresamente incluidos en el pedido del 20/10/2026. Diferenciar convocatorias, plantel de temporada y formación de partido; separar confirmaciones de rumores y fechar cada fuente. Los canales de YouTube verificados forman parte de los accesos de streams. IA y nuevos micro-SaaS no quedan autorizados por estas ampliaciones.
 
 ## Repo y orientación rápida
 
@@ -61,6 +63,15 @@ Mapa de entrada:
 - Un día del mes o un marcador no identifica una fecha de competición: el parser debe exigir un encabezado explícito o una fuente oficial por encuentro. Pro D2 usa la fecha de LNR si coincide la identidad y el comienzo UTC.
 - Los nombres parecidos no identifican el mismo club: Lions no es Old Lions; Lobos de Uruguay no es Lobos de México; un Universitario sin contexto puede ser ambiguo. Conservar IDs, edición y procedencia.
 - La grilla de Horacio/Norte Rugby es una referencia editorial fechada, en hora argentina. No es un feed recurrente ni prueba de transmisiones de otra semana o país.
+
+## Ampliación comprobada del 20/10/2026
+
+- Tablas oficiales por edición: URBA 2026 (14), Pro D2 2026/27 (16), Top 14 francés 2026/27 (14), Champions (4 grupos de 6) y Challenge (3 de 6). LNR publica bonus total; EPCR publica diferencia, BO y BD, pero no PF/PC: conservar desconocidos como null. No recalcular puntos ni desempates oficiales.
+- Pro D2: 240 cruces de fase regular, 30 jornadas verificadas. 88 con día publicado y 152 con ventana de fechas; no presentar las fechas provisionales de otro proveedor como confirmadas. Los encabezados de día de LNR prevalecen sobre la ventana nominal de jornada (J7 incluye sábado 17/10).
+- Mundial masculino XV 2027: 52 encuentros del PDF oficial, 16 cruces condicionales, UTC según la ciudad anfitriona y su DST. La edición archivada 2025/2026 contiene el clasificatorio final para 2027 disputado en noviembre de 2025; no es la fase final.
+- Directorios LNR de los 16 clubes de Pro D2: 791 jugadores con ID público estable. La fuente no indica temporada: etiquetar directorio, nunca plantilla actual confirmada. Lesiones y movimientos tienen fecha, fuente y clasificación; un registro viejo no demuestra disponibilidad actual.
+- Algunos países comparten ID entre XV y seven. Fichas, estadísticas y resultados se separan por disciplina, con selector visible; no fusionar categorías por el nombre del país. El generador de perfiles no debe identificar seven por la presencia de una sola competición SVNS.
+- Las escrituras de resultados se condicionan a la fecha de observación dentro del UPDATE, evitando que una extracción anterior sobrescriba otra más nueva. Un FT no vuelve a LIVE/NS. Aplazamiento/suspensión/prórroga conservan calificadores explícitos de fuente, sin inventar reloj.
 
 ## Límites y pendientes conocidos
 

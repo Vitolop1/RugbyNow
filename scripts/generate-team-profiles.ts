@@ -600,7 +600,7 @@ function inferCountryFromCompetition(competitionSlugs: string[]) {
 function isSevensTeam(team: SnapshotTeam, competitionSlugs: string[]) {
   const name = normalizeToken(team.name);
   const slug = normalizeToken(team.slug ?? "");
-  return slug.endsWith("7s") || name.includes("7s") || competitionSlugs.some((item) => item.startsWith("svns-"));
+  return slug.endsWith("7s") || name.includes("7s") || (competitionSlugs.length>0&&competitionSlugs.every((item) => item.startsWith("svns-")||item==="int-supersevens"));
 }
 
 function isNationalTeam(team: SnapshotTeam, competitionSlugs: string[]) {

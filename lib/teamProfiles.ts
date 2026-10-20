@@ -13,6 +13,11 @@ export type TeamProfile = {
 };
 
 const TEAM_PROFILE_OVERRIDES: Record<string, Partial<TeamProfile>> = {
+  argentina: {
+    displayName:"Argentina",country:"Argentina",
+    summary:"Los Pumas son la selección argentina masculina de rugby XV. Los resultados de seven se consultan por separado.",
+    history:"Fuente institucional: Unión Argentina de Rugby · https://uar.com.ar/equipos-uar/los-pumas/",
+  },
   "pampas-xv": {
     colors: ["Celeste", "Blanco"],
   },

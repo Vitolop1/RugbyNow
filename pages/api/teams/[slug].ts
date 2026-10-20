@@ -1,3 +1,10 @@
+import {getProD2CalendarData} from "@/lib/proD2CalendarData";
+import {worldCup2027Matches} from "@/lib/worldCup2027";
+import {teamDisciplineSelection} from "@/lib/teamDiscipline";
+import {rugbyDiscipline} from "@/lib/headToHead";
+import {getTeamSquads} from "@/lib/teamSquads";
+import {getPlayerUpdates} from "@/lib/playerUpdates";
+import officialTables from "@/data/official-standings.json";
 import fs from "node:fs";
 import path from "node:path";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -124,6 +131,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!snapshot) {
       return res.status(500).json({ error: "Team snapshot unavailable" });
     }
+    const proD2=getProD2CalendarData();
+    const knownPro=new Map(proD2.matches.map(m=>[m.id,m]));
+    const proSeason=snapshot.seasons.find(s=>s.name==="2026/2027"&&snapshot.competitions.some(c=>c.id===s.competition_id&&c.slug==="fr-pro-d2"));
     const team = snapshot.teams.find((row) => row.slug === slug);
 
     if (!team) {
@@ -132,12 +142,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const seasonsById = new Map(snapshot.seasons.map((season) => [season.id, season]));
     const competitionsById = new Map(snapshot.competitions.map((competition) => [competition.id, competition]));
-    const teamMatches = filterCuratedTeamMatches(
+    const worldSeason=snapshot.seasons.find(s=>s.name==="2027"&&snapshot.competitions.some(c=>c.id===s.competition_id&&c.slug==="int-world-cup"));
+    const officialWorld=worldCup2027Matches(snapshot.matches).filter(m=>m.home_team.id===team.id||m.away_team.id===team.id).map(m=>({...m,season_id:worldSeason?.id||0,home_team_id:m.home_team.id,away_team_id:m.away_team.id}));
+    const candidates = filterCuratedTeamMatches(
       slug,
-      snapshot.matches.filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),
+      [...snapshot.matches.filter(m=>m.season_id!==worldSeason?.id).filter(m=>m.season_id!==proSeason?.id||knownPro.has(m.id)).map(m=>knownPro.has(m.id)?{...m,match_date:knownPro.get(m.id)!.match_date,kickoff_time:knownPro.get(m.id)!.kickoff_time}:m).filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),...officialWorld],
       seasonsById,
       competitionsById
     );
+    const competitionFor=(m:SnapshotMatch)=>competitionsById.get(seasonsById.get(m.season_id)?.competition_id||0)?.slug||"";
+    const discipline=teamDisciplineSelection(candidates.map(competitionFor),firstString(req.query.discipline));
+    const teamMatches=candidates.filter(m=>rugbyDiscipline(competitionFor(m))===discipline.selected);
 
     const allMatches = dedupeLogicalMatches(
       teamMatches,
@@ -157,7 +172,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         String(b.kickoff_time || "").localeCompare(String(a.kickoff_time || ""))
     );
 
-    const recentMatches = allMatches.slice(0, 10).map((match) => {
+    const recentMatches = allMatches.filter(match=>match.status==="FT"&&match.home_score!==null&&match.away_score!==null).slice(0, 5).map((match) => {
       const season = seasonsById.get(match.season_id) ?? null;
       const competition = season ? competitionsById.get(season.competition_id) ?? null : null;
       const home = snapshot.teams.find((row) => row.id === match.home_team_id) ?? null;
@@ -173,7 +188,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const upcomingMatches = allMatches
-      .filter((match) => match.status !== "FT")
+      .filter((match) => match.status==="LIVE"||match.status==="HT"||(match.status==="NS"&&match.match_date>=new Date().toISOString().slice(0,10)))
       .slice()
       .reverse()
       .slice(0, 6)
@@ -233,12 +248,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const profile = getTeamProfile(slug, team.name);
+    if(discipline.available.length>1){
+      profile.summary=`${team.name} · ${discipline.selected==="rugby-sevens"?"Rugby seven":"Rugby XV"}.`;
+      profile.history=undefined;
+    }
     const countryProfile = getCountryProfile(profile.country);
 
     return res.status(200).json({
       team,
+      discipline,
       profile,
       countryProfile,
+      squads:getTeamSquads(slug),
+      pendingFixtures:proD2.pending.filter(m=>m.homeSlug===slug||m.awaySlug===slug).slice(0,6),
+      playerUpdates:getPlayerUpdates(slug),
+      positions:officialTables.tables.flatMap(table=>table.rows.filter(row=>row.slug===slug).map(row=>({competitionSlug:table.competitionSlug,season:table.season,position:row.position,pts:row.pts,sourceUrl:table.sourceUrl,checkedAt:table.checkedAt}))),
       stats: {
         played,
         won,

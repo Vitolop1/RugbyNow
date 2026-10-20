@@ -1,0 +1,8 @@
+"use client";
+import Link from "next/link";
+import PortalShell from "@/app/components/PortalShell";
+import {usePrefs} from "@/lib/usePrefs";
+import type {SquadPlayer,TeamSquad} from "@/lib/squads";
+export default function PlayerClient({player,squad,teamName}:{player:SquadPlayer;squad:Omit<TeamSquad,"players">;teamName:string}){
+ const {lang}=usePrefs();return <PortalShell title={player.name} subtitle={teamName}><section className="rn-panel"><h2>{({es:"Ficha deportiva",en:"Player profile",fr:"Fiche du joueur",it:"Profilo sportivo"})[lang]}</h2><dl className="rn-player-facts"><dt>{({es:"Posición según la fuente",en:"Source position",fr:"Poste selon la source",it:"Ruolo secondo la fonte"})[lang]}</dt><dd>{player.position}</dd><dt>{({es:"País indicado por la LNR",en:"Country listed by LNR",fr:"Pays indiqué par la LNR",it:"Paese indicato dalla LNR"})[lang]}</dt><dd>{player.country||"—"}</dd><dt>{({es:"Equipo",en:"Team",fr:"Équipe",it:"Squadra"})[lang]}</dt><dd><Link href={`/teams/${squad.teamSlug}`}>{teamName} →</Link></dd></dl><p className="rn-notice">{({es:"Directorio del club consultado. No identifica temporada ni confirma disponibilidad para un partido.",en:"Observed club directory. It does not identify a season or confirm match availability.",fr:"Annuaire du club consulté. Il n’identifie pas la saison ni la disponibilité pour un match.",it:"Elenco del club consultato. Non identifica la stagione né conferma la disponibilità per una partita."})[lang]}</p><p className="rn-table-source"><a href={player.sourceUrl} target="_blank" rel="noopener noreferrer">{squad.sourceName} ↗</a> · {new Intl.DateTimeFormat(lang,{dateStyle:"medium",timeZone:"UTC"}).format(new Date(squad.checkedAt))}</p></section></PortalShell>;
+}

@@ -1,3 +1,5 @@
+import CoverageInventory from "./CoverageInventory";
+import {getCoverageInventory} from "@/lib/coverage";
 import Link from "next/link";
 import PortalShell from "@/app/components/PortalShell";
 import snapshot from "@/data/supabase-snapshot.json";
@@ -7,7 +9,7 @@ export default function SourcesPage(){
  return <PortalShell title="Fuentes y cobertura" subtitle="Qué datos tenemos y qué falta conectar. / Available data and source status.">
  <section className="rn-panel"><h2>Agenda y resultados / Scores & fixtures</h2><p>Los resultados se importan actualmente de Flashscore. El respaldo completo conserva {snapshot.matches.length.toLocaleString("es")} partidos de {snapshot.competitions.length} competiciones; no representa cobertura completa de cada temporada ni seguimiento en vivo garantizado.</p><p>Respaldo / Backup: <time dateTime={snapshot.generatedAt}>{snapshot.generatedAt.replace("T"," ").replace(/\.\d+Z/," UTC")}</time>. Consultar la base de datos no prueba que la fuente externa se haya actualizado.</p><p>La guía de Norte Rugby es una selección editorial fechada del 15 al 22 de octubre de 2026. Sus canales no se trasladan a otras fechas o países.</p><p><a href="https://github.com/Vitolop1/RugbyNow/actions/workflows/sync-scores.yml" target="_blank" rel="noopener noreferrer">Ver ejecuciones reales de la importación ↗</a></p></section>
  <section className="rn-panel"><h2>Ampliación internacional / International expansion</h2><p>API-Sports publica un catálogo de 144 ligas y copas. La conexión de lectura está preparada para validar el catálogo y las fechas; necesita una clave del proveedor y comprobar cobertura, temporadas y condiciones de uso antes de importar. No está activa en esta agenda.</p><p><a href="https://api-sports.io/sports/rugby" target="_blank" rel="noopener noreferrer">Catálogo del proveedor ↗</a> · <a href="https://developer.sportradar.com/rugby/reference/rugby-competitions" target="_blank" rel="noopener noreferrer">Otra opción: Sportradar ↗</a></p></section>
- <section className="rn-panel"><h2>Cobertura del respaldo / Backup coverage</h2><div className="rn-table-scroll"><table className="rn-coverage-table"><thead><tr><th>Competición</th><th>Partidos</th><th>Desde</th><th>Hasta</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td><Link href={`/leagues/${r.slug}`}>{r.name}</Link></td><td>{r.count}</td><td>{r.first||"—"}</td><td>{r.last||"—"}</td></tr>)}</tbody></table></div></section>
+ <CoverageInventory rows={getCoverageInventory()}/>
  <section className="rn-panel"><h2>Noticias / News</h2><p>RSS de UAR y ESPN Scrum. Solo publicamos el titular, la fecha y el enlace original. Cada fuente se consulta de forma independiente; ante fallos se conserva el respaldo identificado. No reescribimos ni traducimos las notas automáticamente.</p><p>Salida de 22: fuente identificada, pendiente de conexión; no pudimos comprobar acceso a su feed.</p></section>
  </PortalShell>;
 }

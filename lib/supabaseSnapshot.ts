@@ -1,4 +1,7 @@
+import {getProD2CalendarData} from "./proD2CalendarData";
+import {worldCup2027Matches,WORLD_CUP_2027_META} from "./worldCup2027";
 import fs from "node:fs";
+import {usableCachedStandings} from "./sourceStandings";
 import path from "node:path";
 import { attachKnockoutPhaseMeta, deriveLeagueRoundData, pickAutoRound } from "@/lib/leagueRounds";
 import { dedupeLogicalMatches } from "@/lib/matchIntegrity";
@@ -77,8 +80,8 @@ type HomeMatchRow = {
   minute: number | null;
   home_score: number | null;
   away_score: number | null;
-  home_team: { id: number; name: string; slug: string } | null;
-  away_team: { id: number; name: string; slug: string } | null;
+  home_team: { id: number; name: string; slug: string | null } | null;
+  away_team: { id: number; name: string; slug: string | null } | null;
   season: {
     competition: {
       name: string;
@@ -100,8 +103,8 @@ type LeagueMatchRow = {
   away_score: number | null;
   round: number | null;
   venue: string | null;
-  home_team: { id: number; name: string; slug: string } | null;
-  away_team: { id: number; name: string; slug: string } | null;
+  home_team: { id: number; name: string; slug: string | null } | null;
+  away_team: { id: number; name: string; slug: string | null } | null;
 };
 
 type LeagueStandingRow = {
@@ -119,19 +122,6 @@ type LeagueStandingRow = {
   badge?: "champions" | "europe" | "relegation" | null;
   form?: Array<"W" | "D" | "L">;
 };
-
-function hasUsableStandingCacheRows(rows: SnapshotStandingCache[]) {
-  return rows.some(
-    (row) =>
-      row.played != null ||
-      row.won != null ||
-      row.drawn != null ||
-      row.lost != null ||
-      row.points_for != null ||
-      row.points_against != null ||
-      row.points != null
-  );
-}
 
 function dedupeLeagueMatches(rows: SnapshotMatch[]) {
   return dedupeLogicalMatches(rows, (row) => ({
@@ -307,81 +297,6 @@ function pickSeasonForReference(snapshot: SnapshotPayload, competitionId: number
   return summaries[0]?.season ?? seasons.slice().sort((a, b) => seasonSortKey(b.name) - seasonSortKey(a.name))[0];
 }
 
-function buildStandingsFromMatches(snapshot: SnapshotPayload, matches: SnapshotMatch[]): LeagueStandingRow[] {
-  const teams = getTeamMap(snapshot);
-  const table = new Map<number, LeagueStandingRow>();
-  const recentForm = buildRecentForm(snapshot, matches);
-
-  for (const row of matches.filter((match) => match.status === "FT")) {
-    const home = row.home_team_id ? teams.get(row.home_team_id) ?? null : null;
-    const away = row.away_team_id ? teams.get(row.away_team_id) ?? null : null;
-    if (!home || !away) continue;
-
-    if (!table.has(home.id)) {
-      table.set(home.id, {
-        teamId: home.id,
-        team: home.name,
-        teamSlug: home.slug,
-        pj: 0,
-        w: 0,
-        d: 0,
-        l: 0,
-        pf: 0,
-        pa: 0,
-        pts: 0,
-      });
-    }
-
-    if (!table.has(away.id)) {
-      table.set(away.id, {
-        teamId: away.id,
-        team: away.name,
-        teamSlug: away.slug,
-        pj: 0,
-        w: 0,
-        d: 0,
-        l: 0,
-        pf: 0,
-        pa: 0,
-        pts: 0,
-      });
-    }
-
-    if (row.home_score == null || row.away_score == null) continue;
-
-    const h = table.get(home.id)!;
-    const a = table.get(away.id)!;
-
-    h.pj += 1;
-    a.pj += 1;
-    h.pf += row.home_score;
-    h.pa += row.away_score;
-    a.pf += row.away_score;
-    a.pa += row.home_score;
-
-    if (row.home_score > row.away_score) {
-      h.w += 1;
-      h.pts += 4;
-      a.l += 1;
-    } else if (row.away_score > row.home_score) {
-      a.w += 1;
-      a.pts += 4;
-      h.l += 1;
-    } else {
-      h.d += 1;
-      a.d += 1;
-      h.pts += 2;
-      a.pts += 2;
-    }
-  }
-
-  return Array.from(table.values())
-    .sort(
-      (a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team)
-    )
-    .map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
-}
-
 function buildRecentForm(snapshot: SnapshotPayload, matches: SnapshotMatch[]) {
   const teams = getTeamMap(snapshot);
   const formMap = new Map<number, Array<"W" | "D" | "L">>();
@@ -428,7 +343,9 @@ function buildStandingsCache(snapshot: SnapshotPayload, seasonId: number, matche
       return (b.points ?? 0) - (a.points ?? 0);
     });
 
-  if (!rows.length || !hasUsableStandingCacheRows(rows)) {
+  const season=snapshot.seasons.find(s=>s.id===seasonId);
+  const slug=snapshot.competitions.find(c=>c.id===season?.competition_id)?.slug||"";
+  if (!season || !usableCachedStandings(rows,teams,slug,season.name)) {
     return null;
   }
 
@@ -491,14 +408,16 @@ export function getSnapshotMatchesByDate(date: string) {
     .filter((match): match is HomeMatchRow => Boolean(match));
 }
 
-export function getSnapshotLeagueData(slug: string, refISO: string, roundOverride: number | null = null, fullCalendar = false) {
+export function getSnapshotLeagueData(slug: string, refISO: string, roundOverride: number | null = null, fullCalendar = false, seasonName?: string) {
   const snapshot = loadSnapshot();
   if (!snapshot) return null;
 
   const competition = snapshot.competitions.find((item) => item.slug === slug);
   if (!competition) return null;
 
-  const season = pickSeasonForReference(snapshot, competition.id, refISO);
+  const seasons=snapshot.seasons.filter(s=>s.competition_id===competition.id);
+  if(!seasonName&&slug==="int-world-cup")seasonName="2027";
+  const season = seasonName?seasons.find(s=>s.name===seasonName):pickSeasonForReference(snapshot, competition.id, refISO);
   if (!season) return null;
 
   const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((match) => match.season_id === season.id));
@@ -522,12 +441,15 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   return {
     competition,
     season,
+    seasons: seasons.map(s=>({id:s.id,name:s.name})),
     competitions: getSnapshotCompetitions() || [],
     roundMeta,
     selectedRound,
-    matches,
-    standings: cachedStandings ?? buildStandingsFromMatches(snapshot, seasonMatches),
-    standingsSource: cachedStandings ? "cache" : "computed",
+    pendingFixtures:slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData().pending:[],
+    matches:slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData().matches.filter(m=>fullCalendar||m.round===selectedRound):slug==="int-world-cup"&&season.name==="2027"?worldCup2027Matches().filter(m=>fullCalendar||m.round===selectedRound):matches,
+    scheduleMeta:slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData().meta:slug==="int-world-cup"&&season.name==="2027"?WORLD_CUP_2027_META:undefined,
+    standings: cachedStandings ?? [],
+    standingsSource: cachedStandings ? "cache" : "unavailable",
     generatedAt: snapshot.generatedAt,
   };
 }
@@ -547,8 +469,10 @@ export function getSnapshotMatchDetail(compSlug: string, matchId: number, refISO
 
   const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((item) => item.season_id === season.id));
   const cachedStandings = buildStandingsCache(snapshot, season.id, seasonMatches);
-  const standings = cachedStandings ?? buildStandingsFromMatches(snapshot, seasonMatches);
-  const hydratedMatch = hydrateLeagueMatch(snapshot, match);
+  const standings = cachedStandings ?? [];
+  let hydratedMatch = hydrateLeagueMatch(snapshot, match);
+  if(compSlug==="fr-pro-d2"&&season.name==="2026/2027")hydratedMatch=getProD2CalendarData().matches.find(m=>m.id===matchId)||hydratedMatch;
+  if(compSlug==="int-world-cup"&&season.name==="2027")hydratedMatch=worldCup2027Matches().find(m=>m.id===matchId)||hydratedMatch;
   if (!hydratedMatch) return null;
 
   const homeStanding = standings.find((item) => item.teamId === hydratedMatch.home_team?.id) ?? null;
@@ -559,7 +483,7 @@ export function getSnapshotMatchDetail(compSlug: string, matchId: number, refISO
     season,
     match: hydratedMatch,
     standings,
-    standingsSource: cachedStandings ? ("cache" as const) : ("computed" as const),
+    standingsSource: cachedStandings ? ("cache" as const) : ("unavailable" as const),
     homeStanding,
     awayStanding,
     generatedAt: snapshot.generatedAt,

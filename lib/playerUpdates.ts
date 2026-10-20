@@ -1,0 +1,4 @@
+import data from "../data/player-updates.json";
+export type PlayerUpdate={id:string;kind:"injury"|"signing"|"loan"|"renewal"|"departure"|"rumour";confirmation:"confirmed"|"rumour";playerName:string;teamSlug:string;season?:string;publishedAt:string;checkedAt:string;sourceName:string;sourceUrl:string;title:Record<"es"|"en"|"fr"|"it",string>;availability?:string|null;expectedReturn?:string|null;origin?:string|null;destination?:string|null;effectiveDate?:string};
+export function getPlayerUpdates(teamSlug?:string){return (data.updates as PlayerUpdate[]).filter(u=>!teamSlug||u.teamSlug===teamSlug).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt));}
+export function isArchivedPlayerUpdate(update:Pick<PlayerUpdate,"publishedAt">,now=Date.now()){return now-Date.parse(`${update.publishedAt}T00:00:00Z`)>14*86400000;}

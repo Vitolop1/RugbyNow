@@ -1,3 +1,4 @@
+import {detectSourceStatusDetail} from "./sourceStatusDetail";
 type MatchStatus="NS"|"LIVE"|"HT"|"FT"|"CANC";
 export function detectStatusAndMinute(
   raw: string,
@@ -6,6 +7,12 @@ export function detectStatusAndMinute(
   sourcePage: "results" | "fixtures" | "live"
 ) {
   const s = (raw || "").toUpperCase().trim();
+  const detail=detectSourceStatusDetail(s);
+  if(detail==="postponed"||detail==="delayed")return {status:"NS" as MatchStatus,minute:null};
+  if(detail==="suspended")return {status:"LIVE" as MatchStatus,minute:null};
+  if(["abandoned","cancelled","walkover"].includes(detail||""))return {status:"CANC" as MatchStatus,minute:null};
+  if(detail==="awarded")return {status:(hs!==null&&as!==null?"FT":"CANC") as MatchStatus,minute:null};
+  if(detail==="extra-time"||detail==="shootout"){const minute=s.match(/(\d{1,3})\s*['’′]/)?.[1];return {status:"LIVE" as MatchStatus,minute:minute?Number(minute):null};}
   const halfMinuteMatch =
     s.match(
       /(?:1ST HALF|FIRST HALF|2ND HALF|SECOND HALF|LIVE)\s*(\d{1,3})\b|\b(\d{1,3})\s*(?:1ST HALF|FIRST HALF|2ND HALF|SECOND HALF|LIVE)\b/

@@ -1,9 +1,11 @@
+import {appendSourceStatusDetail,detectSourceStatusDetail} from "../lib/sourceStatusDetail";
+import {updateObservedMatch,validateMatchObservation} from "../lib/conditionalMatchWrite";
 import { applyProD2TeamAliases, canonicalProD2TeamName } from "../lib/proD2";
 import { parseSourceRound } from "../lib/sourceRound";
 import { getConfirmedMatchRound } from "../lib/matchBroadcasts";
 import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
-import {validateResolvedStandingsTeamIds,validateSourceStandings} from "../lib/sourceStandings";
+import {validateResolvedStandingsTeamIds,validateSourceStandings,EXPECTED_TABLE_TEAMS,requireStandingsEdition} from "../lib/sourceStandings";
 import {readAllRows} from "../lib/readAllRows";
 import {isLiveRefreshCandidate,liveSourceUrls,canRefreshLiveTarget} from "../lib/liveRefresh";
 import { loadEnvConfig } from "@next/env";
@@ -59,6 +61,7 @@ type DbMatchRow = {
 };
 
 type ScrapedRow = {
+  observedAt?: string;
   home: string | null;
   away: string | null;
   hs: string;
@@ -366,8 +369,7 @@ async function getTeamsMap() {
   const names: string[] = [];
 
   if (!DRY_RUN) {
-    const { data, error } = await ensureSupabase().from("teams").select("id,name");
-    if (error) throw error;
+    const data=await readAllRows<TeamRow>((offset,size)=>ensureSupabase().from("teams").select("id,name").order("id").range(offset,offset+size-1));
     for (const t of (data || []) as TeamRow[]) {
       const n = norm(t.name);
       map.set(n, t.id);
@@ -654,16 +656,7 @@ async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>,
 }
 
 async function getMatchesBySeason(seasonId: number) {
-  const { data, error } = await ensureSupabase()
-    .from("matches")
-    .select(
-      "id,season_id,match_date,kickoff_time,status,minute,home_team_id,away_team_id,home_score,away_score,round,source_event_key"
-    )
-    .eq("season_id", seasonId)
-    .order("match_date", { ascending: true });
-
-  if (error) throw error;
-  return (data || []) as DbMatchRow[];
+  return readAllRows<DbMatchRow>((offset,size)=>ensureSupabase().from("matches").select("id,season_id,match_date,kickoff_time,status,minute,home_team_id,away_team_id,home_score,away_score,round,source_event_key").eq("season_id",seasonId).order("id").range(offset,offset+size-1));
 }
 
 function buildSourceEventKey(params: {
@@ -1363,6 +1356,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
     return "inserted";
   }
 
+  validateMatchObservation(payload);
   const sourceEventKey = (payload.source_event_key as string | null) ?? null;
   const seasonId = payload.season_id as number;
   const matchDate = payload.match_date as string;
@@ -1385,13 +1379,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
         return "skipped";
       }
 
-      const { error: updateErr } = await ensureSupabase()
-        .from("matches")
-        .update(payload)
-        .eq("id", existingBySource.id);
-
-      if (updateErr) throw updateErr;
-      return "updated";
+      return await updateObservedMatch(ensureSupabase(),existingBySource.id,payload)?"updated":"skipped";
     }
   }
 
@@ -1422,13 +1410,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
       return "skipped";
     }
 
-    const { error: updateErr } = await ensureSupabase()
-      .from("matches")
-      .update(payload)
-      .eq("id", existingLogical.id);
-
-    if (updateErr) throw updateErr;
-    return "updated";
+    return await updateObservedMatch(ensureSupabase(),existingLogical.id,payload)?"updated":"skipped";
   }
 
   const { error: insertErr } = await ensureSupabase().from("matches").insert(payload);
@@ -1501,10 +1483,13 @@ async function upsertStandingsCache(
   teamsMap: Map<string, number>,
   teamNamesNorm: string[],
   rows: ScrapedStandingRow[],
-  compSlug: string
+  compSlug: string,
+  seasonName: string
 ) {
-  validateSourceStandings(rows, compSlug === "fr-pro-d2" ? 16 : undefined);
+  validateSourceStandings(rows, EXPECTED_TABLE_TEAMS[`${compSlug}:${seasonName}`]);
   if (DRY_RUN) return;
+  const previous=await readAllRows<{team_id:number}>((offset,size)=>ensureSupabase().from("standings_cache").select("team_id").eq("season_id",seasonId).order("team_id").range(offset,offset+size-1));
+  if(previous.length>rows.length)throw Error("Partial table would mix new and stale standings rows");
 
   const payloadByTeam = new Map<number, Record<string, unknown>>();
 
@@ -1529,9 +1514,7 @@ async function upsertStandingsCache(
   }
 
   const payload = Array.from(payloadByTeam.values());
-  if (compSlug === "fr-pro-d2") {
-    validateResolvedStandingsTeamIds(payload.map(row => row.team_id as number), 16);
-  }
+  validateResolvedStandingsTeamIds(payload.map(row => row.team_id as number), rows.length);
   if (!payload.length) return;
 
   const { error } = await ensureSupabase()
@@ -1664,7 +1647,7 @@ async function main() {
 
           const rows = dedupeScrapedRows(await scrapePage(page, sourcePage));
           console.log(`Scraped from ${url}:`, rows.length);
-          scrapedAll.push(...rows);
+          scrapedAll.push(...rows.map(row=>({...row,observedAt:new Date().toISOString()})));
         } catch (e) {
           console.log("WARN: failed scraping url:", url);
           console.log(e);
@@ -1744,7 +1727,7 @@ async function main() {
         let updatedHere = 0;
         let insertedHere = 0;
         let skippedWithoutDate = 0;
-        let resetFutureScores = 0;
+        let skippedFutureStates = 0;
 
         const touchedIds = new Set<number>();
         const unresolvedTeams = new Set<string>();
@@ -1812,14 +1795,8 @@ async function main() {
             skippedWithoutDate++;
             continue;
           }
-          let effectiveParsed =
-            !isNonPlayedStatus(parsed.status) && matchDate > tomorrowIso
-              ? ({ status: "NS", minute: null } as const)
-              : parsed;
-
-          if (effectiveParsed !== parsed) {
-            resetFutureScores++;
-          }
+          if(!isNonPlayedStatus(parsed.status)&&matchDate>tomorrowIso){skippedFutureStates++;continue;}
+          let effectiveParsed=parsed;
 
           if (LIVE_ONLY && (effectiveParsed.status === "LIVE" || effectiveParsed.status === "HT") && effectiveParsed.minute == null && row.detailUrl && detailPage) {
             const detailStatus = await scrapeMatchDetailStatus(detailPage, row.detailUrl);
@@ -1835,7 +1812,7 @@ async function main() {
             }
           }
 
-          if (LIVE_ONLY && isNonPlayedStatus(effectiveParsed.status)) {
+          if (LIVE_ONLY && isNonPlayedStatus(effectiveParsed.status) && !detectSourceStatusDetail(row.statusOrTime)) {
             continue;
           }
 
@@ -1886,8 +1863,8 @@ async function main() {
               ?? round ?? (compSlug === "fr-pro-d2" ? null : target?.round ?? null),
             source: "flashscore",
             source_event_key: sourceKey,
-            source_url: appendKnockoutMetaToSourceUrl(normalizeFlashUrl(item.url), knockoutMeta),
-            updated_at: new Date().toISOString(),
+            source_url: appendSourceStatusDetail(appendKnockoutMetaToSourceUrl(normalizeFlashUrl(item.url), knockoutMeta),detectSourceStatusDetail(row.statusOrTime)),
+            updated_at: row.observedAt,
           };
 
           if (isNonPlayedStatus(effectiveParsed.status)) {
@@ -1897,6 +1874,8 @@ async function main() {
             payload.home_score = hs;
             payload.away_score = as;
           }
+          if(detectSourceStatusDetail(row.statusOrTime)==="suspended"&&(hs===null||as===null)){delete payload.home_score;delete payload.away_score;}
+          if(detectSourceStatusDetail(row.statusOrTime)==="abandoned"&&hs!==null&&as!==null){payload.home_score=hs;payload.away_score=as;}
 
           if (target?.id && !touchedIds.has(target.id)) {
             const patch: Record<string, unknown> = { ...payload };
@@ -1905,19 +1884,11 @@ async function main() {
               continue;
             }
 
-            const { error } = await ensureSupabase()
-              .from("matches")
-              .update(patch)
-              .eq("id", target.id);
-
-            if (error) {
-              totalFailures++;
-              console.log(`WARN: update failed for id=${target.id}:`, error.message);
-            } else {
-              touchedIds.add(target.id);
-              updatedHere++;
-              totalUpdates++;
-            }
+            try {
+              if(await updateObservedMatch(ensureSupabase(),target.id,patch)){
+                touchedIds.add(target.id);updatedHere++;totalUpdates++;
+              }
+            }catch(error){totalFailures++;console.log(`WARN: update failed for id=${target.id}:`,error instanceof Error?error.message:"Unknown error");}
           } else {
             try {
               const action = await saveMatchBySourceKey(payload);
@@ -1952,6 +1923,9 @@ async function main() {
           try {await page.waitForSelector('.table__row, .ui-table__row, [class*="tableRow"], [class*="standing"] [class*="row"]',{timeout:20000});}catch{}
           await page.waitForTimeout(1200);
 
+          const tableHeading=await page.locator(".heading__info").first().textContent({timeout:10000});
+          const tableEdition=tableHeading?.match(/\b20\d{2}(?:\s*[/-]\s*20\d{2})?\b/)?.[0]||"";
+          requireStandingsEdition(tableEdition,seasonMeta.seasonName);
           const standings = await scrapeStandingsPage(page);
           console.log(`Standings scraped: ${standings.length}`);
 
@@ -1960,7 +1934,7 @@ async function main() {
             throw new Error(`Empty standings for ${compSlug}`);
           }
           if (standings.length > 0) {
-            await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings, compSlug);
+            await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings, compSlug, seasonMeta.seasonName);
           }
 
           if (DRY_RUN) {
@@ -1996,8 +1970,8 @@ async function main() {
           console.log(`Skipped without inferable date in ${compSlug}: ${skippedWithoutDate}`);
         }
 
-        if (resetFutureScores > 0) {
-          console.log(`Future score resets in ${compSlug}: ${resetFutureScores}`);
+        if (skippedFutureStates > 0) {
+          console.log(`Future score resets in ${compSlug}: ${skippedFutureStates}`);
         }
 
         console.log(`Updated in ${compSlug}: ${updatedHere}`);

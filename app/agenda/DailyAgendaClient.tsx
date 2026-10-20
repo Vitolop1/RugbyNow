@@ -1,6 +1,8 @@
 "use client";
 import {isLiveDataDelayed,preferNewerReading} from "@/lib/liveRefresh";
 
+import {selectFeaturedMatches} from "@/lib/featuredMatches";
+import {sourceStatusLabel} from "@/lib/sourceStatusDetail";
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import AdvertisingPlacement from "@/app/components/AdvertisingPlacement";
@@ -60,11 +62,11 @@ function Watch({entry,context}:{entry:DailyEntry;context:AgendaViewContext}){
       </div>
     </details>;
   }
-function MatchRow({entry,withDate=false,context}:{entry:DailyEntry;withDate?:boolean;context:AgendaViewContext}){
+function MatchRow({entry,withDate=false,featured=false,context}:{entry:DailyEntry;withDate?:boolean;featured?:boolean;context:AgendaViewContext}){
     const {c,isSaved,toggleSaved,formatDay,formatTime,statusLabel,timeZone,calendar,now,lang}=context;
-    const active=entry.status==="LIVE"||entry.status==="HT";
+    const active=["LIVE","HT"].includes(dailyEntryState(entry,now));
     const fixture=<><span className={s.homeTeam}><span>{entry.home}</span><Crest slug={entry.homeSlug} name={entry.home}/></span><strong className={`${s.score} ${active?s.liveScore:""}`}>{entry.homeScore!=null&&entry.awayScore!=null?<>{entry.homeScore}<i>–</i>{entry.awayScore}</>:<i>vs</i>}</strong><span className={s.awayTeam}><Crest slug={entry.awaySlug} name={entry.away || ""}/><span>{entry.away}</span></span></>;
-    return <article id={entry.id} className={`${s.matchRow} ${active?s.liveRow:""}`}>
+    return <article id={featured?`featured-${entry.id}`:entry.id} className={`${s.matchRow} ${active?s.liveRow:""}`}>
       <button className={`${s.star} ${isSaved(entry)?s.saved:""}`} title={isSaved(entry)?c.unsave:c.save} aria-label={`${isSaved(entry)?c.unsave:c.save}: ${entry.home} ${entry.away || ""}`} aria-pressed={isSaved(entry)} onClick={()=>toggleSaved(entry)}><Glyph name="star" filled={isSaved(entry)}/></button>
       <div className={s.matchTime}>{withDate&&<span className={s.smallDate}>{formatDay(dailyEntryDate(entry,timeZone))}</span>}<time dateTime={entry.startsAt || entry.date}>{formatTime(entry)}</time><span className={active?s.liveState:""} title={dailyEntryState(entry,now)==="pending"?c.noResult:undefined}>{statusLabel(entry)}</span>{isLiveDataDelayed(entry.status,entry.updatedAt,now)&&<small className="rn-live-delayed" title={entry.updatedAt||undefined}>{({es:"Datos demorados",en:"Delayed data",fr:"Données retardées",it:"Dati in ritardo"})[lang]}</small>}</div>
       {entry.matchId&&entry.competitionSlug?<Link className={s.fixture} title={c.details} href={`/matches/${entry.competitionSlug}/${entry.matchId}`} onClick={()=>trackProductEvent("match_open",{match_id:entry.matchId!,competition:entry.competitionSlug!})}>{fixture}</Link>:<div className={s.fixture}>{fixture}</div>}
@@ -178,7 +180,8 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
     const priority=(entries:DailyEntry[])=>{const rank=prefs.leagues.indexOf(entries[0].competitionSlug || "");return rank<0?1000+Math.min(...entries.map(agendaPriority)):rank;};
     return [...grouped.entries()].sort((a,b)=>priority(a[1])-priority(b[1]) || Math.min(...a[1].map(agendaPriority))-Math.min(...b[1].map(agendaPriority)) || a[1][0].competition.localeCompare(b[1][0].competition));
   },[matches,prefs.leagues]);
-  const nextMatches=data.entries.filter(entry=>entry.kind==="match" && dailyEntryDate(entry,timeZone)>date && matchesFilter(entry)).slice(0,5);
+  const featured=filter==="all"&&!query&&!competition&&region==="all"?selectFeaturedMatches(data.entries,date,timeZone,now,prefs):[];
+  const nextMatches=data.entries.filter(entry=>entry.kind==="match" && dailyEntryDate(entry,timeZone)>date && !featured.some(f=>f.id===entry.id) && matchesFilter(entry)).slice(0,5);
   const recentDay=data.entries.filter(entry=>entry.kind==="match" && entry.status==="FT" && dailyEntryDate(entry,timeZone)<date).map(entry=>dailyEntryDate(entry,timeZone)).sort().at(-1);
   const reset=()=>{setQuery("");setCompetition("");setRegion("all");setFilter("all");};
   function toggleSaved(entry:DailyEntry){
@@ -195,7 +198,7 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
     trackProductEvent("agenda_calendar_export",{event_id:entry.id});
   }
   async function share(entry:DailyEntry){try{await navigator.clipboard.writeText(shareUrl(entry));setToast(c.copied);}catch{setToast(c.copyFailed);}}
-  function statusLabel(entry:DailyEntry){const state=dailyEntryState(entry,now);return state==="FT"?c.final:state==="HT"?c.halfTime:state==="LIVE"?`${c.live}${entry.minute ? ` ${entry.minute}′` : ""}`:state==="CANC"?c.cancelled:state==="pending"?c.pending:c.scheduled;}
+  function statusLabel(entry:DailyEntry){const sourceLabel=sourceStatusLabel(entry.sourceUrl,lang);if(sourceLabel)return sourceLabel;const state=dailyEntryState(entry,now);return state==="FT"?c.final:state==="HT"?c.halfTime:state==="LIVE"?`${c.live}${entry.minute ? ` ${entry.minute}′` : ""}`:state==="CANC"?c.cancelled:state==="pending"?c.pending:c.scheduled;}
   function chooseDate(next:string){
     const url=new URL(location.href);url.searchParams.delete("event");url.hash="";
     history.replaceState(null,"",url);setDate(next);
@@ -209,10 +212,11 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
         <CompetitionSidebar selected={competition} pumasSelected={region==="pumas"} onSelect={slug=>{setCompetition(competition===slug?"":slug);setRegion("all");}} onPumas={()=>{setRegion(region==="pumas"?"all":"pumas");setCompetition("");}}/>
         <div className={`${s.content} rn-sports-content`}>
           <AdvertisingPlacement placement="leaderboard"/>
+          {featured.length>0&&<details className={s.nextBoard} open><summary className={s.sectionTitle}><h2>★ {({es:"Destacados",en:"Ones to watch",fr:"À suivre",it:"Da seguire"})[lang]}</h2><small>{({es:"Tus favoritos y rugby prioritario",en:"Your favourites and priority rugby",fr:"Vos favoris et rugby prioritaire",it:"I tuoi preferiti e rugby prioritario"})[lang]} ⌄</small></summary>{featured.map(entry=><MatchRow key={`featured-${entry.id}`} entry={entry} withDate featured context={view}/>)}</details>}
           <section className={s.board} aria-label={c.agenda}>
             <div className={s.dateBar}><button className={s.dayArrow} aria-label={c.previous} onClick={()=>chooseDate(shiftAgendaDate(date,-1))}><Glyph name="left"/></button><div className={s.selectedDate}><strong>{date===today?`${c.today} · `:""}{formatDay(date,true)}</strong><label title={c.chooseDate}><Glyph name="calendar"/><input type="date" value={date} aria-label={c.chooseDate} onClick={event=>{try{event.currentTarget.showPicker?.();}catch{event.currentTarget.focus();}}} onChange={event=>{if(event.target.value)chooseDate(event.target.value);}}/></label></div><button className={s.dayArrow} aria-label={c.next} onClick={()=>chooseDate(shiftAgendaDate(date,1))}><Glyph name="right"/></button></div>
             <div className={s.quickDates}>{[[-1,c.yesterday],[0,c.today],[1,c.tomorrow]].map(([offset,label])=><button key={offset} className={date===shiftAgendaDate(today,Number(offset))?s.activeQuick:""} onClick={()=>chooseDate(shiftAgendaDate(today,Number(offset)))}>{label}</button>)}<label className={s.zone}><span>{c.timeZone}</span><select aria-label={c.timeZone} value={timeZone} onChange={event=>setTZEverywhere(event.target.value)}>{buildTimeZoneOptions(timeZone).map(option=><option key={option.value} value={option.value}>{option.long}</option>)}</select></label></div>
-            <div className={s.filters}><div className={s.statusTabs}>{[["all",c.all],["live",c.live],["upcoming",c.upcoming],["finished",c.finished],["saved",c.saved],["following",lang==="es"?"Siguiendo":lang==="fr"?"Suivis":lang==="it"?"Seguiti":"Following"]].map(([value,label])=><button key={value} aria-pressed={filter===value} className={filter===value?s.activeTab:""} onClick={()=>setFilter(value)}>{value==="live"&&<span className={s.liveDot}/>}{value==="saved"&&<Glyph name="star"/>}{label}{value==="live"&&<small>{dayMatches.filter(entry=>entry.status==="LIVE"||entry.status==="HT").length}</small>}</button>)}</div><label className={s.search}><Glyph name="search"/><input type="search" value={query} placeholder={c.search} aria-label={c.search} onChange={event=>setQuery(event.target.value)}/></label></div>
+            <div className={s.filters}><div className={s.statusTabs}>{[["all",c.all],["live",c.live],["upcoming",c.upcoming],["finished",c.finished],["saved",c.saved],["following",lang==="es"?"Siguiendo":lang==="fr"?"Suivis":lang==="it"?"Seguiti":"Following"]].map(([value,label])=><button key={value} aria-pressed={filter===value} className={filter===value?s.activeTab:""} onClick={()=>setFilter(value)}>{value==="live"&&<span className={s.liveDot}/>}{value==="saved"&&<Glyph name="star"/>}{label}{value==="live"&&<small>{dayMatches.filter(entry=>["LIVE","HT"].includes(dailyEntryState(entry,now))).length}</small>}</button>)}</div><label className={s.search}><Glyph name="search"/><input type="search" value={query} placeholder={c.search} aria-label={c.search} onChange={event=>setQuery(event.target.value)}/></label></div>
             <div className={s.minorFilters}><label><span className={s.srOnly}>{c.allRegions}</span><select aria-label={c.allRegions} value={region} onChange={event=>{setRegion(event.target.value);setCompetition("");}}><option value="all">{c.allRegions}</option><option value="argentina">{c.argentina}</option><option value="international">{c.international}</option><option value="pumas">Los Pumas</option></select></label><span>{matches.length} {matches.length===1?c.match:c.matches}{busy&&<small className={s.loading} role="status"><RugbyBall spinning small/>{c.loading}</small>}</span><BroadcastCountrySelect value={tvCountry} onChange={setTvCountry}/></div>
             {error&&<div className={s.error} role="alert">{c.error}<button onClick={()=>setRefresh(value=>value+1)}>{c.retry}</button></div>}
             <div className={s.tableLabels}><span/><span>{c.time}</span><span>{c.teams}</span><span>{c.tv}</span><span/></div>

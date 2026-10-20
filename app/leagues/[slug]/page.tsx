@@ -16,11 +16,11 @@ export async function generateMetadata({
   return buildLeagueMetadata(slug);
 }
 
-export default async function Page({params,searchParams}:{params:Promise<{slug:string}>;searchParams:Promise<{date?:string;round?:string}>}) {
+export default async function Page({params,searchParams}:{params:Promise<{slug:string}>;searchParams:Promise<{date?:string;round?:string;season?:string}>}) {
   const {slug}=await params;const query=await searchParams;
   const date=isAgendaDate(query.date)?query.date:new Date().toISOString().slice(0,10);
   const round=query.round&&/^\d+$/.test(query.round)?Number(query.round):null;
-  const snapshot=getSnapshotLeagueData(slug,date,round,true);
+  const snapshot=getSnapshotLeagueData(slug,date,round,true,query.season);
   const initialData=snapshot?withOfficialStandings({...snapshot,source:"snapshot"}) as unknown as LeagueViewPayload:null;
   return <LeagueClient key={slug} initialData={initialData}/>;
 }

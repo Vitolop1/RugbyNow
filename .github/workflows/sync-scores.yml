@@ -140,9 +140,15 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund --prefer-offline
-      - name: Refresh official URBA standings
+      - name: Refresh official URBA LNR and EPCR standings
         continue-on-error: true
         run: npm run sync:official-standings
+      - name: Refresh official Pro D2 calendar
+        continue-on-error: true
+        run: npm run sync:pro-d2-calendar
+      - name: Refresh official club player directories
+        continue-on-error: true
+        run: npm run sync:squads
       - name: Refresh independent news feeds
         continue-on-error: true
         run: npm run sync:news
@@ -162,6 +168,8 @@ jobs:
           cp data/news-snapshot.json /tmp/news-snapshot.json
           cp data/official-standings.json /tmp/official-standings.json
           cp data/match-broadcasts.json /tmp/match-broadcasts.json
+          cp data/team-squads.json /tmp/team-squads.json
+          cp data/pro-d2-calendar.json /tmp/pro-d2-calendar.json
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
@@ -169,7 +177,9 @@ jobs:
             cp /tmp/news-snapshot.json data/news-snapshot.json
             cp /tmp/official-standings.json data/official-standings.json
             cp /tmp/match-broadcasts.json data/match-broadcasts.json
-            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json data/match-broadcasts.json
+            cp /tmp/team-squads.json data/team-squads.json
+            cp /tmp/pro-d2-calendar.json data/pro-d2-calendar.json
+            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json data/match-broadcasts.json data/team-squads.json data/pro-d2-calendar.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
             git commit -m "Update complete score and news snapshots"
             git push origin HEAD:main && exit 0

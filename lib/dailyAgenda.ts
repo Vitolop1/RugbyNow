@@ -1,3 +1,4 @@
+import {readSourceStatusDetail} from "./sourceStatusDetail";
 import type { AgendaEvent, AgendaProvider } from "./agenda";
 import { getISODateInTimeZone } from "./timeZoneDate";
 
@@ -98,6 +99,7 @@ export function dailyEntryDate(entry: DailyEntry, timeZone: string) {
   return entry.startsAt ? getISODateInTimeZone(new Date(entry.startsAt),timeZone) : entry.date;
 }
 export function dailyEntryState(entry: DailyEntry, now: number) {
+  const detail=readSourceStatusDetail(entry.sourceUrl);if(detail&&["postponed","delayed","suspended","abandoned","cancelled","walkover"].includes(detail))return detail;
   if (entry.status === "FT" || entry.status === "CANC" || entry.status === "LIVE" || entry.status === "HT") return entry.status;
   if (entry.startsAt && Date.parse(entry.startsAt) < now) return "pending";
   return "NS";

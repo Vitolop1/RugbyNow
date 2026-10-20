@@ -1,3 +1,6 @@
+import {getProD2CalendarData} from "@/lib/proD2CalendarData";
+import {worldCup2027Matches,WORLD_CUP_2027_META} from "@/lib/worldCup2027";
+import {usableCachedStandings} from "@/lib/sourceStandings";
 import {withOfficialStandings} from "@/lib/standingsOverlay";
 import {readAllRows} from "@/lib/readAllRows";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -537,6 +540,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" });
   }
   const slug = firstString(req.query.slug);
+  const requestedSeason=firstString(req.query.season)||(slug==="int-world-cup"?"2027":undefined);
   const fullCalendar=firstString(req.query.view)==="calendar";
   const refISO = firstString(req.query.date) && /^\d{4}-\d{2}-\d{2}$/.test(firstString(req.query.date)) ? firstString(req.query.date) : new Date().toISOString().slice(0, 10);
   const roundOverrideRaw = firstString(req.query.round);
@@ -544,7 +548,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const serverSupabase = getServerSupabase();
-    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar);
+    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar, requestedSeason);
     const { data: competition, error: competitionError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").eq("slug", slug).maybeSingle();
     if (competitionError || !competition) throw new Error(`No competition found for slug: ${slug}`);
     const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
@@ -571,7 +575,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { data: seasons, error: seasonsError } = await serverSupabase.from("seasons").select("id,name,competition_id").eq("competition_id", competition.id).order("name", { ascending: false });
     if (seasonsError || !seasons?.length) throw new Error(`No season found for: ${slug}`);
     const seasonMatchMeta=await readAllRows<MatchMetaRow>((offset,size)=>serverSupabase.from("matches").select("id,season_id,match_date,kickoff_time,status").in("season_id",seasons.map(row=>row.id)).order("id").range(offset,offset+size-1).abortSignal(AbortSignal.timeout(8000)) as unknown as PromiseLike<{data:MatchMetaRow[]|null;error:{message:string}|null}>);
-    const season = pickSeasonForReference((seasons || []) as SeasonRow[], (seasonMatchMeta || []) as MatchMetaRow[], refISO);
+    const season = requestedSeason?seasons.find(s=>s.name===requestedSeason):pickSeasonForReference((seasons || []) as SeasonRow[], (seasonMatchMeta || []) as MatchMetaRow[], refISO);
     if (!season) throw new Error(`No season found for: ${slug}`);
     const { data: competitions, error: competitionsError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").order("is_featured", { ascending: false }).order("group_name", { ascending: true }).order("sort_order", { ascending: true }).order("name", { ascending: true });
     if (competitionsError) throw competitionsError;
@@ -591,6 +595,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       homeTeamId: Array.isArray(row.home_team) ? row.home_team[0]?.id ?? null : row.home_team?.id ?? null,
       awayTeamId: Array.isArray(row.away_team) ? row.away_team[0]?.id ?? null : row.away_team?.id ?? null,
     }));
+    const proD2=slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData(detailedMatches):null;
+    if(proD2)detailedMatches.splice(0,detailedMatches.length,...proD2.matches);
+    const officialWorldCup=slug==="int-world-cup"&&season.name==="2027";
+    if(officialWorldCup)detailedMatches.splice(0,detailedMatches.length,...worldCup2027Matches(detailedMatches));
     const derived = deriveLeagueRoundData(detailedMatches);
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
@@ -636,12 +644,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const baseMatches = useSnapshotStructure ? mergeLeagueMatches(roundMatches, snapshotMatches) : roundMatches;
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || baseRoundMeta : baseRoundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : baseSelectedRound;
-    const matches = finalizeLeagueMatches(
+    const matches = officialWorldCup||proD2 ? (fullCalendar?detailedMatches:roundMatches) : finalizeLeagueMatches(
       collapseLeagueMatches(
       (fullCalendar ? detailedMatches : mergeLeagueMatches(baseMatches, fallbackMatches)).map((row) => normalizeRuntimeMatchStatus(row, slug))
       )
     );
-    const bracketAugmented = appendSyntheticKnockoutRounds(effectiveRoundMeta, matches);
+    const bracketAugmented = officialWorldCup||proD2?{roundMeta:effectiveRoundMeta,matches}:appendSyntheticKnockoutRounds(effectiveRoundMeta, matches);
     const knockoutRoundMeta = bracketAugmented.roundMeta.filter((item) => Boolean(item.phaseKey));
     const knockoutMatches = bracketAugmented.matches.filter((row) => Boolean(parseKnockoutMetaFromSourceUrl(row.source_url).phaseKey));
     const visibleMatches = fullCalendar ? matches : filterVisibleLeagueMatches(
@@ -650,20 +658,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       effectiveSelectedRound
     );
     const recentForm = buildRecentForm(detailedMatches);
-    const table = new Map<number, StandingsAccumulator>();
-    for (const row of detailedMatches.filter((item) => item.status === "FT")) {
-      const home = Array.isArray(row.home_team) ? row.home_team[0] : row.home_team;
-      const away = Array.isArray(row.away_team) ? row.away_team[0] : row.away_team;
-      if (home?.id && !table.has(home.id)) table.set(home.id, { teamId: home.id, team: home.name, teamSlug: home.slug ?? null, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 });
-      if (away?.id && !table.has(away.id)) table.set(away.id, { teamId: away.id, team: away.name, teamSlug: away.slug ?? null, pj: 0, w: 0, d: 0, l: 0, pf: 0, pa: 0, pts: 0 });
-      if (!home?.id || !away?.id || row.home_score == null || row.away_score == null) continue;
-      const h = table.get(home.id);
-      const a = table.get(away.id);
-      if (!h || !a) continue;
-      h.pj += 1; a.pj += 1; h.pf += row.home_score; h.pa += row.away_score; a.pf += row.away_score; a.pa += row.home_score;
-      if (row.home_score > row.away_score) { h.w += 1; h.pts += 4; a.l += 1; } else if (row.away_score > row.home_score) { a.w += 1; a.pts += 4; h.l += 1; } else { h.d += 1; a.d += 1; h.pts += 2; a.pts += 2; }
-    }
-    const computedStandings = Array.from(table.values()).sort((a, b) => b.pts - a.pts || (b.pf - b.pa) - (a.pf - a.pa) || b.pf - a.pf || a.team.localeCompare(b.team)).map((row, index) => ({ ...row, position: index + 1, badge: null, form: recentForm.get(row.teamId) ?? [] }));
     const { data: standingsCache, error: standingsCacheError } = await serverSupabase
       .from("standings_cache")
       .select("team_id, position, played, won, drawn, lost, points_for, points_against, points")
@@ -713,25 +707,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
       .filter(Boolean) as Array<StandingsAccumulator & { position: number; badge: null }>;
     const standingsFromSnapshot =
-      snapshot?.standingsSource === "cache" && Array.isArray(snapshot.standings) && snapshot.standings.length
+      snapshot?.season?.name === season.name && snapshot?.standingsSource === "cache" && Array.isArray(snapshot.standings) && snapshot.standings.length
         ? snapshot.standings
         : [];
     const standings =
-      (hasUsableStandingCache(safeStandingsCache) && standingsFromCache.length ? standingsFromCache : null) ??
+      (usableCachedStandings(safeStandingsCache,teamsById,slug,season.name) && standingsFromCache.length ? standingsFromCache : null) ??
       (standingsFromSnapshot.length ? standingsFromSnapshot : null) ??
-      computedStandings;
+      [];
     const standingsSource =
-      hasUsableStandingCache(safeStandingsCache) && standingsFromCache.length
+      usableCachedStandings(safeStandingsCache,teamsById,slug,season.name) && standingsFromCache.length
         ? "cache"
         : standingsFromSnapshot.length
           ? "cache"
-          : "computed";
+          : "unavailable";
     return res.status(200).json(withOfficialStandings({
       competition: mergedCompetition,
       noticeKey: getCompetitionNoticeKey(mergedCompetition.slug),
       profile: competitionProfile,
       regionProfile,
       season,
+      pendingFixtures:proD2?.pending||[],
+      scheduleMeta:proD2?.meta||(slug==="int-world-cup"&&season.name==="2027"?WORLD_CUP_2027_META:undefined),
+      seasons: seasons.map(s=>({id:s.id,name:s.name})),
       competitions: mergedCompetitions,
       roundMeta: bracketAugmented.roundMeta,
       knockoutRoundMeta,
@@ -743,7 +740,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       source: "supabase",
     }));
   } catch (error) {
-    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar);
+    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar, requestedSeason);
     if (snapshot) {
       const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
       const preferFallback = !fullCalendar && fallback?.season.name === snapshot.season.name && shouldPreferMoreCompleteRound(
@@ -757,7 +754,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         region: basePayload.competition.region ?? undefined,
       });
       const regionProfile = getCountryProfile(competitionProfile.country ?? basePayload.competition.region);
-      const snapshotMatches = finalizeLeagueMatches(
+      const snapshotMatches = (slug==="int-world-cup"&&basePayload.season.name==="2027"||slug==="fr-pro-d2"&&basePayload.season.name==="2026/2027")?basePayload.matches as MatchRow[]:finalizeLeagueMatches(
         collapseLeagueMatches(
           ((basePayload.matches || []) as MatchRow[]).map((row) => normalizeRuntimeMatchStatus(row, slug))
         )
@@ -784,6 +781,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }));
     }
     const fallback = getFallbackLeagueData(slug, refISO);
+    if(requestedSeason&&fallback?.season.name!==requestedSeason){
+      return res.status(404).json({error:"Requested season unavailable"});
+    }
     if (!fallback) {
       return res.status(404).json({ error: error instanceof Error ? error.message : `No competition found for slug: ${slug}` });
     }

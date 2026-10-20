@@ -1,0 +1,6 @@
+{
+ "updates":[
+  {"id":"oyonnax-taumateine-2026-09-21","kind":"signing","confirmation":"confirmed","playerName":"Jonathan Taumateine","teamSlug":"oyonnax","destination":"Oyonnax Rugby","origin":null,"season":"2026/2027","publishedAt":"2026-09-21","effectiveDate":"2026-09-21","sourceName":"Oyonnax Rugby","sourceUrl":"https://oyonnaxrugby.com/jonathan-taumateine-est-oyonnaxien","checkedAt":"2026-10-20","title":{"es":"Oyonnax confirmó la incorporación de Jonathan Taumateine","en":"Oyonnax confirmed Jonathan Taumateine’s arrival","fr":"Oyonnax a confirmé l’arrivée de Jonathan Taumateine","it":"Oyonnax ha confermato l’arrivo di Jonathan Taumateine"}},
+  {"id":"oyonnax-ruru-2026-09-21","kind":"injury","confirmation":"confirmed","playerName":"Jonathan Ruru","teamSlug":"oyonnax","season":"2026/2027","publishedAt":"2026-09-21","sourceName":"Oyonnax Rugby","sourceUrl":"https://oyonnaxrugby.com/jonathan-taumateine-est-oyonnaxien","checkedAt":"2026-10-20","availability":null,"expectedReturn":null,"title":{"es":"Oyonnax informó una lesión de Jonathan Ruru; disponibilidad actual sin confirmar","en":"Oyonnax reported a Jonathan Ruru injury; current availability unconfirmed","fr":"Oyonnax a signalé une blessure de Jonathan Ruru ; disponibilité actuelle non confirmée","it":"Oyonnax ha segnalato un infortunio di Jonathan Ruru; disponibilità attuale non confermata"}}
+ ]
+}

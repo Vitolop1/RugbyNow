@@ -1,0 +1,9 @@
+"use client";
+import Link from "next/link";
+import {usePrefs} from "@/lib/usePrefs";
+import {isArchivedPlayerUpdate,type PlayerUpdate} from "@/lib/playerUpdates";
+export default function PlayerUpdates({updates}:{updates:PlayerUpdate[]}){
+ const {lang}=usePrefs();if(!updates.length)return null;
+ const labels={es:{injury:"Disponibilidad",signing:"Fichaje",loan:"Préstamo",renewal:"Renovación",departure:"Salida",rumour:"Rumor"},en:{injury:"Availability",signing:"Signing",loan:"Loan",renewal:"Renewal",departure:"Departure",rumour:"Rumour"},fr:{injury:"Disponibilité",signing:"Arrivée",loan:"Prêt",renewal:"Prolongation",departure:"Départ",rumour:"Rumeur"},it:{injury:"Disponibilità",signing:"Acquisto",loan:"Prestito",renewal:"Rinnovo",departure:"Uscita",rumour:"Voce"}}[lang];
+ return <details className="rn-panel"><summary><strong>{({es:"Fichajes y disponibilidad",en:"Transfers and availability",fr:"Transferts et disponibilité",it:"Trasferimenti e disponibilità"})[lang]}</strong> <small>({updates.length}) ⌄</small></summary>{updates.map(u=><article className="rn-player-update" key={u.id}><div><span className="rn-news-source">{labels[u.kind]} · {u.confirmation==="rumour"?labels.rumour:({es:"Confirmado por la fuente",en:"Confirmed by source",fr:"Confirmé par la source",it:"Confermato dalla fonte"})[lang]}</span><p><a href={u.sourceUrl} target="_blank" rel="noopener noreferrer">{u.title[lang]} ↗</a></p><small><time dateTime={u.publishedAt}>{new Intl.DateTimeFormat(lang,{dateStyle:"medium",timeZone:"UTC"}).format(new Date(`${u.publishedAt}T12:00:00Z`))}</time> · {u.sourceName}{isArchivedPlayerUpdate(u)&&` · ${({es:"Archivo; no indica el estado actual",en:"Archive; not current status",fr:"Archive ; pas le statut actuel",it:"Archivio; non indica lo stato attuale"})[lang]}`}</small></div><Link href={`/teams/${u.teamSlug}`}>{({es:"Equipo",en:"Team",fr:"Équipe",it:"Squadra"})[lang]} →</Link></article>)}</details>;
+}

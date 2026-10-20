@@ -19,6 +19,7 @@ The current milestone is the daily rugby agenda: today's matches, kickoff in the
 - The configured source set is not every rugby competition. Regional data outside the dated guide needs an ongoing maintained source. An old source edition is never rolled into today.
 - TV listings from the guide apply to Argentina and the listed date. An unconfirmed destination stays pending; broadcasts in other countries still need event-specific research. No highlights link is invented.
 - The page polls once per minute while open. Source freshness depends on the ingestion workflows; polling is not proof of live score latency.
+- The primary workflow is configured every five minutes, subject to GitHub scheduling/queue delays, with a daily refresh plus complete snapshot/Git push at 05:17 UTC. Both depend on repository variable `DATA_SYNC_ENABLED=true`. The same snapshot job is also exercised by manual production imports; a successful database import alone does not prove that the push succeeded.
 - Only the verified primary data workflow is restored as part of this recovery. Legacy live/clock/finalization/standings workflows remain disabled until their behavior is reconciled with source-confirmed states. In particular, clock-only inference must not reintroduce guessed live/final states.
 - No external inactivity monitor, paid feed, notifications backend, review backend or monetization feature has been provisioned. The existing research report contains later opportunities; they do not delay the daily agenda.
 

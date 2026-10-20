@@ -13,6 +13,7 @@ on:
         required: false
   schedule:
     - cron: "*/5 * * * *"
+    - cron: "17 5 * * *"
 
 permissions:
   contents: read
@@ -106,7 +107,7 @@ jobs:
 
   snapshot:
     needs: [prepare, sync_scores]
-    if: github.event_name == 'workflow_dispatch' && !inputs.dry_run && github.ref == 'refs/heads/main' && needs.sync_scores.result == 'success'
+    if: ((github.event_name == 'workflow_dispatch' && !inputs.dry_run) || github.event.schedule == '17 5 * * *') && github.ref == 'refs/heads/main' && needs.sync_scores.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -1,6 +1,6 @@
 # Auditoría de vivo y próxima actualización
 
-Fecha: 20/10/2026. Estado de esta revisión: implementación y verificación en curso; las comprobaciones de publicación se registran al cerrar.
+Fecha: 20/10/2026. Implementación revisada en [PR #14](https://github.com/Vitolop1/RugbyNow/pull/14). La publicación se verifica aparte de la salud del origen.
 
 ## Lo que se comprobó
 
@@ -38,3 +38,11 @@ Las pruebas de parser/reconciliación pasan de forma aislada; no sustituyen obse
 - GitHub: intervalo mínimo 5 minutos y posibles demoras: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax y https://docs.github.com/en/actions/how-tos/troubleshoot-workflows
 - Cloudflare: cron con resolución de minutos: https://developers.cloudflare.com/workers/configuration/cron-triggers/
 - API-Sports: catálogo de rugby y plan PRO publicado de 7.500 solicitudes/día a 15,00 en la modalidad mensual visible: https://api-sports.io/sports/rugby . Confirmar moneda, impuestos, condiciones y cobertura efectiva al contratar; no usar la frecuencia publicitaria general como garantía específica de rugby.
+
+## Verificación de esta entrega
+
+59 pruebas pasan; TypeScript, build Next y empaquetado OpenNext completos. Revisión interactiva a 1440 px y a 390/320 px: cabecera sin desbordamiento, menú/Escape, idiomas con banderas y acceso a configuración; francés comprobado a 320 px. Pelota del banner y estado vacío revisados en escritorio. La fuente /results de Pro D2 mostraba 56 encuentros reales, sin observar un encuentro en curso.
+
+[Prueba de vivo 39375484676](https://github.com/Vitolop1/RugbyNow/actions/runs/39375484676) terminada con éxito. Su artefacto live-source-health contiene status=idle, dryRun=true, candidates=0, entre 05:33:48.264 y 05:33:48.996 UTC: verifica la consulta/selección y el informe, no el scraping de un vivo ni escrituras. La prueba antigua 39359653728 devolvía queued pero GitHub rechazó cancel y force-cancel con HTTP 409; no afirmar que fue cancelada. Esto no impidió ejecutar la nueva prueba.
+
+Los checks de aplicación y Cloudflare de 442a3db terminaron con success. Estos checks y el informe idle no son una medición del retraso de un marcador en producción. La cadencia programada y una actualización real deben observarse después de la publicación, según el criterio de aceptación anterior.

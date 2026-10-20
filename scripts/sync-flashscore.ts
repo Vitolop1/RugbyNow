@@ -2031,12 +2031,16 @@ async function main() {
           console.log("Open standings:", variants.standings);
           await gotoWithRetry(page, variants.standings, 3);
           await maybeAcceptConsent(page);
-          await page.waitForTimeout(1500);
+          try {await page.waitForSelector('.table__row, .ui-table__row, [class*="tableRow"], [class*="standing"] [class*="row"]',{timeout:20000});}catch{}
+          await page.waitForTimeout(1200);
 
           const standings = await scrapeStandingsPage(page);
           console.log(`Standings scraped: ${standings.length}`);
 
-          if (!standings.length && STANDINGS_ONLY) throw new Error(`Empty standings for ${compSlug}`);
+          if (!standings.length && STANDINGS_ONLY) {
+            console.log("Standings diagnostic:", (await page.locator("body").innerText()).slice(-6000));
+            throw new Error(`Empty standings for ${compSlug}`);
+          }
           if (standings.length > 0) {
             await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
           }

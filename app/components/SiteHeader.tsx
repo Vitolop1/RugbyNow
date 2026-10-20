@@ -12,7 +12,7 @@ export const NAV_COPY = {
 };
 export default function SiteHeader(){
   const {lang,setLangEverywhere}=usePrefs(); const path=usePathname(); const c=NAV_COPY[lang];
-  const links=[["/",c.agenda],["/leagues",c.leagues],["/news",c.news],["/settings",c.settings]];
+  const links=[["/",c.agenda],["/leagues",c.leagues],["/news",c.news],["/watch","TV & Streams"],["/settings",c.settings]];
   return <header className={`${s.header} rn-site-header`}><div className={s.headerInner}>
     <Link href="/" className={s.brand} aria-label="RugbyNOW"><img src="/logo.png" alt="" width={34} height={34}/><span>RUGBY<b>NOW</b></span></Link>
     <nav aria-label="RugbyNOW">{links.map(([href,label])=><Link key={href} href={href} className={(href==="/"?path==="/"||path==="/agenda":path?.startsWith(href))?s.current:""}>{label}</Link>)}</nav>

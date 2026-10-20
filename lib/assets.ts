@@ -5,6 +5,12 @@ const fallbackLogo = "/icons/rugby-ball.svg";
 const existingLogo = (path:string) => localAssets.has(path) ? path : fallbackLogo;
 
 const TEAM_LOGO_ALIASES: Record<string, string> = {
+  "fiyi-7s":"fiji",
+  "sudafrica-7s":"south-africa",
+  "nueva-zelanda-7s":"new-zealand",
+  "espana-7s":"spain",
+  "gran-bretana-7s":"great-britain",
+  "francia-7s":"france",
   argentina: "argentina",
   "argentina-7s": "argentina",
   australia: "australia",
@@ -113,6 +119,7 @@ export function resolveLeagueLogoPath(compSlug?: string | null) {
 export function getTeamLogo(teamSlug?: string | null) {
   if (!teamSlug) return fallbackLogo;
   if (teamSlug === "argentina") return "/team-logos/los-pumas.svg";
+  if (teamSlug === "black-lion") return existingLogo("/team-logos/black-lion.svg");
   if (teamSlug === "vannes") return "/team-logos/vannes.svg";
   return existingLogo(`/team-logos/${resolveTeamLogoSlug(teamSlug)}.png`);
 }

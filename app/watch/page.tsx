@@ -1,0 +1,6 @@
+"use client";
+import PortalShell from "@/app/components/PortalShell";
+import ExternalWatchOptions from "@/app/components/ExternalWatchOptions";
+import Link from "next/link";
+import {usePrefs} from "@/lib/usePrefs";
+export default function WatchPage(){const {lang}=usePrefs();const c={es:["TV, radio y streams","Consultá la guía de cada partido o las opciones externas.","Agenda de transmisiones","Canales, plataformas y enlaces por encuentro y país.","Abrir agenda"],en:["TV, radio & streams","Browse the match guide or external options.","Match broadcast guide","Channels, platforms and links by match and country.","Open schedule"],fr:["TV, radio et streams","Consultez le guide des matchs ou les options externes.","Guide des diffusions","Chaînes, plateformes et liens par match et pays.","Ouvrir l’agenda"],it:["TV, radio e stream","Consulta la guida delle partite o le opzioni esterne.","Guida delle trasmissioni","Canali, piattaforme e link per partita e paese.","Apri agenda"]}[lang];return <PortalShell title={c[0]} subtitle={c[1]}><section className="rn-panel rn-watch-directory"><h2>{c[2]}</h2><p>{c[3]} <Link href="/agenda">{c[4]} →</Link></p><ExternalWatchOptions initiallyOpen/></section></PortalShell>;}

@@ -1,3 +1,4 @@
+import {withOfficialStandings} from "@/lib/standingsOverlay";
 import {readAllRows} from "@/lib/readAllRows";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
@@ -555,7 +556,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
     const regionProfile = getCountryProfile(competitionProfile.country ?? mergedCompetition.region);
     if (isCuratedOnlyCompetition(slug) && fallback) {
-      return res.status(200).json({
+      return res.status(200).json(withOfficialStandings({
         ...fallback,
         competition: mergedCompetition,
         noticeKey: getCompetitionNoticeKey(mergedCompetition.slug),
@@ -565,7 +566,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         knockoutMatches: [],
         standingsSource: slug === "ar-liga-norte-grande" ? "curated" : "computed",
         source: "fallback-curated",
-      });
+      }));
     }
     const { data: seasons, error: seasonsError } = await serverSupabase.from("seasons").select("id,name,competition_id").eq("competition_id", competition.id).order("name", { ascending: false });
     if (seasonsError || !seasons?.length) throw new Error(`No season found for: ${slug}`);
@@ -723,7 +724,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         : standingsFromSnapshot.length
           ? "cache"
           : "computed";
-    return res.status(200).json({
+    return res.status(200).json(withOfficialStandings({
       competition: mergedCompetition,
       noticeKey: getCompetitionNoticeKey(mergedCompetition.slug),
       profile: competitionProfile,
@@ -738,7 +739,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       standings,
       standingsSource,
       source: "supabase",
-    });
+    }));
   } catch (error) {
     const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar);
     if (snapshot) {
@@ -767,7 +768,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         bracketAugmented.roundMeta,
         basePayload.selectedRound
       );
-      return res.status(200).json({
+      return res.status(200).json(withOfficialStandings({
         ...basePayload,
         noticeKey: getCompetitionNoticeKey(basePayload.competition.slug),
         profile: competitionProfile,
@@ -778,7 +779,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         matches: visibleMatches,
         source: preferFallback ? "snapshot+fallback" : "snapshot",
         warning: describeError(error),
-      });
+      }));
     }
     const fallback = getFallbackLeagueData(slug, refISO);
     if (!fallback) {
@@ -790,7 +791,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       region: fallback.competition.region ?? undefined,
     });
     const regionProfile = getCountryProfile(competitionProfile.country ?? fallback.competition.region);
-    return res.status(200).json({
+    return res.status(200).json(withOfficialStandings({
       ...fallback,
       noticeKey: getCompetitionNoticeKey(fallback.competition.slug),
       profile: competitionProfile,
@@ -804,6 +805,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ),
       source: "fallback",
       warning: describeError(error),
-    });
+    }));
   }
 }

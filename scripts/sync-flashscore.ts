@@ -1,3 +1,5 @@
+import {validateSourceStandings} from "../lib/sourceStandings";
+import {readAllRows} from "../lib/readAllRows";
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
@@ -358,7 +360,7 @@ function competitionSlugFromUrl(url: string) {
   const regionOrCountry = parts[1];
   const compSlug = parts[2];
 
-  if (compSlug === "top-14") return "fr-top14";
+  if (compSlug === "top-14") return regionOrCountry === "argentina" ? "ar-urba-top14" : "fr-top14";
   if (compSlug === "serie-a-elite") return "it-serie-a-elite";
   if (compSlug === "six-nations") return "int-six-nations";
   if (compSlug === "super-rugby-americas") return "sra";
@@ -1600,7 +1602,7 @@ async function upsertStandingsCache(
   teamNamesNorm: string[],
   rows: ScrapedStandingRow[]
 ) {
-  if (!rows.length) return;
+  validateSourceStandings(rows);
   if (DRY_RUN) return;
 
   const payloadByTeam = new Map<number, Record<string, unknown>>();
@@ -1633,7 +1635,7 @@ async function upsertStandingsCache(
     .upsert(payload, { onConflict: "season_id,team_id" });
 
   if (error) {
-    console.log("WARN: standings_cache upsert failed:", error.message);
+    throw new Error(`Standings write failed: ${error.message}`);
   } else {
     console.log(`Standings upserted: ${payload.length}`);
   }
@@ -1657,21 +1659,7 @@ async function main() {
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
-    const { data, error } = await ensureSupabase()
-      .from("matches")
-      .select("id,status,match_date,kickoff_time")
-      .gte("match_date", yesterday.toISOString().slice(0, 10))
-      .lte("match_date", tomorrow.toISOString().slice(0, 10))
-      .neq("status", "FT")
-      .limit(40);
-
-    if (error) throw error;
-    const candidates = (data || []) as Array<{
-      id: number;
-      status: MatchStatus | null;
-      match_date: string;
-      kickoff_time: string | null;
-    }>;
+    const candidates=await readAllRows<{id:number;status:MatchStatus|null;match_date:string;kickoff_time:string|null}>((offset,size)=>ensureSupabase().from("matches").select("id,status,match_date,kickoff_time").gte("match_date",yesterday.toISOString().slice(0,10)).lte("match_date",tomorrow.toISOString().slice(0,10)).neq("status","FT").order("id").range(offset,offset+size-1));
     const hasRelevantWindow = candidates.some((row) =>
       isPotentiallyLiveWindow(row.match_date, row.kickoff_time, row.status ?? "NS")
     );
@@ -2048,6 +2036,7 @@ async function main() {
           const standings = await scrapeStandingsPage(page);
           console.log(`Standings scraped: ${standings.length}`);
 
+          if (!standings.length && STANDINGS_ONLY) throw new Error(`Empty standings for ${compSlug}`);
           if (standings.length > 0) {
             await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings);
           }
@@ -2063,6 +2052,7 @@ async function main() {
           }
           } catch (e: unknown) {
             console.log("WARN: standings scrape failed:", e instanceof Error ? e.message : e);
+            if(STANDINGS_ONLY)totalFailures++;
           }
         }
 

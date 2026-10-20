@@ -14,11 +14,11 @@ async function main(){
   const split=feed.indexOf("=");const competition=split>0?feed.slice(0,split):new URL(feed).pathname.replace(/[^a-z0-9]+/gi,"-");
   const startedAt=new Date().toISOString();let output="";
   const exitCode=await new Promise<number|null>((resolve,reject)=>{
-   const child=spawn(process.execPath,[path.resolve("node_modules/tsx/dist/cli.mjs"),"scripts/sync-flashscore.ts"],{env:{...process.env,FLASH_URLS:feed,MATCHES_ONLY:"1"},stdio:["ignore","pipe","pipe"]});
+   const child=spawn(process.execPath,[path.resolve("node_modules/tsx/dist/cli.mjs"),"scripts/sync-flashscore.ts"],{env:{...process.env,FLASH_URLS:feed,MATCHES_ONLY:process.env.STANDINGS_ONLY==="1"?"0":"1"},stdio:["ignore","pipe","pipe"]});
    child.stdout.on("data",chunk=>{const value=String(chunk);output=(output+value).slice(-2_000_000);process.stdout.write(value);});child.stderr.on("data",chunk=>process.stderr.write(chunk));
    child.once("error",reject);child.once("close",resolve);
   });
-  const report:ImportHealth={source:"flashscore",competition,startedAt,finishedAt:new Date().toISOString(),...summarizeImport(output,exitCode,process.env.DRY_RUN==="1")};
+  const report:ImportHealth={source:"flashscore",competition,startedAt,finishedAt:new Date().toISOString(),...summarizeImport(output,exitCode,process.env.DRY_RUN==="1",process.env.STANDINGS_ONLY==="1"?"standings":"matches")};
   const target=path.join(reportDir,`${competition.replace(/[^a-z0-9_-]/gi,"-")}.json`);fs.writeFileSync(`${target}.tmp`,JSON.stringify(report,null,2)+"\n");fs.renameSync(`${target}.tmp`,target);
   console.log(`Feed ${competition}: ${report.ok?"OK":"FAILED"}, ${report.rows} source rows`);if(!report.ok)failed++;
  }

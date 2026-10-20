@@ -7,6 +7,10 @@ on:
         description: Validate the feed without database writes
         type: boolean
         default: true
+      standings_only:
+        description: Refresh source standings without changing match results
+        type: boolean
+        default: false
       flash_urls:
         description: Optional competition URLs; leave empty for the configured feeds
         type: string
@@ -14,6 +18,7 @@ on:
   schedule:
     - cron: "*/5 * * * *"
     - cron: "17 5 * * *"
+    - cron: "43 */3 * * *"
 
 permissions:
   contents: read
@@ -39,11 +44,16 @@ jobs:
         id: plan
         env:
           FLASH_URLS: ${{ inputs.flash_urls || vars.FLASH_URLS }}
+          STANDINGS_ONLY: ${{ (inputs.standings_only || github.event.schedule == '43 */3 * * *') && '1' || '0' }}
         run: |
           node <<'NODE'
           const fs = require('node:fs');
-          const feeds = [...new Set((process.env.FLASH_URLS || '').split(/\r?\n|,/).map(s => s.trim()).filter(Boolean))];
-          if (!feeds.length) throw new Error('No competition feeds configured.');
+          let feeds = [...new Set((process.env.FLASH_URLS || '').split(/\r?\n|,/).map(s => s.trim()).filter(Boolean))];
+          if (process.env.STANDINGS_ONLY === '1') {
+            const supported = new Set(['ar-urba-top14','fr-top14','en-premiership-rugby','it-serie-a-elite','int-united-rugby-championship','sra','us-mlr']);
+            feeds = feeds.filter(feed => supported.has(feed.split('=')[0]));
+          }
+          if (!feeds.length) throw new Error('No supported competition feeds configured.');
           const groups = Array.from({length: Math.min(4, feeds.length)}, (_, index) => ({group: index + 1, urls: []}));
           feeds.forEach((feed, index) => groups[index % groups.length].urls.push(feed));
           const matrix = {include: groups.map(group => ({group: group.group, urls: group.urls.join('\n')}))};
@@ -94,6 +104,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FLASH_URLS: ${{ matrix.urls }}
+          STANDINGS_ONLY: ${{ (inputs.standings_only || github.event.schedule == '43 */3 * * *') && '1' || '0' }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
           DRY_RUN_REPORT_DIR: logs/import-validation
         run: npm run sync:matches
@@ -114,7 +125,7 @@ jobs:
 
   snapshot:
     needs: [prepare, sync_scores]
-    if: ((github.event_name == 'workflow_dispatch' && !inputs.dry_run) || github.event.schedule == '17 5 * * *') && github.ref == 'refs/heads/main' && needs.sync_scores.result == 'success'
+    if: ((github.event_name == 'workflow_dispatch' && !inputs.dry_run) || github.event.schedule == '17 5 * * *' || github.event.schedule == '43 */3 * * *') && github.ref == 'refs/heads/main' && needs.sync_scores.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -128,6 +139,9 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund --prefer-offline
+      - name: Refresh official URBA standings
+        continue-on-error: true
+        run: npm run sync:official-standings
       - name: Refresh independent news feeds
         continue-on-error: true
         run: npm run sync:news
@@ -142,12 +156,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp data/supabase-snapshot.json /tmp/supabase-snapshot.json
           cp data/news-snapshot.json /tmp/news-snapshot.json
+          cp data/official-standings.json /tmp/official-standings.json
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/supabase-snapshot.json data/supabase-snapshot.json
             cp /tmp/news-snapshot.json data/news-snapshot.json
-            git add data/supabase-snapshot.json data/news-snapshot.json
+            cp /tmp/official-standings.json data/official-standings.json
+            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
             git commit -m "Update complete score and news snapshots"
             git push origin HEAD:main && exit 0

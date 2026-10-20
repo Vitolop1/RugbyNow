@@ -1,3 +1,4 @@
+import {withOfficialStandings} from "@/lib/standingsOverlay";
 import type { Metadata } from "next";
 import { buildLeagueMetadata } from "@/lib/seo";
 import LeagueClient from "./CompactLeagueClient";
@@ -20,6 +21,6 @@ export default async function Page({params,searchParams}:{params:Promise<{slug:s
   const date=isAgendaDate(query.date)?query.date:new Date().toISOString().slice(0,10);
   const round=query.round&&/^\d+$/.test(query.round)?Number(query.round):null;
   const snapshot=getSnapshotLeagueData(slug,date,round,true);
-  const initialData=snapshot?{...snapshot,source:"snapshot"} as unknown as LeagueViewPayload:null;
+  const initialData=snapshot?withOfficialStandings({...snapshot,source:"snapshot"}) as unknown as LeagueViewPayload:null;
   return <LeagueClient key={slug} initialData={initialData}/>;
 }

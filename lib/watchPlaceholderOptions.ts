@@ -6,23 +6,18 @@ export type WatchPlaceholderOption = {
 
 export const WATCH_PLACEHOLDER_OPTIONS: WatchPlaceholderOption[] = [
   {
-    id: "tvlibr3",
-    name: "TV Libre",
-    placeholderHref: "https://tvlibr3.com/",
-  },
-  {
-    id: "vipleague-rugby",
-    name: "VIPLeague · Rugby",
-    placeholderHref: "https://www.vipleague.ws/rugby-sports-stream",
-  },
-  {
     id: "viprow-rugby",
     name: "VIPRow · Rugby",
-    placeholderHref: "https://www.viprow.co/sports-rugby-online",
+    placeholderHref: "https://viprow.im/sports/rugby/",
   },
   {
     id: "rugbybox",
     name: "RugbyBox",
-    placeholderHref: "https://www.rugbybox.me",
+    placeholderHref: "https://rugbybox.me/rugby-union-streams",
+  },
+  {
+    id: "vipleague-rugby",
+    name: "VIPLeague · Streamiz",
+    placeholderHref: "https://streamiz.lol/vipleaguetv/",
   },
 ];

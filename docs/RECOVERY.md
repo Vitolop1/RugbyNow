@@ -132,3 +132,5 @@ Pro D2 is one of 18 configured feeds; DATA_SYNC_ENABLED and LIVE_SYNC_ENABLED ar
 ## Continuación del 20/10/2026: auditoría y cobertura
 
 Se retomaron PR14/15 sin modificar la copia original del dueño. Ver docs/AUDIT-2026-10-20.md para matriz y fuentes. Cinco tablas oficiales, Pro D2 regular completo con ventanas pendientes, Mundial masculino 2027 completo, directorios LNR y separación XV/seven. 70 pruebas, TypeScript, Next y OpenNext correctos. No hubo reparación masiva ni copia de secretos; sigue pendiente validar un marcador real en varias lecturas. Estado de publicación se añade al comprobar el despliegue.
+
+Publicación de esta etapa: PR16 d14fa07, sitio y APIs públicos contrastados; refresh 39481169649 con pasos oficiales/exportación/commit success, bot d12d0f5. Ver matriz de auditoría para evidencia visual, cobertura y pendientes. No marcar vivo validado: no hubo partido real cambiando.

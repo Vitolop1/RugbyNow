@@ -5,6 +5,7 @@ import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
 import {validateResolvedStandingsTeamIds,validateSourceStandings} from "../lib/sourceStandings";
 import {readAllRows} from "../lib/readAllRows";
+import {isLiveRefreshCandidate,liveSourceUrls,canRefreshLiveTarget} from "../lib/liveRefresh";
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
@@ -253,7 +254,7 @@ function buildFlashVariants(raw: string) {
 
   if (LIVE_ONLY) {
     return {
-      resultsAndFixtures: [`${base}/live`],
+      resultsAndFixtures: liveSourceUrls(base),
       standings: `${base}/standings`,
     };
   }
@@ -273,13 +274,7 @@ function parseMatchDateTime(matchDate: string, kickoffTime?: string | null) {
 }
 
 function isPotentiallyLiveWindow(matchDate: string, kickoffTime?: string | null, status?: MatchStatus | null) {
-  if (status === "LIVE" || status === "HT") return true;
-
-  const kickoff = parseMatchDateTime(matchDate, kickoffTime);
-  if (!kickoff) return false;
-
-  const diffMinutes = Math.floor((Date.now() - kickoff.getTime()) / 60000);
-  return diffMinutes >= -15 && diffMinutes <= 130;
+  return isLiveRefreshCandidate({match_date:matchDate,kickoff_time:kickoffTime,status});
 }
 
 const competitionSlugFromUrl = competitionSlugFromFlashscoreUrl;
@@ -1677,7 +1672,7 @@ async function main() {
 
       const scraped = dedupeScrapedRows(scrapedAll);
       console.log("Scraped rows total (deduped):", scraped.length);
-      if (!scraped.length && !STANDINGS_ONLY && !LIVE_ONLY) {
+      if (!scraped.length && !STANDINGS_ONLY) {
         console.error(`No results or fixtures could be read for ${compSlug}.`);
         totalFailures++;
         continue;
@@ -1870,7 +1865,11 @@ async function main() {
             }
           }
 
-          if (target?.status === "FT" && isNonPlayedStatus(effectiveParsed.status)) {
+          // A live pass only updates identified active/imminent fixtures. It must
+          // not reimport the entire results archive or create approximate pairs.
+          if (LIVE_ONLY && !DRY_RUN && !canRefreshLiveTarget(target)) continue;
+
+          if (target?.status === "FT" && effectiveParsed.status !== "FT") {
             continue;
           }
 

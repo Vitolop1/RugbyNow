@@ -1,6 +1,9 @@
 import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {readAllRows} from "../lib/readAllRows";
-import {isLiveRefreshCandidate} from "../lib/liveRefresh";
+import {isLiveRefreshCandidate,assessLiveCoverage} from "../lib/liveRefresh";
+import fs from "node:fs";
+import path from "node:path";
+import {spawn} from "node:child_process";
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import { readRuntimeEnv } from "../lib/runtimeEnv";
@@ -15,6 +18,7 @@ type FlashInput = {
 };
 
 type LiveMatchCandidate = {
+  id:number;
   season_id: number | null;
   source_url: string | null;
   status: MatchStatus | null;
@@ -92,11 +96,11 @@ async function buildLiveOnlyFlashUrls() {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
-  const rawMatches=await readAllRows<LiveMatchCandidate>((offset,size)=>supabase.from("matches").select("season_id,source_url,status,match_date,kickoff_time").gte("match_date",yesterday.toISOString().slice(0,10)).lte("match_date",tomorrow.toISOString().slice(0,10)).neq("status","FT").order("id").range(offset,offset+size-1));
+  const rawMatches=await readAllRows<LiveMatchCandidate>((offset,size)=>supabase.from("matches").select("id,season_id,source_url,status,match_date,kickoff_time").gte("match_date",yesterday.toISOString().slice(0,10)).lte("match_date",tomorrow.toISOString().slice(0,10)).neq("status","FT").order("id").range(offset,offset+size-1));
   const candidates=rawMatches.filter(row=>isLiveRefreshCandidate(row));
 
   if (!candidates.length) {
-    return [];
+    return {inputs:[],candidates,supabase};
   }
 
   const inputsBySlug = new Map<string, FlashInput>();
@@ -164,30 +168,42 @@ async function buildLiveOnlyFlashUrls() {
     }
   }
 
-  return flashInputs.filter((input) => activeInputs.has(input.url));
+  return {inputs:flashInputs.filter((input) => activeInputs.has(input.url)),candidates,supabase};
 }
 
 async function main() {
-  const activeInputs = await buildLiveOnlyFlashUrls();
-
-  if (activeInputs.length === 0) {
-    console.log("sync:live -> no active competitions detected. Skipping scraper fast.");
-    return;
+  const reportDir=path.resolve(process.env.LIVE_HEALTH_DIR||"logs/live-health");
+  fs.mkdirSync(reportDir,{recursive:true});
+  const startedAt=new Date().toISOString();
+  const report:Record<string,unknown>={startedAt,dryRun:process.env.DRY_RUN==="1",status:"failed",candidates:0,competitions:[]};
+  try{
+    const {inputs:activeInputs,candidates,supabase}=await buildLiveOnlyFlashUrls();
+    report.candidates=candidates.length;report.competitions=activeInputs.map(input=>input.compSlug??input.url);
+    if(!candidates.length){report.status="idle";console.log("sync:live -> no active or imminent fixtures. No source validation performed.");return;}
+    if(!activeInputs.length)throw Error("Live candidates have no configured feed. Coverage is unverified.");
+    process.env.FLASH_URLS=activeInputs.map(input=>input.compSlug?input.compSlug+"="+input.url:input.url).join("\n");
+    console.log("sync:live -> active competitions:",report.competitions);
+    // Await a separate process: dynamic import of a self-starting script does not
+    // await its main(), and cannot reliably propagate its failure/health report.
+    const code=await new Promise<number|null>((resolve,reject)=>{
+      const child=spawn(process.execPath,[path.resolve("node_modules/tsx/dist/cli.mjs"),"scripts/sync-matches.ts"],{env:{...process.env,IMPORT_HEALTH_DIR:path.join(reportDir,"sources")},stdio:"inherit"});
+      child.once("error",reject);child.once("close",resolve);
+    });
+    report.exitCode=code;
+    if(code!==0)throw Error("Live source validation/import failed; see per-source reports.");
+    if(process.env.DRY_RUN==="1"){report.status="validated_sources";return;}
+    const ids=candidates.filter(row=>row.status==="LIVE"||row.status==="HT").map(row=>row.id);
+    const observed=ids.length?await readAllRows<{id:number;updated_at:string|null}>((offset,size)=>supabase.from("matches").select("id,updated_at").in("id",ids).order("id").range(offset,offset+size-1)):[];
+    const coverage=assessLiveCoverage(candidates,observed,startedAt);report.coverage=coverage;
+    if(coverage.unverifiedMatchIds.length)throw Error("Some source-live fixtures were not refreshed during this run.");
+    report.status="completed";
+  }catch(error){
+    report.error=error instanceof Error?error.message:"Live sync failed";
+    throw error;
+  }finally{
+    report.finishedAt=new Date().toISOString();
+    fs.writeFileSync(path.join(reportDir,"run.json"),JSON.stringify(report,null,2)+"\n");
+    console.log("Live run report:",JSON.stringify(report));
   }
-
-  process.env.FLASH_URLS = activeInputs
-    .map((input) => (input.compSlug ? `${input.compSlug}=${input.url}` : input.url))
-    .join("\n");
-
-  console.log(
-    "sync:live -> active competitions:",
-    activeInputs.map((input) => input.compSlug ?? input.url).join(", ")
-  );
-
-  await import("./sync-flashscore");
 }
-
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main().catch(error=>{console.error(error instanceof Error?error.message:"Live sync failed");process.exitCode=1;});

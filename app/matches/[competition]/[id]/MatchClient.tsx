@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import PortalShell from "@/app/components/PortalShell";
 import RugbyBall from "@/app/components/RugbyBall";
+import LiveFreshness from "@/app/components/LiveFreshness";
+import {preferNewerReading} from "@/lib/liveRefresh";
 import HeadToHead from "@/app/components/HeadToHead";
 import type { HeadToHeadData } from "@/lib/headToHead";
 import BroadcastCountrySelect from "@/app/components/BroadcastCountrySelect";
@@ -188,7 +190,7 @@ export default function MatchClient() {
         const payload=await response.json();
         if(!response.ok)throw new Error(payload.error || t(lang,"unknownMatchError"));
         if(controller.signal.aborted)return;
-        setData(payload as MatchPayload);setError("");
+        setData(previous=>({...payload,match:preferNewerReading(previous&&previous.match.id===payload.match.id?previous.match:undefined,payload.match as MatchPayload["match"],row=>row.updated_at)} as MatchPayload));setError("");
         if(payload.match?.status==="LIVE"||payload.match?.status==="HT")delay=15000;
       }catch(error){
         if(controller.signal.aborted)return;
@@ -257,6 +259,7 @@ export default function MatchClient() {
         ) : (
           <div className="space-y-4">
             {error&&<p className="rn-notice" role="status">{error}</p>}
+            <LiveFreshness status={data.match.status} updatedAt={data.match.updated_at}/>
             <section className="rounded-md border border-white/15 bg-black/20 p-4">
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/70">
                 <Link href={`/leagues/${data.competition.slug}`} className="flex items-center gap-2 hover:text-emerald-200">

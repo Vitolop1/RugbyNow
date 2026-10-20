@@ -57,6 +57,7 @@ Mapa de entrada:
 - Supabase limita resultados por defecto; los respaldos y consultas amplias necesitan paginación estable. Una importación puede haber guardado datos aunque un paso posterior falle: inspeccionar la etapa antes de repetir escrituras.
 - Validar también los IDs resueltos antes de guardar una tabla: 16 filas de fuente pueden convertirse en 15 si falla un club o dos aliases convergen. Pro D2 rechaza escrituras incompletas antes del upsert.
 - El bootstrap de competiciones debe recibir los mismos FLASH_URLS seleccionados para el importador; el workflow ya pasa esa variable a Ensure configured competitions.
+- Un día del mes o un marcador no identifica una fecha de competición: el parser debe exigir un encabezado explícito o una fuente oficial por encuentro. Pro D2 usa la fecha de LNR si coincide la identidad y el comienzo UTC.
 - Los nombres parecidos no identifican el mismo club: Lions no es Old Lions; Lobos de Uruguay no es Lobos de México; un Universitario sin contexto puede ser ambiguo. Conservar IDs, edición y procedencia.
 - La grilla de Horacio/Norte Rugby es una referencia editorial fechada, en hora argentina. No es un feed recurrente ni prueba de transmisiones de otra semana o país.
 

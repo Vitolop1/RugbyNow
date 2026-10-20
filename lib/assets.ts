@@ -1,3 +1,9 @@
+import availableAssets from "@/data/visual-assets.json";
+
+const localAssets = new Set(availableAssets);
+const fallbackLogo = "/icons/rugby-ball.svg";
+const existingLogo = (path:string) => localAssets.has(path) ? path : fallbackLogo;
+
 const TEAM_LOGO_ALIASES: Record<string, string> = {
   argentina: "argentina",
   "argentina-7s": "argentina",
@@ -74,7 +80,6 @@ const LEAGUE_LOGO_ALIASES: Record<string, string> = {
   "ar-liga-norte-grande": "ar-liga-norte-grande",
   "ar-urba-top14": "ar-urba-top14",
   "en-premiership-rugby": "en-premiership-rugby",
-  "eu-challenge-cup": "eu-champions-cup",
   "eu-champions-cup": "eu-champions-cup",
   "int-nations-championship": "int-nations-championship",
   "int-world-cup": "int-world-cup",
@@ -93,22 +98,23 @@ export function resolveTeamLogoSlug(teamSlug?: string | null) {
 }
 
 export function resolveLeagueLogoPath(compSlug?: string | null) {
-  if (!compSlug) return "/league-logos/_placeholder.png";
+  if (!compSlug) return fallbackLogo;
 
   if (compSlug.startsWith("svns-") || compSlug.includes("sevens")) {
-    return "/league-logos/Rugby_World_Cup_Sevens_logo.png";
+    return fallbackLogo;
   }
 
   const resolved = LEAGUE_LOGO_ALIASES[compSlug];
-  if (!resolved) return `/league-logos/${compSlug}.png`;
-  if (resolved.startsWith("team:")) return `/team-logos/${resolved.slice(5)}.png`;
-  return `/league-logos/${resolved}.png`;
+  if (!resolved) return existingLogo(`/league-logos/${compSlug}.png`);
+  if (resolved.startsWith("team:")) return existingLogo(`/team-logos/${resolved.slice(5)}.png`);
+  return existingLogo(`/league-logos/${resolved}.png`);
 }
 
 export function getTeamLogo(teamSlug?: string | null) {
+  if (!teamSlug) return fallbackLogo;
   if (teamSlug === "argentina") return "/team-logos/los-pumas.svg";
   if (teamSlug === "vannes") return "/team-logos/vannes.svg";
-  return `/team-logos/${resolveTeamLogoSlug(teamSlug)}.png`;
+  return existingLogo(`/team-logos/${resolveTeamLogoSlug(teamSlug)}.png`);
 }
 
 export function getLeagueLogo(compSlug?: string | null) {

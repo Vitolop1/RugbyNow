@@ -1,3 +1,5 @@
+import SearchMatchFeed from "@/app/components/SearchMatchFeed";
+export const dynamic="force-dynamic";
 import type { Metadata } from "next";
 import SeoLandingPage from "@/app/components/SeoLandingPage";
 import { buildStaticMetadata } from "@/lib/seo";
@@ -50,6 +52,6 @@ export default function RugbyFixturesPage() {
           description: "Follow the Six Nations match schedule, standings and current round.",
         },
       ]}
-    />
+    ><SearchMatchFeed mode="fixtures"/></SeoLandingPage>
   );
 }

@@ -32,6 +32,7 @@ export const metadata: Metadata = {
   description:
     "Live rugby scores, fixtures, tables, standings, weekly recaps, and competition coverage from RugbyNow.",
   applicationName: "RugbyNow",
+  other: {"google-adsense-account":AD_PUBLISHER},
   keywords: [
     "rugby",
     "rugby scores",

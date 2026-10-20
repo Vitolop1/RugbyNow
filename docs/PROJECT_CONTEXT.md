@@ -87,3 +87,7 @@ El control del navegador volvió a estar disponible el 20 de octubre de 2026. Se
 ## Cómo se mantiene esta memoria
 
 Actualizar este contexto cuando el dueño cambie una preferencia duradera o aparezca una lección demostrada; actualizar la documentación técnica cuando cambie el funcionamiento. Conservar decisiones actuales, referencias útiles y pendientes concretos, sin secretos, transcripciones completas ni registros redundantes por turno. No guardar inferencias como preferencias confirmadas. El pedido de recordar contexto no concede permisos permanentes para compras, publicación de cualquier cambio, mensajes ni trabajos en segundo plano.
+
+## Prioridad de tráfico y publicidad real
+
+El dueño pidió optimizar con poco crédito y priorizar visitas y monetización. Mostrar solo publicidad real: se retiró el creativo de muestra de los espacios AdSense. Si no hay entrega, se oculta el espacio y se recupera el ancho; conservar /advertise para consultas directas. No afirmar ingresos, aprobación o inventario vendido sin comprobar la cuenta. Las fichas de equipos entregan su contenido en HTML inicial usando el mismo modelo que la API; las páginas /rugby-results y /rugby-fixtures incluyen encuentros reales en servidor, con horarios UTC explícitos y acceso a zona local en Agenda. Equipos inexistentes responden 404. Las métricas privadas y capturas de cuentas no se publican en el repositorio.

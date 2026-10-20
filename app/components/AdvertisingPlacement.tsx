@@ -4,6 +4,7 @@ import {useEffect,useRef,useState} from "react";
 import {usePrefs} from "@/lib/usePrefs";
 import {AD_PUBLISHER,AD_UNITS} from "@/lib/advertising";
 import {trackProductEvent} from "@/lib/analytics";
+import {RugbyBallArt} from "./RugbyBall";
 
 const words={
   es:{ad:"Publicidad",brand:"TU MARCA",rugby:"EN EL RUGBY",intro:"Conectá con quienes viven este deporte.",cta:"Anunciá en RugbyNOW",more:"Consultá por este espacio",contact:"Publicidad y patrocinios"},
@@ -36,7 +37,7 @@ export default function AdvertisingPlacement({placement}:{placement:"rail"|"lead
       {status!=="filled"&&status!=="unfill-optimized"&&<Link className="rn-ad-house" href={`/advertise?placement=${placement}`} tabIndex={status==="pending"?-1:undefined} aria-hidden={status==="pending"||undefined} onClick={()=>trackProductEvent("sponsor_contact_click",{placement,action:"open_advertising"})}>
         <span className="rn-ad-wordmark">RUGBY<b>NOW</b></span>
         <div className="rn-ad-message"><strong>{c.brand}<br/><em>{c.rugby}</em></strong><p>{c.intro}</p></div>
-        <img className="rn-ad-ball" src="/icons/rugby-ball.svg" alt="" width={150} height={150}/>
+        <span className="rn-ad-ball"><RugbyBallArt shadow={false}/></span>
         <span className="rn-ad-cta">{c.cta} <span aria-hidden="true">↗</span></span><small>{c.more}</small>
       </Link>}
     </div>

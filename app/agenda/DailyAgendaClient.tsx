@@ -1,5 +1,5 @@
 "use client";
-import {isLiveDataDelayed} from "@/lib/liveRefresh";
+import {isLiveDataDelayed,preferNewerReading} from "@/lib/liveRefresh";
 
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
@@ -126,13 +126,27 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
         if(!response.ok)throw new Error("Agenda unavailable");
         const result=await response.json() as DailyAgendaData;
         if(!Array.isArray(result.entries))throw new Error("Invalid agenda");
-        if(id===request.current && !disposed)setData(result);
+        if(id===request.current && !disposed)setData(previous=>{
+          const latest=new Map(previous.entries.filter(entry=>entry.matchId).map(entry=>[entry.matchId,entry]));
+          return {...result,entries:result.entries.map(entry=>entry.matchId?preferNewerReading(latest.get(entry.matchId),entry,row=>row.updatedAt):entry)};
+        });
       }catch(err){if(!controller.signal.aborted && id===request.current && !disposed)setError(true);}
       finally{if(id===request.current && !disposed)setBusy(false);}
     };
-    void load();
-    const timer=setInterval(()=>{if(document.visibilityState!=="hidden")void load();},livePolling?15000:60000);
-    return()=>{disposed=true;controller.abort();clearInterval(timer);};
+    let timer:ReturnType<typeof setTimeout>;
+    let inFlight=false;
+    const poll=async()=>{
+      if(inFlight||disposed)return;
+      clearTimeout(timer);
+      inFlight=true;
+      if(document.visibilityState!=="hidden")await load();
+      inFlight=false;
+      if(!disposed)timer=setTimeout(()=>void poll(),livePolling?15000:60000);
+    };
+    const visible=()=>{if(document.visibilityState!=="hidden")void poll();};
+    document.addEventListener("visibilitychange",visible);
+    void poll();
+    return()=>{disposed=true;controller.abort();clearTimeout(timer);document.removeEventListener("visibilitychange",visible);};
   },[date,refresh,mounted,livePolling]);
 
   const formatDay=(day:string,full=false)=>new Intl.DateTimeFormat(locale,{weekday:full?"long":"short",day:"numeric",month:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`));
@@ -201,7 +215,7 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
             <div className={s.minorFilters}><label><span className={s.srOnly}>{c.allRegions}</span><select aria-label={c.allRegions} value={region} onChange={event=>{setRegion(event.target.value);setCompetition("");}}><option value="all">{c.allRegions}</option><option value="argentina">{c.argentina}</option><option value="international">{c.international}</option><option value="pumas">Los Pumas</option></select></label><span>{matches.length} {matches.length===1?c.match:c.matches}{busy&&<small className={s.loading} role="status"><RugbyBall spinning small/>{c.loading}</small>}</span><BroadcastCountrySelect value={tvCountry} onChange={setTvCountry}/></div>
             {error&&<div className={s.error} role="alert">{c.error}<button onClick={()=>setRefresh(value=>value+1)}>{c.retry}</button></div>}
             <div className={s.tableLabels}><span/><span>{c.time}</span><span>{c.teams}</span><span>{c.tv}</span><span/></div>
-            {groups.length?groups.map(([key,entries])=><section key={key} className={s.competition}><div className={s.competitionHeading}><Crest slug={entries[0].competitionSlug} league name={entries[0].competition}/><h2>{entries[0].competitionSlug?<Link href={`/leagues/${entries[0].competitionSlug}`}>{entries[0].competition}</Link>:entries[0].competition}</h2><small>{entries.length}</small></div>{entries.map(entry=><MatchRow key={entry.id} entry={entry} context={view}/>)}</section>):<div className={s.empty}><RugbyBall spinning={busy}/><strong>{dayMatches.length || filter!=="all" || query || competition || region!=="all"?c.filteredEmpty:c.empty}</strong><p>{c.emptyHint}</p>{!dayMatches.length&&<Link className="rn-empty-challenge" href="/games"><span aria-hidden="true">⚡</span><span><b>{({es:"Hoy también se juega acá",en:"There’s still a game to play",fr:"Le jeu continue ici",it:"Qui si gioca comunque"})[lang]}</b><small>{({es:"Desafiate con rugby y aprendé algo nuevo →",en:"Test your rugby knowledge and learn something new →",fr:"Testez vos connaissances et apprenez →",it:"Metti alla prova il tuo rugby e impara →"})[lang]}</small></span></Link>}<div>{(filter!=="all"||query||competition||region!=="all")&&<button onClick={reset}>{c.reset}</button>}{recentDay&&<button onClick={()=>{reset();chooseDate(recentDay);}}>{c.recent} · {formatDay(recentDay)} →</button>}</div></div>}
+            {groups.length?groups.map(([key,entries])=><section key={key} className={s.competition}><div className={s.competitionHeading}><Crest slug={entries[0].competitionSlug} league name={entries[0].competition}/><h2>{entries[0].competitionSlug?<Link href={`/leagues/${entries[0].competitionSlug}`}>{entries[0].competition}</Link>:entries[0].competition}</h2><small>{entries.length}</small></div>{entries.map(entry=><MatchRow key={entry.id} entry={entry} context={view}/>)}</section>):<div className={s.empty}><RugbyBall spinning={busy}/><strong>{dayMatches.length || filter!=="all" || query || competition || region!=="all"?c.filteredEmpty:c.empty}</strong><p>{c.emptyHint}</p>{!dayMatches.length&&<Link className="rn-empty-challenge" href="/games">{({es:"Un desafío de rugby mientras tanto →",en:"Try a rugby challenge meanwhile →",fr:"Un défi rugby en attendant →",it:"Una sfida di rugby nel frattempo →"})[lang]}</Link>}<div>{(filter!=="all"||query||competition||region!=="all")&&<button onClick={reset}>{c.reset}</button>}{recentDay&&<button onClick={()=>{reset();chooseDate(recentDay);}}>{c.recent} · {formatDay(recentDay)} →</button>}</div></div>}
           </section>
           {!matches.length&&nextMatches.length>0&&<section className={s.nextBoard}><div className={s.sectionTitle}><h2>{c.nextMatches}</h2><button onClick={()=>chooseDate(dailyEntryDate(nextMatches[0],timeZone))}>{c.showAgenda} →</button></div>{nextMatches.map(entry=><MatchRow key={entry.id} entry={entry} withDate context={view}/>)}</section>}
           {prefs.guides&&shows.length>0&&<details className={s.programmes}><summary><Glyph name="tv"/><strong>{c.programmes}</strong><span>{shows.length}</span><small>{c.editorial} · 15–22 OCT</small><span>⌄</span></summary><div className={s.programmeList}>{shows.map(entry=><article key={entry.id} id={entry.id} className={s.showRow}><time dateTime={entry.startsAt!}>{formatTime(entry)}</time><div><strong>{entry.home}</strong><span>{entry.competition}</span></div><Watch entry={entry} context={view}/><button title={c.calendar} aria-label={`${c.calendar}: ${entry.home}`} onClick={()=>calendar(entry)}><Glyph name="calendar"/></button></article>)}</div><p className={s.programmeNote}>{c.guideNote}</p></details>}

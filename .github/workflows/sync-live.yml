@@ -8,7 +8,7 @@ on:
         default: true
         description: Read source data without writing results
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "2-59/5 * * * *"
 
 permissions:
   contents: read
@@ -45,7 +45,7 @@ jobs:
         if: steps.deps-cache.outputs.cache-hit != 'true'
         run: npm ci --no-audit --no-fund --prefer-offline
 
-      - name: Run live sync burst
+      - name: Refresh active fixtures and verify source health
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -54,3 +54,10 @@ jobs:
         run: |
           echo "UTC now: $(date -u +'%Y-%m-%d %H:%M:%S')"
           npm run sync:live
+      - name: Save live run and per-source health
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-source-health
+          path: logs/live-health/**/*.json
+          retention-days: 14

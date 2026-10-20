@@ -75,3 +75,5 @@ The official LNR 2026/2027 roster supplies the exact sixteen Pro D2 identities. 
 CANAL+ SPORT, CANAL+ SPORT 360 and CANAL+ LIVE logos identify the channels named by the official [LNR round 8 calendar](https://prod2.lnr.fr/calendrier-et-resultats/2026-2027/j8). The eight listings on 22–23 October 2026 are confirmed for France only. SPORT+ has a text label where no verified local mark is available. Existing Disney+/ESPN assets remain available; Argentina editorial TV still applies only to its exact dated fixture. A known logo never creates broadcast rights.
 
 The loading ball and language flags are repo-native SVG components. The ball is inspired by the user’s supplied reference and animated with CSS; it stops for reduced-motion preferences and stays static in an idle empty agenda.
+
+The 20 October refinement uses the same softer oval illustration in loading/empty states and sponsor banners, with two fine seams instead of laces and a planar rotation. Advertising SVG dimensions explicitly override the agenda's generic icon sizing.

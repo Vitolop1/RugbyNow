@@ -10,3 +10,23 @@ export function isLiveDataDelayed(status:string,updatedAt?:string|null,now=Date.
  const timestamp=updatedAt?Date.parse(updatedAt):NaN;
  return !Number.isFinite(timestamp)||now-timestamp>180000;
 }
+
+// Results must also be read: finished games disappear from a live-only page.
+export function liveSourceUrls(base:string){return [`${base}/live`,`${base}/results`];}
+export function canRefreshLiveTarget(row:{status?:string|null;match_date:string;kickoff_time?:string|null}|null,now=Date.now()){
+ return !!row&&isLiveRefreshCandidate(row,now);
+}
+export function assessLiveCoverage(expected:{id:number;status?:string|null}[],observed:{id:number;updated_at?:string|null}[],startedAt:string){
+ const since=Date.parse(startedAt),seen=new Map(observed.map(row=>[row.id,Date.parse(row.updated_at||"")]));
+ const required=expected.filter(row=>row.status==="LIVE"||row.status==="HT");
+ const unverified=required.filter(row=>!(Number.isFinite(seen.get(row.id))&&seen.get(row.id)!>=since)).map(row=>row.id);
+ return {activeExpected:required.length,activeRefreshed:required.length-unverified.length,unverifiedMatchIds:unverified};
+}
+
+// A delayed response or an older backup must not rewind the displayed score.
+// Scores themselves can legitimately decrease after a source correction.
+export function preferNewerReading<T>(current:T|undefined,incoming:T,timestamp:(row:T)=>string|null|undefined):T{
+ if(!current)return incoming;
+ const before=Date.parse(timestamp(current)||""),after=Date.parse(timestamp(incoming)||"");
+ return Number.isFinite(before)&&(!Number.isFinite(after)||after<before)?current:incoming;
+}

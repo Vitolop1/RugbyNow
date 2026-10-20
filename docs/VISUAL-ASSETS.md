@@ -14,7 +14,7 @@ The 15–22 October 2026 guide is a bounded editorial input. A channel/platform 
 
 ## Complete catalogue audit, 2026-10-20 UTC
 
-All 142 teams in the current snapshot resolve to a real local resource (zero neutral fallbacks in the team catalogue). Six Spanish sevens slugs now resolve to their existing national union images: Fiyi, Sudáfrica, Nueva Zelanda, España, Gran Bretaña and Francia. These are union identifiers, not invented separate seven-team brands.
+All 151 teams in the current snapshot resolve to a real local resource (zero neutral fallbacks in the team catalogue). Six Spanish sevens slugs now resolve to their existing national union images: Fiyi, Sudáfrica, Nueva Zelanda, España, Gran Bretaña and Francia. These are union identifiers, not invented separate seven-team brands.
 
 New verified resources:
 
@@ -31,7 +31,7 @@ News illustrations are publisher-provided Open Graph/RSS preview images hosted b
 
 ## Editorial guide additions, 2026-10-20 UTC
 
-The 142-team database catalogue is separate from clubs and youth sides mentioned only in the dated editorial guide. Added and visually inspected:
+The 151-team database catalogue is separate from clubs and youth sides mentioned only in the dated editorial guide. Added and visually inspected:
 
 - Curupaytí, Lomas, Pueyrredón, San Andrés, San Luis and Universitario La Plata: the corresponding club image linked by the [official URBA directory](https://urba.org.ar/clubes). URBA's published CDN/proxy destination is retained as source evidence in the delivery research files.
 - Northland: official header logo, <https://northlandrugby.co.nz/wp-content/uploads/2025/01/NRU-Logo-Dark-Blue-Horizontal.png>.
@@ -41,4 +41,8 @@ The 142-team database catalogue is separate from clubs and youth sides mentioned
 - Huirapucá, Cardenales, Natación y Gimnasia and Universitario de Tucumán: the club-specific Cloudinary images linked by the [official URT site](https://www.urtuc.com/). Universitario's image is stored but the ambiguous standalone editorial name is not automatically assigned to it.
 - Los Cuervos (Uruguay): `logo-los-cuervos.png` linked by the [official URU directory](https://uru.org.uy/clubes).
 
-The editorial youth national sides use the existing union identity, preserving their M-19/M-20/M-17 names. Jockey Salta maps only to Jockey Club de Salta. Some editorial-only identities remain unresolved, including Otago, Canterbury, Tala, Lobos, Alfiles, Jockey San Juan and provincial youth unions; the neutral fallback is intentional until the correct crest can be verified. Sporty's Canterbury/Otago image servers returned HTTP 403. This is not a claim of every club worldwide being covered.
+The editorial youth national sides use the existing union identity, preserving their M-19/M-20/M-17 names. Jockey Salta maps only to Jockey Club de Salta. Some editorial-only identities remain unresolved, including Otago, Canterbury, Alfiles and Jockey San Juan; the neutral fallback is intentional until the correct crest can be verified. Sporty's Canterbury/Otago image servers returned HTTP 403. This is not a claim of every club worldwide being covered.
+
+- Provincial M-17 sides of Salta, Cuyo and Córdoba use their union crests linked by [UAR Uniones Miembros](https://uar.com.ar/union/uniones-miembros/), preserving the youth team labels.
+- Tala: <https://talarc.com.ar/wp-content/uploads/2026/06/logo-tala-300x196.png>, linked by the official club homepage.
+- Lobos, Punta del Este: <https://www.lobosrugbyclub.uy/wp-content/uploads/2019/10/lrc_logo_menu.png>, linked by the official club homepage. Never mapped to the unrelated Mexican Lobos team.

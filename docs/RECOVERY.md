@@ -89,7 +89,7 @@ Scheduled primary writes remain gated by `DATA_SYNC_ENABLED` until the complete 
 - URBA's official 2026 table is independently read from urba.org.ar, validates all 14 exact clubs and includes actual bonus points. Newman: 26 played, 110 points. The edition-bound overlay preserves available recent form and never applies the 2026 table to another year.
 - League pages open with points tables and offer the five available confirmed results, expandable to opponents, scores, dates and details. Incomplete historical match coverage is not silently described as a complete season.
 - Twenty-four news previews have publisher images, compact cards and original source links. All 24 image endpoints were checked successfully.
-- All 142 database-catalogue teams resolve locally. Additional editorial-only clubs were researched separately; see VISUAL-ASSETS.md for coverage and remaining unverified identities.
+- All 151 database-catalogue teams resolve locally. Additional editorial-only clubs were researched separately; see VISUAL-ASSETS.md for coverage and remaining unverified identities.
 - TV, radio y streams has a dedicated route. Previous external directory destinations remain labeled as external options, not verified per-match broadcasts.
 - The new live workflow removes synthetic clock/finalization steps, paginates candidates and refuses to infer LIVE or FT from elapsed time. Frontend polling is 15 seconds while source-live games are shown, 60 otherwise; upstream workflows are scheduled every 5 minutes and GitHub scheduling can be delayed. A no-candidate run does not demonstrate a score changing during a match.
 - Supersedes the older recovery instruction above mentioning clock/finalization passes: do not re-enable those legacy steps.

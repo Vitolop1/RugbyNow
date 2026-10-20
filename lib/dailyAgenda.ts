@@ -47,6 +47,8 @@ const TEAM_SLUGS: Record<string,string> = {
   huirapuca:"huirapuca", cardenalesrc:"cardenales-rc", natacion:"natacion-y-gimnasia", loscuervosrugby:"los-cuervos-uruguay",
   hongkongchinam19:"hong-kong", namibiam19:"namibia", brasilm20:"brazil", canadam20:"canada",
   uruguaym17:"uruguay", chilem20:"chile", belgicam20:"belgium",
+  saltam17:"union-salta", cuyom17:"union-cuyo", cordobam17:"union-cordobesa",
+  talarc:"tala-rc", lobosrugbyclub:"lobos-uruguay",
 };
 const pairKey = (home: string, away: string) => `${normalizedTeam(home)}|${normalizedTeam(away)}`;
 

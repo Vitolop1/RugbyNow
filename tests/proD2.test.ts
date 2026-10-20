@@ -5,7 +5,7 @@ import { applyProD2TeamAliases, canonicalProD2TeamName, getProD2Team, PRO_D2_COM
 import { sourceTeamName } from "../lib/sourceTeamIdentity";
 import { inferMatchDateFromScrapedRow, selectSeasonForScrapedRow } from "../lib/scrapedMatchDate";
 import { getCompetitionCountryKey, getCompetitionSortPriority, isEuropeCompetition } from "../lib/competitionPrefs";
-import { validateSourceStandings } from "../lib/sourceStandings";
+import { validateResolvedStandingsTeamIds, validateSourceStandings } from "../lib/sourceStandings";
 
 test("Pro D2 URL is French and stays distinct from either Top 14", () => {
   assert.equal(competitionSlugFromFlashscoreUrl(PRO_D2_COMPETITION.flashscoreUrl), "fr-pro-d2");
@@ -30,6 +30,20 @@ test("all sixteen official Pro D2 clubs have unique exact identities", () => {
   assert.equal(teams.get(sourceTeamName("Montpellier")), undefined);
 });
 
+test("all actual Flashscore names resolve to the same sixteen LNR club identities", () => {
+  // Verified names in the 168-row source dry run, GitHub Actions 39371132747.
+  const sourceNames = [
+    ["Agen", "agen"], ["Angouleme", "soyaux-angouleme"], ["Aurillac", "aurillac"],
+    ["Beziers", "beziers"], ["Biarritz Olympique", "biarritz"], ["CA Brive", "brive"],
+    ["Colomiers", "colomiers"], ["Grenoble FC", "grenoble"], ["Montauban", "montauban"],
+    ["Narbonne", "narbonne"], ["Nevers", "nevers"], ["Nissa", "nice"],
+    ["Provence Rugby", "provence-rugby"], ["US Dax", "dax"], ["US Oyonnax", "oyonnax"],
+    ["Valence Romans", "valence-romans"],
+  ];
+  for (const [name, slug] of sourceNames) assert.equal(getProD2Team(name)?.slug, slug, name);
+  assert.equal(new Set(sourceNames.map(([name]) => getProD2Team(name)?.slug)).size, 16);
+});
+
 test("Pro D2 edition separates autumn 2026 and spring 2027 from previous results", () => {
   const seasons = [{ id: 1, name: "2025/2026" }, { id: 2, name: PRO_D2_COMPETITION.season_name }];
   const row = { statusOrTime: "23.10. 19:30", rawText: "Agen Nice", dateLabel: "", sectionText: "", sourceSeasonName: "2026/2027" };
@@ -46,4 +60,15 @@ test("a partial Pro D2 table cannot replace all sixteen clubs", () => {
   const rows = PRO_D2_TEAMS.map((team, index) => ({ pos: index + 1, team: team.name, played: 7, won: 3, drawn: 0, lost: 4, pointsFor: 130, pointsAgainst: 140, points: 14 }));
   assert.doesNotThrow(() => validateSourceStandings(rows, 16));
   assert.throws(() => validateSourceStandings(rows.slice(0, 14), 16), /Expected 16/);
+});
+
+test("Pro D2 refuses a partial write after missing or coalesced team identities", () => {
+  const teamIds = Array.from({length: 16}, (_, index) => index + 1);
+  assert.doesNotThrow(() => validateResolvedStandingsTeamIds(teamIds, 16));
+  assert.throws(() => validateResolvedStandingsTeamIds(teamIds.slice(0, 15), 16), /Expected 16 resolved/);
+  assert.throws(() => validateResolvedStandingsTeamIds([...teamIds.slice(0, 15), null], 16), /unresolved/);
+  assert.throws(() => validateResolvedStandingsTeamIds([...teamIds.slice(0, 15), 1], 16), /duplicate resolved/);
+  // The importer's Map coalesces aliases before forming the write payload.
+  const coalescedPayloadIds = [...new Set([...teamIds.slice(0, 15), 1])];
+  assert.throws(() => validateResolvedStandingsTeamIds(coalescedPayloadIds, 16), /Expected 16 resolved/);
 });

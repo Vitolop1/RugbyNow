@@ -101,3 +101,16 @@ Scheduled primary writes remain gated by `DATA_SYNC_ENABLED` until the complete 
 The shared header now labels /settings as Configuración / Settings / Réglages / Impostazioni. The first section offers visual selectors for RugbyNOW green, light and dark themes, normal/large text, and compact/comfortable spacing, with a preview and an appearance-only reset. League and club selections are preserved by the reset.
 
 Theme storage retains the existing `theme` key; text size and density extend `rn:personalization` without discarding guide visibility or followed teams/leagues. Appearance is applied before hydration and synchronized across page navigation and browser tabs. No account or cross-device synchronization is introduced. Source checks, 36 tests, TypeScript and a production build verify the change; interactive browser QA remains unavailable while Work disables browser control.
+
+
+## Compact portal, Pro D2, broadcasters and challenges — 2026-10-20
+
+Implementation is on `codex/compact-portal-advertising`; publication and live-data validation must be checked separately. Pro D2 uses the explicit 2026/2027 LNR roster and Flashscore feed, a distinct `fr-pro-d2` slug and a sixteen-row guard both before identity resolution and before cache writes. No duplicate-cleanup deletion was enabled.
+
+`sync:broadcasts` refreshes the current official LNR round, validates complete fixtures/edition/offsets and atomically replaces its JSON after parsing. It runs in the main snapshot job; refresh failure preserves previous listings and is reported independently of scores. The displayed broadcaster requires exact teams, UTC kickoff and selected country.
+
+The dense shared portal adds competition navigation and reserved horizontal/desktop vertical ad placements. Existing public AdSense publisher and unit IDs were recovered from the project configuration, avoiding an unnecessary request to the owner. The house creative and /advertise inquiry coexist with AdSense; no sponsor, account approval, fill, traffic or earnings is claimed. Google ad clicks are not tracked manually or refreshed in a custom loop.
+
+Match details now request source data every 15 seconds for LIVE/HT and 60 otherwise, preserve the last successful response on an update error, and provide exact territorial TV. H2H uses stable IDs in both home/away directions, the same rugby discipline, FT with both scores, dates before the reference/current instant and at most five available results. Snapshot identities must match the catalogue; curated fallback IDs never join database history.
+
+/games contains twenty sourced questions in four languages, five daily questions selected by UTC date, a separate practice mode and locally saved daily progress. Correct answers, explanations and official sources appear after answering. This is the first rugby quiz implementation, not a claim of all Futbol11 game types.

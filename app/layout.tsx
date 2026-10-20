@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import GoogleAnalyticsPageview from "@/app/components/GoogleAnalyticsPageview";
 import AppearanceSync from "@/app/components/AppearanceSync";
+import {AD_PUBLISHER} from "@/lib/advertising";
 import { getSiteUrl } from "@/lib/site";
 import { readRuntimeEnv } from "@/lib/runtimeEnv";
 import "./globals.css";
@@ -102,7 +103,7 @@ export default function RootLayout({
         <script id="theme-init" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <Script
           id="adsense-loader"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4088690490762441"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${AD_PUBLISHER}`}
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />

@@ -1,4 +1,11 @@
 type SourceStanding={pos:number|null;team:string;played:number|null;won:number|null;drawn:number|null;lost:number|null;pointsFor:number|null;pointsAgainst:number|null;points:number|null};
+// Validate the resolved write payload as well as the source rows: a failed team
+// lookup or two aliases resolving to one ID must not publish a partial table.
+export function validateResolvedStandingsTeamIds(teamIds: readonly (number | null)[], expectedCount: number) {
+ if(teamIds.length !== expectedCount) throw Error(`Expected ${expectedCount} resolved standings teams, received ${teamIds.length}`);
+ if(teamIds.some(id => id == null || !Number.isSafeInteger(id) || id <= 0)) throw Error("Standings contains an unresolved team ID");
+ if(new Set(teamIds).size !== expectedCount) throw Error("Standings contains duplicate resolved team IDs");
+}
 export function validateSourceStandings(rows:SourceStanding[],expectedCount?:number){
  if(expectedCount != null && rows.length !== expectedCount) throw Error(`Expected ${expectedCount} standings teams, received ${rows.length}`);
  if(rows.length<2)throw Error("Standings table is empty or incomplete");

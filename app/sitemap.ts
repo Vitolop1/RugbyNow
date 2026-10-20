@@ -42,6 +42,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/weekly",
     "/weekly/week-1",
     "/about",
+    "/advertise",
+    "/games",
     "/privacy",
     "/terms",
     "/rugby-results",

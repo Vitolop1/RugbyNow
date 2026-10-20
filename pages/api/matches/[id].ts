@@ -3,6 +3,8 @@ import { hasConsistentStandingsCache } from "@/lib/matchIntegrity";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackMatchDetail, isCuratedOnlyCompetition } from "@/lib/fallbackData";
 import { getSnapshotMatchDetail } from "@/lib/supabaseSnapshot";
+import { getDatabaseHeadToHead, getSnapshotHeadToHead } from "@/lib/headToHeadServer";
+import type { HeadToHeadReference } from "@/lib/headToHead";
 
 type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
 
@@ -96,6 +98,14 @@ function unwrapTeam(value: TeamRef | TeamRef[] | null | undefined) {
 
 function unwrapSeason(value: MatchRow["season"]) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+function historyReference(match: Pick<MatchRow, "id" | "match_date" | "kickoff_time" | "home_team" | "away_team">,
+  competitionSlug: string): HeadToHeadReference | null {
+  const homeTeam = unwrapTeam(match.home_team);
+  const awayTeam = unwrapTeam(match.away_team);
+  return homeTeam && awayTeam ? { id: match.id, matchDate: match.match_date, kickoffTime: match.kickoff_time,
+    homeTeam, awayTeam, competitionSlug } : null;
 }
 
 function hasUsableStandingCache(rows: StandingCacheRow[]) {
@@ -241,6 +251,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         ...fallbackDetail,
         source: "fallback-curated",
+        headToHead: null,
       });
     }
   }
@@ -356,6 +367,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const homeTeam = unwrapTeam(typedMatch.home_team);
     const awayTeam = unwrapTeam(typedMatch.away_team);
+    const reference = historyReference(typedMatch, competition.slug);
+    const headToHead = reference ? await getDatabaseHeadToHead(serverSupabase, reference) : null;
 
     return res.status(200).json({
       competition,
@@ -370,16 +383,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       homeStanding: standings.find((item) => item.teamId === homeTeam?.id) ?? null,
       awayStanding: standings.find((item) => item.teamId === awayTeam?.id) ?? null,
       source: "supabase",
+      headToHead,
     });
   } catch (error) {
     const snapshot = competitionSlug ? getSnapshotMatchDetail(competitionSlug, matchId, refISO) : null;
     if (snapshot) {
-      return res.status(200).json({ ...snapshot, source: "snapshot" });
+      const reference = historyReference(snapshot.match, snapshot.competition.slug);
+      return res.status(200).json({ ...snapshot, source: "snapshot", headToHead: reference ? getSnapshotHeadToHead(reference) : null });
     }
 
     const fallback = competitionSlug ? getFallbackMatchDetail(competitionSlug, matchId, refISO) : null;
     if (fallback) {
-      return res.status(200).json({ ...fallback, source: "fallback" });
+      return res.status(200).json({ ...fallback, source: "fallback", headToHead: null });
     }
 
     return res.status(404).json({ error: error instanceof Error ? error.message : "Match not found" });

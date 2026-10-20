@@ -1,7 +1,7 @@
 import { applyProD2TeamAliases, canonicalProD2TeamName } from "../lib/proD2";
 import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
-import {validateSourceStandings} from "../lib/sourceStandings";
+import {validateResolvedStandingsTeamIds,validateSourceStandings} from "../lib/sourceStandings";
 import {readAllRows} from "../lib/readAllRows";
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
@@ -1548,6 +1548,9 @@ async function upsertStandingsCache(
   }
 
   const payload = Array.from(payloadByTeam.values());
+  if (compSlug === "fr-pro-d2") {
+    validateResolvedStandingsTeamIds(payload.map(row => row.team_id as number), 16);
+  }
   if (!payload.length) return;
 
   const { error } = await ensureSupabase()

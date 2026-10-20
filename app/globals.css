@@ -279,3 +279,79 @@ html[data-rn-density=comfortable] .rn-coverage-table td{padding-top:15px;padding
 @media(max-width:600px){.rn-theme-choices{gap:7px}.rn-theme-choices>button{padding:5px;font-size:calc(11px * var(--rn-font-scale,1))}.rn-appearance-options{grid-template-columns:1fr}.rn-appearance-body{padding:12px}.rn-preview-match{grid-template-columns:40px 1fr 18px 1fr 20px;gap:5px;padding:10px}}
 
 html.theme-dark img[src*="/team-logos/black-lion.svg"]{background:#fff;border-radius:3px;padding:2px}
+
+
+/* Compact sports portal: competition navigation, match column and advertising rail. */
+html.theme-rugby{--rn-bg:#0d402f;--rn-text:#f1f7f1;--rn-text-muted:#a2bcac;--rn-header-bg:#072b20;--rn-surface:#092e22;--rn-surface-soft:#123e2d;--rn-border:#2c5140;--rn-accent:#b4e678;color-scheme:dark}
+html.theme-light{--rn-accent:#246d3e}html.theme-dark{--rn-accent:#b4e678}
+.rn-sports-main{max-width:1540px!important;padding:24px!important}
+.rn-site-header>div{max-width:1540px!important;height:60px}
+.rn-sports-grid{display:grid!important;grid-template-columns:212px minmax(0,1fr) 300px!important;gap:22px!important;align-items:start}
+.rn-sports-content{min-width:0}
+.rn-no-ad-rail{grid-template-columns:212px minmax(0,1fr)!important}
+.rn-competition-sidebar{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;border:1px solid var(--rn-border);border-radius:3px;font-size:calc(12px * var(--rn-font-scale,1));scrollbar-width:thin;scrollbar-color:var(--rn-border) transparent}
+.rn-sidebar-today{display:flex;align-items:center;gap:12px;padding:14px 15px;border-bottom:1px solid var(--rn-border);font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--rn-accent)!important}
+.rn-sidebar-heading{display:flex;align-items:center;justify-content:space-between;font-size:calc(10px * var(--rn-font-scale,1));letter-spacing:1.6px;text-transform:uppercase;font-weight:800;padding:15px 13px;color:var(--rn-accent);border-bottom:1px solid var(--rn-border)}
+.rn-sidebar-heading small{color:var(--rn-text-muted);font-size:inherit}
+.rn-nav-group>summary{display:flex;align-items:center;gap:6px;justify-content:space-between;list-style:none;padding:12px 11px;font-size:calc(10px * var(--rn-font-scale,1));font-weight:750;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--rn-border);cursor:pointer}
+.rn-nav-group>summary::-webkit-details-marker{display:none}.rn-nav-group>summary:after{content:'⌄';color:var(--rn-accent)}.rn-nav-group[open]>summary:after{content:'⌃'}.rn-nav-group summary small{margin-left:auto;font-size:calc(9px * var(--rn-font-scale,1));color:var(--rn-text-muted)}
+.rn-nav-league{display:flex;align-items:stretch;border-bottom:1px solid var(--rn-border);min-height:42px}
+.rn-nav-league>a,.rn-nav-league>button:first-child{display:flex;align-items:center;gap:8px;padding:8px 7px 8px 12px;flex:1;min-width:0;text-align:left;line-height:1.4;font-weight:550}
+.rn-nav-league img{flex-shrink:0;object-fit:contain}.rn-nav-league span{overflow-wrap:anywhere}
+.rn-nav-league:hover{background:var(--rn-surface-soft)}
+.rn-nav-star{width:28px;flex-shrink:0;color:var(--rn-text-muted)!important;font-size:calc(13px * var(--rn-font-scale,1));opacity:.45}.rn-is-followed{opacity:1;color:var(--rn-accent)!important}
+.rn-nav-current{background:var(--rn-surface-soft);box-shadow:inset 3px 0 var(--rn-accent)}
+.rn-sidebar-all,.rn-sidebar-config{display:block;padding:12px;line-height:1.5;font-size:calc(10px * var(--rn-font-scale,1));color:var(--rn-accent)!important}.rn-sidebar-config{border-top:1px solid var(--rn-border);color:var(--rn-text-muted)!important}
+.rn-ad-rail{position:sticky;top:18px;min-width:0}
+.rn-ad-placement{min-width:0}.rn-ad-label{text-transform:uppercase;letter-spacing:1.5px;font-size:9px;text-align:center;color:var(--rn-text-muted);padding:4px 0 7px}.rn-ad-inventory{position:relative;min-width:0}.rn-ad-contact{display:block;text-align:center;padding:8px 0;font-size:10px;color:var(--rn-text-muted)!important}
+.rn-ad-placement a.rn-ad-house{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:600px;overflow:hidden;color:#fff;background:repeating-linear-gradient(135deg,transparent 0,transparent 58px,#b5e87709 59px,#b5e87709 61px),linear-gradient(150deg,#123c2d,#061d16 70%);border:1px solid #416843;padding:26px 23px;text-decoration:none;border-radius:2px}
+.rn-ad-wordmark{font-size:20px;font-weight:900;letter-spacing:-.8px;position:relative;z-index:1}.rn-ad-wordmark b{color:#bcf078}
+.rn-ad-message{margin-top:auto;position:relative;z-index:1}.rn-ad-message>strong{font-size:34px;line-height:1.08;font-weight:900;letter-spacing:-1.2px}.rn-ad-message em{font-style:normal;color:#bcf078}.rn-ad-message p{padding:0;margin:16px 0 0;max-width:22ch;color:#c5d7c9;font-size:13px;line-height:1.6}
+.rn-ad-ball{position:absolute;right:-24px;top:85px;width:230px;height:230px;opacity:.12;filter:brightness(0) invert(1);transform:rotate(-15deg)}
+.rn-ad-cta{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#bcf078;color:#102a19;font-size:12px;font-weight:800;padding:13px 11px;margin-top:30px;line-height:1.4}.rn-ad-house>small{font-size:10px;color:#a8c4ae;margin-top:10px;position:relative;z-index:1}
+.rn-ad-leaderboard{margin-bottom:16px}.rn-ad-leaderboard a.rn-ad-house{display:grid;grid-template-columns:135px minmax(0,1fr) auto;align-items:center;gap:18px;min-height:106px;padding:17px 20px}.rn-ad-leaderboard .rn-ad-wordmark{font-size:17px}.rn-ad-leaderboard .rn-ad-message{margin:0}.rn-ad-leaderboard .rn-ad-message>strong{font-size:21px;letter-spacing:-.4px;line-height:1.15}.rn-ad-leaderboard .rn-ad-message br{display:none}.rn-ad-leaderboard .rn-ad-message em{margin-left:5px}.rn-ad-leaderboard .rn-ad-message p{font-size:10px;margin:7px 0 0;max-width:none}.rn-ad-leaderboard .rn-ad-cta{font-size:10px;margin:0;padding:10px}.rn-ad-leaderboard .rn-ad-house>small,.rn-ad-leaderboard .rn-ad-contact{display:none}.rn-ad-leaderboard .rn-ad-ball{top:-60px;right:170px;width:180px;height:180px}
+.rn-advertise-contact{display:inline-block;background:var(--rn-accent);color:#102a19!important;font-weight:750;border-radius:3px;padding:13px 18px;margin:4px 0 12px}
+html.theme-light .rn-advertise-contact{color:white!important}
+.rn-format-rail{width:120px;height:240px;display:grid;place-items:center;border:1px solid var(--rn-border);color:var(--rn-accent);background:var(--rn-surface-soft);margin:20px auto;font-size:14px;font-weight:700}.rn-format-banner{height:90px;display:grid;place-items:center;border:1px solid var(--rn-border);color:var(--rn-accent);background:var(--rn-surface-soft);margin:20px;font-weight:800;letter-spacing:1.5px}
+.rn-sports-content .rn-news-card{grid-template-columns:112px minmax(0,1fr)}
+html.theme-rugby .rn-table-source a,html.theme-rugby .rn-league-tools>a,html.theme-rugby .rn-news-source{color:var(--rn-accent)!important}
+html.theme-rugby .rn-compact [class*="text-emerald-"],html.theme-rugby .rn-compact [class*="text-green-"],html.theme-rugby .rn-compact [class*="text-lime-"]{color:var(--rn-accent)!important}
+html.theme-rugby .rn-theme-swatch.rn-swatch-rugby{background:#0d402f;border-color:#3f6a4b}html.theme-rugby .rn-swatch-rugby>i{background:#072b20}html.theme-rugby .rn-swatch-rugby b{background:#2f6546}
+@media(max-width:1399px){.rn-sports-grid{grid-template-columns:188px minmax(0,1fr) 300px!important;gap:18px!important}.rn-no-ad-rail{grid-template-columns:188px minmax(0,1fr)!important}.rn-ad-leaderboard a.rn-ad-house{grid-template-columns:minmax(0,1fr) auto}.rn-ad-leaderboard .rn-ad-wordmark{display:none}}
+@media(max-width:1279px){.rn-sports-grid,.rn-no-ad-rail{grid-template-columns:190px minmax(0,1fr)!important}.rn-ad-rail{display:none}}
+@media(max-width:800px){.rn-sports-main{padding:18px 14px!important}.rn-sports-grid,.rn-no-ad-rail{grid-template-columns:minmax(0,1fr)!important}.rn-competition-sidebar{position:static;max-height:none;display:none}.rn-site-header>div{height:auto}.rn-ad-leaderboard a.rn-ad-house{min-height:90px;padding:13px 15px;gap:12px}.rn-ad-leaderboard .rn-ad-message>strong{font-size:18px}.rn-ad-leaderboard .rn-ad-message p{font-size:10px;max-width:28ch}.rn-ad-leaderboard .rn-ad-cta{max-width:125px;padding:9px;font-size:10px}.rn-ad-label{font-size:8px;padding:3px 0 5px}.rn-ad-leaderboard{margin-bottom:12px}}
+@media(prefers-reduced-motion:no-preference){.rn-ad-house .rn-ad-cta{transition:background .15s}.rn-ad-house:hover .rn-ad-cta{background:#d0ff99}}
+
+/* Reserve one shared box while Google responds: no double-height house/ad stack. */
+.rn-ad-inventory{min-height:600px;isolation:isolate}.rn-ad-leaderboard .rn-ad-inventory{min-height:106px}
+.rn-ad-inventory>.adsbygoogle{position:relative;z-index:2}
+.rn-ad-inventory>a.rn-ad-house{position:absolute!important;inset:0;min-height:0!important;z-index:1}
+.rn-ad-inventory[data-delivery=pending]>a.rn-ad-house{pointer-events:none}
+.rn-nav-league>a.rn-nav-open{flex:0 0 20px;padding:0;justify-content:center;color:var(--rn-text-muted);font-size:18px}
+.rn-broadcast-country{display:inline-flex;align-items:center;gap:6px;font-size:calc(11px * var(--rn-font-scale,1));color:var(--rn-text-muted)}
+.rn-broadcast-country select{max-width:150px;background:var(--rn-surface);border:1px solid var(--rn-border);border-radius:3px;color:var(--rn-text);padding:5px}
+.rn-broadcaster-logo{display:inline-block;object-fit:contain;background:white;border-radius:2px;padding:2px;max-width:68px;max-height:26px;flex-shrink:0}
+.rn-broadcaster-name{font-size:10px;font-weight:650;line-height:1.3}
+@media(max-width:800px){.rn-ad-leaderboard .rn-ad-inventory{min-height:90px}}
+
+.rn-match-tv{position:relative;min-width:0;justify-self:end}.rn-match-tv>summary{list-style:none;display:flex;align-items:center;gap:3px;min-height:38px;cursor:pointer}.rn-match-tv>summary::-webkit-details-marker{display:none}.rn-match-tv>summary small{font-size:9px;color:var(--rn-text-muted)}
+.rn-match-tv-panel{position:absolute;z-index:40;right:0;top:100%;width:min(290px,calc(100vw - 36px));padding:13px;background:var(--rn-surface);border:1px solid var(--rn-border);box-shadow:0 5px 18px #0003;border-radius:4px;font-size:11px;color:var(--rn-text)}
+.rn-match-tv-provider{display:flex;align-items:center;gap:10px;margin-top:10px}.rn-match-tv-panel a{color:var(--rn-accent)!important}.rn-match-tv-panel p{padding:0!important;font-size:10px;line-height:1.5;color:var(--rn-text-muted)}
+.rn-league-tools{flex-wrap:wrap}.rn-league-match{grid-template-columns:86px minmax(0,1fr) 88px!important}
+@media(max-width:600px){.rn-league-match{grid-template-columns:66px minmax(0,1fr) 69px!important}.rn-broadcaster-logo{width:49px;height:22px}.rn-broadcast-country{font-size:9px}.rn-broadcast-country select{max-width:128px;padding:4px}.rn-match-tv>summary{gap:1px}}
+
+.rn-settings-gear{width:17px;height:17px;flex-shrink:0}.rn-site-header nav a{gap:7px}.rn-site-header nav{gap:24px}
+.rn-language-picker{position:relative;margin-left:auto;flex-shrink:0}.rn-language-picker>button{display:flex;align-items:center;gap:7px;border:1px solid #527661;border-radius:3px;padding:7px 9px;color:white;font:inherit;font-size:11px}.rn-language-flag{border-radius:2px;box-shadow:0 0 0 1px #ffffff25;flex-shrink:0}
+.rn-language-options{position:absolute;z-index:80;right:0;top:calc(100% + 9px);width:170px;padding:5px;border:1px solid var(--rn-border);border-radius:4px;background:var(--rn-surface);box-shadow:0 7px 18px #0004;color:var(--rn-text)}
+.rn-language-options button{display:flex;align-items:center;gap:9px;padding:10px 8px;min-height:38px;width:100%;text-align:left;font-size:12px}.rn-language-options button:hover,.rn-language-options button[aria-pressed=true]{background:var(--rn-surface-soft)}.rn-language-options b{margin-left:auto;color:var(--rn-accent)}
+.rn-rugby-loader{display:inline-flex;align-items:center;justify-content:center;color:var(--rn-text-muted);flex-shrink:0}.rn-rugby-loader svg{overflow:visible}.rn-rugby-small{vertical-align:middle}.rn-ball-body{transform-origin:80px 77px;transform-box:view-box}.rn-rugby-spinning .rn-ball-body{animation:rn-rugby-spin 1.5s ease-in-out infinite}.rn-rugby-spinning .rn-ball-shadow{animation:rn-rugby-shadow 1.5s ease-in-out infinite;transform-origin:center}.rn-rugby-small .rn-ball-shadow{display:none}
+.rn-empty-challenge{display:flex;align-items:center;gap:12px;border:1px solid var(--rn-border);border-radius:5px;padding:13px 17px;margin:14px 0 5px;background:var(--rn-surface-soft);max-width:390px;text-align:left}.rn-empty-challenge>span:first-child{font-size:24px}.rn-empty-challenge b{display:block;font-size:12px;color:var(--rn-accent)}.rn-empty-challenge small{display:block;font-size:10px;color:var(--rn-text-muted);margin-top:4px}
+@keyframes rn-rugby-spin{0%{transform:translateY(0) rotate(35deg) rotateY(0)}50%{transform:translateY(-5px) rotate(35deg) rotateY(180deg)}100%{transform:translateY(0) rotate(35deg) rotateY(360deg)}}
+@keyframes rn-rugby-shadow{0%,100%{opacity:.14;transform:scaleX(1)}50%{opacity:.08;transform:scaleX(.8)}}
+@media(prefers-reduced-motion:reduce){.rn-rugby-spinning .rn-ball-body,.rn-rugby-spinning .rn-ball-shadow{animation:none}}
+@media(max-width:800px){.rn-language-picker{padding-top:10px}.rn-site-header nav{gap:18px!important}}
+span.rn-rugby-loader>svg{width:94px;height:100px}span.rn-rugby-small>svg{width:24px;height:26px}.rn-language-picker svg.rn-language-flag{width:24px;height:16px}
+.rn-detail-tv{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:11px;color:var(--rn-text-muted)}.rn-detail-tv>p{width:100%;margin:0;line-height:1.6}.rn-detail-tv a{color:var(--rn-accent)!important}.rn-detail-tv-providers{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%}.rn-detail-tv-providers>a,.rn-detail-tv-providers>span{display:flex;align-items:center;gap:8px;border:1px solid var(--rn-border);padding:9px;border-radius:3px}.rn-match-detail .rn-notice:has(.rn-rugby-loader){display:flex;align-items:center;justify-content:center;gap:16px}.rn-match-detail table{font-size:11px}.rn-match-detail h2{font-size:16px}.rn-match-detail [class*="rounded-2xl"]{border-radius:4px}.rn-match-detail [class*="p-5"]{padding:16px}.rn-match-detail [class*="text-lg"]{font-size:15px}
+@media(max-width:600px){.rn-match-detail .grid-cols-\[1fr_auto_1fr\]{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.rn-match-detail .grid-cols-\[1fr_auto_1fr\]>div:first-child,.rn-match-detail .grid-cols-\[1fr_auto_1fr\]>div:last-child{flex-direction:column;gap:7px;justify-content:center;text-align:center;min-width:0}.rn-match-detail .grid-cols-\[1fr_auto_1fr\]>div:last-child{flex-direction:column-reverse}.rn-match-detail .grid-cols-\[1fr_auto_1fr\] .text-right{text-align:center}.rn-match-detail .grid-cols-\[1fr_auto_1fr\] .text-sm{font-size:11px;overflow-wrap:anywhere}.rn-match-detail .grid-cols-\[1fr_auto_1fr\] .text-2xl{font-size:20px}.rn-match-detail .grid-cols-\[1fr_auto_1fr\] .tracking-\[0\.16em\]{letter-spacing:0;font-size:9px}}
+
+.rn-tv-pending{color:#d49c51!important;font-weight:700}.rn-match-tv>summary:has(.rn-tv-pending){flex-wrap:wrap}.rn-match-tv>summary .rn-tv-pending{max-width:80px;font-size:8px;line-height:1.25}

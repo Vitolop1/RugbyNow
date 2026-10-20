@@ -46,3 +46,32 @@ The editorial youth national sides use the existing union identity, preserving t
 - Provincial M-17 sides of Salta, Cuyo and Córdoba use their union crests linked by [UAR Uniones Miembros](https://uar.com.ar/union/uniones-miembros/), preserving the youth team labels.
 - Tala: <https://talarc.com.ar/wp-content/uploads/2026/06/logo-tala-300x196.png>, linked by the official club homepage.
 - Lobos, Punta del Este: <https://www.lobosrugbyclub.uy/wp-content/uploads/2019/10/lrc_logo_menu.png>, linked by the official club homepage. Never mapped to the unrelated Mexican Lobos team.
+
+
+## Pro D2 and broadcaster additions, 2026-10-20
+
+The official LNR 2026/2027 roster supplies the exact sixteen Pro D2 identities. Fifteen new local PNGs supplement the existing Montauban crest. The league crest is linked by the official [Pro D2 calendar](https://prod2.lnr.fr/calendrier-et-resultats). All sixteen team images were visually checked together. Resource inventory: 211 local assets after generation.
+
+| Club | Local resource | Published source |
+| --- | --- | --- |
+| SU Agen | `/team-logos/agen.png` | [LNR crest](https://cdn.lnr.fr/club/agen/photo/logo.8aa88cdfe1a61b725d09eb72f5c7df1dcb211bfa) |
+| AS Béziers Hérault | `/team-logos/beziers.png` | [LNR crest](https://cdn.lnr.fr/club/beziers/photo/logo.86701dfaa7b0b0f04f17c3b16dd179dba8cc925f) |
+| Biarritz Olympique PB | `/team-logos/biarritz.png` | [LNR crest](https://cdn.lnr.fr/club/biarritz/photo/logo.69e361e72f927de58bb106f9f65f37bb63e5103d) |
+| CA Brive | `/team-logos/brive.png` | [LNR crest](https://cdn.lnr.fr/club/brive/photo/logo.d1987994d56d18afdb8066c1f75137227c4e9743) |
+| Colomiers Rugby | `/team-logos/colomiers.png` | [LNR crest](https://cdn.lnr.fr/club/colomiers/photo/logo.20a38f758f7f656d5b2994926ac61fa10e7de787) |
+| US Dax | `/team-logos/dax.png` | [LNR crest](https://cdn.lnr.fr/club/dax/photo/logo.04c560e6c723287d36d576b2ed47c8ead061cd28) |
+| Soyaux-Angoulême XV | `/team-logos/soyaux-angouleme.png` | [LNR crest](https://cdn.lnr.fr/club/angouleme/photo/logo.d54fe6a25434bc867621f7a6c11b1efdfb35f18c) |
+| FC Grenoble Rugby | `/team-logos/grenoble.png` | [LNR crest](https://cdn.lnr.fr/club/grenoble/photo/logo.6131d96bcc2c1d10fad389ebe979f74dce6f9e74) |
+| US Montauban | `/team-logos/montauban.png` | [LNR crest](https://cdn.lnr.fr/club/montauban/photo/logo.3e17852fbfa2cbfdce5f9b0d47bbf162dd103257) |
+| RC Narbonnais | `/team-logos/narbonne.png` | [LNR crest](https://cdn.lnr.fr/club/narbonne/photo/logo.01ef80f0684044e8b6970d0f5d31a85476cbe7bd) |
+| USON Nevers | `/team-logos/nevers.png` | [LNR crest](https://cdn.lnr.fr/club/nevers/photo/logo.6223985926c05ecaf3cc397f956a6d7157d63657) |
+| Nissa Rugby | `/team-logos/nice.png` | [LNR crest](https://cdn.lnr.fr/club/nice/photo/logo.a7cef37006ba4c679059a3a7be581871ebbdf93e) |
+| Stade Aurillacois | `/team-logos/aurillac.png` | [LNR crest](https://cdn.lnr.fr/club/aurillac/photo/logo.77fd2c954d9c788a6c23c0faf8fc54e8beef6212) |
+| Oyonnax Rugby | `/team-logos/oyonnax.png` | [LNR crest](https://cdn.lnr.fr/club/oyonnax/photo/logo.69e361e72f927de58bb106f9f65f37bb63e5103d) |
+| Provence Rugby | `/team-logos/provence-rugby.png` | [LNR crest](https://cdn.lnr.fr/club/provence-rugby/photo/logo.024d038c338831adcde279e30542b2f985cf0f55) |
+| Valence Romans | `/team-logos/valence-romans.png` | [LNR crest](https://cdn.lnr.fr/club/valence-romans/photo/logo.1f4fb3c7644bcdc8d0b5d42c0f2148b599c1cb3e) |
+| Pro D2 | `/league-logos/fr-pro-d2.png` | [LNR crest](https://assets.lnr.fr/8/8/9/4/1/conversions/LOGO_PROD2-logo.webp) |
+
+CANAL+ SPORT, CANAL+ SPORT 360 and CANAL+ LIVE logos identify the channels named by the official [LNR round 8 calendar](https://prod2.lnr.fr/calendrier-et-resultats/2026-2027/j8). The eight listings on 22–23 October 2026 are confirmed for France only. SPORT+ has a text label where no verified local mark is available. Existing Disney+/ESPN assets remain available; Argentina editorial TV still applies only to its exact dated fixture. A known logo never creates broadcast rights.
+
+The loading ball and language flags are repo-native SVG components. The ball is inspired by the user’s supplied reference and animated with CSS; it stops for reduced-motion preferences and stays static in an idle empty agenda.

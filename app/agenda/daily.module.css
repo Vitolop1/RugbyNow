@@ -23,3 +23,29 @@
 :global(html.theme-dark) .footer,:global(html.theme-dark) .coverage,:global(html.theme-dark) .footer b{color:#a4b7a9}
 
 :global(html[data-rn-density="comfortable"]) .matchRow{min-height:72px}:global(html[data-rn-density="comfortable"]) .fixture{min-height:70px}
+
+
+/* The default rugby appearance follows the owner's dense green reference. */
+:global(html.theme-rugby) .page{--ink:#f1f7f1;--muted:#a2bcac;--line:#2c5140;--deep:#072b20;color-scheme:dark}
+:global(html.theme-rugby) .board,:global(html.theme-rugby) .nextBoard,:global(html.theme-rugby) .programmes,:global(html.theme-rugby) .watchPanel,:global(html.theme-rugby) .update button{background:var(--rn-surface);border-color:var(--line);box-shadow:none}
+:global(html.theme-rugby) .competitionHeading,:global(html.theme-rugby) .quickDates,:global(html.theme-rugby) .tableLabels,:global(html.theme-rugby) .search{background:var(--rn-surface-soft);border-color:var(--line);color:var(--muted)}
+:global(html.theme-rugby) .competitionHeading h2,:global(html.theme-rugby) .zone select,:global(html.theme-rugby) .minorFilters select{color:#d4edce}
+:global(html.theme-rugby) .matchRow,:global(html.theme-rugby) .showRow{border-color:var(--line)}
+:global(html.theme-rugby) .matchRow:hover,:global(html.theme-rugby) .fixture:hover{background:#164c35;color:#f1f7f1}
+:global(html.theme-rugby) .liveRow{background:#183c2b}
+:global(html.theme-rugby) .liveScore,:global(html.theme-rugby) .matchTime .liveState{color:#ff9588}
+:global(html.theme-rugby) .matchTime>span,:global(html.theme-rugby) .competitionHeading small,:global(html.theme-rugby) .footer,:global(html.theme-rugby) .footer b,:global(html.theme-rugby) .coverage{color:var(--muted)}
+:global(html.theme-rugby) .matchTime .smallDate{color:#c5ddc4}
+:global(html.theme-rugby) .watch summary{color:#c5ddc4;border-color:var(--line)}
+:global(html.theme-rugby) .watch summary b{color:#dcebd7}
+:global(html.theme-rugby) .watchActions button{background:#204e34;color:#e0eedb}
+:global(html.theme-rugby) .provider a,:global(html.theme-rugby) .sectionTitle button{color:#b4e678!important}
+:global(html.theme-rugby) .providerLogo{background:white;border-radius:2px;padding:2px}
+:global(html.theme-rugby) .programmes>summary>svg{color:#b4e678}
+:global(html.theme-rugby) .matchRow:target{background:#284c2b;box-shadow:inset 3px 0 #b4e678}
+:global(html.theme-rugby) .star.saved{color:#b4e678!important}
+:global(html.theme-rugby) .dateBar{background:#072b20}
+:global(html.theme-rugby) .quickDates .activeQuick{background:#24583a;color:#d4f6ae}
+:global(html.theme-rugby) .statusTabs .activeTab{background:#b4e678;color:#12331e}
+:global(html.theme-rugby) .statusTabs small{background:#24583a;color:#dbefcf}
+@media(min-width:801px){.fixture{min-height:48px;padding-top:7px;padding-bottom:7px}.matchRow{min-height:49px}.competitionHeading{min-height:33px}.dateBar{height:46px}.titleRow{margin-bottom:15px}}

@@ -66,6 +66,13 @@ export type MatchTelevision = {
   checkedAt: string;
 };
 
+export function getConfirmedMatchRound(query: Omit<MatchBroadcastQuery, "country">): number | null {
+  const listing = getConfirmedMatchBroadcasts({ ...query, country: "FR" });
+  if (!listing) return null;
+  const round = new URL(listing.sourceUrl).pathname.match(/\/feuille-de-match\/\d{4}-\d{4}\/j(\d+)\//);
+  return round ? Number(round[1]) : null;
+}
+
 export function getMatchTelevision(query: MatchBroadcastQuery): MatchTelevision | null {
   const official = getConfirmedMatchBroadcasts(query);
   if (official) return { ...official, pending: false };

@@ -57,6 +57,7 @@ Mapa de entrada:
 - Supabase limita resultados por defecto; los respaldos y consultas amplias necesitan paginación estable. Una importación puede haber guardado datos aunque un paso posterior falle: inspeccionar la etapa antes de repetir escrituras.
 - Validar también los IDs resueltos antes de guardar una tabla: 16 filas de fuente pueden convertirse en 15 si falla un club o dos aliases convergen. Pro D2 rechaza escrituras incompletas antes del upsert.
 - El bootstrap de competiciones debe recibir los mismos FLASH_URLS seleccionados para el importador; el workflow ya pasa esa variable a Ensure configured competitions.
+- Un día del mes o un marcador no identifica una fecha de competición: el parser debe exigir un encabezado explícito o una fuente oficial por encuentro. Pro D2 usa la fecha de LNR si coincide la identidad y el comienzo UTC.
 - Los nombres parecidos no identifican el mismo club: Lions no es Old Lions; Lobos de Uruguay no es Lobos de México; un Universitario sin contexto puede ser ambiguo. Conservar IDs, edición y procedencia.
 - La grilla de Horacio/Norte Rugby es una referencia editorial fechada, en hora argentina. No es un feed recurrente ni prueba de transmisiones de otra semana o país.
 
@@ -68,7 +69,7 @@ La consulta de pantalla cada 15 segundos durante partidos LIVE no equivale a dat
 
 Persisten algunas identidades de escudos editoriales sin verificar y límites de historial de resultados; ver `docs/VISUAL-ASSETS.md`. La cobertura de un catálogo verificado no equivale a todos los clubes del mundo.
 
-El control de navegador de Work estaba desactivado en la última revisión y ninguna herramienta disponible exponía cómo encenderlo. Verificar su disponibilidad actual antes de reutilizar ese diagnóstico. Las comprobaciones HTTP no sustituyen una revisión interactiva en computadora y celular.
+El control del navegador volvió a estar disponible el 20 de octubre de 2026. Se comprobó la agenda vacía, la ficha con historial, el selector de idiomas y los desafíos en computadora y en una vista de 390 px; la práctica no reemplaza el progreso diario y una recarga lo recupera. Comprobar la disponibilidad actual al retomar: las verificaciones HTTP no sustituyen una revisión interactiva.
 
 ## Cómo se mantiene esta memoria
 

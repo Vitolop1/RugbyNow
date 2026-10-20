@@ -1,4 +1,6 @@
 import { applyProD2TeamAliases, canonicalProD2TeamName } from "../lib/proD2";
+import { parseSourceRound } from "../lib/sourceRound";
+import { getConfirmedMatchRound } from "../lib/matchBroadcasts";
 import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
 import {validateResolvedStandingsTeamIds,validateSourceStandings} from "../lib/sourceStandings";
@@ -144,22 +146,6 @@ function parseScore(x: string) {
   if (t === "-" || t === "") return null;
   if (!/^\d+$/.test(t)) return null;
   return Number.parseInt(t, 10);
-}
-
-function parseRound(raw: string): number | null {
-  const s = (raw || "").trim();
-  if (!s) return null;
-
-  const m1 = s.match(/\bround\s+(\d+)\b/i);
-  if (m1) return Number.parseInt(m1[1], 10);
-
-  const m2 = s.match(/\b(?:fecha|jornada|week)\s+(\d+)\b/i);
-  if (m2) return Number.parseInt(m2[1], 10);
-
-  const m3 = s.match(/\b(\d+)\b/);
-  if (m3) return Number.parseInt(m3[1], 10);
-
-  return null;
 }
 
 type KnockoutPhaseKey = "round32" | "round16" | "quarterfinal" | "semifinal" | "final";
@@ -1781,7 +1767,7 @@ async function main() {
           const hs = parseScore(row.hs);
           const as = parseScore(row.as);
           let parsed = detectStatusAndMinute(row.statusOrTime, hs, as, row.sourcePage);
-          const round = parseRound(row.roundText || row.rawText);
+          const round = parseSourceRound(row.roundText, [row.sectionText, row.rawText].join(" | "));
           const knockoutMeta = extractKnockoutMeta(row);
           let target: DbMatchRow | null = null;
           let sourceKey: string | null = null;
@@ -1896,7 +1882,8 @@ async function main() {
             minute: effectiveParsed.minute,
             home_team_id: homeId,
             away_team_id: awayId,
-            round: round ?? target?.round ?? null,
+            round: (compSlug === "fr-pro-d2" ? getConfirmedMatchRound({competitionSlug:compSlug,home:row.home,away:row.away,startsAt:kickoffTime?`${matchDate}T${kickoffTime}Z`:null}) : null)
+              ?? round ?? (compSlug === "fr-pro-d2" ? null : target?.round ?? null),
             source: "flashscore",
             source_event_key: sourceKey,
             source_url: appendKnockoutMetaToSourceUrl(normalizeFlashUrl(item.url), knockoutMeta),

@@ -94,3 +94,10 @@ Scheduled primary writes remain gated by `DATA_SYNC_ENABLED` until the complete 
 - The new live workflow removes synthetic clock/finalization steps, paginates candidates and refuses to infer LIVE or FT from elapsed time. Frontend polling is 15 seconds while source-live games are shown, 60 otherwise; upstream workflows are scheduled every 5 minutes and GitHub scheduling can be delayed. A no-candidate run does not demonstrate a score changing during a match.
 - Supersedes the older recovery instruction above mentioning clock/finalization passes: do not re-enable those legacy steps.
 - 36 tests and TypeScript passed. The local browser controller is disabled by Work settings and exposes no tool to enable it, so the current additions still need an interactive desktop/mobile pass when that setting is available. HTTP/API, source images and production build checks are separate evidence, not a substitute claim of browser QA.
+
+
+## Appearance settings
+
+The shared header now labels /settings as Configuración / Settings / Réglages / Impostazioni. The first section offers visual selectors for RugbyNOW green, light and dark themes, normal/large text, and compact/comfortable spacing, with a preview and an appearance-only reset. League and club selections are preserved by the reset.
+
+Theme storage retains the existing `theme` key; text size and density extend `rn:personalization` without discarding guide visibility or followed teams/leagues. Appearance is applied before hydration and synchronized across page navigation and browser tabs. No account or cross-device synchronization is introduced. Source checks, 36 tests, TypeScript and a production build verify the change; interactive browser QA remains unavailable while Work disables browser control.

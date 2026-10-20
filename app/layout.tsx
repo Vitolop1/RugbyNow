@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import GoogleAnalyticsPageview from "@/app/components/GoogleAnalyticsPageview";
+import AppearanceSync from "@/app/components/AppearanceSync";
 import { getSiteUrl } from "@/lib/site";
 import { readRuntimeEnv } from "@/lib/runtimeEnv";
 import "./globals.css";
@@ -82,6 +83,10 @@ const themeInitScript = `
     root.classList.remove("theme-rugby", "theme-light", "theme-dark", "dark");
     root.classList.add("theme-" + nextTheme);
     if (nextTheme === "dark") root.classList.add("dark");
+    const appearance=JSON.parse(localStorage.getItem("rn:personalization")||"{}");
+    root.dataset.rnDensity=appearance?.density==="comfortable"?"comfortable":"compact";
+    root.dataset.rnTextSize=appearance?.textSize==="large"?"large":"standard";
+    root.style.setProperty("--rn-font-scale",appearance?.textSize==="large"?"1.15":"1");
   } catch {}
 })();
 `;
@@ -105,6 +110,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} rn-app-bg rn-compact min-h-screen antialiased`}
       >
+        <AppearanceSync />
         {googleAnalyticsId ? <GoogleAnalyticsPageview measurementId={googleAnalyticsId} /> : null}
         {children}
       </body>

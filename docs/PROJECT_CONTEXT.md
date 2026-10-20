@@ -68,7 +68,7 @@ La consulta de pantalla cada 15 segundos durante partidos LIVE no equivale a dat
 
 Persisten algunas identidades de escudos editoriales sin verificar y límites de historial de resultados; ver `docs/VISUAL-ASSETS.md`. La cobertura de un catálogo verificado no equivale a todos los clubes del mundo.
 
-El control de navegador de Work estaba desactivado en la última revisión y ninguna herramienta disponible exponía cómo encenderlo. Verificar su disponibilidad actual antes de reutilizar ese diagnóstico. Las comprobaciones HTTP no sustituyen una revisión interactiva en computadora y celular.
+El control del navegador volvió a estar disponible el 20 de octubre de 2026. Se comprobó la agenda vacía, la ficha con historial, el selector de idiomas y los desafíos en computadora y en una vista de 390 px; la práctica no reemplaza el progreso diario y una recarga lo recupera. Comprobar la disponibilidad actual al retomar: las verificaciones HTTP no sustituyen una revisión interactiva.
 
 ## Cómo se mantiene esta memoria
 

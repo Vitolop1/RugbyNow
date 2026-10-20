@@ -306,7 +306,7 @@ export default function MatchClient() {
               </div>
             </section>
 
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
               <StatCard label={tr("date")} value={new Intl.DateTimeFormat(lang,{day:"numeric",month:"short",year:"numeric",timeZone:startsAt?timeZone:"UTC"}).format(new Date(startsAt || `${data.match.match_date}T12:00:00Z`))} />
               <StatCard label={tr("kickoffLocal")} value={kickoffLabel} />
               <StatCard label={tr("venue")} value={data.match.venue || tr("tbd")} />

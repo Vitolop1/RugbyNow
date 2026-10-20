@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T19:13:04.694Z",
+  "generatedAt": "2026-10-20T19:44:22.087Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/comenzo-la-tercera-fecha-del-argentino-juvenil/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-20T19:13:04.694Z",
+      "checkedAt": "2026-10-20T19:44:22.087Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-20T19:13:04.694Z",
+      "checkedAt": "2026-10-20T19:44:22.087Z",
       "count": 0
     }
   ]

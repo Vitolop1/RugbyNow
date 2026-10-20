@@ -243,6 +243,7 @@ export default function MatchClient() {
     return getBroadcastsForCompetition(data.competition.slug);
   }, [data?.competition.slug]);
   const isCuratedStandings = data?.standingsSource === "curated";
+  const hasListedStandings = data?.standingsSource === "cache" || isCuratedStandings;
 
   return (
     <div className="rn-app-bg min-h-screen">
@@ -280,7 +281,7 @@ export default function MatchClient() {
                     <Link href={data.match.home_team?.slug ? `/teams/${data.match.home_team.slug}` : "#"} className="text-2xl font-black text-white hover:text-emerald-200">
                       {data.match.home_team?.name || tr("teamHomeFallback")}
                     </Link>
-                    <div className="mt-1 text-sm text-white/65">{data.homeStanding ? `#${data.homeStanding.position}  |  PTS ${data.homeStanding.pts}` : data.competition.region || "RugbyNow"}</div>
+                    <div className="mt-1 text-sm text-white/65">{hasListedStandings && data.homeStanding ? `#${data.homeStanding.position}  |  PTS ${data.homeStanding.pts}` : data.competition.region || "RugbyNow"}</div>
                   </div>
                 </div>
 
@@ -299,7 +300,7 @@ export default function MatchClient() {
                     <Link href={data.match.away_team?.slug ? `/teams/${data.match.away_team.slug}` : "#"} className="text-2xl font-black text-white hover:text-emerald-200">
                       {data.match.away_team?.name || tr("teamAwayFallback")}
                     </Link>
-                    <div className="mt-1 text-sm text-white/65">{data.awayStanding ? `#${data.awayStanding.position}  |  PTS ${data.awayStanding.pts}` : data.competition.region || "RugbyNow"}</div>
+                    <div className="mt-1 text-sm text-white/65">{hasListedStandings && data.awayStanding ? `#${data.awayStanding.position}  |  PTS ${data.awayStanding.pts}` : data.competition.region || "RugbyNow"}</div>
                   </div>
                   <TeamLogo slug={data.match.away_team?.slug} alt={data.match.away_team?.name || tr("teamAwayFallback")} size={56} />
                 </div>
@@ -322,6 +323,7 @@ export default function MatchClient() {
                   </p>
                 </div>
                 <SuggestedWatchButton
+                  match={{id:data.match.id,date:data.match.match_date}}
                   competitionSlug={data.competition.slug}
                   competitionName={data.competition.name}
                   home={data.match.home_team?.name}
@@ -344,19 +346,19 @@ export default function MatchClient() {
                 <div className="rounded-2xl border border-white/15 bg-black/20 p-5 backdrop-blur">
                   <h2 className="text-xl font-black text-white">{tr("matchContext")}</h2>
                   <p className="mt-2 text-sm leading-7 text-white/75">
-                    {data.homeStanding && data.awayStanding
-                      ? `${data.match.home_team?.name} arrives ${data.homeStanding.position}. ${data.match.away_team?.name} arrives ${data.awayStanding.position}.`
+                    {hasListedStandings && data.homeStanding && data.awayStanding
+                      ? `${data.match.home_team?.name} · #${data.homeStanding.position} / ${data.match.away_team?.name} · #${data.awayStanding.position}`
                       : `${data.competition.name} ${data.match.round != null ? `${tr("round")} ${data.match.round}` : ""}`}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <TeamContextCard
                       label={data.match.home_team?.name || tr("teamHomeFallback")}
-                      standing={data.homeStanding}
+                      standing={hasListedStandings ? data.homeStanding : null}
                       compact={isCuratedStandings}
                     />
                     <TeamContextCard
                       label={data.match.away_team?.name || tr("teamAwayFallback")}
-                      standing={data.awayStanding}
+                      standing={hasListedStandings ? data.awayStanding : null}
                       compact={isCuratedStandings}
                     />
                   </div>

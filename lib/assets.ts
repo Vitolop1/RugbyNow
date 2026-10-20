@@ -54,6 +54,7 @@ const TEAM_LOGO_ALIASES: Record<string, string> = {
   "samoa-7s": "samoa",
   saracens: "saracens",
   sharks: "sharks",
+  toulon: "rc-toulonnais",
   "south-africa": "south-africa",
   "south-africa-7s": "south-africa",
   spain: "spain",
@@ -105,6 +106,8 @@ export function resolveLeagueLogoPath(compSlug?: string | null) {
 }
 
 export function getTeamLogo(teamSlug?: string | null) {
+  if (teamSlug === "argentina") return "/team-logos/los-pumas.svg";
+  if (teamSlug === "vannes") return "/team-logos/vannes.svg";
   return `/team-logos/${resolveTeamLogoSlug(teamSlug)}.png`;
 }
 

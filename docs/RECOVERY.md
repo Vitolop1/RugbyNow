@@ -1,5 +1,19 @@
 # Data refresh recovery
 
+## Current state after monitored recovery
+
+The complete production run [39343700539](https://github.com/Vitolop1/RugbyNow/actions/runs/39343700539) succeeded in all four feed groups and the separate snapshot job. The snapshot was pushed to main as `36cec92`: 1,792 matches, 48 seasons, 141 teams, 212 standings rows. Import success and Git publication were verified separately. The primary schedule was enabled after this check, then briefly gated again while deploying the identity correction below; the final activation is recorded in the delivery report.
+
+The source resolver had also confused South African Lions with Argentina's Old Lions RC through substring matching. A bounded repair reassigned 40 source-linked matches in URC/European competitions and one standings row to Lions (ID 223), preserving match IDs, scores, dates and all regional Old Lions records. A backup of the affected rows was saved before applying; a second dry run found zero candidates. The complete post-repair snapshot contains 1,792 matches and 142 teams. The importer now requires an exact normalized name or explicit alias.
+
+The new homepage and `/agenda` share the compact daily agenda. They render real initial content on the server and refresh through `/api/agenda`. Database times/results override matching editorial entries. Today is the default; match state is never inferred from elapsed kickoff, and the shared match-state helper now also preserves source-confirmed states on legacy detail pages.
+
+The UI has aligned rows grouped by competition, real crests, a country-specific TV panel, day navigation, language/timezone controls, search, status/region filters, local favourites, ICS export and share links. Empty weekdays show upcoming fixtures and a link to recent results. Editorial programmes remain secondary. Generic competition-to-broadcaster assignments and unverified stream menus were removed; old screens link to the maintained TV agenda instead.
+
+The reusable skill is installed at `~/.codex/skills/rugbynow-quality/SKILL.md`. Invoke `$rugbynow-quality` for a review or requested improvement. It is not a scheduler or continuous monitor. The original working checkout and its pre-existing changes remain untouched.
+
+The remaining historical sections below describe the sequence of recovery and should not be read as claims that every old workflow or proposed feature is active.
+
 The public GitHub API reported all six scheduled refresh workflows as `disabled_inactivity` on 2026-10-19. The last visible runs were from 2026-06-04. GitHub automatically disables public-repository schedules after 60 days without repository activity; a successful application deployment does not prove that data refresh is running.
 
 ## Changes in this repair

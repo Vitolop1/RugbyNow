@@ -1,32 +1,8 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
-import HomeClient from "./HomeClient";
-import LoadingScreen from "@/app/components/LoadingScreen";
 import { buildStaticMetadata } from "@/lib/seo";
+import AgendaPageView from "./agenda/AgendaPageView";
 
 // Dates must be evaluated per request, not frozen into the deployment's HTML.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = buildStaticMetadata({
-  title: "Rugby Results, Fixtures, Live Scores and Standings",
-  description:
-    "Follow rugby results, fixtures, live scores and standings across Six Nations, Super Rugby, URC, SVNS, Top 14 and more on RugbyNow.",
-  path: "/",
-  keywords: [
-    "rugby results",
-    "rugby fixtures",
-    "rugby live scores",
-    "rugby standings",
-    "rugby matches today",
-    "six nations results",
-    "super rugby results",
-  ],
-});
-
-export default async function Page() {
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <HomeClient />
-    </Suspense>
-  );
-}
+export const metadata = buildStaticMetadata({title:"Rugby hoy: partidos, horarios, resultados y dónde verlos",description:"La agenda de rugby de hoy: horarios en tu zona, resultados y opciones de TV por país. Los Pumas, URBA y las principales competiciones internacionales.",path:"/",keywords:["rugby hoy","partidos de rugby hoy","dónde ver rugby","URBA resultados","rugby fixtures","rugby today"]});
+export default AgendaPageView;

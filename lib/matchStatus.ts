@@ -23,7 +23,6 @@ const SEVENS_RULES: MatchTimingRules = {
   maxDisplayMinute: 14,
 };
 
-const LIVE_INFERENCE_DELAY_MINUTES = 2;
 const AUTO_FINALIZE_BUFFER_MINUTES = 5;
 function getMatchTimingRules(competitionSlug?: string | null): MatchTimingRules {
   if (competitionSlug && isSevenCompetition(competitionSlug.toLowerCase())) {
@@ -35,10 +34,6 @@ function getMatchTimingRules(competitionSlug?: string | null): MatchTimingRules 
 
 function getTotalLiveWindowMinutes(rules: MatchTimingRules) {
   return rules.firstHalfMinutes + rules.halftimeMinutes + rules.secondHalfMinutes;
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
 }
 
 export function parseKickoffDateTime(matchDate: string, kickoffTime?: string | null) {
@@ -66,90 +61,9 @@ export function getEffectiveMatchState(
   updatedAt?: string | null,
   now = new Date()
 ) {
-  const rules = getMatchTimingRules(competitionSlug);
-  const halftimeStart = rules.firstHalfMinutes;
-  const secondHalfStart = rules.firstHalfMinutes + rules.halftimeMinutes;
-  const totalLiveWindowMinutes = getTotalLiveWindowMinutes(rules);
-
-  if (status === "FT") {
-    return { status: "FT" as const, minute: null as number | null };
-  }
-
-  if (status === "HT") {
-    return { status: "HT" as const, minute: null as number | null };
-  }
-
-  if (status === "CANC") {
-    return { status: "CANC" as const, minute: null as number | null };
-  }
-
-  const kickoff = parseKickoffDateTime(matchDate, kickoffTime);
-  const diffMinutes = kickoff ? Math.floor((now.getTime() - kickoff.getTime()) / 60000) : null;
-  const inferredLiveMinutes =
-    diffMinutes == null ? null : diffMinutes - LIVE_INFERENCE_DELAY_MINUTES;
-  if (status === "LIVE") {
-    if (explicitMinute != null && explicitMinute > 0) {
-      return { status: "LIVE" as const, minute: clamp(explicitMinute, 1, rules.maxDisplayMinute) };
-    }
-
-    if (inferredLiveMinutes == null) {
-      return { status: "LIVE" as const, minute: null as number | null };
-    }
-
-    if (inferredLiveMinutes >= halftimeStart && inferredLiveMinutes < secondHalfStart) {
-      return { status: "HT" as const, minute: null as number | null };
-    }
-
-    if (inferredLiveMinutes < 0 || inferredLiveMinutes > totalLiveWindowMinutes) {
-      return { status: "LIVE" as const, minute: null as number | null };
-    }
-
-    if (inferredLiveMinutes < rules.firstHalfMinutes) {
-      return {
-        status: "LIVE" as const,
-        minute: clamp(inferredLiveMinutes + 1, 1, rules.firstHalfMinutes),
-      };
-    }
-
-    return {
-      status: "LIVE" as const,
-      minute: clamp(
-        inferredLiveMinutes - rules.halftimeMinutes + 1,
-        rules.firstHalfMinutes + 1,
-        rules.maxDisplayMinute
-      ),
-    };
-  }
-
-  if (inferredLiveMinutes == null || inferredLiveMinutes < 0 || inferredLiveMinutes > totalLiveWindowMinutes) {
-    return { status: "NS" as const, minute: explicitMinute ?? null };
-  }
-
-  if (inferredLiveMinutes < rules.firstHalfMinutes) {
-    return {
-      status: "LIVE" as const,
-      minute:
-        explicitMinute != null && explicitMinute > 0
-          ? clamp(explicitMinute, 1, rules.firstHalfMinutes)
-          : clamp(inferredLiveMinutes + 1, 1, rules.firstHalfMinutes),
-    };
-  }
-
-  if (inferredLiveMinutes < secondHalfStart) {
-    return { status: "HT" as const, minute: null as number | null };
-  }
-
-  return {
-    status: "LIVE" as const,
-    minute:
-      explicitMinute != null && explicitMinute > 0
-        ? clamp(explicitMinute, rules.firstHalfMinutes + 1, rules.maxDisplayMinute)
-        : clamp(
-            inferredLiveMinutes - rules.halftimeMinutes + 1,
-            rules.firstHalfMinutes + 1,
-            rules.maxDisplayMinute
-          ),
-  };
+  // Only source-confirmed states are presented as live/half-time/final.
+  // A scheduled kickoff passing does not establish that play has started.
+  return { status, minute: status === "LIVE" ? explicitMinute ?? null : null };
 }
 
 export function shouldAutoFinalizeMatch(

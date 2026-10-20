@@ -864,6 +864,10 @@ function parseKickoffTime(raw: string): string | null {
 
 async function maybeAcceptConsent(page: Page) {
   const selectors = [
+    'button:has-text("Reject All")',
+    'button:has-text("Rechazar todo")',
+    '#onetrust-reject-all-handler',
+    'button:has-text("I Accept")',
     'button:has-text("Aceptar")',
     'button:has-text("Acepto")',
     'button:has-text("I Agree")',
@@ -1979,7 +1983,11 @@ async function main() {
           // Finished competitions often open the playoff draw rather than the points table.
           // Select the source's explicit Main phase; do not derive ranks from a knockout bracket.
           const mainPhase=page.getByText(/^main$/i,{exact:true}).first();
-          if(await mainPhase.count()){try{await mainPhase.click({timeout:5000});}catch{}}
+          await mainPhase.waitFor({state:"visible",timeout:8000}).catch(()=>{});
+          if(await mainPhase.count()){
+            await maybeAcceptConsent(page);
+            await mainPhase.click({timeout:8000});
+          }
           try {await page.waitForSelector('.table__row, .ui-table__row, [class*="tableRow"], [class*="standing"] [class*="row"]',{timeout:20000});}catch{}
           await page.waitForTimeout(1200);
 

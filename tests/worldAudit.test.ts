@@ -15,6 +15,19 @@ import {parseProD2CalendarRound,validateProD2Calendar} from "../lib/proD2Calenda
 import proCalendar from "../data/pro-d2-calendar.json";
 import {teamDisciplineSelection} from "../lib/teamDiscipline";
 import {appendSourceStatusDetail,readSourceStatusDetail,detectSourceStatusDetail} from "../lib/sourceStatusDetail";
+import {withOfficialStandings} from "../lib/standingsOverlay";
+import officialTables from "../data/official-standings.json";
+import snapshot from "../data/supabase-snapshot.json";
+
+test("official tables resolve actual stable club IDs even without a previous cache",()=>{
+ for(const table of officialTables.tables){
+  const result=withOfficialStandings({competition:{slug:table.competitionSlug},season:{name:table.season},standings:[],standingsSource:"unavailable"});
+  assert.equal(result.standingsSource,"official");assert.equal(result.standings.length,table.rows.length);
+  const rows=result.standings as {teamId:number;teamSlug:string}[];
+  assert.equal(new Set(rows.map(r=>r.teamId)).size,rows.length);
+  assert.ok(rows.every(row=>row.teamId>0&&snapshot.teams.some(team=>team.id===row.teamId&&team.slug===row.teamSlug)));
+ }
+});
 
 test("EPCR tables keep all groups and published differences without invented PF/PA",()=>{
  for(const [file,competition,count] of [["epcr-pools.html","champions-cup",24],["epcr-challenge-pools.html","challenge-cup",18]] as const){

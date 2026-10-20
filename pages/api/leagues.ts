@@ -1,3 +1,4 @@
+import snapshot from "@/data/supabase-snapshot.json";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSupabase } from "@/lib/serverSupabase";
 import { getFallbackCompetitions, getFallbackSeasons } from "@/lib/fallbackData";
@@ -61,6 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       competitions: mergeCompetitionCatalog((competitions || []) as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
       seasons: seasons || [],
+      populatedSeasonIds: [...new Set(snapshot.matches.map(m=>m.season_id))],
       source: "supabase",
     });
   } catch (error) {
@@ -71,6 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         competitions: mergeCompetitionCatalog(competitions as CompetitionRow[], getFallbackCompetitions() as CompetitionRow[]),
         seasons: mergeSeasons(seasons, getFallbackSeasons()),
+        populatedSeasonIds: [...new Set(snapshot.matches.map(m=>m.season_id))],
         source: "snapshot",
         warning: message,
       });

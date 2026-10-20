@@ -711,7 +711,7 @@ export default function HomeClient() {
     );
 
   return (
-    <div className="rn-app-bg relative min-h-screen overflow-hidden">
+    <div className="rn-app-bg rn-compact relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-44 left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-emerald-300/15 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-lime-200/10 blur-3xl" />

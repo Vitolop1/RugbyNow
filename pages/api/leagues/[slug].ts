@@ -1,3 +1,4 @@
+import {readAllRows} from "@/lib/readAllRows";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { mergeCompetitionCatalog } from "@/lib/competitionPrefs";
 import { getCompetitionProfile } from "@/lib/competitionProfiles";
@@ -535,13 +536,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" });
   }
   const slug = firstString(req.query.slug);
+  const fullCalendar=firstString(req.query.view)==="calendar";
   const refISO = firstString(req.query.date) && /^\d{4}-\d{2}-\d{2}$/.test(firstString(req.query.date)) ? firstString(req.query.date) : new Date().toISOString().slice(0, 10);
   const roundOverrideRaw = firstString(req.query.round);
   const roundOverride = roundOverrideRaw && /^\d+$/.test(roundOverrideRaw) ? Number.parseInt(roundOverrideRaw, 10) : null;
 
   try {
     const serverSupabase = getServerSupabase();
-    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
+    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar);
     const { data: competition, error: competitionError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").eq("slug", slug).maybeSingle();
     if (competitionError || !competition) throw new Error(`No competition found for slug: ${slug}`);
     const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
@@ -567,19 +569,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const { data: seasons, error: seasonsError } = await serverSupabase.from("seasons").select("id,name,competition_id").eq("competition_id", competition.id).order("name", { ascending: false });
     if (seasonsError || !seasons?.length) throw new Error(`No season found for: ${slug}`);
-    const { data: seasonMatchMeta, error: seasonMetaError } = await serverSupabase.from("matches").select("id,season_id,match_date,kickoff_time,status").in("season_id", seasons.map((row) => row.id)).order("match_date", { ascending: true }).order("kickoff_time", { ascending: true });
-    if (seasonMetaError) throw seasonMetaError;
+    const seasonMatchMeta=await readAllRows<MatchMetaRow>((offset,size)=>serverSupabase.from("matches").select("id,season_id,match_date,kickoff_time,status").in("season_id",seasons.map(row=>row.id)).order("id").range(offset,offset+size-1).abortSignal(AbortSignal.timeout(8000)) as unknown as PromiseLike<{data:MatchMetaRow[]|null;error:{message:string}|null}>);
     const season = pickSeasonForReference((seasons || []) as SeasonRow[], (seasonMatchMeta || []) as MatchMetaRow[], refISO);
     if (!season) throw new Error(`No season found for: ${slug}`);
     const { data: competitions, error: competitionsError } = await serverSupabase.from("competitions").select("id,name,slug,region,country_code,category,group_name,sort_order,is_featured").order("is_featured", { ascending: false }).order("group_name", { ascending: true }).order("sort_order", { ascending: true }).order("name", { ascending: true });
     if (competitionsError) throw competitionsError;
     const mergedCompetitions = mergeCompetitionCatalog<CompetitionRow>((competitions || []) as CompetitionRow[], fallback ? (fallback.competitions as CompetitionRow[]) : []);
-    const { data: seasonMatches, error: seasonMatchesError } = await serverSupabase.from("matches").select(`
+    const seasonMatches=await readAllRows<MatchRow>((offset,size)=>serverSupabase.from("matches").select(`
         id, match_date, kickoff_time, status, minute, updated_at, source_url, home_score, away_score, round, venue,
         home_team:home_team_id ( id, name, slug ),
         away_team:away_team_id ( id, name, slug )
-      `).eq("season_id", season.id).order("match_date", { ascending: true });
-    if (seasonMatchesError) throw seasonMatchesError;
+      `).eq("season_id",season.id).order("id").range(offset,offset+size-1).abortSignal(AbortSignal.timeout(8000)) as unknown as PromiseLike<{data:MatchRow[]|null;error:{message:string}|null}>);
     const detailedMatches = dedupeLogicalMatches((seasonMatches || []) as MatchRow[], (row) => ({
       id: row.id,
       matchDate: row.match_date,
@@ -635,13 +635,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : baseSelectedRound;
     const matches = finalizeLeagueMatches(
       collapseLeagueMatches(
-      mergeLeagueMatches(baseMatches, fallbackMatches).map((row) => normalizeRuntimeMatchStatus(row, slug))
+      (fullCalendar ? detailedMatches : mergeLeagueMatches(baseMatches, fallbackMatches)).map((row) => normalizeRuntimeMatchStatus(row, slug))
       )
     );
     const bracketAugmented = appendSyntheticKnockoutRounds(effectiveRoundMeta, matches);
     const knockoutRoundMeta = bracketAugmented.roundMeta.filter((item) => Boolean(item.phaseKey));
     const knockoutMatches = bracketAugmented.matches.filter((row) => Boolean(parseKnockoutMetaFromSourceUrl(row.source_url).phaseKey));
-    const visibleMatches = filterVisibleLeagueMatches(
+    const visibleMatches = fullCalendar ? matches : filterVisibleLeagueMatches(
       bracketAugmented.matches,
       bracketAugmented.roundMeta,
       effectiveSelectedRound
@@ -740,7 +740,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       source: "supabase",
     });
   } catch (error) {
-    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride);
+    const snapshot = getSnapshotLeagueData(slug, refISO, roundOverride, fullCalendar);
     if (snapshot) {
       const fallback = getFallbackLeagueData(slug, refISO, roundOverride);
       const preferFallback = shouldPreferMoreCompleteRound(
@@ -762,7 +762,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const bracketAugmented = appendSyntheticKnockoutRounds(basePayload.roundMeta || [], snapshotMatches);
       const knockoutRoundMeta = bracketAugmented.roundMeta.filter((item) => Boolean(item.phaseKey));
       const knockoutMatches = bracketAugmented.matches.filter((row) => Boolean(parseKnockoutMetaFromSourceUrl(row.source_url).phaseKey));
-      const visibleMatches = filterVisibleLeagueMatches(
+      const visibleMatches = fullCalendar ? bracketAugmented.matches : filterVisibleLeagueMatches(
         bracketAugmented.matches,
         bracketAugmented.roundMeta,
         basePayload.selectedRound

@@ -22,7 +22,7 @@ export default function WeeklyClient({ digest }: Props) {
   );
 
   return (
-    <div className="rn-app-bg min-h-screen">
+    <div className="rn-app-bg rn-compact min-h-screen">
       <AppHeader />
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="max-w-3xl">

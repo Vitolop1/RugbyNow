@@ -103,7 +103,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} rn-app-bg min-h-screen antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} rn-app-bg rn-compact min-h-screen antialiased`}
       >
         {googleAnalyticsId ? <GoogleAnalyticsPageview measurementId={googleAnalyticsId} /> : null}
         {children}

@@ -1,0 +1,6 @@
+"use client";
+import {WATCH_PLACEHOLDER_OPTIONS} from "@/lib/watchPlaceholderOptions";
+import {usePrefs} from "@/lib/usePrefs";
+import {trackProductEvent} from "@/lib/analytics";
+const copy={es:["Alternativas externas","Directorio externo. No comprobamos que estos sitios funcionen ni que transmitan este partido. Disponibilidad y condiciones dependen de cada sitio.","Sin verificar"],en:["External alternatives","External directory. These sites and their coverage of this match are not verified. Availability and terms depend on each site.","Unverified"],fr:["Alternatives externes","Annuaire externe. Le fonctionnement de ces sites et leur diffusion de ce match ne sont pas vérifiés. Consultez leurs conditions.","Non vérifié"],it:["Alternative esterne","Elenco esterno. Il funzionamento dei siti e la copertura della partita non sono verificati. Consultare le loro condizioni.","Non verificato"]};
+export default function ExternalWatchOptions(){const {lang}=usePrefs();const c=copy[lang];return <details className="rn-external"><summary>{c[0]} ↗</summary><p>{c[1]}</p>{WATCH_PLACEHOLDER_OPTIONS.map(option=><a key={option.id} href={option.placeholderHref} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackProductEvent("watch_provider_click",{provider_id:option.id,link_type:"external_directory"})}>{option.name}<small>{c[2]} ↗</small></a>)}</details>;}

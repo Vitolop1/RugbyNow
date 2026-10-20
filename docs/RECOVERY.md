@@ -1,5 +1,10 @@
 # Data refresh recovery
 
+## Portal expansion
+
+See `docs/PROVIDERS-AND-PERSONALIZATION.md` for the shared interface, local preferences, RSS news, actual-date competition calendar, per-feed fault isolation, and the read-only API provider candidate. Structured score imports and cross-device accounts are not active. This section supersedes earlier UI descriptions that say the external directory was removed.
+
+
 ## Current state after monitored recovery
 
 The complete production run [39343700539](https://github.com/Vitolop1/RugbyNow/actions/runs/39343700539) succeeded in all four feed groups and the separate snapshot job. The snapshot was pushed to main as `36cec92`: 1,792 matches, 48 seasons, 141 teams, 212 standings rows. Import success and Git publication were verified separately. The primary schedule was enabled after this check, then briefly gated again while deploying the identity correction below; the final activation is recorded in the delivery report.

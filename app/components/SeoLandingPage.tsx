@@ -23,7 +23,7 @@ export default function SeoLandingPage({
   links: SeoLandingLink[];
 }) {
   return (
-    <div className="rn-app-bg min-h-screen">
+    <div className="rn-app-bg rn-compact min-h-screen">
       <AppHeader subtitle={description} />
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <section className="rounded-3xl border border-white/10 bg-black/20 p-6 backdrop-blur sm:p-8">

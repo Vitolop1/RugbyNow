@@ -491,7 +491,7 @@ export function getSnapshotMatchesByDate(date: string) {
     .filter((match): match is HomeMatchRow => Boolean(match));
 }
 
-export function getSnapshotLeagueData(slug: string, refISO: string, roundOverride: number | null = null) {
+export function getSnapshotLeagueData(slug: string, refISO: string, roundOverride: number | null = null, fullCalendar = false) {
   const snapshot = loadSnapshot();
   if (!snapshot) return null;
 
@@ -509,7 +509,7 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   const selectedRound = roundOverride ?? autoSelectedRound;
 
   const matches = dedupeLeagueMatches(seasonMatches)
-    .filter((match) => roundAssignment.get(match.id) === selectedRound)
+    .filter((match) => fullCalendar || roundAssignment.get(match.id) === selectedRound)
     .sort(
       (a, b) =>
         a.match_date.localeCompare(b.match_date) || String(a.kickoff_time || "").localeCompare(String(b.kickoff_time || ""))

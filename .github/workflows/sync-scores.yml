@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -97,6 +97,13 @@ jobs:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
           DRY_RUN_REPORT_DIR: logs/import-validation
         run: npm run sync:matches
+      - name: Save per-source health reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-health-${{ matrix.group }}
+          path: logs/import-health/*.json
+          retention-days: 14
       - name: Save current import validation reports
         if: always() && github.event_name == 'workflow_dispatch' && inputs.dry_run
         uses: actions/upload-artifact@v4
@@ -121,6 +128,9 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund --prefer-offline
+      - name: Refresh independent news feeds
+        continue-on-error: true
+        run: npm run sync:news
       - name: Export complete Supabase snapshot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -131,13 +141,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp data/supabase-snapshot.json /tmp/supabase-snapshot.json
+          cp data/news-snapshot.json /tmp/news-snapshot.json
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/supabase-snapshot.json data/supabase-snapshot.json
-            git add data/supabase-snapshot.json
+            cp /tmp/news-snapshot.json data/news-snapshot.json
+            git add data/supabase-snapshot.json data/news-snapshot.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
-            git commit -m "Update complete Supabase snapshot"
+            git commit -m "Update complete score and news snapshots"
             git push origin HEAD:main && exit 0
             sleep 5
           done

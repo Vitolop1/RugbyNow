@@ -49,3 +49,11 @@
 :global(html.theme-rugby) .statusTabs .activeTab{background:#b4e678;color:#12331e}
 :global(html.theme-rugby) .statusTabs small{background:#24583a;color:#dbefcf}
 @media(min-width:801px){.fixture{min-height:48px;padding-top:7px;padding-bottom:7px}.matchRow{min-height:49px}.competitionHeading{min-height:33px}.dateBar{height:46px}.titleRow{margin-bottom:15px}}
+
+/* Keep an empty day a short notice so upcoming fixtures stay in view. */
+.empty{display:grid;grid-template-columns:52px minmax(0,1fr);gap:5px 12px;align-items:center;padding:16px 18px;text-align:left}
+.empty>:global(.rn-rugby-loader){grid-column:1;grid-row:1 / span 4;align-self:center}
+.empty>:global(.rn-rugby-loader)>svg{width:58px;height:52px}
+.empty>strong,.empty>p,.empty>a,.empty>div{grid-column:2;margin:0}
+.empty>strong{font-size:12px}.empty>p{font-size:10px;line-height:1.5}.empty>a{font-size:10px;margin:2px 0}.empty button{margin-top:3px;padding:6px 9px;font-size:10px}
+@media(max-width:600px){.empty{grid-template-columns:42px minmax(0,1fr);gap:5px 10px;padding:13px 12px}.empty>:global(.rn-rugby-loader)>svg{width:46px;height:42px}.empty>strong{font-size:11px}}

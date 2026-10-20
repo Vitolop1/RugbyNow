@@ -77,3 +77,15 @@ CANAL+ SPORT, CANAL+ SPORT 360 and CANAL+ LIVE logos identify the channels named
 The loading ball and language flags are repo-native SVG components. The ball is inspired by the user’s supplied reference and animated with CSS; it stops for reduced-motion preferences and stays static in an idle empty agenda.
 
 The 20 October refinement uses the same softer oval illustration in loading/empty states and sponsor banners, with two fine seams instead of laces and a planar rotation. Advertising SVG dimensions explicitly override the agenda's generic icon sizing.
+
+## Channel shortcuts, 20 October 2026
+
+Programme rows link directly to the original channel and display the existing local `/broadcast-logos/youtube.png` mark for YouTube destinations. The label says channel, not a confirmed event/live transmission. Source dates and schedule stay bounded to the editorial guide; channel identity does not verify a new weekly programme schedule.
+
+- Try TV Tucumán: https://www.youtube.com/channel/UCSbw1LvjkErbu62IEP9c2cQ (channel title verified).
+- Somos La Plata: https://www.youtube.com/channel/UC294dkvc88KFZkkHsBLMAFQ (channel description identifies Canal 6/519 de Flow).
+- Mía Tucumán HD: https://www.youtube.com/@miatucumanhd (linked in https://miatucuman.com.ar/).
+- LaRz Radio: https://www.youtube.com/channel/UCYhdNotH35a31FoptmQj3Tg (linked from https://larz.com.ar/programacion/22-yardas-rugby/).
+- Somos Salta / third time: no exact official channel link verified; keep the broadcaster name and mark the link as unconfirmed, rather than assigning a different Salta channel.
+
+The compact empty-day illustration uses rounded concentric oval panels and a symmetric eight-tooth settings icon. The empty message is a short two-column notice with a small ball, leaving upcoming matches visible sooner.

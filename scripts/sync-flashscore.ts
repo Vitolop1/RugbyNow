@@ -1971,7 +1971,7 @@ async function main() {
         }
 
         if (skippedFutureStates > 0) {
-          console.log(`Future score resets in ${compSlug}: ${skippedFutureStates}`);
+          console.log(`Skipped future-dated active/final observations in ${compSlug}: ${skippedFutureStates}`);
         }
 
         console.log(`Updated in ${compSlug}: ${updatedHere}`);

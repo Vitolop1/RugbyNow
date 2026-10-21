@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-10-21T12:25:36.872Z",
+  "generatedAt": "2026-10-21T22:01:35.184Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/londres-recibira-el-camp-de-los-pumas-en-la-previa-del-nations-championship/",
+      "title": "Londres recibirá el Camp de Los Pumas en la previa del Nations Championship",
+      "href": "https://uar.com.ar/londres-recibira-el-camp-de-los-pumas-en-la-previa-del-nations-championship/",
+      "publishedAt": "2026-10-21T21:13:07.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Los-Pumas-v-Inglaterra-Captains-Run-Santiago-del-Estero-164.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/encuentro-nacional-de-referees/",
+      "title": "Encuentro Nacional de Referees",
+      "href": "https://uar.com.ar/encuentro-nacional-de-referees/",
+      "publishedAt": "2026-10-21T12:37:02.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/DSC_4196.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/comenzo-la-tercera-fecha-del-argentino-juvenil/",
       "title": "Comenzó la tercera fecha del Argentino Juvenil",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/Tala-RC-vs-Jockey-Club-de-Rosario-Final-TDI-058-1.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/comenzo-el-nacional-de-clubes-femenino-en-cordoba/",
-      "title": "Comenzó el Nacional de Clubes Femenino en Córdoba",
-      "href": "https://uar.com.ar/comenzo-el-nacional-de-clubes-femenino-en-cordoba/",
-      "publishedAt": "2026-10-02T23:30:48.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/20261002_NacionalDeClubesFem-791.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/vuelve-el-nacional-de-clubes-femenino/",
-      "title": "Vuelve el Nacional de Clubes Femenino",
-      "href": "https://uar.com.ar/vuelve-el-nacional-de-clubes-femenino/",
-      "publishedAt": "2026-10-01T13:11:12.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/54834706416_f948c7e808_o-1.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-21T12:25:36.872Z",
+      "checkedAt": "2026-10-21T22:01:35.184Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-21T12:25:36.872Z",
+      "checkedAt": "2026-10-21T22:01:35.184Z",
       "count": 0
     }
   ]

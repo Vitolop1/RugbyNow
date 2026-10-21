@@ -29,7 +29,7 @@ Persisten intervalos de horas en GitHub. Nuevo monitor Cloudflare por minuto en 
 
 ## Verificación
 
-81 pruebas y TypeScript correctos. Los builds Next/OpenNext pasaron durante la implementación; se recompila el estado final antes de publicación. Revisión interactiva local a 390 y 1440 px: navegación a marzo URBA y ficha de resultado recuperado, 14 filas de tabla, Top 14/fechas pendientes/ficha sin hora inventada, Provence/estadio/staff/59 jugadores y acceso a jugador con temporada explícita. Sin desborde de página ni errores de consola observados. El monitor no debe llamarse operativo hasta recibir informes públicos.
+81 pruebas y TypeScript correctos. Los builds Next/OpenNext pasaron durante la implementación; se recompila el estado final antes de publicación. Revisión interactiva local a 390 y 1440 px: navegación a marzo URBA y ficha de resultado recuperado, 14 filas de tabla, Top 14/fechas pendientes/ficha sin hora inventada, Provence/estadio/staff/59 jugadores y acceso a jugador con temporada explícita. Sin desborde de página ni errores de consola observados. Prueba de runtime local con Wrangler/workerd: `/__scheduled` 200 y `/api/live-monitor` 200, `shadow`, `writesResults=false`, `idle`, `delayed=false` a 00:37:14 UTC. No se confunde esa ejecución local con el cron productivo. Dieciocho rutas del build respondieron HTTP 200; es una comprobación aparte de la revisión interactiva. Bundle Wrangler dry-run válido, sin autenticación ni cambio de secretos. El monitor no debe llamarse operativo hasta recibir informes públicos.
 
 ## Pendientes que no se ocultan
 

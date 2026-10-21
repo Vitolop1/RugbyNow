@@ -13,7 +13,7 @@ export function parseLnrClubInformation(html: string, teamSlug: string, sourceUr
   const block = html.split('class="club-stadium-infos club-block"')[1]?.split('page-builder-component')[0];
   if (!block) throw Error('Official stadium information missing');
   const clean = (text: string) => text.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-  const fields = [...block.matchAll(/class="club-info-field__label">([\s\S]*?)<\/p>[\s\S]*?class="club-info-field__content[^\"]*">([\s\S]*?)<\/(?:p|a)>/g)].map(m => [clean(m[1]), clean(m[2])]);
+  const fields = [...block.matchAll(/class="club-info-field__label">([\s\S]*?)<\/p>[\s\S]*?class="club-info-field__content[^\"]*"[^>]*>([\s\S]*?)<\/(?:p|a)>/g)].map(m => [clean(m[1]), clean(m[2])]);
   const value = (label: string) => fields.find(([name]) => name.startsWith(label))?.[1] || null;
   const stadium = value('Nom');
   if (!stadium) throw Error('Official stadium name missing; previous information preserved');

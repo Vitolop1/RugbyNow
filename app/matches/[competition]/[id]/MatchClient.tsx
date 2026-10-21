@@ -255,7 +255,7 @@ export default function MatchClient() {
   const isCuratedStandings = data?.standingsSource === "curated";
   const hasListedStandings = data?.standingsSource === "cache" || data?.standingsSource === "official" || isCuratedStandings;
 
-  if(pending)return <PortalShell title={`${pending.home} vs ${pending.away}`} subtitle={`Pro D2 · ${pending.season}`}><PendingCalendar fixtures={[pending]} compact/><p className="rn-notice"><Link href="/leagues/fr-pro-d2">Pro D2 →</Link></p></PortalShell>;
+  if(pending)return <PortalShell title={`${pending.home} vs ${pending.away}`} subtitle={`${pending.competitionSlug==="fr-top14"?"Top 14":"Pro D2"} · ${pending.season}`}><PendingCalendar fixtures={[pending]} compact/><p className="rn-notice"><Link href={`/leagues/${pending.competitionSlug}`}>{pending.competitionSlug==="fr-top14"?"Top 14":"Pro D2"} →</Link></p></PortalShell>;
   return (
     <PortalShell title={tr("matchDetails")} subtitle={data?`${data.competition.name} · ${data.season.name}`:undefined}>
       <div className="rn-match-detail">

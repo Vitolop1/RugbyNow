@@ -59,3 +59,13 @@ Consulta de pantalla, ejecución del job, observación de proveedor y edad del d
 Publicación PR16 d14fa07 y comprobación pública completadas. Refresh 39481169649 comprobó 16 filas de Pro D2 en modo standings_only, fuentes oficiales y snapshot, sin actualización de partidos reportada. No es evidencia de un marcador en vivo. DATA_SYNC_ENABLED y LIVE_SYNC_ENABLED=true; trabajos clock/finish antiguos permanecen deshabilitados.
 
 Nueva ejecución automática observada después de publicar: 39481862468, schedule creado 19:15:14 UTC; informe 19:16:04.907–19:16:05.366 UTC, dryRun=false, idle, candidates=0. Las dos últimas ejecuciones schedule devueltas por GitHub fueron 15:12:59 y 19:15:14 UTC: este intervalo observado supera cuatro horas. No considerar GitHub Actions un reloj confiable de cinco minutos. Hace falta un recolector independiente con fuente estructurada validada y medir un partido real; no se contrató ni activó una API nueva.
+
+## Monitor independiente de observación — 21/10/2026 UTC
+
+Las ejecuciones `schedule` 39481862468 (19:15:14 UTC) y 39507171133 (22:18:47 UTC) siguen separadas por más de tres horas. API pública consultada a 00:08 UTC del 21/10: ningún partido LIVE/HT. No se validó demora de un resultado real.
+
+`custom-worker.ts` conserva el fetch/exportaciones de OpenNext y agrega cron de un minuto. `lnrLiveMonitor.ts` guarda el latido en el R2 existente y consulta solo ventanas con hora/día oficial; no altera estados por esa ventana. `lnrLiveObservation.ts` valida dominio, temporada, ronda completa e identidades, acepta solamente `not-started`, `live`, `finished` del payload público LNR. NS conserva marcadores nulos; no se copia el reloj de su cliente (que calcula minutos a partir de timestamps). Un fallo de fuente reintenta una vez y conserva el último archivo válido. El latido informa fallo, cantidad de lecturas y cantidad de activos, separado del último payload válido.
+
+Modo inicial **shadow / writesResults=false**. No es un reemplazo ya validado del importador Flashscore: las observaciones no alimentan Supabase ni la pantalla. Sirve para comprobar frecuencia y contrastar el proveedor oficial sin contaminar marcadores. La siguiente aceptación requiere observar tres encuentros reales, comparar fuente/API/pantalla y medir transiciones, retrasos y final antes de activar escrituras. La activación de Cloudflare se comprueba por los informes públicos posteriores al despliegue, no por el YAML/config local. No se copiaron claves ni contrataron servicios.
+
+Fuentes de implementación: https://opennext.js.org/cloudflare/howtos/custom-worker y https://developers.cloudflare.com/workers/configuration/cron-triggers/ . No se modifica el cron viejo ni se reactivan los finalizadores sintéticos.

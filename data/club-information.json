@@ -1,0 +1,244 @@
+{
+  "clubs": [
+    {
+      "teamSlug": "biarritz",
+      "sourceUrl": "https://prod2.lnr.fr/club/biarritz/informations",
+      "checkedAt": "2026-10-21T00:41:04.396Z",
+      "stadium": "Parc des Sports d'Aguilera",
+      "capacity": "13 341 places",
+      "stadiumAddress": "Rue Cino del Duca - 64200 Biarritz"
+    },
+    {
+      "teamSlug": "grenoble",
+      "sourceUrl": "https://prod2.lnr.fr/club/grenoble/informations",
+      "checkedAt": "2026-10-21T00:41:04.400Z",
+      "stadium": "Stade des Alpes",
+      "capacity": "20 068 places",
+      "stadiumAddress": "1 Avenue de Valmy - 38000 Grenoble"
+    },
+    {
+      "teamSlug": "oyonnax",
+      "sourceUrl": "https://prod2.lnr.fr/club/oyonnax/informations",
+      "checkedAt": "2026-10-21T00:41:04.381Z",
+      "stadium": "Stade Charles Mathon",
+      "capacity": "11 150 places",
+      "stadiumAddress": "125, cours de Verdun - 01100 Oyonnax"
+    },
+    {
+      "teamSlug": "brive",
+      "sourceUrl": "https://prod2.lnr.fr/club/brive/informations",
+      "checkedAt": "2026-10-21T00:41:05.116Z",
+      "stadium": "Stadium Municipal",
+      "capacity": "16 014 places",
+      "stadiumAddress": "116, avenue du 11 novembre 1918, 19100 Brive"
+    },
+    {
+      "teamSlug": "provence-rugby",
+      "sourceUrl": "https://prod2.lnr.fr/club/provence-rugby/informations",
+      "checkedAt": "2026-10-21T00:41:04.912Z",
+      "stadium": "Stade Maurice David",
+      "capacity": "8 727 places",
+      "stadiumAddress": "20, Avenue Marcel Pagnol - 13090 AIX EN PROVENCE"
+    },
+    {
+      "teamSlug": "dax",
+      "sourceUrl": "https://prod2.lnr.fr/club/dax/informations",
+      "checkedAt": "2026-10-21T00:41:05.114Z",
+      "stadium": "Stade Maurice Boyau",
+      "capacity": "7 412 places",
+      "stadiumAddress": "34 Boulevard des Sports - 40100 Dax"
+    },
+    {
+      "teamSlug": "soyaux-angouleme",
+      "sourceUrl": "https://prod2.lnr.fr/club/angouleme/informations",
+      "checkedAt": "2026-10-21T00:41:05.427Z",
+      "stadium": "Stade Chanzy",
+      "capacity": "9 600 places",
+      "stadiumAddress": "5 rue du stade 16000 Angoulême"
+    },
+    {
+      "teamSlug": "montauban",
+      "sourceUrl": "https://prod2.lnr.fr/club/montauban/informations",
+      "checkedAt": "2026-10-21T00:41:05.794Z",
+      "stadium": "Stade Sapiac",
+      "capacity": "9 200 places",
+      "stadiumAddress": "188, rue Léo Lagrange 82000 Montauban - 82000 Montauban"
+    },
+    {
+      "teamSlug": "aurillac",
+      "sourceUrl": "https://prod2.lnr.fr/club/aurillac/informations",
+      "checkedAt": "2026-10-21T00:41:05.656Z",
+      "stadium": "Stade Jean Alric",
+      "capacity": "7 860 places",
+      "stadiumAddress": "70, boulevard Louis-Dauzier - 15000 Aurillac"
+    },
+    {
+      "teamSlug": "agen",
+      "sourceUrl": "https://prod2.lnr.fr/club/agen/informations",
+      "checkedAt": "2026-10-21T00:41:06.096Z",
+      "stadium": "Stade Armandie",
+      "capacity": "14 100 places",
+      "stadiumAddress": "19, rue Pierre de Coubertin - 47000 Agen"
+    },
+    {
+      "teamSlug": "valence-romans",
+      "sourceUrl": "https://prod2.lnr.fr/club/valence-romans/informations",
+      "checkedAt": "2026-10-21T00:41:06.175Z",
+      "stadium": "Stade Georges Pompidou",
+      "capacity": "8 864 places",
+      "stadiumAddress": "401 avenue de Romans 26000 Valence"
+    },
+    {
+      "teamSlug": "colomiers",
+      "sourceUrl": "https://prod2.lnr.fr/club/colomiers/informations",
+      "checkedAt": "2026-10-21T00:41:06.509Z",
+      "stadium": "Stade Michel Bendichou",
+      "capacity": "7 380 places",
+      "stadiumAddress": "Allée de Brière - 31770 Colomiers"
+    },
+    {
+      "teamSlug": "nice",
+      "sourceUrl": "https://prod2.lnr.fr/club/nice/informations",
+      "checkedAt": "2026-10-21T00:41:06.796Z",
+      "stadium": "Stade Marcel Volot",
+      "capacity": "2 975 places",
+      "stadiumAddress": "247 boulevard du Mercantour 06200 Nice"
+    },
+    {
+      "teamSlug": "nevers",
+      "sourceUrl": "https://prod2.lnr.fr/club/nevers/informations",
+      "checkedAt": "2026-10-21T00:41:08.123Z",
+      "stadium": "Stade du Pré Fleuri",
+      "capacity": "7 356 places",
+      "stadiumAddress": "20bis Route de Lyon, 58000 SERMOISE SUR LOIRE"
+    },
+    {
+      "teamSlug": "narbonne",
+      "sourceUrl": "https://prod2.lnr.fr/club/narbonne/informations",
+      "checkedAt": "2026-10-21T00:41:06.835Z",
+      "stadium": "Parc des Sports et de l'Amitié",
+      "capacity": "10 403 places",
+      "stadiumAddress": "4 avenue Pierre de Coubertin - 11106 Narbonne"
+    },
+    {
+      "teamSlug": "beziers",
+      "sourceUrl": "https://prod2.lnr.fr/club/beziers/informations",
+      "checkedAt": "2026-10-21T00:41:12.260Z",
+      "stadium": "Stade Raoul Barrière",
+      "capacity": "18 255 places",
+      "stadiumAddress": "Avenue des olympiades, 34500 Béziers"
+    },
+    {
+      "teamSlug": "stade-toulousain",
+      "sourceUrl": "https://top14.lnr.fr/club/toulouse/informations",
+      "checkedAt": "2026-10-21T00:41:08.108Z",
+      "stadium": "Stade Ernest Wallon",
+      "capacity": "18 754 places",
+      "stadiumAddress": "114, rue des Troènes - 31200 Toulouse"
+    },
+    {
+      "teamSlug": "section-paloise",
+      "sourceUrl": "https://top14.lnr.fr/club/pau/informations",
+      "checkedAt": "2026-10-21T00:41:08.735Z",
+      "stadium": "Stade du Hameau",
+      "capacity": "14 999 places",
+      "stadiumAddress": "Stade du Hameau, Boulevard de l'Aviation - 64000 PAU"
+    },
+    {
+      "teamSlug": "bordeaux-begles",
+      "sourceUrl": "https://top14.lnr.fr/club/bordeaux-begles/informations",
+      "checkedAt": "2026-10-21T00:41:08.838Z",
+      "stadium": "Stade Jacques Chaban Delmas",
+      "capacity": "34 098 places",
+      "stadiumAddress": "Place Johnston - 33100 Bordeaux"
+    },
+    {
+      "teamSlug": "bayonne",
+      "sourceUrl": "https://top14.lnr.fr/club/bayonne/informations",
+      "checkedAt": "2026-10-21T00:41:09.221Z",
+      "stadium": "Stade Jean Dauger",
+      "capacity": "15 074 places",
+      "stadiumAddress": "1, avenue André-Grimard - 64100 Bayonne"
+    },
+    {
+      "teamSlug": "stade-francais",
+      "sourceUrl": "https://top14.lnr.fr/club/paris/informations",
+      "checkedAt": "2026-10-21T00:41:09.719Z",
+      "stadium": "Stade Jean Bouin",
+      "capacity": "20 000 places",
+      "stadiumAddress": "9, Allée Charles Brennus - 75016 Paris"
+    },
+    {
+      "teamSlug": "stade-rochelais",
+      "sourceUrl": "https://top14.lnr.fr/club/la-rochelle/informations",
+      "checkedAt": "2026-10-21T00:41:09.569Z",
+      "stadium": "Stade Marcel Deflandre",
+      "capacity": "18 000 places",
+      "stadiumAddress": "27, avenue du Maréchal Juin - 17000 La Rochelle"
+    },
+    {
+      "teamSlug": "montpellier-herault-rugby",
+      "sourceUrl": "https://top14.lnr.fr/club/montpellier/informations",
+      "checkedAt": "2026-10-21T00:41:10.036Z",
+      "stadium": "Septeo Stadium",
+      "capacity": "14 392 places",
+      "stadiumAddress": "500 Avenue de Vanières - 34070 Montpellier"
+    },
+    {
+      "teamSlug": "lyon",
+      "sourceUrl": "https://top14.lnr.fr/club/lyon/informations",
+      "checkedAt": "2026-10-21T00:41:10.193Z",
+      "stadium": "Matmut Stadium Gerland",
+      "capacity": "35 052 places",
+      "stadiumAddress": "353 Avenue Jean Jaurès 69007 Lyon"
+    },
+    {
+      "teamSlug": "usa-perpignan",
+      "sourceUrl": "https://top14.lnr.fr/club/perpignan/informations",
+      "checkedAt": "2026-10-21T00:41:10.664Z",
+      "stadium": "Stade Aimé Giral",
+      "capacity": "14 727 places",
+      "stadiumAddress": "Allée Aimé Giral - 66000 Perpignan"
+    },
+    {
+      "teamSlug": "asm-clermont-auvergne",
+      "sourceUrl": "https://top14.lnr.fr/club/clermont/informations",
+      "checkedAt": "2026-10-21T00:41:10.659Z",
+      "stadium": "Stade Marcel Michelin",
+      "capacity": "19 357 places",
+      "stadiumAddress": "35 rue du Clos-Four - 63100 Clermont-Ferrand"
+    },
+    {
+      "teamSlug": "toulon",
+      "sourceUrl": "https://top14.lnr.fr/club/toulon/informations",
+      "checkedAt": "2026-10-21T00:41:11.131Z",
+      "stadium": "Stade Mayol",
+      "capacity": "16 437 places",
+      "stadiumAddress": "Rue Dutasta - 83000 Toulon"
+    },
+    {
+      "teamSlug": "castres-olympique",
+      "sourceUrl": "https://top14.lnr.fr/club/castres/informations",
+      "checkedAt": "2026-10-21T00:41:11.285Z",
+      "stadium": "Stade Pierre Fabre",
+      "capacity": "11 778 places",
+      "stadiumAddress": "Rue de Bisséous - 81100 Castres"
+    },
+    {
+      "teamSlug": "racing-92",
+      "sourceUrl": "https://top14.lnr.fr/club/racing-92/informations",
+      "checkedAt": "2026-10-21T00:41:11.776Z",
+      "stadium": "Plenitude Arena",
+      "capacity": "30 680 places",
+      "stadiumAddress": "99 Jardins de l'Arche, 92000 Nanterre"
+    },
+    {
+      "teamSlug": "vannes",
+      "sourceUrl": "https://top14.lnr.fr/club/vannes/informations",
+      "checkedAt": "2026-10-21T00:41:11.928Z",
+      "stadium": "Stade de la Rabine",
+      "capacity": "12 116 places",
+      "stadiumAddress": "56 Place Théodore Decker 56000 Vannes"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ export type BroadcastProviderId =
   | "disney-plus"
   | "espn"
   | "espn-plus"
+  | "canal-plus"
   | "canal-plus-sport"
   | "canal-plus-sport-360"
   | "canal-plus-live"
@@ -42,25 +43,26 @@ const PROVIDERS: Record<BroadcastProviderId, BroadcastProvider> = {
     label: "ESPN+",
     href: "https://plus.espn.com",
   },
+  "canal-plus": {id:"canal-plus",label:"CANAL+",href:"https://www.canalplus.com/sport/rugby"},
   "canal-plus-sport": {
     id: "canal-plus-sport",
     label: "CANAL+ SPORT",
-    href: "https://www.canalplus.com/pro-d2",
+    href: "https://www.canalplus.com/sport/rugby",
   },
   "canal-plus-sport-360": {
     id: "canal-plus-sport-360",
     label: "CANAL+ SPORT 360",
-    href: "https://www.canalplus.com/pro-d2",
+    href: "https://www.canalplus.com/sport/rugby",
   },
   "canal-plus-live": {
     id: "canal-plus-live",
     label: "CANAL+ LIVE",
-    href: "https://www.canalplus.com/pro-d2",
+    href: "https://www.canalplus.com/sport/rugby",
   },
   "canal-sport-plus": {
     id: "canal-sport-plus",
     label: "SPORT+ · CANAL+",
-    href: "https://www.canalplus.com/pro-d2",
+    href: "https://www.canalplus.com/sport/rugby",
   },
   "noa-sports-go": {
     id: "noa-sports-go",

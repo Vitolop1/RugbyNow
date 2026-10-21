@@ -1,0 +1,57 @@
+{
+  "teams": [
+    {
+      "teamSlug": "provence-rugby",
+      "sourceUrl": "https://www.provencerugby.com/lequipe-pro/",
+      "sourceName": "Provence Rugby",
+      "checkedAt": "2026-10-21",
+      "members": [
+        {
+          "name": "Philippe Saint-AndrÃ©",
+          "role": "Directeur Sportif"
+        },
+        {
+          "name": "SÃ©bastien Fouassier",
+          "role": "EntraÃ®neur"
+        },
+        {
+          "name": "RÃ©my Ladauge",
+          "role": "EntraÃ®neur"
+        },
+        {
+          "name": "Julien Dupuy",
+          "role": "EntraÃ®neur"
+        },
+        {
+          "name": "Jules Plisson",
+          "role": "EntraÃ®neur"
+        }
+      ],
+      "discipline": "rugby-union"
+    },
+    {
+      "teamSlug": "argentina",
+      "discipline": "rugby-union",
+      "sourceUrl": "https://uar.com.ar/mario-ledesma-y-shaun-edwards-se-suman-al-cuerpo-tecnico-de-los-pumas/",
+      "sourceName": "Unión Argentina de Rugby",
+      "checkedAt": "2026-10-21",
+      "publishedAt": "2026-10-09",
+      "members": [
+        {
+          "name": "Felipe Contepomi",
+          "role": "Head coach"
+        },
+        {
+          "name": "Mario Ledesma",
+          "role": "Forwards",
+          "announced": true
+        },
+        {
+          "name": "Shaun Edwards",
+          "role": "Defence",
+          "announced": true
+        }
+      ]
+    }
+  ]
+}

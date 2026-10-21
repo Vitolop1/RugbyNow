@@ -146,15 +146,26 @@ jobs:
       - name: Refresh official Pro D2 calendar
         continue-on-error: true
         run: npm run sync:pro-d2-calendar
+      - name: Refresh official URBA regular calendar
+        continue-on-error: true
+        run: npm run sync:urba-calendar
+      - name: Refresh official Top 14 calendar
+        continue-on-error: true
+        run: npm run sync:top14-calendar
       - name: Refresh official club player directories
         continue-on-error: true
         run: npm run sync:squads
+      - name: Refresh official club institutions
+        continue-on-error: true
+        run: npm run sync:club-information
       - name: Refresh independent news feeds
         continue-on-error: true
         run: npm run sync:news
       - name: Refresh confirmed match broadcasts
         continue-on-error: true
-        run: npm run sync:broadcasts
+        run: |
+          npm run sync:broadcasts
+          npm run sync:broadcasts -- --source=https://top14.lnr.fr/calendrier-et-resultats
       - name: Export complete Supabase snapshot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -169,6 +180,9 @@ jobs:
           cp data/official-standings.json /tmp/official-standings.json
           cp data/match-broadcasts.json /tmp/match-broadcasts.json
           cp data/team-squads.json /tmp/team-squads.json
+          cp data/urba-calendar.json /tmp/urba-calendar.json
+          cp data/club-information.json /tmp/club-information.json
+          cp data/top14-calendar.json /tmp/top14-calendar.json
           cp data/pro-d2-calendar.json /tmp/pro-d2-calendar.json
           for attempt in 1 2 3; do
             git fetch origin main
@@ -178,8 +192,11 @@ jobs:
             cp /tmp/official-standings.json data/official-standings.json
             cp /tmp/match-broadcasts.json data/match-broadcasts.json
             cp /tmp/team-squads.json data/team-squads.json
+            cp /tmp/urba-calendar.json data/urba-calendar.json
+            cp /tmp/club-information.json data/club-information.json
+            cp /tmp/top14-calendar.json data/top14-calendar.json
             cp /tmp/pro-d2-calendar.json data/pro-d2-calendar.json
-            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json data/match-broadcasts.json data/team-squads.json data/pro-d2-calendar.json
+            git add data/supabase-snapshot.json data/news-snapshot.json data/official-standings.json data/match-broadcasts.json data/team-squads.json data/pro-d2-calendar.json data/top14-calendar.json data/club-information.json data/urba-calendar.json
             git diff --cached --quiet && echo "No snapshot changes to commit." && exit 0
             git commit -m "Update complete score and news snapshots"
             git push origin HEAD:main && exit 0

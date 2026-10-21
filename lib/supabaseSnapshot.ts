@@ -1,4 +1,5 @@
-import {getProD2CalendarData} from "./proD2CalendarData";
+import {getUrbaCalendarData,isUrbaRegularDate} from "./urbaCalendarData";
+import {getLnrCalendarData} from "./proD2CalendarData";
 import {worldCup2027Matches,WORLD_CUP_2027_META} from "./worldCup2027";
 import fs from "node:fs";
 import {usableCachedStandings} from "./sourceStandings";
@@ -420,7 +421,8 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
   const season = seasonName?seasons.find(s=>s.name===seasonName):pickSeasonForReference(snapshot, competition.id, refISO);
   if (!season) return null;
 
-  const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((match) => match.season_id === season.id));
+  const sourceMatches = snapshot.matches.filter((match) => match.season_id === season.id);
+  const seasonMatches = dedupeLeagueMatches(slug==="ar-urba-top14"&&season.name==="2026"?[...getUrbaCalendarData().matches,...sourceMatches.filter(m=>!isUrbaRegularDate(m.match_date))]:sourceMatches);
   const derivedRounds = deriveLeagueRoundData(seasonMatches);
   const roundMeta = attachKnockoutPhaseMeta(derivedRounds.roundMeta);
   const roundAssignment = derivedRounds.assignment;
@@ -445,9 +447,9 @@ export function getSnapshotLeagueData(slug: string, refISO: string, roundOverrid
     competitions: getSnapshotCompetitions() || [],
     roundMeta,
     selectedRound,
-    pendingFixtures:slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData().pending:[],
-    matches:slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData().matches.filter(m=>fullCalendar||m.round===selectedRound):slug==="int-world-cup"&&season.name==="2027"?worldCup2027Matches().filter(m=>fullCalendar||m.round===selectedRound):matches,
-    scheduleMeta:slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData().meta:slug==="int-world-cup"&&season.name==="2027"?WORLD_CUP_2027_META:undefined,
+    pendingFixtures:season.name==="2026/2027"?getLnrCalendarData(slug)?.pending||[]:[],
+    matches:season.name==="2026/2027"&&getLnrCalendarData(slug)?getLnrCalendarData(slug)!.matches.filter(m=>fullCalendar||m.round===selectedRound):slug==="int-world-cup"&&season.name==="2027"?worldCup2027Matches().filter(m=>fullCalendar||m.round===selectedRound):matches,
+    scheduleMeta:slug==="ar-urba-top14"&&season.name==="2026"?getUrbaCalendarData().meta:season.name==="2026/2027"&&getLnrCalendarData(slug)?getLnrCalendarData(slug)!.meta:slug==="int-world-cup"&&season.name==="2027"?WORLD_CUP_2027_META:undefined,
     standings: cachedStandings ?? [],
     standingsSource: cachedStandings ? "cache" : "unavailable",
     generatedAt: snapshot.generatedAt,
@@ -467,11 +469,13 @@ export function getSnapshotMatchDetail(compSlug: string, matchId: number, refISO
   const season = snapshot.seasons.find((item) => item.id === match.season_id) ?? null;
   if (!season || season.competition_id !== competition.id) return null;
 
-  const seasonMatches = dedupeLeagueMatches(snapshot.matches.filter((item) => item.season_id === season.id));
+  const sourceMatches = snapshot.matches.filter((item) => item.season_id === season.id);
+  const seasonMatches = dedupeLeagueMatches(compSlug==="ar-urba-top14"&&season.name==="2026"?[...getUrbaCalendarData().matches,...sourceMatches.filter(m=>!isUrbaRegularDate(m.match_date))]:sourceMatches);
   const cachedStandings = buildStandingsCache(snapshot, season.id, seasonMatches);
   const standings = cachedStandings ?? [];
   let hydratedMatch = hydrateLeagueMatch(snapshot, match);
-  if(compSlug==="fr-pro-d2"&&season.name==="2026/2027")hydratedMatch=getProD2CalendarData().matches.find(m=>m.id===matchId)||hydratedMatch;
+  if(compSlug==="ar-urba-top14"&&season.name==="2026")hydratedMatch=getUrbaCalendarData().matches.find(m=>m.id===matchId)||hydratedMatch;
+  if(season.name==="2026/2027")hydratedMatch=getLnrCalendarData(compSlug)?.matches.find(m=>m.id===matchId)||hydratedMatch;
   if(compSlug==="int-world-cup"&&season.name==="2027")hydratedMatch=worldCup2027Matches().find(m=>m.id===matchId)||hydratedMatch;
   if (!hydratedMatch) return null;
 

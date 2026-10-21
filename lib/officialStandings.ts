@@ -2,7 +2,7 @@ import {getProD2Team} from "./proD2";
 import {validateSourceStandings} from "./sourceStandings";
 export type OfficialStanding={position:number;team:string;slug:string;pj:number;w:number;d:number;l:number;pf:number|null;pa:number|null;pts:number;bo?:number;bd?:number;bonus?:number;group?:string;difference?:number;tries?:number};
 export type OfficialTable={competitionSlug:string;season:string;sourceUrl:string;sourceName?:string;checkedAt:string;roundDate:string|null;phase?:string;rows:OfficialStanding[]};
-const names:Record<string,string>={"Newman":"newman","CASI":"casi","Alumni":"alumni","SIC":"sic","Hindu":"hindu","Hindú":"hindu","Belgrano Athletic":"belgrano","Regatas Bella Vista":"regatas-bella-vista","Buenos Aires C&RC":"buenos-aires","La Plata":"la-plata","CUBA":"cuba","Los Tilos":"los-tilos","Los Matreros":"los-matreros","Atletico del Rosario":"atletico-del-rosario","Atlético del Rosario":"atletico-del-rosario","Champagnat":"champagnat"};
+export const urbaTeamSlugs:Record<string,string>={"Newman":"newman","CASI":"casi","Alumni":"alumni","SIC":"sic","Hindu":"hindu","Hindú":"hindu","Belgrano Athletic":"belgrano","Regatas Bella Vista":"regatas-bella-vista","Buenos Aires C&RC":"buenos-aires","La Plata":"la-plata","CUBA":"cuba","Los Tilos":"los-tilos","Los Matreros":"los-matreros","Atletico del Rosario":"atletico-del-rosario","Atlético del Rosario":"atletico-del-rosario","Champagnat":"champagnat"};
 function jsonArrayAfter(text:string,key:string):unknown[]{
  const marker=`"${key}":[`;const start=text.indexOf(marker)+marker.length-1;if(start<marker.length-1)throw Error(`Missing ${key}`);
  let depth=0,quoted=false,escape=false;
@@ -43,7 +43,7 @@ export function parseUrbaStandings(html:string,checkedAt=new Date().toISOString(
  const roundDate=dates.at(-1);if(!roundDate)throw Error("Official edition date missing");
  const raw=jsonArrayAfter(text,"standings") as Record<string,unknown>[];
  const rows=raw.map((r):OfficialStanding=>{
-  const slug=names[String(r.teamName)];if(!slug)throw Error(`Unmapped official team: ${String(r.teamName)}`);
+  const slug=urbaTeamSlugs[String(r.teamName)];if(!slug)throw Error(`Unmapped official team: ${String(r.teamName)}`);
   const keys=["position","played","won","tied","lost","pointsFavor","pointsAgainst","pointsTotal","bonusOffensive","bonusDefensive"];
   if(keys.some(k=>!Number.isInteger(r[k])||Number(r[k])<0))throw Error("Invalid official standings numbers");
   const row={position:Number(r.position),team:String(r.teamName),slug,pj:Number(r.played),w:Number(r.won),d:Number(r.tied),l:Number(r.lost),pf:Number(r.pointsFavor),pa:Number(r.pointsAgainst),pts:Number(r.pointsTotal),bo:Number(r.bonusOffensive),bd:Number(r.bonusDefensive)};
@@ -56,7 +56,7 @@ export function parseUrbaStandings(html:string,checkedAt=new Date().toISOString(
 export function parseProD2Standings(html:string,checkedAt=new Date().toISOString()){
  return parseLnrStandings(html,checkedAt,{name:"PRO D2",slug:"fr-pro-d2",expected:16,url:"https://prod2.lnr.fr/classement",team:getProD2Team});
 }
-const top14Teams:Record<string,string>={"Stade Toulousain":"stade-toulousain","Section Paloise":"section-paloise","Union Bordeaux-Bègles":"bordeaux-begles","Stade Rochelais":"stade-rochelais","Aviron Bayonnais":"bayonne","Stade Français Paris":"stade-francais","Montpellier Hérault Rugby":"montpellier-herault-rugby","LOU Rugby":"lyon","USA Perpignan":"usa-perpignan","RC Toulon":"toulon","ASM Clermont":"asm-clermont-auvergne","Racing 92":"racing-92","Castres Olympique":"castres-olympique","RC Vannes":"vannes"};
+export const top14Teams:Record<string,string>={"Stade Toulousain":"stade-toulousain","Section Paloise":"section-paloise","Union Bordeaux-Bègles":"bordeaux-begles","Stade Rochelais":"stade-rochelais","Aviron Bayonnais":"bayonne","Stade Français Paris":"stade-francais","Montpellier Hérault Rugby":"montpellier-herault-rugby","LOU Rugby":"lyon","USA Perpignan":"usa-perpignan","RC Toulon":"toulon","ASM Clermont":"asm-clermont-auvergne","Racing 92":"racing-92","Castres Olympique":"castres-olympique","RC Vannes":"vannes"};
 export function parseTop14Standings(html:string,checkedAt=new Date().toISOString()){
  return parseLnrStandings(html,checkedAt,{name:"TOP 14",slug:"fr-top14",expected:14,url:"https://top14.lnr.fr/classement",team:name=>top14Teams[name]?{slug:top14Teams[name],officialName:name}:null});
 }

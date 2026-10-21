@@ -1,3 +1,4 @@
+import {top14Teams} from "./officialStandings";
 import {getProD2Team} from "./proD2";
 export type OfficialProD2Fixture={sourceId:number;round:number;season:string;homeSlug:string;awaySlug:string;home:string;away:string;date:string|null;startsAt:string|null;windowFrom:string;windowTo:string;sourceUrl:string};
 export type ProD2Calendar={sourceName:string;sourceUrl:string;checkedAt:string;season:string;fixtures:OfficialProD2Fixture[]};
@@ -9,7 +10,9 @@ function parisInstant(date:string,hour:number,minute:number){
  if(!offset)throw Error("Cannot establish Paris UTC offset");
  return new Date(base-(Number(offset[2])*60+Number(offset[3]))*(offset[1]==="+"?1:-1)*60000).toISOString();
 }
-export function parseProD2CalendarRound(html:string,season:string,round:number):OfficialProD2Fixture[]{
+export function parseProD2CalendarRound(html:string,season:string,round:number,competition="fr-pro-d2"):OfficialProD2Fixture[]{
+ const top14=competition==="fr-top14", clubCount=top14?14:16;
+ const teamFor=(name:string)=>top14?(top14Teams[name]?{slug:top14Teams[name],name}:null):getProD2Team(name);
  const current=attributeJson(html,"current-week"),edition=attributeJson(html,"current-season");
  if(edition.name!==season.replace("/","-")||current.number!==round||current.type!=="Journée régulière"||!current.full_name.includes(edition.name))throw Error("LNR calendar edition/round mismatch");
  const from=current.overridden_starts_at||current.starts_at,to=current.overridden_ends_at||current.ends_at;
@@ -22,8 +25,9 @@ export function parseProD2CalendarRound(html:string,season:string,round:number):
  const fixtures=lines.map((line,index):OfficialProD2Fixture=>{
   const block=main.slice(line.index,lines[index+1]?.index??main.length);
   const names=[...block.matchAll(/class="club-line__name base-link base-link--black"\s*>\s*([^<]+)<\/a>/g)].map(m=>m[1].trim());
-  const home=getProD2Team(names[0]||""),away=getProD2Team(names[1]||"");
-  const link=block.match(/href=['"](https:\/\/prod2\.lnr\.fr\/feuille-de-match\/(\d{4}-\d{4})\/j(\d+)\/(\d+)-[^'"\s]+)['"]/);
+  const home=teamFor(names[0]||""),away=teamFor(names[1]||"");
+  const link=block.match(/href=['"](https:\/\/(?:prod2|top14)\.lnr\.fr\/feuille-de-match\/(\d{4}-\d{4})\/j(\d+)\/(\d+)-[^'"\s]+)['"]/);
+  if(link&&!link[1].startsWith(top14?"https://top14.lnr.fr/":"https://prod2.lnr.fr/"))throw Error("Wrong LNR competition domain");
   if(names.length!==2||!home||!away||home.slug===away.slug||!link||link[2]!==edition.name||Number(link[3])!==round)throw Error("Incomplete or ambiguous LNR fixture");
   const dateLabel=headers.filter(h=>h.index!<line.index!).at(-1)?.[1].trim()||"";
   const explicit=[...dateLabel.matchAll(/\b(\d{1,2})\s+([a-zéû]+)\b/gi)];
@@ -41,10 +45,11 @@ export function parseProD2CalendarRound(html:string,season:string,round:number):
   // contains Saturday 17 October even though the week metadata ends Friday).
   return {sourceId:Number(link[4]),round,season,homeSlug:home.slug,awaySlug:away.slug,home:home.name,away:away.name,date,startsAt,windowFrom:date||windowFrom,windowTo:date||windowTo,sourceUrl:link[1]};
  });
- if(fixtures.length!==8||new Set(fixtures.map(m=>m.sourceId)).size!==8||new Set(fixtures.flatMap(m=>[m.homeSlug,m.awaySlug])).size!==16)throw Error("LNR round must contain eight fixtures and sixteen distinct clubs");
+ if(fixtures.length!==clubCount/2||new Set(fixtures.map(m=>m.sourceId)).size!==clubCount/2||new Set(fixtures.flatMap(m=>[m.homeSlug,m.awaySlug])).size!==clubCount)throw Error("Incomplete LNR round or repeated club identity");
  return fixtures;
 }
-export function validateProD2Calendar(fixtures:OfficialProD2Fixture[]){
- if(fixtures.length!==240||new Set(fixtures.map(m=>m.sourceId)).size!==240||new Set(fixtures.map(m=>`${m.homeSlug}:${m.awaySlug}`)).size!==240)throw Error("Incomplete or repeated Pro D2 regular-season fixtures");
- for(let round=1;round<=30;round++){const rows=fixtures.filter(m=>m.round===round);if(rows.length!==8||new Set(rows.flatMap(m=>[m.homeSlug,m.awaySlug])).size!==16)throw Error(`Incomplete Pro D2 round ${round}`);}
+export function validateProD2Calendar(fixtures:OfficialProD2Fixture[],competition="fr-pro-d2"){
+ const clubCount=competition==="fr-top14"?14:16,rounds=(clubCount-1)*2,total=clubCount*(clubCount-1);
+ if(fixtures.length!==total||new Set(fixtures.map(m=>m.sourceId)).size!==total||new Set(fixtures.map(m=>`${m.homeSlug}:${m.awaySlug}`)).size!==total)throw Error("Incomplete or repeated LNR regular-season fixtures");
+ for(let round=1;round<=rounds;round++){const rows=fixtures.filter(m=>m.round===round);if(rows.length!==clubCount/2||new Set(rows.flatMap(m=>[m.homeSlug,m.awaySlug])).size!==clubCount)throw Error(`Incomplete LNR round ${round}`);}
 }

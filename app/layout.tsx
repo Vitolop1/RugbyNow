@@ -55,9 +55,9 @@ export const metadata: Metadata = {
     siteName: "RugbyNow",
     images: [
       {
-        url: "/logo.png",
-        width: 512,
-        height: 512,
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
         alt: "RugbyNow",
       },
     ],
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     title: "RugbyNow",
     description:
       "Live rugby scores, fixtures, tables, standings, weekly recaps, and competition coverage from RugbyNow.",
-    images: ["/logo.png"],
+    images: ["/opengraph-image"],
   },
   verification: googleSiteVerification
     ? {

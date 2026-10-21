@@ -28,7 +28,7 @@ function getSnapshot(): SnapshotPayload {
 }
 
 function siteImage() {
-  return "/logo.png";
+  return "/opengraph-image";
 }
 
 export function buildStaticMetadata({
@@ -83,8 +83,13 @@ export function buildLeagueMetadata(slug: string): Metadata {
   });
   const name = competition?.name ?? profile.slug;
   const region = profile.country || profile.region || competition?.region || "international rugby";
-  const title = `${name} Results, Fixtures, Standings and Table`;
-  const description = `${name} results, fixtures, live scores, standings and table updates on RugbyNow. Follow ${name} coverage, match context and season updates from ${region}.`;
+  const priority:Record<string,{title:string;description:string}>={
+    'ar-urba-top14':{title:'URBA Top 14: resultados, tabla de posiciones y fixture',description:'Consultá los resultados del rugby de Buenos Aires, la tabla oficial de URBA Top 14 y el calendario por temporada. Accedé a clubes y últimos encuentros.'},
+    'fr-pro-d2':{title:'Pro D2: résultats, classement et calendrier',description:'Résultats et classement officiel de Pro D2, calendrier par saison, effectifs des clubs et chaînes confirmées pour chaque match en France.'},
+    'fr-top14':{title:'Top 14 France: résultats, classement et calendrier',description:'Consultez les résultats du Top 14, le classement officiel, les prochains matchs et les effectifs des clubs. Dates à confirmer signalées dans le calendrier.'},
+  };
+  const title = priority[slug]?.title||`${name} Results, Fixtures and Standings`;
+  const description = priority[slug]?.description||`${name} results, fixtures and available standings on RugbyNOW. Browse seasons, clubs and match details from ${region}; coverage varies by competition.`;
 
   return buildStaticMetadata({
     title,
@@ -108,8 +113,8 @@ export function buildTeamMetadata(slug: string): Metadata {
   const profile = getTeamProfile(slug, team?.name);
   const name = team?.name ?? profile.displayName ?? slug;
   const countryOrCity = profile.city || profile.country || team?.country || "rugby";
-  const title = `${name} Rugby Results, Fixtures and Squad`;
-  const description = `${name} rugby profile on RugbyNow with results, fixtures, recent matches, squad context and club information. Follow ${name} from ${countryOrCity}.`;
+  const title = slug==="argentina"?"Los Pumas: próximos partidos, resultados y selección argentina":`${name} Rugby Results and Fixtures`;
+  const description = slug==="argentina"?"Próximos partidos de Los Pumas, resultados de Argentina y competiciones. Elegí XV o Seven y consultá horarios en tu zona y transmisiones confirmadas por país.":`${name} rugby results, upcoming fixtures and available club information on RugbyNOW. Follow ${name} from ${countryOrCity}; squad coverage is identified by season and source.`;
 
   return buildStaticMetadata({
     title,

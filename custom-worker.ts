@@ -2,10 +2,13 @@
 // @ts-ignore generated worker is intentionally absent in a fresh checkout
 import handler from './.open-next/worker.js';
 import {LIVE_MONITOR_KEY,runLnrLiveMonitor,type MonitorBucket} from './lib/lnrLiveMonitor';
+import {canonicalRequestUrl} from './lib/canonicalRequest';
 
 type MonitorEnv={NEXT_INC_CACHE_R2_BUCKET:MonitorBucket};
 export default {
  async fetch(request:Request,env:MonitorEnv,ctx:unknown){
+  const canonical=canonicalRequestUrl(request.url);
+  if(canonical)return Response.redirect(canonical,308);
   if(new URL(request.url).pathname==='/api/live-monitor'){
    if(request.method!=='GET')return new Response(null,{status:405,headers:{Allow:'GET'}});
    const stored=await env.NEXT_INC_CACHE_R2_BUCKET.get(LIVE_MONITOR_KEY);

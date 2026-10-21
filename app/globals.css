@@ -388,3 +388,7 @@ span.rn-rugby-loader>svg{width:100px;height:89px}span.rn-rugby-small>svg{width:2
 .rn-ad-placement[hidden]{display:none!important}.rn-ad-rail:has(>.rn-ad-placement[hidden]){display:none}.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:210px minmax(0,1fr)!important}
 @media(max-width:1399px){.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:188px minmax(0,1fr)!important}}
 @media(max-width:800px){.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:minmax(0,1fr)!important}}
+.rn-league-insight{font-size:12px;line-height:1.6;color:var(--rn-text-muted);padding:10px 0;margin:0}.rn-league-insight a{white-space:nowrap;color:var(--rn-accent)}
+.rn-share-page{display:inline-flex;align-items:center;gap:8px;font-size:11px;margin:8px 0}.rn-share-page button{min-height:40px;padding:8px 12px;border:1px solid var(--rn-border);border-radius:3px}.rn-share-page button:focus-visible{outline:2px solid var(--rn-accent);outline-offset:2px}
+
+.rn-analytics-consent button{color:#174b33!important;background:#fff!important;border-color:#174b33!important}.rn-analytics-consent button:hover{background:#edf6ef!important}.rn-analytics-consent button:focus-visible{outline:2px solid #174b33;outline-offset:3px}

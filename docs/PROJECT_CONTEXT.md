@@ -101,3 +101,5 @@ El dueño pidió optimizar con poco crédito y priorizar visitas y monetización
 
 - La hora desconocida solo permite reconciliar duplicados del mismo día: no habilita juntar partidos de distintos meses entre los mismos clubes. Se reprodujo la pérdida de un resultado regular al convivir con un playoff y se corrigió con una prueba de 184 encuentros URBA (182 regulares + 2 posteriores).
 - Top 14 añade siete transmisiones oficiales LNR de la próxima jornada, exclusivamente FR con equipos/hora exactos. Aliases explícitos para clubes franceses y logo general CANAL+ documentado; no se extienden derechos a otros países.
+
+- Cuerpo técnico de Los Pumas XV: comunicado UAR del 9/10 identifica a Contepomi como head coach y anuncia Ledesma/Edwards. Mostrar incorporaciones anunciadas como tales y restringir por disciplina; el ID compartido Argentina no autoriza mostrarlas en Seven.

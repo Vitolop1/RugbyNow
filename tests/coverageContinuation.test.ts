@@ -18,6 +18,7 @@ import {areLogicalMatchDuplicates} from '../lib/matchIntegrity';
 import {parseLnrProD2Broadcasts} from '../lib/lnrBroadcasts';
 import {getConfirmedMatchBroadcasts} from '../lib/matchBroadcasts';
 import {getCoverageInventory} from '../lib/coverage';
+import {getTeamPageData} from '../lib/teamPageData';
 
 const source=fs.readFileSync('tests/fixtures/top14-j7.html','utf8');
 test('Top 14 official calendar contains all 182 regular fixtures and keeps 119 unconfirmed dates',()=>{
@@ -47,6 +48,8 @@ test('season squads use an explicit source edition, preserve all 30 identities a
  const coverage=getCoverageInventory();
  assert.equal(coverage.find(c=>c.slug==='fr-top14'&&c.season==='2026/2027')?.seasonSquads,14);
  assert.ok(coverage.filter(c=>c.season==='2025/2026').every(c=>c.seasonSquads===0&&c.players===0));
+ assert.equal(getTeamPageData('argentina','rugby-union')?.staff?.members.length,3);
+ assert.equal(getTeamPageData('argentina','rugby-sevens')?.staff,null);
  assert.throws(()=>validateSquadIdentities([squads.squads[0],{...squads.squads[0],teamSlug:'another-club'}] as TeamSquad[]));
 });
 test('URBA all 26 rounds reconcile to official team statistics and retain 70 previously missing results',()=>{

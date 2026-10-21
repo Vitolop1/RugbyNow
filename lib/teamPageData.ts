@@ -256,7 +256,7 @@ export function getTeamPageData(slug:string,requestedDiscipline=""){
       discipline,
       profile,
       institution:clubInformation.clubs.find(c=>c.teamSlug===slug)||null,
-      staff:teamStaff.teams.find(c=>c.teamSlug===slug)||null,
+      staff:teamStaff.teams.find(c=>c.teamSlug===slug&&c.discipline===discipline.selected)||null,
       countryProfile,
       squads:getTeamSquads(slug),
       pendingFixtures:proD2.pending.filter(m=>m.homeSlug===slug||m.awaySlug===slug).slice(0,6),

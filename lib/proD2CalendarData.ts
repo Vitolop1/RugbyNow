@@ -20,7 +20,7 @@ export function getLnrCalendarData(competitionSlug:string,observations:Observati
    home_team:home,away_team:away,round:m.round,venue:existing?.venue??null,source_url:observed?.source_url||m.sourceUrl,updated_at:observed?.updated_at||calendar.checkedAt}];
  });
  matches.sort((a,b)=>a.match_date.localeCompare(b.match_date)||String(a.kickoff_time||"99").localeCompare(String(b.kickoff_time||"99"))||a.id-b.id);
- return {matches,pending,meta:{sourceUrl:calendar.sourceUrl,sourceName:calendar.sourceName,checkedAt:calendar.checkedAt,season:calendar.season,total:calendar.fixtures.length,category:"men-xv",phase:"regular"}};
+ return {matches,pending,meta:{sourceUrl:calendar.sourceUrl,sourceName:calendar.sourceName,checkedAt:calendar.checkedAt,season:calendar.season,total:calendar.fixtures.length,regularFrom:calendar.fixtures.map(m=>m.windowFrom).sort()[0],regularTo:calendar.fixtures.map(m=>m.windowTo).sort().at(-1)!,category:"men-xv",phase:"regular"}};
 }
 
 export function getProD2CalendarData(observations:Observation[]=snapshot.matches){return getLnrCalendarData("fr-pro-d2",observations)!;}

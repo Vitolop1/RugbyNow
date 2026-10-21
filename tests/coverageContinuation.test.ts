@@ -29,6 +29,7 @@ test('Top 14 official calendar contains all 182 regular fixtures and keeps 119 u
  assert.throws(()=>validateProD2Calendar(top14.fixtures.slice(1),'fr-top14'));
  assert.throws(()=>validateProD2Calendar([...top14.fixtures.slice(1),top14.fixtures[1]],'fr-top14'));
  const calendar=getLnrCalendarData('fr-top14')!;
+ assert.equal(calendar.meta.regularTo,'2027-06-06');
  assert.equal(calendar.matches.length+calendar.pending.length,182);
  assert.ok(calendar.matches.every(m=>m.home_team.id>0&&m.away_team.id>0));
 });

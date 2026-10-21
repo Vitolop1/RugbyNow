@@ -29,10 +29,12 @@ export async function loadDailyAgenda(date: string): Promise<DailyAgendaData> {
         season:{competition:season ? competitions.get(season.competition_id) || null : null}};
     });
   }
-  if(to>="2026-08-01"&&from<="2027-06-01"){
+  {
     for(const [slug,name] of [["fr-pro-d2","Pro D2"],["fr-top14","Top 14"]]){
     const calendar=getLnrCalendarData(slug,rows)!;
-    rows=rows.filter(r=>r.season?.competition?.slug!==slug||r.match_date<"2026-08-01"||r.match_date>"2027-06-01");
+    const {regularFrom,regularTo}=calendar.meta;
+    if(to<regularFrom||from>regularTo)continue;
+    rows=rows.filter(r=>r.season?.competition?.slug!==slug||r.match_date<regularFrom||r.match_date>regularTo);
     rows.push(...calendar.matches.filter(r=>r.match_date>=from&&r.match_date<=to).map(r=>({...r,season:{competition:{name,slug,region:"France"}}})));
   }
   }

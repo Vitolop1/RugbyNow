@@ -98,6 +98,11 @@ export function buildDailyEntries(rows: AgendaMatchRow[], editorial: AgendaEvent
 export function dailyEntryDate(entry: DailyEntry, timeZone: string) {
   return entry.startsAt ? getISODateInTimeZone(new Date(entry.startsAt),timeZone) : entry.date;
 }
+// The main agenda is a full day, never a featured/preview slice. Filters are
+// applied by the shared client after this timezone-aware day selection.
+export function matchesForAgendaDate(entries:DailyEntry[],date:string,timeZone:string){
+  return entries.filter(entry=>entry.kind==='match'&&dailyEntryDate(entry,timeZone)===date);
+}
 export function dailyEntryState(entry: DailyEntry, now: number) {
   const detail=readSourceStatusDetail(entry.sourceUrl);if(detail&&["postponed","delayed","suspended","abandoned","cancelled","walkover"].includes(detail))return detail;
   if (entry.status === "FT" || entry.status === "CANC" || entry.status === "LIVE" || entry.status === "HT") return entry.status;

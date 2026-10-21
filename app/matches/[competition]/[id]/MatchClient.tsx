@@ -1,5 +1,6 @@
 "use client";
 
+import TeamCrest from "@/app/components/TeamCrest";
 import PendingCalendar from "@/app/components/PendingCalendar";
 import type {PendingProD2Fixture} from "@/lib/proD2CalendarData";
 import {sourceStatusLabel} from "@/lib/sourceStatusDetail";
@@ -18,7 +19,7 @@ import { useBroadcastCountry, broadcastCountryLabel } from "@/lib/useBroadcastCo
 import { getMatchTelevision } from "@/lib/matchBroadcasts";
 import { trackProductEvent } from "@/lib/analytics";
 import SuggestedWatchButton from "@/app/components/SuggestedWatchButton";
-import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
+import { getLeagueLogo } from "@/lib/assets";
 import { t } from "@/lib/i18n";
 import { formatKickoffTZ, getMatchClockLabel, getMatchContextLabel } from "@/lib/matchPresentation";
 import { isScheduledMatchStatus, type MatchStatus } from "@/lib/matchStatus";
@@ -82,19 +83,7 @@ type MatchPayload = {
 };
 
 function TeamLogo({ slug, alt, size = 44 }: { slug?: string | null; alt: string; size?: number }) {
-  return (
-    <img
-      src={getTeamLogo(slug)}
-      alt={alt}
-      width={size}
-      height={size}
-      className="rounded-sm bg-white/5 object-contain"
-      onError={(e) => {
-        e.currentTarget.onerror = null;
-        e.currentTarget.src = "/team-logos/_placeholder.png";
-      }}
-    />
-  );
+  return <TeamCrest slug={slug} name={alt} size={size}/>;
 }
 
 function LeagueLogo({ slug, alt, size = 24 }: { slug?: string | null; alt: string; size?: number }) {
@@ -418,9 +407,9 @@ export default function MatchClient() {
                             <td className="px-4 py-3">
                               <Link
                                 href={row.teamSlug ? `/teams/${row.teamSlug}` : "#"}
-                                className="font-semibold text-white hover:text-emerald-200"
+                                className="inline-flex items-center gap-2 font-semibold text-white hover:text-emerald-200"
                               >
-                                {row.team}
+                                <TeamCrest slug={row.teamSlug} name={row.team}/>{row.team}
                               </Link>
                             </td>
                             {!isCuratedStandings ? <td className="px-3 py-3 text-right">{row.pj}</td> : null}

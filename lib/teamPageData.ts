@@ -1,9 +1,12 @@
-import {getProD2CalendarData} from "@/lib/proD2CalendarData";
+import {getUrbaCalendarData,isUrbaRegularDate} from "@/lib/urbaCalendarData";
+import {getLnrCalendarData} from "@/lib/proD2CalendarData";
 import {worldCup2027Matches} from "@/lib/worldCup2027";
 import {teamDisciplineSelection} from "@/lib/teamDiscipline";
 import {rugbyDiscipline} from "@/lib/headToHead";
 import {getTeamSquads} from "@/lib/teamSquads";
 import {getPlayerUpdates} from "@/lib/playerUpdates";
+import clubInformation from "@/data/club-information.json";
+import teamStaff from "@/data/team-staff.json";
 import officialTables from "@/data/official-standings.json";
 import fs from "node:fs";
 import path from "node:path";
@@ -122,9 +125,10 @@ export function getTeamPageData(slug:string,requestedDiscipline=""){
     if (!snapshot) {
       return null;
     }
-    const proD2=getProD2CalendarData();
+    const calendars=[getLnrCalendarData("fr-pro-d2")!,getLnrCalendarData("fr-top14")!];
+    const proD2={matches:calendars.flatMap(c=>c.matches),pending:calendars.flatMap(c=>c.pending)};
     const knownPro=new Map(proD2.matches.map(m=>[m.id,m]));
-    const proSeason=snapshot.seasons.find(s=>s.name==="2026/2027"&&snapshot.competitions.some(c=>c.id===s.competition_id&&c.slug==="fr-pro-d2"));
+    const proSeasons=new Set(snapshot.seasons.filter(s=>s.name==="2026/2027"&&snapshot.competitions.some(c=>c.id===s.competition_id&&["fr-pro-d2","fr-top14"].includes(c.slug))).map(s=>s.id));
     const team = snapshot.teams.find((row) => row.slug === slug);
 
     if (!team) {
@@ -135,9 +139,11 @@ export function getTeamPageData(slug:string,requestedDiscipline=""){
     const competitionsById = new Map(snapshot.competitions.map((competition) => [competition.id, competition]));
     const worldSeason=snapshot.seasons.find(s=>s.name==="2027"&&snapshot.competitions.some(c=>c.id===s.competition_id&&c.slug==="int-world-cup"));
     const officialWorld=worldCup2027Matches(snapshot.matches).filter(m=>m.home_team.id===team.id||m.away_team.id===team.id).map(m=>({...m,season_id:worldSeason?.id||0,home_team_id:m.home_team.id,away_team_id:m.away_team.id}));
+    const officialUrba=getUrbaCalendarData().matches;
+    const urbaSeason=officialUrba[0].season_id;
     const candidates = filterCuratedTeamMatches(
       slug,
-      [...snapshot.matches.filter(m=>m.season_id!==worldSeason?.id).filter(m=>m.season_id!==proSeason?.id||knownPro.has(m.id)).map(m=>knownPro.has(m.id)?{...m,match_date:knownPro.get(m.id)!.match_date,kickoff_time:knownPro.get(m.id)!.kickoff_time}:m).filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),...officialWorld],
+      [...snapshot.matches.filter(m=>m.season_id!==urbaSeason||!isUrbaRegularDate(m.match_date)).filter(m=>m.season_id!==worldSeason?.id).filter(m=>!proSeasons.has(m.season_id)||knownPro.has(m.id)).map(m=>knownPro.has(m.id)?{...m,match_date:knownPro.get(m.id)!.match_date,kickoff_time:knownPro.get(m.id)!.kickoff_time}:m).filter((match) => match.home_team_id === team.id || match.away_team_id === team.id),...officialUrba.filter(m=>m.home_team_id===team.id||m.away_team_id===team.id),...officialWorld],
       seasonsById,
       competitionsById
     );
@@ -249,6 +255,8 @@ export function getTeamPageData(slug:string,requestedDiscipline=""){
       team,
       discipline,
       profile,
+      institution:clubInformation.clubs.find(c=>c.teamSlug===slug)||null,
+      staff:teamStaff.teams.find(c=>c.teamSlug===slug)||null,
       countryProfile,
       squads:getTeamSquads(slug),
       pendingFixtures:proD2.pending.filter(m=>m.homeSlug===slug||m.awaySlug===slug).slice(0,6),

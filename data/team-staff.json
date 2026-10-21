@@ -1,0 +1,17 @@
+{
+  "teams": [
+    {
+      "teamSlug": "provence-rugby",
+      "sourceUrl": "https://www.provencerugby.com/lequipe-pro/",
+      "sourceName": "Provence Rugby",
+      "checkedAt": "2026-10-21",
+      "members": [
+        {"name": "Philippe Saint-André", "role": "Directeur Sportif"},
+        {"name": "Sébastien Fouassier", "role": "Entraîneur"},
+        {"name": "Rémy Ladauge", "role": "Entraîneur"},
+        {"name": "Julien Dupuy", "role": "Entraîneur"},
+        {"name": "Jules Plisson", "role": "Entraîneur"}
+      ]
+    }
+  ]
+}

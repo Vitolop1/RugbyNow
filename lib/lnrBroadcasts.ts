@@ -1,8 +1,10 @@
+import {getTop14Team} from "./top14Identity";
 import { getProD2Team } from "./proD2";
 import type { BroadcastProviderId } from "./broadcasts";
 import type { ConfirmedMatchBroadcast } from "./matchBroadcasts";
 
 const LNR_CHANNELS: Record<string, BroadcastProviderId> = {
+  "Canal +": "canal-plus",
   "Canal + Sport": "canal-plus-sport",
   "Canal + Sport 360": "canal-plus-sport-360",
   "Canal + Live": "canal-plus-live",
@@ -21,11 +23,13 @@ type LnrMatch = {
 
 // This is the public match payload used by LNR's score slider. Its explicit
 // timezone, edition and per-match channels avoid guessing from rights alone.
-export function parseLnrProD2Broadcasts(html: string, checkedAt: string): ConfirmedMatchBroadcast[] {
+export function parseLnrProD2Broadcasts(html: string, checkedAt: string,competitionSlug="fr-pro-d2"): ConfirmedMatchBroadcast[] {
+  const top14=competitionSlug==="fr-top14";
+  const teamFor=top14?getTop14Team:getProD2Team;
   const encoded = html.match(/:matches='([^']+)'/);
   if (!encoded) throw new Error("LNR broadcast payload is absent");
   const parsed: unknown = JSON.parse(encoded[1].replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&amp;/g, "&"));
-  if (!Array.isArray(parsed) || parsed.length !== 8) throw new Error("LNR Pro D2 round must contain eight matches");
+  if (!Array.isArray(parsed) || parsed.length !== (top14?7:8)) throw new Error("LNR Pro D2 round must contain eight matches");
   const matches = parsed as LnrMatch[];
   const seasons = new Set<string>();
   const rounds = new Set<string>();
@@ -34,14 +38,14 @@ export function parseLnrProD2Broadcasts(html: string, checkedAt: string): Confir
   for (const match of matches) {
     const source = new URL(match.link);
     const edition = source.pathname.match(/^\/feuille-de-match\/(\d{4}-\d{4})\/(j\d+)\/(\d+)-/);
-    if (source.origin !== "https://prod2.lnr.fr" || !edition) throw new Error("Invalid LNR fixture source or edition");
+    if (source.origin !== (top14?"https://top14.lnr.fr":"https://prod2.lnr.fr") || !edition) throw new Error("Invalid LNR fixture source or edition");
     seasons.add(edition[1]);
     rounds.add(edition[2]);
     if (!Number.isInteger(match.id) || seen.has(String(match.id))) throw new Error("Duplicate LNR fixture ID");
     if (Number(edition[3]) !== match.id) throw new Error("LNR source URL and fixture ID disagree");
     seen.add(String(match.id));
-    const home = getProD2Team(match.hosting_club?.name);
-    const away = getProD2Team(match.visiting_club?.name);
+    const home = teamFor(match.hosting_club?.name);
+    const away = teamFor(match.visiting_club?.name);
     if (!home || !away || home.slug === away.slug) throw new Error("Unknown or duplicate LNR team identity");
     // A postponed fixture or an absent channel remains unconfirmed.
     if (match.is_postponed || !match.broadcasters?.length) continue;
@@ -57,7 +61,7 @@ export function parseLnrProD2Broadcasts(html: string, checkedAt: string): Confir
       if (!id) throw new Error(`Unmapped LNR broadcast channel: ${channel.name}`);
       return id;
     }))];
-    result.push({ id: `lnr-${match.id}-fr`, competitionSlug: "fr-pro-d2", season: edition[1],
+    result.push({ id: `lnr-${match.id}-fr`, competitionSlug, season: edition[1],
       home: home.name, away: away.name, startsAt: new Date(starts).toISOString(), country: "FR", providerIds,
       sourceName: "Ligue Nationale de Rugby", sourceUrl: source.href, checkedAt });
   }

@@ -18,6 +18,8 @@ import {toggleSlug} from "@/lib/competitionPrefs";
 import {getTeamLogo,getLeagueLogo} from "@/lib/assets";
 import {getProD2Team} from "@/lib/proD2";
 import {t} from "@/lib/i18n";
+import ClubInformation, {type ClubStaff} from "@/app/components/ClubInformation";
+import type {ClubInformation as Institution} from "@/lib/clubInformation";
 import type {TeamSquad} from "@/lib/squads";
 import type {PlayerUpdate} from "@/lib/playerUpdates";
 import s from "@/app/agenda/daily.module.css";
@@ -25,6 +27,8 @@ type MatchStatus="NS"|"LIVE"|"HT"|"FT"|"CANC";
 export type TeamPayload = {
   discipline: {selected:string;available:string[]};
   squads: TeamSquad[];
+  institution: Institution|null;
+  staff: ClubStaff|null;
   pendingFixtures: PendingProD2Fixture[];
   playerUpdates: PlayerUpdate[];
   positions: {competitionSlug:string;season:string;position:number;pts:number;sourceUrl:string;checkedAt:string}[];
@@ -110,7 +114,7 @@ export default function TeamClient({slug,initialData=null}:{slug:string;initialD
  <section className={s.nextBoard}><div className={s.sectionTitle}><h2>{c[2]}</h2></div>{data.recentMatches.length?data.recentMatches.map(fixture):<p className="rn-notice">{c[6]}</p>}</section>
  <section className={s.nextBoard}><div className={s.sectionTitle}><h2>{c[3]}</h2></div>{data.upcomingMatches.length?data.upcomingMatches.map(fixture):<p className="rn-notice">{c[6]}</p>}</section>
  {!!data.pendingFixtures?.length&&<PendingCalendar fixtures={data.pendingFixtures}/>}
- <TeamSquads squads={data.squads||[]}/><PlayerUpdates updates={data.playerUpdates||[]}/>
+ <ClubInformation institution={data.institution||null} staff={data.staff||null}/><TeamSquads squads={data.squads||[]}/><PlayerUpdates updates={data.playerUpdates||[]}/>
  <details className="rn-panel"><summary><strong>{c[4]}</strong> ⌄</summary><p>{data.profile.summary}</p><dl className="rn-player-facts">{[[t(lang,"venue"),data.profile.venue],[t(lang,"founded"),data.profile.founded],[t(lang,"city"),data.profile.city],[t(lang,"country"),data.profile.country],[t(lang,"colors"),data.profile.colors?.join(", ")]].filter(([,value])=>value).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>{data.profile.history&&<p>{data.profile.history}</p>}{data.countryProfile&&<><h3>{data.countryProfile.name}</h3><p>{data.countryProfile.summary}</p><p>{data.countryProfile.rugbyContext}</p></>}</details>
  <details className="rn-panel"><summary><strong>{c[5]}</strong> ⌄</summary><dl className="rn-player-facts">{[[c[9],data.stats.played],[c[10],data.stats.won],[c[11],data.stats.drawn],[c[12],data.stats.lost],[c[13],`${data.stats.pointsFor} / ${data.stats.pointsAgainst}`]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></details>
  <section className="rn-panel"><h2>{c[14]}</h2>{data.competitions.map(comp=><div className="rn-directory-row" key={comp.slug}><img src={getLeagueLogo(comp.slug)} alt="" width={24} height={24}/><div><Link href={`/leagues/${comp.slug}`}>{comp.name} →</Link><small>{comp.region} · {comp.seasons.join(", ")}</small></div></div>)}</section>

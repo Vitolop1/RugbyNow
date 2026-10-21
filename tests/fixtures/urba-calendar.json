@@ -1,0 +1,6185 @@
+{
+  "championship": {
+    "id": 2025176,
+    "name": "TOP 14 - Superior",
+    "alias": "TOP 14 - Superior",
+    "rounds": [
+      {
+        "id": 202517028,
+        "name": "Fecha 1",
+        "playdate": "2026-03-14T00:00:00",
+        "matches": [
+          {
+            "id": 2023134558,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134559,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134560,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 52,
+            "visit_team_score": 18,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134561,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 16,
+            "visit_team_score": 40,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134562,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134563,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 3,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134564,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 58,
+            "visit_team_score": 18,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517029,
+        "name": "Fecha 2",
+        "playdate": "2026-03-21T00:00:00",
+        "matches": [
+          {
+            "id": 2023134565,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134566,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 33,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134567,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 20,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134568,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 29,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134569,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 12,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134570,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 17,
+            "visit_team_score": 13,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134571,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 12,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517030,
+        "name": "Fecha 3",
+        "playdate": "2026-03-28T00:00:00",
+        "matches": [
+          {
+            "id": 2023134572,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134573,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134574,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 13,
+            "visit_team_score": 39,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134575,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 43,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134576,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 13,
+            "visit_team_score": 10,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134577,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 21,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134578,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 10,
+            "visit_team_score": 37,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517031,
+        "name": "Fecha 4",
+        "playdate": "2026-04-11T00:00:00",
+        "matches": [
+          {
+            "id": 2023134579,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 52,
+            "visit_team_score": 28,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134580,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134581,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 30,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134582,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 12,
+            "visit_team_score": 34,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134583,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 35,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134584,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 38,
+            "visit_team_score": 14,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134585,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 32,
+            "visit_team_score": 39,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517032,
+        "name": "Fecha 5",
+        "playdate": "2026-04-18T00:00:00",
+        "matches": [
+          {
+            "id": 2023134586,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134587,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134588,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134589,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134590,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 39,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134591,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 7,
+            "visit_team_score": 24,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134592,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 30,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517033,
+        "name": "Fecha 6",
+        "playdate": "2026-04-25T00:00:00",
+        "matches": [
+          {
+            "id": 2023134593,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 18,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134594,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 47,
+            "visit_team_score": 8,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134595,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134596,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 28,
+            "visit_team_score": 19,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134597,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134598,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 43,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134599,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 31,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517034,
+        "name": "Fecha 7",
+        "playdate": "2026-05-09T00:00:00",
+        "matches": [
+          {
+            "id": 2023134600,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 48,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134601,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 42,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134602,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 59,
+            "visit_team_score": 28,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134603,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 13,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134604,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 38,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134605,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134606,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 7,
+            "visit_team_score": 76,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517035,
+        "name": "Fecha 8",
+        "playdate": "2026-05-16T00:00:00",
+        "matches": [
+          {
+            "id": 2023134607,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 9,
+            "visit_team_score": 30,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134608,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 17,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134609,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 16,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134610,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 39,
+            "visit_team_score": 21,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134611,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 21,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134612,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 22,
+            "visit_team_score": 48,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134613,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 37,
+            "visit_team_score": 38,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517036,
+        "name": "Fecha 9",
+        "playdate": "2026-05-23T00:00:00",
+        "matches": [
+          {
+            "id": 2023134614,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 31,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134615,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 39,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134616,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 34,
+            "visit_team_score": 34,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134617,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 46,
+            "visit_team_score": 45,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134618,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 21,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134619,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 20,
+            "visit_team_score": 33,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134620,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 62,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517037,
+        "name": "Fecha 10",
+        "playdate": "2026-05-30T00:00:00",
+        "matches": [
+          {
+            "id": 2023134621,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 59,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134622,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 20,
+            "visit_team_score": 30,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134623,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 14,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134624,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 54,
+            "visit_team_score": 29,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134625,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 17,
+            "visit_team_score": 27,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134626,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 43,
+            "visit_team_score": 40,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134627,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 20,
+            "visit_team_score": 50,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517038,
+        "name": "Fecha 11",
+        "playdate": "2026-06-06T00:00:00",
+        "matches": [
+          {
+            "id": 2023134628,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134629,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 36,
+            "visit_team_score": 41,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134630,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134631,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 11,
+            "visit_team_score": 41,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134632,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 38,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134633,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 13,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134634,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 28,
+            "visit_team_score": 39,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517039,
+        "name": "Fecha 12",
+        "playdate": "2026-06-20T00:00:00",
+        "matches": [
+          {
+            "id": 2023134635,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 44,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134636,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 20,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134637,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 22,
+            "visit_team_score": 27,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134638,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 52,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134639,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 37,
+            "visit_team_score": 28,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134640,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 40,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134641,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 36,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517040,
+        "name": "Fecha 13",
+        "playdate": "2026-06-27T00:00:00",
+        "matches": [
+          {
+            "id": 2023134642,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 38,
+            "visit_team_score": 35,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134643,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 13,
+            "visit_team_score": 37,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134644,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 31,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134645,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 28,
+            "visit_team_score": 23,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134646,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 34,
+            "visit_team_score": 29,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134647,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 32,
+            "visit_team_score": 30,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134648,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 53,
+            "visit_team_score": 28,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517041,
+        "name": "Fecha 14",
+        "playdate": "2026-07-04T00:00:00",
+        "matches": [
+          {
+            "id": 2023134649,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 61,
+            "visit_team_score": 7,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134650,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 41,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134651,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 40,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134652,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 47,
+            "visit_team_score": 30,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134653,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 66,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134654,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134655,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 58,
+            "visit_team_score": 40,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517042,
+        "name": "Fecha 15",
+        "playdate": "2026-07-11T00:00:00",
+        "matches": [
+          {
+            "id": 2023134656,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 62,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134657,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134658,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 43,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134659,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 49,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134660,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 8,
+            "visit_team_score": 29,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134661,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 19,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134662,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 50,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517043,
+        "name": "Fecha 16",
+        "playdate": "2026-07-18T00:00:00",
+        "matches": [
+          {
+            "id": 2023134663,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 28,
+            "visit_team_score": 38,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134664,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 21,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134665,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 45,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134666,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 16,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134667,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 16,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134668,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 36,
+            "visit_team_score": 43,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134669,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517044,
+        "name": "Fecha 17",
+        "playdate": "2026-08-01T00:00:00",
+        "matches": [
+          {
+            "id": 2023134670,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 3,
+            "visit_team_score": 69,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134671,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 59,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134672,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 12,
+            "visit_team_score": 38,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134673,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 32,
+            "visit_team_score": 21,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134674,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 31,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134675,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 31,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134676,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 37,
+            "visit_team_score": 39,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517045,
+        "name": "Fecha 18",
+        "playdate": "2026-08-15T00:00:00",
+        "matches": [
+          {
+            "id": 2023134677,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 27,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134678,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 47,
+            "visit_team_score": 13,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134679,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 19,
+            "visit_team_score": 10,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134680,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134681,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 36,
+            "visit_team_score": 13,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134682,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 39,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134683,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 19,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517046,
+        "name": "Fecha 19",
+        "playdate": "2026-08-22T00:00:00",
+        "matches": [
+          {
+            "id": 2023134684,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 52,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134685,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 21,
+            "visit_team_score": 41,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134686,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 18,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134687,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 34,
+            "visit_team_score": 33,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134688,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 16,
+            "visit_team_score": 32,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134689,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 41,
+            "visit_team_score": 34,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134690,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 15,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517047,
+        "name": "Fecha 20",
+        "playdate": "2026-08-29T00:00:00",
+        "matches": [
+          {
+            "id": 2023134691,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 50,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134692,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 44,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134693,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 37,
+            "visit_team_score": 34,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134694,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 8,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134695,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 71,
+            "visit_team_score": 19,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134696,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 40,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134697,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 48,
+            "visit_team_score": 5,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517048,
+        "name": "Fecha 21",
+        "playdate": "2026-09-05T00:00:00",
+        "matches": [
+          {
+            "id": 2023134698,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 26,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134699,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 43,
+            "visit_team_score": 37,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134700,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 19,
+            "visit_team_score": 34,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134701,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 16,
+            "visit_team_score": 24,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134702,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 35,
+            "visit_team_score": 33,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134703,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 21,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134704,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 41,
+            "visit_team_score": 27,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517049,
+        "name": "Fecha 22",
+        "playdate": "2026-09-12T00:00:00",
+        "matches": [
+          {
+            "id": 2023134705,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 78,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134706,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 26,
+            "visit_team_score": 27,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134707,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 30,
+            "visit_team_score": 40,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134708,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 46,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134709,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 40,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134710,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 42,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134711,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 33,
+            "visit_team_score": 43,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517050,
+        "name": "Fecha 23",
+        "playdate": "2026-09-26T00:00:00",
+        "matches": [
+          {
+            "id": 2023134712,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 48,
+            "visit_team_score": 66,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134713,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 22,
+            "visit_team_score": 7,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134714,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 27,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134715,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 41,
+            "visit_team_score": 45,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134716,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 20,
+            "visit_team_score": 30,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134717,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134718,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 29,
+            "visit_team_score": 51,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517051,
+        "name": "Fecha 24",
+        "playdate": "2026-10-03T00:00:00",
+        "matches": [
+          {
+            "id": 2023134719,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 25,
+            "visit_team_score": 17,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134720,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 21,
+            "visit_team_score": 33,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134721,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 13,
+            "visit_team_score": 18,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134722,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 43,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134723,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 54,
+            "visit_team_score": 20,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134724,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 57,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134725,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 63,
+            "visit_team_score": 12,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      },
+      {
+        "id": 202517052,
+        "name": "Fecha 25",
+        "playdate": "2026-10-10T00:00:00",
+        "matches": [
+          {
+            "id": 2023134726,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 23,
+            "visit_team_score": 7,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134727,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 10,
+            "visit_team_score": 40,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134728,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 42,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134729,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 12,
+            "visit_team_score": 31,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134730,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 27,
+            "visit_team_score": 37,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134731,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 30,
+            "visit_team_score": 44,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134732,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 31,
+            "visit_team_score": 55,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          }
+        ]
+      },
+      {
+        "id": 202517053,
+        "name": "Fecha 26",
+        "playdate": "2026-10-17T00:00:00",
+        "matches": [
+          {
+            "id": 2023134733,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516488,
+              "name": "Belgrano Athletic",
+              "club_id": 7,
+              "club": {
+                "id": 7,
+                "name": "Belgrano Athletic",
+                "image_uri": "img/clubs/belgrano.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516495,
+              "name": "Los Matreros",
+              "club_id": 23,
+              "club": {
+                "id": 23,
+                "name": "Los Matreros",
+                "image_uri": "img/clubs/losmatreros.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 45,
+            "visit_team_score": 36,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134734,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516487,
+              "name": "SIC",
+              "club_id": 1,
+              "club": {
+                "id": 1,
+                "name": "SIC",
+                "image_uri": "img/clubs/sic.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516489,
+              "name": "Buenos Aires C&RC",
+              "club_id": 8,
+              "club": {
+                "id": 8,
+                "name": "Buenos Aires CRC",
+                "image_uri": "img/clubs/bacrc.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 48,
+            "visit_team_score": 25,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134735,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516486,
+              "name": "Newman",
+              "club_id": 9,
+              "club": {
+                "id": 9,
+                "name": "Newman",
+                "image_uri": "img/clubs/newman.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516490,
+              "name": "CUBA",
+              "club_id": 2,
+              "club": {
+                "id": 2,
+                "name": "CUBA",
+                "image_uri": "img/clubs/cuba.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 21,
+            "visit_team_score": 21,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134736,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516485,
+              "name": "Alumni",
+              "club_id": 12,
+              "club": {
+                "id": 12,
+                "name": "Alumni",
+                "image_uri": "img/clubs/alumni.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516491,
+              "name": "CASI",
+              "club_id": 3,
+              "club": {
+                "id": 3,
+                "name": "CASI",
+                "image_uri": "img/clubs/casi.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 14,
+            "visit_team_score": 22,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134737,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516484,
+              "name": "Champagnat",
+              "club_id": 11,
+              "club": {
+                "id": 11,
+                "name": "Champagnat",
+                "image_uri": "img/clubs/champagnat.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516492,
+              "name": "Los Tilos",
+              "club_id": 26,
+              "club": {
+                "id": 26,
+                "name": "Los Tilos",
+                "image_uri": "img/clubs/lostilos.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 24,
+            "visit_team_score": 59,
+            "local_team_offensive_bonus": 0,
+            "visit_team_offensive_bonus": 1
+          },
+          {
+            "id": 2023134738,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516483,
+              "name": "Hindu",
+              "club_id": 6,
+              "club": {
+                "id": 6,
+                "name": "Hindú",
+                "image_uri": "img/clubs/hindu.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516493,
+              "name": "Atletico del Rosario",
+              "club_id": 10,
+              "club": {
+                "id": 10,
+                "name": "Atlético del Rosario",
+                "image_uri": "img/clubs/rosario.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 68,
+            "visit_team_score": 33,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          },
+          {
+            "id": 2023134739,
+            "fulfilled": true,
+            "suspended": false,
+            "local_team": {
+              "id": 202516482,
+              "name": "La Plata",
+              "club_id": 13,
+              "club": {
+                "id": 13,
+                "name": "La Plata",
+                "image_uri": "img/clubs/laplata.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "visit_team": {
+              "id": 202516494,
+              "name": "Regatas Bella Vista",
+              "club_id": 4,
+              "club": {
+                "id": 4,
+                "name": "Regatas Bella Vista",
+                "image_uri": "img/clubs/regatasbellavista.png",
+                "image_uri_with_base_url": ""
+              }
+            },
+            "local_team_score": 36,
+            "visit_team_score": 3,
+            "local_team_offensive_bonus": 1,
+            "visit_team_offensive_bonus": 0
+          }
+        ]
+      }
+    ]
+  },
+  "standings": [
+    {
+      "id": 202372450,
+      "team_id": 202516486,
+      "position": 1,
+      "played": 26,
+      "won": 24,
+      "tied": 1,
+      "lost": 1,
+      "points_favor": 938,
+      "points_against": 563,
+      "bonus_offensive": 12,
+      "bonus_defensive": 0,
+      "points_total": 110,
+      "team": {
+        "id": 202516486,
+        "name": "Newman",
+        "club_id": 9,
+        "club": {
+          "id": 9,
+          "name": "Newman",
+          "image_uri": "img/clubs/newman.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372451,
+      "team_id": 202516491,
+      "position": 2,
+      "played": 26,
+      "won": 20,
+      "tied": 0,
+      "lost": 6,
+      "points_favor": 868,
+      "points_against": 620,
+      "bonus_offensive": 7,
+      "bonus_defensive": 3,
+      "points_total": 90,
+      "team": {
+        "id": 202516491,
+        "name": "CASI",
+        "club_id": 3,
+        "club": {
+          "id": 3,
+          "name": "CASI",
+          "image_uri": "img/clubs/casi.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372452,
+      "team_id": 202516483,
+      "position": 3,
+      "played": 26,
+      "won": 19,
+      "tied": 0,
+      "lost": 7,
+      "points_favor": 951,
+      "points_against": 678,
+      "bonus_offensive": 10,
+      "bonus_defensive": 3,
+      "points_total": 89,
+      "team": {
+        "id": 202516483,
+        "name": "Hindu",
+        "club_id": 6,
+        "club": {
+          "id": 6,
+          "name": "Hindú",
+          "image_uri": "img/clubs/hindu.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372453,
+      "team_id": 202516485,
+      "position": 4,
+      "played": 26,
+      "won": 17,
+      "tied": 0,
+      "lost": 9,
+      "points_favor": 946,
+      "points_against": 608,
+      "bonus_offensive": 12,
+      "bonus_defensive": 6,
+      "points_total": 86,
+      "team": {
+        "id": 202516485,
+        "name": "Alumni",
+        "club_id": 12,
+        "club": {
+          "id": 12,
+          "name": "Alumni",
+          "image_uri": "img/clubs/alumni.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372454,
+      "team_id": 202516487,
+      "position": 5,
+      "played": 26,
+      "won": 18,
+      "tied": 0,
+      "lost": 8,
+      "points_favor": 925,
+      "points_against": 654,
+      "bonus_offensive": 9,
+      "bonus_defensive": 5,
+      "points_total": 86,
+      "team": {
+        "id": 202516487,
+        "name": "SIC",
+        "club_id": 1,
+        "club": {
+          "id": 1,
+          "name": "SIC",
+          "image_uri": "img/clubs/sic.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372455,
+      "team_id": 202516492,
+      "position": 6,
+      "played": 26,
+      "won": 15,
+      "tied": 1,
+      "lost": 10,
+      "points_favor": 773,
+      "points_against": 781,
+      "bonus_offensive": 5,
+      "bonus_defensive": 2,
+      "points_total": 69,
+      "team": {
+        "id": 202516492,
+        "name": "Los Tilos",
+        "club_id": 26,
+        "club": {
+          "id": 26,
+          "name": "Los Tilos",
+          "image_uri": "img/clubs/lostilos.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372456,
+      "team_id": 202516488,
+      "position": 7,
+      "played": 26,
+      "won": 11,
+      "tied": 1,
+      "lost": 14,
+      "points_favor": 804,
+      "points_against": 808,
+      "bonus_offensive": 5,
+      "bonus_defensive": 7,
+      "points_total": 58,
+      "team": {
+        "id": 202516488,
+        "name": "Belgrano Athletic",
+        "club_id": 7,
+        "club": {
+          "id": 7,
+          "name": "Belgrano Athletic",
+          "image_uri": "img/clubs/belgrano.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372457,
+      "team_id": 202516494,
+      "position": 8,
+      "played": 26,
+      "won": 11,
+      "tied": 0,
+      "lost": 15,
+      "points_favor": 648,
+      "points_against": 656,
+      "bonus_offensive": 7,
+      "bonus_defensive": 5,
+      "points_total": 56,
+      "team": {
+        "id": 202516494,
+        "name": "Regatas Bella Vista",
+        "club_id": 4,
+        "club": {
+          "id": 4,
+          "name": "Regatas Bella Vista",
+          "image_uri": "img/clubs/regatasbellavista.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372458,
+      "team_id": 202516490,
+      "position": 9,
+      "played": 26,
+      "won": 9,
+      "tied": 1,
+      "lost": 16,
+      "points_favor": 858,
+      "points_against": 844,
+      "bonus_offensive": 4,
+      "bonus_defensive": 9,
+      "points_total": 51,
+      "team": {
+        "id": 202516490,
+        "name": "CUBA",
+        "club_id": 2,
+        "club": {
+          "id": 2,
+          "name": "CUBA",
+          "image_uri": "img/clubs/cuba.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372459,
+      "team_id": 202516493,
+      "position": 10,
+      "played": 26,
+      "won": 9,
+      "tied": 0,
+      "lost": 17,
+      "points_favor": 777,
+      "points_against": 983,
+      "bonus_offensive": 1,
+      "bonus_defensive": 6,
+      "points_total": 43,
+      "team": {
+        "id": 202516493,
+        "name": "Atletico del Rosario",
+        "club_id": 10,
+        "club": {
+          "id": 10,
+          "name": "Atlético del Rosario",
+          "image_uri": "img/clubs/rosario.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372460,
+      "team_id": 202516482,
+      "position": 11,
+      "played": 26,
+      "won": 8,
+      "tied": 0,
+      "lost": 18,
+      "points_favor": 632,
+      "points_against": 826,
+      "bonus_offensive": 3,
+      "bonus_defensive": 7,
+      "points_total": 42,
+      "team": {
+        "id": 202516482,
+        "name": "La Plata",
+        "club_id": 13,
+        "club": {
+          "id": 13,
+          "name": "La Plata",
+          "image_uri": "img/clubs/laplata.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372461,
+      "team_id": 202516489,
+      "position": 12,
+      "played": 26,
+      "won": 8,
+      "tied": 0,
+      "lost": 18,
+      "points_favor": 637,
+      "points_against": 852,
+      "bonus_offensive": 3,
+      "bonus_defensive": 5,
+      "points_total": 40,
+      "team": {
+        "id": 202516489,
+        "name": "Buenos Aires C&RC",
+        "club_id": 8,
+        "club": {
+          "id": 8,
+          "name": "Buenos Aires CRC",
+          "image_uri": "img/clubs/bacrc.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372462,
+      "team_id": 202516495,
+      "position": 13,
+      "played": 26,
+      "won": 8,
+      "tied": 0,
+      "lost": 18,
+      "points_favor": 656,
+      "points_against": 1038,
+      "bonus_offensive": 1,
+      "bonus_defensive": 3,
+      "points_total": 36,
+      "team": {
+        "id": 202516495,
+        "name": "Los Matreros",
+        "club_id": 23,
+        "club": {
+          "id": 23,
+          "name": "Los Matreros",
+          "image_uri": "img/clubs/losmatreros.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    },
+    {
+      "id": 202372463,
+      "team_id": 202516484,
+      "position": 14,
+      "played": 26,
+      "won": 3,
+      "tied": 0,
+      "lost": 23,
+      "points_favor": 493,
+      "points_against": 995,
+      "bonus_offensive": 0,
+      "bonus_defensive": 3,
+      "points_total": 15,
+      "team": {
+        "id": 202516484,
+        "name": "Champagnat",
+        "club_id": 11,
+        "club": {
+          "id": 11,
+          "name": "Champagnat",
+          "image_uri": "img/clubs/champagnat.png",
+          "image_uri_with_base_url": ""
+        }
+      }
+    }
+  ]
+}

@@ -51,8 +51,10 @@ export function areLogicalMatchDuplicates(left: LogicalMatchShape, right: Logica
   if (left.homeTeamId !== right.homeTeamId || left.awayTeamId !== right.awayTeamId) return false;
 
   const minutesApart = minutesBetweenMatchSlots(left, right);
-  const closeInTime =
-    minutesApart <= 360 || isPlaceholderKickoffTime(left.kickoffTime) || isPlaceholderKickoffTime(right.kickoffTime);
+  const closeInTime = minutesApart <= 360 || (
+    left.matchDate === right.matchDate &&
+    (isPlaceholderKickoffTime(left.kickoffTime) || isPlaceholderKickoffTime(right.kickoffTime))
+  );
 
   if (!closeInTime) return false;
 

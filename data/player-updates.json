@@ -1,6 +1,249 @@
 {
- "updates":[
-  {"id":"oyonnax-taumateine-2026-09-21","kind":"signing","confirmation":"confirmed","playerName":"Jonathan Taumateine","teamSlug":"oyonnax","destination":"Oyonnax Rugby","origin":null,"season":"2026/2027","publishedAt":"2026-09-21","effectiveDate":"2026-09-21","sourceName":"Oyonnax Rugby","sourceUrl":"https://oyonnaxrugby.com/jonathan-taumateine-est-oyonnaxien","checkedAt":"2026-10-20","title":{"es":"Oyonnax confirmó la incorporación de Jonathan Taumateine","en":"Oyonnax confirmed Jonathan Taumateine’s arrival","fr":"Oyonnax a confirmé l’arrivée de Jonathan Taumateine","it":"Oyonnax ha confermato l’arrivo di Jonathan Taumateine"}},
-  {"id":"oyonnax-ruru-2026-09-21","kind":"injury","confirmation":"confirmed","playerName":"Jonathan Ruru","teamSlug":"oyonnax","season":"2026/2027","publishedAt":"2026-09-21","sourceName":"Oyonnax Rugby","sourceUrl":"https://oyonnaxrugby.com/jonathan-taumateine-est-oyonnaxien","checkedAt":"2026-10-20","availability":null,"expectedReturn":null,"title":{"es":"Oyonnax informó una lesión de Jonathan Ruru; disponibilidad actual sin confirmar","en":"Oyonnax reported a Jonathan Ruru injury; current availability unconfirmed","fr":"Oyonnax a signalé une blessure de Jonathan Ruru ; disponibilité actuelle non confirmée","it":"Oyonnax ha segnalato un infortunio di Jonathan Ruru; disponibilità attuale non confermata"}}
- ]
+  "updates": [
+    {
+      "id": "oyonnax-taumateine-2026-09-21",
+      "kind": "signing",
+      "confirmation": "confirmed",
+      "playerName": "Jonathan Taumateine",
+      "teamSlug": "oyonnax",
+      "destination": "Oyonnax Rugby",
+      "origin": null,
+      "season": "2026/2027",
+      "publishedAt": "2026-09-21",
+      "effectiveDate": "2026-09-21",
+      "sourceName": "Oyonnax Rugby",
+      "sourceUrl": "https://oyonnaxrugby.com/jonathan-taumateine-est-oyonnaxien",
+      "checkedAt": "2026-10-20",
+      "title": {
+        "es": "Oyonnax confirmó la incorporación de Jonathan Taumateine",
+        "en": "Oyonnax confirmed Jonathan Taumateine’s arrival",
+        "fr": "Oyonnax a confirmé l’arrivée de Jonathan Taumateine",
+        "it": "Oyonnax ha confermato l’arrivo di Jonathan Taumateine"
+      }
+    },
+    {
+      "id": "oyonnax-ruru-2026-09-21",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Jonathan Ruru",
+      "teamSlug": "oyonnax",
+      "season": "2026/2027",
+      "publishedAt": "2026-09-21",
+      "sourceName": "Oyonnax Rugby",
+      "sourceUrl": "https://oyonnaxrugby.com/jonathan-taumateine-est-oyonnaxien",
+      "checkedAt": "2026-10-20",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Oyonnax informó una lesión de Jonathan Ruru; disponibilidad actual sin confirmar",
+        "en": "Oyonnax reported a Jonathan Ruru injury; current availability unconfirmed",
+        "fr": "Oyonnax a signalé une blessure de Jonathan Ruru ; disponibilité actuelle non confirmée",
+        "it": "Oyonnax ha segnalato un infortunio di Jonathan Ruru; disponibilità attuale non confermata"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-emmanuel-meafou",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Emmanuel Meafou",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Emmanuel Meafou entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed Emmanuel Meafou among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé Emmanuel Meafou parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Emmanuel Meafou tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-clément-vergé",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Clément Vergé",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Clément Vergé entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed Clément Vergé among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé Clément Vergé parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Clément Vergé tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-jack-willis",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Jack Willis",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Jack Willis entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed Jack Willis among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé Jack Willis parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Jack Willis tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-david-ainuu",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "David Ainu’u",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a David Ainu’u entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed David Ainu’u among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé David Ainu’u parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato David Ainu’u tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-alexandre-roumat",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Alexandre Roumat",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Alexandre Roumat entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed Alexandre Roumat among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé Alexandre Roumat parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Alexandre Roumat tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-thomas-ramos",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Thomas Ramos",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Thomas Ramos entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed Thomas Ramos among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé Thomas Ramos parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Thomas Ramos tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-thibaud-flament",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Thibaud Flament",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Thibaud Flament entre los lesionados",
+        "en": "16 October bulletin: Toulouse listed Thibaud Flament among injured players",
+        "fr": "Point du 16 octobre : Toulouse a classé Thibaud Flament parmi les blessés",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Thibaud Flament tra gli infortunati"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-julien-marchand",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Julien Marchand",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Julien Marchand en readaptación",
+        "en": "16 October bulletin: Toulouse listed Julien Marchand in rehabilitation",
+        "fr": "Point du 16 octobre : Toulouse a classé Julien Marchand en réathlétisation",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Julien Marchand in riatletizzazione"
+      }
+    },
+    {
+      "id": "toulouse-2026-10-16-juan-cruz-mallia",
+      "kind": "injury",
+      "confirmation": "confirmed",
+      "playerName": "Juan Cruz Mallia",
+      "teamSlug": "stade-toulousain",
+      "season": "2026/2027",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Stade Toulousain",
+      "sourceUrl": "https://www.stadetoulousain.fr/actualite/equipe-pro/119299-st-exeter-le-point-infirmerie",
+      "availability": null,
+      "expectedReturn": null,
+      "title": {
+        "es": "Parte del 16/10: Toulouse incluyó a Juan Cruz Mallia en readaptación",
+        "en": "16 October bulletin: Toulouse listed Juan Cruz Mallia in rehabilitation",
+        "fr": "Point du 16 octobre : Toulouse a classé Juan Cruz Mallia en réathlétisation",
+        "it": "Bollettino del 16 ottobre: Toulouse ha indicato Juan Cruz Mallia in riatletizzazione"
+      }
+    },
+    {
+      "id": "provence-bouhedjeur-loan-2026-09-16",
+      "kind": "loan",
+      "confirmation": "confirmed",
+      "playerName": "Nadir Bouhedjeur",
+      "teamSlug": "provence-rugby",
+      "relatedTeamSlugs": [
+        "soyaux-angouleme"
+      ],
+      "origin": "Provence Rugby",
+      "destination": "Soyaux-Angoulême XV",
+      "season": "2026/2027",
+      "publishedAt": "2026-09-16",
+      "effectiveDate": "2026-09-16",
+      "checkedAt": "2026-10-21",
+      "sourceName": "Provence Rugby",
+      "sourceUrl": "https://www.provencerugby.com/nadir-bouhedjeur-prete-a-soyaux-angouleme/",
+      "title": {
+        "es": "Provence cedió a Nadir Bouhedjeur a Soyaux-Angoulême hasta el fin de temporada",
+        "en": "Provence loaned Nadir Bouhedjeur to Soyaux-Angoulême until season end",
+        "fr": "Provence a prêté Nadir Bouhedjeur à Soyaux-Angoulême jusqu’en fin de saison",
+        "it": "Provence ha ceduto in prestito Nadir Bouhedjeur a Soyaux-Angoulême fino a fine stagione"
+      }
+    }
+  ]
 }

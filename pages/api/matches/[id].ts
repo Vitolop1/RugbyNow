@@ -1,4 +1,6 @@
-import {getProD2CalendarData} from "@/lib/proD2CalendarData";
+import {getUrbaCalendarData} from "@/lib/urbaCalendarData";
+import snapshotData from "@/data/supabase-snapshot.json";
+import {getLnrCalendarData} from "@/lib/proD2CalendarData";
 import {officialWorldCupFixture} from "@/lib/worldCup2027";
 import {withOfficialStandings} from "@/lib/standingsOverlay";
 import {usableCachedStandings} from "@/lib/sourceStandings";
@@ -245,10 +247,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ? firstString(req.query.date)
     : new Date().toISOString().slice(0, 10);
 
-  const proD2Pending=competitionSlug==="fr-pro-d2"?getProD2CalendarData().pending.find(m=>m.id===matchId):null;
+  const proD2Pending=getLnrCalendarData(competitionSlug)?.pending.find(m=>m.id===matchId);
   if(proD2Pending)return res.status(200).json({pendingFixture:proD2Pending,source:"official-lnr"});
   const officialFixture=competitionSlug==="int-world-cup"?officialWorldCupFixture(matchId):null;
   if(officialFixture&&matchId<0)return res.status(200).json({competition:{id:21,name:"Rugby World Cup 2027 · Men",slug:"int-world-cup",region:"International"},season:{id:29,name:"2027"},match:officialFixture,standings:[],standingsSource:"unavailable",homeStanding:null,awayStanding:null,headToHead:null,source:"official-world-rugby"});
+  const urbaFixture=competitionSlug==="ar-urba-top14"?getUrbaCalendarData().matches.find(m=>m.id===matchId):null;
+  if(urbaFixture&&matchId<0)return res.status(200).json(withOfficialStandings({competition:snapshotData.competitions.find(c=>c.slug===competitionSlug)!,season:{id:urbaFixture.season_id,name:"2026"},match:urbaFixture,standings:[],standingsSource:"unavailable",homeStanding:null,awayStanding:null,headToHead:null,source:"official-urba"}));
   if (!Number.isInteger(matchId) || matchId <= 0) {
     return res.status(400).json({ error: "Invalid match id" });
   }
@@ -295,8 +299,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (matchError || !match) throw new Error("Match not found in Supabase");
 
     const typedMatch = match as unknown as MatchRow;
-    const officialSlot=competitionSlug==="fr-pro-d2"?getProD2CalendarData().matches.find(m=>m.id===matchId):officialFixture;
+    const officialSlot=getLnrCalendarData(competitionSlug)?.matches.find(m=>m.id===matchId)||urbaFixture||officialFixture;
     if(officialSlot){typedMatch.match_date=officialSlot.match_date;typedMatch.kickoff_time=officialSlot.kickoff_time;typedMatch.venue=officialSlot.venue||typedMatch.venue;}
+    if(urbaFixture)Object.assign(typedMatch,{status:urbaFixture.status,minute:null,home_score:urbaFixture.home_score,away_score:urbaFixture.away_score,source_url:urbaFixture.source_url,updated_at:urbaFixture.updated_at});
     const season = unwrapSeason(typedMatch.season);
     const competition = season?.competition ?? null;
     if (!season || !competition) throw new Error("Competition context missing for match");

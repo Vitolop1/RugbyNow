@@ -89,3 +89,5 @@ Programme rows link directly to the original channel and display the existing lo
 - Somos Salta / third time: no exact official channel link verified; keep the broadcaster name and mark the link as unconfirmed, rather than assigning a different Salta channel.
 
 The compact empty-day illustration uses rounded concentric oval panels and a symmetric eight-tooth settings icon. The empty message is a short two-column notice with a small ball, leaving upcoming matches visible sooner.
+
+- CANAL+ general: public/broadcast-logos/canal-plus.png. Official LNR broadcaster asset: https://assets.lnr.fr/9/2/2/3/7/canal_.png, retrieved 2026-10-21 UTC from the Top 14 current round. Per-match availability remains restricted to France and exact fixture/start.

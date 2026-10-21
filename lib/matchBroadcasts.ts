@@ -1,3 +1,4 @@
+import {getTop14Team} from "./top14Identity";
 import type { AgendaProvider } from "./agenda";
 import { getBroadcastLogo, getBroadcastProvider, type BroadcastProviderId } from "./broadcasts";
 import { getProD2Team } from "./proD2";
@@ -30,6 +31,7 @@ export type MatchBroadcastQuery = {
 function teamIdentity(name: string, competition: string): string | null {
   // The explicit Pro D2 roster handles source aliases without substring matches.
   if (competition === "fr-pro-d2") return getProD2Team(name)?.slug ?? null;
+  if (competition === "fr-top14") return getTop14Team(name)?.slug ?? null;
   return null;
 }
 

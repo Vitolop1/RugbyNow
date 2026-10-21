@@ -1,4 +1,5 @@
-import {getProD2CalendarData} from "@/lib/proD2CalendarData";
+import {getUrbaCalendarData,isUrbaRegularDate} from "@/lib/urbaCalendarData";
+import {getLnrCalendarData} from "@/lib/proD2CalendarData";
 import {worldCup2027Matches,WORLD_CUP_2027_META} from "@/lib/worldCup2027";
 import {usableCachedStandings} from "@/lib/sourceStandings";
 import {withOfficialStandings} from "@/lib/standingsOverlay";
@@ -595,10 +596,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       homeTeamId: Array.isArray(row.home_team) ? row.home_team[0]?.id ?? null : row.home_team?.id ?? null,
       awayTeamId: Array.isArray(row.away_team) ? row.away_team[0]?.id ?? null : row.away_team?.id ?? null,
     }));
-    const proD2=slug==="fr-pro-d2"&&season.name==="2026/2027"?getProD2CalendarData(detailedMatches):null;
+    const proD2=season.name==="2026/2027"?getLnrCalendarData(slug,detailedMatches):null;
     if(proD2)detailedMatches.splice(0,detailedMatches.length,...proD2.matches);
     const officialWorldCup=slug==="int-world-cup"&&season.name==="2027";
     if(officialWorldCup)detailedMatches.splice(0,detailedMatches.length,...worldCup2027Matches(detailedMatches));
+    const urba=slug==="ar-urba-top14"&&season.name==="2026"?getUrbaCalendarData():null;
+    if(urba){const playoffs=detailedMatches.filter(m=>!isUrbaRegularDate(m.match_date));detailedMatches.splice(0,detailedMatches.length,...urba.matches,...playoffs);}
     const derived = deriveLeagueRoundData(detailedMatches);
     const roundMeta = derived.roundMeta;
     const autoSelectedRound = pickAutoRound(roundMeta, refISO);
@@ -644,12 +647,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const baseMatches = useSnapshotStructure ? mergeLeagueMatches(roundMatches, snapshotMatches) : roundMatches;
     const effectiveRoundMeta = useFallbackStructure ? fallback?.roundMeta || baseRoundMeta : baseRoundMeta;
     const effectiveSelectedRound = useFallbackStructure ? fallbackSelectedRound : baseSelectedRound;
-    const matches = officialWorldCup||proD2 ? (fullCalendar?detailedMatches:roundMatches) : finalizeLeagueMatches(
+    const matches = officialWorldCup||proD2||urba ? (fullCalendar?detailedMatches:roundMatches) : finalizeLeagueMatches(
       collapseLeagueMatches(
       (fullCalendar ? detailedMatches : mergeLeagueMatches(baseMatches, fallbackMatches)).map((row) => normalizeRuntimeMatchStatus(row, slug))
       )
     );
-    const bracketAugmented = officialWorldCup||proD2?{roundMeta:effectiveRoundMeta,matches}:appendSyntheticKnockoutRounds(effectiveRoundMeta, matches);
+    const bracketAugmented = officialWorldCup||proD2||urba?{roundMeta:effectiveRoundMeta,matches}:appendSyntheticKnockoutRounds(effectiveRoundMeta, matches);
     const knockoutRoundMeta = bracketAugmented.roundMeta.filter((item) => Boolean(item.phaseKey));
     const knockoutMatches = bracketAugmented.matches.filter((row) => Boolean(parseKnockoutMetaFromSourceUrl(row.source_url).phaseKey));
     const visibleMatches = fullCalendar ? matches : filterVisibleLeagueMatches(
@@ -727,7 +730,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       regionProfile,
       season,
       pendingFixtures:proD2?.pending||[],
-      scheduleMeta:proD2?.meta||(slug==="int-world-cup"&&season.name==="2027"?WORLD_CUP_2027_META:undefined),
+      scheduleMeta:urba?.meta||proD2?.meta||(slug==="int-world-cup"&&season.name==="2027"?WORLD_CUP_2027_META:undefined),
       seasons: seasons.map(s=>({id:s.id,name:s.name})),
       competitions: mergedCompetitions,
       roundMeta: bracketAugmented.roundMeta,

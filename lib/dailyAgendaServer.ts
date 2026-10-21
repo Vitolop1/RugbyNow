@@ -1,4 +1,5 @@
-import {getProD2CalendarData} from "./proD2CalendarData";
+import {getUrbaCalendarData,isUrbaRegularDate} from "./urbaCalendarData";
+import {getLnrCalendarData} from "./proD2CalendarData";
 import {worldCup2027Matches} from "./worldCup2027";
 import { getServerSupabase } from "./serverSupabase";
 import { readAllRows } from "./readAllRows";
@@ -29,9 +30,15 @@ export async function loadDailyAgenda(date: string): Promise<DailyAgendaData> {
     });
   }
   if(to>="2026-08-01"&&from<="2027-06-01"){
-    const calendar=getProD2CalendarData(rows);
-    rows=rows.filter(r=>r.season?.competition?.slug!=="fr-pro-d2"||r.match_date<"2026-08-01"||r.match_date>"2027-06-01");
-    rows.push(...calendar.matches.filter(r=>r.match_date>=from&&r.match_date<=to).map(r=>({...r,season:{competition:{name:"Pro D2",slug:"fr-pro-d2",region:"France"}}})));
+    for(const [slug,name] of [["fr-pro-d2","Pro D2"],["fr-top14","Top 14"]]){
+    const calendar=getLnrCalendarData(slug,rows)!;
+    rows=rows.filter(r=>r.season?.competition?.slug!==slug||r.match_date<"2026-08-01"||r.match_date>"2027-06-01");
+    rows.push(...calendar.matches.filter(r=>r.match_date>=from&&r.match_date<=to).map(r=>({...r,season:{competition:{name,slug,region:"France"}}})));
+  }
+  }
+  if(to>="2026-03-14"&&from<="2026-10-17"){
+    rows=rows.filter(r=>r.season?.competition?.slug!=="ar-urba-top14"||!isUrbaRegularDate(r.match_date));
+    rows.push(...getUrbaCalendarData().matches.filter(r=>r.match_date>=from&&r.match_date<=to).map(r=>({...r,season:{competition:{name:"URBA Top 14",slug:"ar-urba-top14",region:"Argentina"}}})));
   }
   if(to>="2027-10-01"&&from<="2027-11-13"){
     const official=worldCup2027Matches(rows.map(r=>({id:r.id,status:r.status,minute:r.minute,home_score:r.home_score,away_score:r.away_score,updated_at:r.updated_at,source_url:r.source_url})));

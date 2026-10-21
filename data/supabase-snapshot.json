@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T00:10:09.851Z",
+  "generatedAt": "2026-10-21T00:50:57.644Z",
   "competitions": [
     {
       "id": 3,
@@ -37050,7 +37050,7 @@
       "points_against": 214,
       "points": 17,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37064,7 +37064,7 @@
       "points_against": 164,
       "points": 21,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37078,7 +37078,7 @@
       "points_against": 176,
       "points": 22,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37092,7 +37092,7 @@
       "points_against": 191,
       "points": 20,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37106,7 +37106,7 @@
       "points_against": 180,
       "points": 17,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37120,7 +37120,7 @@
       "points_against": 222,
       "points": 4,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37134,7 +37134,7 @@
       "points_against": 206,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37148,7 +37148,7 @@
       "points_against": 240,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37162,7 +37162,7 @@
       "points_against": 254,
       "points": 16,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37176,7 +37176,7 @@
       "points_against": 207,
       "points": 12,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37190,7 +37190,7 @@
       "points_against": 296,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37204,7 +37204,7 @@
       "points_against": 213,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37218,7 +37218,7 @@
       "points_against": 158,
       "points": 29,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37232,7 +37232,7 @@
       "points_against": 264,
       "points": 19,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37246,7 +37246,7 @@
       "points_against": 154,
       "points": 33,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     },
     {
       "season_id": 62,
@@ -37260,7 +37260,7 @@
       "points_against": 190,
       "points": 13,
       "source": "flashscore",
-      "updated_at": "2026-10-21T00:09:16.701+00:00"
+      "updated_at": "2026-10-21T00:49:46.867+00:00"
     }
   ]
 }

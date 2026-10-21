@@ -103,3 +103,5 @@ El dueño pidió optimizar con poco crédito y priorizar visitas y monetización
 - Top 14 añade siete transmisiones oficiales LNR de la próxima jornada, exclusivamente FR con equipos/hora exactos. Aliases explícitos para clubes franceses y logo general CANAL+ documentado; no se extienden derechos a otros países.
 
 - Cuerpo técnico de Los Pumas XV: comunicado UAR del 9/10 identifica a Contepomi como head coach y anuncia Ledesma/Edwards. Mostrar incorporaciones anunciadas como tales y restringir por disciplina; el ID compartido Argentina no autoriza mostrarlas en Seven.
+
+- PR19 publicado y refresh completo 39523515385 comprobado; calendarios y planteles nuevos persisten en el snapshot automático. El cron Cloudflare emitió informes productivos con 60 s entre 05:27:23.754 y 05:28:23.754 UTC del 21/10. Fueron idle: confirma scheduler, no un vivo deportivo ni la corrección de la irregularidad del importador principal. Mantener esta distinción al retomar. Detalle y matriz en CONTINUATION-2026-10-21.md.

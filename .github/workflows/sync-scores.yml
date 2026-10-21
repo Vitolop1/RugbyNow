@@ -126,7 +126,10 @@ jobs:
 
   snapshot:
     needs: [prepare, sync_scores]
-    if: ((github.event_name == 'workflow_dispatch' && !inputs.dry_run) || github.event.schedule == '17 5 * * *' || github.event.schedule == '43 */3 * * *') && github.ref == 'refs/heads/main' && needs.sync_scores.result == 'success'
+    # A failed feed retains its previous data. Export still validates a complete
+    # DB read; independent official updates must not be skipped with that feed.
+    # The failed matrix job keeps the overall workflow red.
+    if: always() && ((github.event_name == 'workflow_dispatch' && !inputs.dry_run) || github.event.schedule == '17 5 * * *' || github.event.schedule == '43 */3 * * *') && github.ref == 'refs/heads/main' && needs.prepare.result == 'success' && contains(fromJSON('["success","failure"]'), needs.sync_scores.result)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -140,6 +143,16 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund --prefer-offline
+      - name: Collect source health including partial failures
+        uses: actions/download-artifact@v4
+        with:
+          pattern: source-health-*
+          path: logs/import-health
+          merge-multiple: true
+      - name: Summarize source validation
+        env:
+          IMPORT_MATRIX: ${{ needs.prepare.outputs.matrix }}
+        run: npx tsx scripts/report-import-health.ts
       - name: Refresh official URBA LNR and EPCR standings
         continue-on-error: true
         run: npm run sync:official-standings
@@ -167,11 +180,13 @@ jobs:
           npm run sync:broadcasts
           npm run sync:broadcasts -- --source=https://top14.lnr.fr/calendrier-et-resultats
       - name: Export complete Supabase snapshot
+        id: export
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run export:supabase-snapshot
       - name: Commit snapshot if changed
+        id: publication
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -204,3 +219,27 @@ jobs:
           done
           echo "Failed to push snapshot after 3 attempts."
           exit 1
+      - name: Record export and snapshot publication outcomes
+        if: always()
+        env:
+          EXPORT_STATUS: ${{ steps.export.outcome }}
+          PUBLICATION_STATUS: ${{ steps.publication.outcome }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const file = 'logs/import-summary/sources.json';
+          fs.mkdirSync('logs/import-summary', {recursive:true});
+          const report = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file,'utf8')) : {status:'unverified'};
+          report.exportStatus = process.env.EXPORT_STATUS || 'not_started';
+          report.publicationStatus = process.env.PUBLICATION_STATUS || 'not_started';
+          report.finishedAt = new Date().toISOString();
+          fs.writeFileSync(file, JSON.stringify(report,null,2)+'\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `\nComplete export: ${report.exportStatus}. Snapshot commit/push step: ${report.publicationStatus}. This does not verify a deployment.\n`);
+          NODE
+      - name: Save source validation and export report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-import-summary
+          path: logs/import-summary/*.json
+          retention-days: 14

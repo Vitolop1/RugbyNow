@@ -13,7 +13,7 @@
 | [PR21 Destacados](https://github.com/Vitolop1/RugbyNow/pull/21) | Panel contraído, selección equilibrada, pruebas en su rama | Abierto, sin merge. No afirmar que ya cambió la portada pública. |
 | [PR22 Fechas](https://github.com/Vitolop1/RugbyNow/pull/22) | Controles, Hoy y zona local; validación descrita en el PR | Abierto, sin merge. Mantener independiente. |
 | [PR23 Escudos](https://github.com/Vitolop1/RugbyNow/pull/23) | Marcos/contraste/identidad, 86 filas revisadas; pruebas y build locales descritos en PR | Abierto, sin merge. Recursos nuevos no son necesarios para reutilizar su corrección. |
-| Memoria operativa | Guía reducida, contexto permanente, historial rotulado y fuente versionada de la skill | Esta rama es solo documentación/instrucciones. Registrar el enlace de PR al crearlo; no publica aplicación. |
+| [PR24 Memoria operativa](https://github.com/Vitolop1/RugbyNow/pull/24) | Contexto permanente, historial rotulado y skill local sincronizada con fuente versionada; 21 enlaces/anclas y rutas verificados, frontmatter válido | Solo documentación/instrucciones, sin tests/builds locales. Abierto para revisión, sin merge ni publicación de aplicación. |
 
 Los PR20–23 se consultaron por API y seguían abiertos; no se volvieron a ejecutar sus pruebas ni a verificar producción en esta tarea documental. Revalidar sus estados al retomar. Las ramas tienen bases distintas de la copia original del dueño.
 

@@ -388,3 +388,13 @@ span.rn-rugby-loader>svg{width:100px;height:89px}span.rn-rugby-small>svg{width:2
 .rn-ad-placement[hidden]{display:none!important}.rn-ad-rail:has(>.rn-ad-placement[hidden]){display:none}.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:210px minmax(0,1fr)!important}
 @media(max-width:1399px){.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:188px minmax(0,1fr)!important}}
 @media(max-width:800px){.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:minmax(0,1fr)!important}}
+
+/* Compact optional selection; the daily board remains the primary content. */
+.rn-featured-panel{margin:12px 0;border:1px solid var(--rn-border);border-radius:4px;background:var(--rn-surface);overflow:clip}
+.rn-featured-panel[hidden]{display:none!important}
+.rn-featured-panel>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;cursor:pointer;list-style:none;color:var(--rn-text)}
+.rn-featured-panel>summary::-webkit-details-marker{display:none}
+.rn-featured-panel>summary>span:first-child{color:var(--rn-accent)}
+.rn-featured-panel h2{font-size:12px;font-weight:700;margin:0}.rn-featured-panel small{font-size:10px;color:var(--rn-text-muted)}
+.rn-featured-chevron{margin-left:auto}.rn-featured-panel[open] .rn-featured-chevron{transform:rotate(180deg)}
+.rn-featured-panel>summary:focus-visible{outline:2px solid var(--rn-accent);outline-offset:-3px}

@@ -8,12 +8,12 @@ export type AgendaMatchRow = {
   updated_at?: string | null; source_url?: string | null;
   home_team: { name: string; slug: string | null } | null;
   away_team: { name: string; slug: string | null } | null;
-  season: { competition: { name: string; slug: string; region?: string | null } | null } | null;
+  season: { name?: string; competition: { name: string; slug: string; region?: string | null } | null } | null;
 };
 export type DailyEntry = {
   id: string; matchId?: number; kind: "match" | "show"; date: string; startsAt: string | null;
   home: string; away?: string; homeSlug?: string; awaySlug?: string;
-  competition: string; competitionSlug?: string; region: "argentina" | "international";
+  competition: string; competitionSlug?: string; season?: string; region: "argentina" | "international";
   status: string; minute: number | null; homeScore: number | null; awayScore: number | null;
   providers: AgendaProvider[]; transmissionPending: boolean; editorial?: AgendaEvent;
   updatedAt?: string | null; sourceUrl?: string | null;
@@ -74,7 +74,7 @@ export function buildDailyEntries(rows: AgendaMatchRow[], editorial: AgendaEvent
     const entry: DailyEntry = {
       id:`match-${row.id}`,matchId:row.id,kind:"match",date:row.match_date,startsAt:startsAt?.toISOString() ?? null,
       home:row.home_team.name,away:row.away_team.name,homeSlug:row.home_team.slug || undefined,awaySlug:row.away_team.slug || undefined,
-      competition:competition.name,competitionSlug:competition.slug,
+      competition:competition.name,competitionSlug:competition.slug,season:row.season?.name,
       region:competition.slug.startsWith("ar-") || competition.slug === "sra" || row.home_team.slug === "argentina" || row.away_team.slug === "argentina" ? "argentina" : "international",
       status:row.status,minute:row.minute,homeScore:row.home_score,awayScore:row.away_score,
       providers:guide?.providers || [],transmissionPending:guide?.transmissionPending ?? true,editorial:guide,

@@ -58,7 +58,7 @@
 .empty>strong{font-size:12px}.empty>p{font-size:10px;line-height:1.5}.empty>a{font-size:10px;margin:2px 0}.empty button{margin-top:3px;padding:6px 9px;font-size:10px}
 @media(max-width:600px){.empty{grid-template-columns:42px minmax(0,1fr);gap:5px 10px;padding:13px 12px}.empty>:global(.rn-rugby-loader)>svg{width:46px;height:42px}.empty>strong{font-size:11px}}
 
-/* The full day is the entry point; recommendations and ads follow its rows. */
+/* Date controls lead the full daily agenda. */
 .titleRow{margin-bottom:10px;min-height:34px}
 .titleRow h1{font-size:calc(20px * var(--rn-font-scale,1));letter-spacing:-.5px}
 .dateBar{height:auto;min-height:54px;gap:4px;padding:5px}
@@ -71,12 +71,61 @@
 .selectedDate strong{line-height:1.3;min-width:0}
 .selectedDate label,.selectedDate input{width:44px;height:44px;flex-shrink:0}
 .selectedDate label:focus-within{outline:2px solid #b4e678;outline-offset:-2px;border-radius:4px}
-.featured>.sectionTitle{min-height:40px;padding:8px 12px;list-style:none;gap:12px}
-.featured>.sectionTitle::-webkit-details-marker{display:none}
-.featured:not([open])>.sectionTitle{border-bottom:0}
-.featured>.sectionTitle small{display:flex;align-items:center;gap:10px;color:var(--muted)}
-.featuredArrow{display:inline-block;transition:transform .15s}
-.featured[open] .featuredArrow{transform:rotate(180deg)}
-.featured+:global(.rn-ad-placement){margin-top:16px}
 @media(max-width:600px){.selectedDate{font-size:calc(11px * var(--rn-font-scale,1))}.dateBar .todayButton{min-width:44px;padding:0 5px;font-size:calc(11px * var(--rn-font-scale,1))}}
-@media(prefers-reduced-motion:reduce){.featuredArrow{transition:none}}
+/* Competition boundaries stay visible without adding large cards. */
+.competition{margin:12px 8px;border:1px solid var(--line);border-radius:5px}
+.competitionHeading{gap:8px;min-height:42px;padding:6px 10px;border-top:0;border-left:3px solid #78ab59;border-radius:4px 4px 0 0}
+.competitionHeading h2{flex:1;min-width:0;font-size:calc(12px * var(--rn-font-scale,1));line-height:1.4;margin:0;overflow-wrap:anywhere}
+.competitionHeading .crest{width:27px;height:27px;border-radius:3px;background:#fff;padding:2px}
+.crest img{width:100%;height:100%;object-fit:contain}
+.crest[data-crest-surface="dark"]{background:#17372a;border-radius:3px}
+.competitionHeading .matchCount{margin-left:0;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tournamentLink{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:650;color:var(--ink);padding:6px;white-space:nowrap}
+.tournamentLink span{font-size:18px;color:#78ab59}
+.competitionLive{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:650;color:var(--ink);white-space:nowrap}
+.matchRow:last-child{border-radius:0 0 5px 5px}
+.fixture{grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr)}
+.score{font-size:calc(17px * var(--rn-font-scale,1));letter-spacing:0;gap:6px}
+.homeTeam .crest,.awayTeam .crest{width:26px;height:26px;padding:1px}
+.matchTime .liveState{display:inline-flex;align-items:center;gap:4px}
+.matchTime .liveState::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.minorFilters{flex-wrap:wrap;gap:6px 10px}
+.featuredToggle{display:flex;align-items:center;gap:5px;margin-left:auto;min-height:36px;padding:4px 7px;border:1px solid var(--line);border-radius:4px;color:var(--ink);font-size:10px}
+.featuredToggle svg{width:13px;height:13px;color:#78ab59}
+.featuredToggle[aria-expanded="true"]{background:var(--rn-surface-soft)}
+.featuredPanel{margin:0 8px 10px;border:1px dashed var(--line);border-radius:4px;background:var(--rn-surface)}
+.featuredPanel[hidden]{display:none}
+.featuredPanel .sectionTitle{gap:8px;flex-wrap:wrap}
+.featuredPanel .sectionTitle small{font-size:10px;color:var(--muted)}
+.watch summary{min-height:44px;background:transparent!important;padding:5px 6px;cursor:pointer}
+.watch summary .broadcastMarks{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.broadcastMarks :global(.rn-broadcaster-logo){width:43px;height:23px;max-width:43px;object-fit:contain;padding:2px}
+.broadcastMarks :global(.rn-broadcaster-name){font-size:9px;max-width:58px;overflow-wrap:anywhere}
+.broadcastEvidence{display:grid;gap:5px;line-height:1.5;width:100%}
+.broadcastEvidence+ .broadcastEvidence{border-top:1px solid var(--line);padding-top:8px}
+.broadcastEvidence span{font-size:10px;color:var(--muted)}
+.broadcastEvidence span a{display:inline}
+.watchPanel a{overflow-wrap:anywhere}
+.provider{border-color:var(--line)}
+.page button:focus-visible,.page a:focus-visible,.page summary:focus-visible{outline:2px solid #78ab59;outline-offset:-2px;border-radius:3px}
+:global(html.theme-dark) .liveRow{background:#253529}
+:global(html.theme-dark) .liveScore,:global(html.theme-dark) .matchTime .liveState{color:#ffaaa2}
+@media(max-width:1050px){.tableLabels,.matchRow{grid-template-columns:26px 61px minmax(0,1fr) 108px 27px}.fixture{grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr)}}
+@media(max-width:600px){
+.competition{margin:10px 5px}.competitionHeading{gap:6px;padding:6px;flex-wrap:wrap;min-height:40px}
+.competitionHeading h2{font-size:11px}.competitionHeading .crest{width:24px;height:24px}
+.competitionHeading .matchCount{font-size:9px}.matchCount span{display:none}
+.tournamentLink{font-size:9px;padding:5px;min-height:32px}.competitionLive{font-size:9px}
+.tableLabels,.matchRow{grid-template-columns:24px 52px minmax(0,1fr) 76px}
+.fixture{grid-template-columns:minmax(0,1fr) 30px;grid-template-rows:auto auto;padding:6px 3px;row-gap:4px}
+.homeTeam,.awayTeam{font-size:calc(11px * var(--rn-font-scale,1));gap:5px}
+.homeTeam .crest,.awayTeam .crest{width:23px;height:23px;flex-shrink:0}
+.homeTeam .crest img,.awayTeam .crest img{width:100%;height:100%}
+.score{font-size:calc(14px * var(--rn-font-scale,1));gap:1px}
+.broadcastMarks :global(.rn-broadcaster-logo){width:43px;height:23px}
+.watch summary{padding:5px;min-height:48px}.watch summary .broadcastMarks{flex-direction:column;align-items:flex-start}
+.watchPanel{max-width:calc(100vw - 32px)}.featuredToggle{font-size:9px}.featuredPanel{margin:0 5px 8px}
+.star{min-height:48px}
+}
+@media(min-width:601px){.fixture{column-gap:7px}}
+@media(min-width:601px) and (max-width:1050px){.fixture{grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr)}.score{font-size:calc(16px * var(--rn-font-scale,1))}}

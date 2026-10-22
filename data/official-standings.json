@@ -4,8 +4,8 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-22T17:39:32.264Z",
-      "roundDate": "2026-10-17",
+      "checkedAt": "2026-10-22T21:56:59.577Z",
+      "roundDate": "2026-10-31",
       "rows": [
         {
           "position": 1,
@@ -210,22 +210,22 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-22T17:39:33.461Z",
-      "roundDate": "2026-10-17",
+      "checkedAt": "2026-10-22T21:57:00.956Z",
+      "roundDate": "2026-10-22",
       "phase": "regular",
       "rows": [
         {
           "position": 1,
           "team": "Oyonnax Rugby",
           "slug": "oyonnax",
-          "pts": 33,
-          "pj": 7,
+          "pts": 34,
+          "pj": 8,
           "w": 7,
           "d": 0,
-          "l": 0,
-          "bonus": 5,
-          "pf": 313,
-          "pa": 154
+          "l": 1,
+          "bonus": 6,
+          "pf": 336,
+          "pa": 178
         },
         {
           "position": 2,
@@ -255,6 +255,19 @@
         },
         {
           "position": 4,
+          "team": "US Montauban",
+          "slug": "montauban",
+          "pts": 21,
+          "pj": 8,
+          "w": 5,
+          "d": 0,
+          "l": 3,
+          "bonus": 1,
+          "pf": 206,
+          "pa": 237
+        },
+        {
+          "position": 5,
           "team": "CA Brive",
           "slug": "brive",
           "pts": 21,
@@ -267,7 +280,7 @@
           "pa": 164
         },
         {
-          "position": 5,
+          "position": 6,
           "team": "Biarritz Olympique PB",
           "slug": "biarritz",
           "pts": 20,
@@ -280,7 +293,7 @@
           "pa": 191
         },
         {
-          "position": 6,
+          "position": 7,
           "team": "US Dax",
           "slug": "dax",
           "pts": 19,
@@ -293,7 +306,7 @@
           "pa": 264
         },
         {
-          "position": 7,
+          "position": 8,
           "team": "Soyaux-Angoulême XV",
           "slug": "soyaux-angouleme",
           "pts": 17,
@@ -304,19 +317,6 @@
           "bonus": 3,
           "pf": 220,
           "pa": 180
-        },
-        {
-          "position": 8,
-          "team": "US Montauban",
-          "slug": "montauban",
-          "pts": 17,
-          "pj": 7,
-          "w": 4,
-          "d": 0,
-          "l": 3,
-          "bonus": 1,
-          "pf": 182,
-          "pa": 214
         },
         {
           "position": 9,
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-22T17:39:35.555Z",
+      "checkedAt": "2026-10-22T21:57:02.857Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-22T17:39:36.138Z",
+      "checkedAt": "2026-10-22T21:57:03.607Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-22T17:39:34.639Z",
+      "checkedAt": "2026-10-22T21:57:01.967Z",
       "roundDate": "2026-10-11",
       "phase": "regular",
       "rows": [

@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-22T17:39:45.103Z",
+  "checkedAt": "2026-10-22T21:57:10.534Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -867,7 +867,7 @@
       "home": "Montauban",
       "away": "Oyonnax",
       "date": "2026-10-22",
-      "startsAt": "2026-10-22T19:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-22",
       "windowTo": "2026-10-22",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j8/12068-montauban-oyonnax"

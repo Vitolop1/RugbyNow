@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-10-22T12:25:43.992Z",
+  "generatedAt": "2026-10-22T17:40:25.347Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/damian-schneider-ante-un-enorme-desafio/",
+      "title": "DAMIÁN SCHNEIDER ANTE UN ENORME DESAFÍO",
+      "href": "https://uar.com.ar/damian-schneider-ante-un-enorme-desafio/",
+      "publishedAt": "2026-10-22T15:49:53.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/France-Japon-OBJECTIF-RUGBY-Stephane-Hamel-158-1-e1792684171536.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/comienza-el-select-12/",
+      "title": "COMIENZA EL SELECT 12",
+      "href": "https://uar.com.ar/comienza-el-select-12/",
+      "publishedAt": "2026-10-22T14:56:00.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/54875817979_0fac393e3a_o-1.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/londres-recibira-el-camp-de-los-pumas-en-la-previa-del-nations-championship/",
       "title": "Londres recibirá el Camp de Los Pumas en la previa del Nations Championship",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/rwc-2035.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/universitario-de-cordoba-y-taborin-los-campeones-del-nacional-de-clubes-femenino/",
-      "title": "Universitario de Córdoba y Taborín los campeones del Nacional de Clubes Femenino",
-      "href": "https://uar.com.ar/universitario-de-cordoba-y-taborin-los-campeones-del-nacional-de-clubes-femenino/",
-      "publishedAt": "2026-10-04T22:29:02.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/20261002_NacionalDeClubesFem-477-e1791152936686.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/tala-rc-es-el-campeon-del-torneo-del-interior-2026/",
-      "title": "Tala RC es el campeón del Torneo del Interior 2026",
-      "href": "https://uar.com.ar/tala-rc-es-el-campeon-del-torneo-del-interior-2026/",
-      "publishedAt": "2026-10-03T22:26:38.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Tala-RC-vs-Jockey-Club-de-Rosario-Final-TDI-058-1.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-22T12:25:43.992Z",
+      "checkedAt": "2026-10-22T17:40:25.347Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-22T12:25:43.992Z",
+      "checkedAt": "2026-10-22T17:40:25.347Z",
       "count": 0
     }
   ]

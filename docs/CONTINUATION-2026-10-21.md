@@ -52,3 +52,18 @@ Cron productivo comprobado por `/api/live-monitor`: `scheduledAt` 05:25:23.754, 
 ## Pendientes que no se ocultan
 
 Vivo real y promoción controlada del recolector; calendarios completos y tablas oficiales de los torneos restantes; planteles/staff fuera de Francia; ampliar disponibilidad/movimientos con fuentes nuevas. Los playoffs de URBA y Francia no quedan completos por completar la fase regular. No hay cuenta sincronizada ni ingresos garantizados.
+
+
+## Rediseño compacto de agenda — 22/10/2026
+
+Implementado en `codex/agenda-competition-clarity`, basado expresamente en PR26 (`codex/agenda-first-home`), sin incorporar las ramas de SEO, vivo, fechas, escudos o selección editorial. Revisar primero PR26 y luego este cambio; no se fusionó ni desplegó código. Se reutilizó el avance local de `internationalBroadcasts.ts` conservando intacto su checkout de origen.
+
+- Competiciones con borde/espacio moderado, acento verde, logo existente, conteo, enlace al torneo y contador LIVE/HT exclusivamente confirmado por estado. Escudos proporcionados y fallback por ruta, incluida falla cacheada antes de hidratación.
+- Destacados se abre únicamente desde «Ver destacados», oculto al cargar; sin persistencia nueva. Conserva apertura al refrescar/navegar dentro de la agenda, fecha y filtros. No hay control vacío. Se conserva el selector editorial existente; el algoritmo alternativo del PR21 sigue separado.
+- Logos de todas las transmisiones verificadas en la misma fila, deduplicados por proveedor, con detalle táctil de país, fuente, fecha publicada/comprobada y tipo de enlace. Índice exacto por competición/equipos/comienzo UTC y edición compatible; se propaga la temporada existente en la lectura de agenda. Sin derechos nuevos ni cambios de importadores, esquema o escrituras de Supabase. Las fuentes editoriales sin URL siguen identificadas como guía fechada, sin inventar enlaces.
+
+Comprobado: 89 pruebas, TypeScript y build Next. Revisión interactiva local a 355/390/430/1024/1440 px (ancho útil menor por scrollbar), 40 partidos del 17/10 y ningún desborde horizontal ni imagen rota observada; un solo partido Pro D2 del 22/10 y día vacío 21/10. Apertura/cierre por clic y teclado, refresh con panel abierto, navegación y búsqueda; ES/EN/FR/IT y temas verde/claro/oscuro. Detalle Disney+ de Argentina y CANAL+ SPORT de Francia con fuente/fecha/tipo de enlace. LIVE 0–0, HT, FT, hora pendiente y fallback revisados con fixture temporal claramente rotulado en servidor local de desarrollo, retirado antes del build final; no hubo escrituras deportivas. Esto no acredita un vivo real.
+
+Capturas fuera del repo: `../research/agenda-clarity-2026-10-22/` (desktop/mobile-after y states-local-fixture); antes: `../research/agenda-home-2026-10-21/`. El inventario sigue en 212 assets, sin descargas nuevas. Sin errores/warnings observados en consola durante esta revisión. No se verificó entrega de anuncios reales en localhost; IDs y unidades existentes se conservan. Pendiente aprobación del PR y comprobación pública posterior; no llamar publicado a estas capturas locales.
+
+Comprobación adicional del build final servido con Next start: `/` y `/agenda` entregan los mismos 40 IDs de partido en HTML inicial, canonical raíz y Destacados oculto. Hidratación móvil de ese build: 40 filas visibles, panel oculto y sin desborde ni errores/warnings observados. API del día del fixture temporal comprobada sin registros de prueba.

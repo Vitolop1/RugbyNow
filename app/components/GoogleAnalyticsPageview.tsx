@@ -67,7 +67,7 @@ export default function GoogleAnalyticsPageview({ measurementId }: { measurement
 
   return <>
     {loadTag && choice === "granted" && <Script id="rugby-analytics-tag" src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`} strategy="afterInteractive" />}
-    {loaded && (open ? <section aria-label={copy.title} className="fixed bottom-3 left-3 right-3 z-[160] mx-auto max-w-xl rounded-xl border border-emerald-900/20 bg-white p-4 text-slate-800 shadow-xl sm:left-auto sm:mr-3">
+    {loaded && (open ? <section aria-label={copy.title} className="rn-analytics-consent fixed bottom-3 left-3 right-3 z-[160] mx-auto max-w-xl rounded-xl border border-emerald-900/20 bg-white p-4 text-slate-800 shadow-xl sm:left-auto sm:mr-3">
       <strong className="text-sm">{copy.title}</strong><p className="mt-2 text-sm leading-relaxed">{copy.body}</p>
       <div className="mt-3 flex flex-wrap items-center gap-3"><button onClick={() => choose("denied")} className="min-h-10 rounded-lg border border-emerald-800 px-4 text-sm font-semibold text-emerald-900">{copy.no}</button><button onClick={() => choose("granted")} className="min-h-10 rounded-lg border border-emerald-800 px-4 text-sm font-semibold text-emerald-900">{copy.yes}</button><a href="/privacy" className="ml-auto text-xs underline">{copy.privacy}</a></div>
     </section> : <button className="fixed bottom-2 right-2 z-[140] min-h-8 rounded-lg border border-slate-300 bg-white/95 px-3 text-xs text-slate-700 shadow-sm" onClick={() => setOpen(true)}>{copy.manage}</button>)}

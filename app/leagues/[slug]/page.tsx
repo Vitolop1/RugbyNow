@@ -5,6 +5,8 @@ import LeagueClient from "./CompactLeagueClient";
 import type {LeagueViewPayload} from "./CompactLeagueClient";
 import {getSnapshotLeagueData} from "@/lib/supabaseSnapshot";
 import {isAgendaDate} from "@/lib/dailyAgenda";
+import {notFound} from 'next/navigation';
+import StructuredBreadcrumbs from '@/app/components/StructuredBreadcrumbs';
 export const dynamic="force-dynamic";
 
 export async function generateMetadata({
@@ -21,6 +23,7 @@ export default async function Page({params,searchParams}:{params:Promise<{slug:s
   const date=isAgendaDate(query.date)?query.date:new Date().toISOString().slice(0,10);
   const round=query.round&&/^\d+$/.test(query.round)?Number(query.round):null;
   const snapshot=getSnapshotLeagueData(slug,date,round,true,query.season);
+  if(!snapshot)notFound();
   const initialData=snapshot?withOfficialStandings({...snapshot,source:"snapshot"}) as unknown as LeagueViewPayload:null;
-  return <LeagueClient key={slug} initialData={initialData}/>;
+  return <><StructuredBreadcrumbs items={[{name:'RugbyNOW',path:'/'},{name:'Competiciones',path:'/leagues'},{name:snapshot.competition.name,path:`/leagues/${slug}`}]}/><LeagueClient key={slug} initialData={initialData}/></>;
 }

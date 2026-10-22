@@ -1,0 +1,31 @@
+name: Operational health (read only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: rugbynow-operational-health
+  cancel-in-progress: false
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund --prefer-offline
+      - name: Bounded public API and versioned data baseline
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run audit:health -- --strict
+      - name: Preserve diagnostics including failed probes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: operational-health
+          path: logs/operational-health/
+          retention-days: 14

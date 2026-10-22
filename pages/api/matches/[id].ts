@@ -1,3 +1,4 @@
+import {parseMatchId} from "@/lib/operationalHealth";
 import {getUrbaCalendarData} from "@/lib/urbaCalendarData";
 import snapshotData from "@/data/supabase-snapshot.json";
 import {getLnrCalendarData} from "@/lib/proD2CalendarData";
@@ -241,7 +242,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const matchId = Number.parseInt(firstString(req.query.id), 10);
+  const matchId = parseMatchId(req.query.id);
+  if(matchId===null)return res.status(400).json({error:"Invalid match id"});
   const competitionSlug = firstString(req.query.competition);
   const refISO = /^\d{4}-\d{2}-\d{2}$/.test(firstString(req.query.date))
     ? firstString(req.query.date)

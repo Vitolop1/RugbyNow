@@ -1,6 +1,7 @@
 import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {readAllRows} from "../lib/readAllRows";
 import {isLiveRefreshCandidate,assessLiveCoverage} from "../lib/liveRefresh";
+import {selectDiscoveryFeed} from "../lib/matchDiscovery";
 import fs from "node:fs";
 import path from "node:path";
 import {spawn} from "node:child_process";
@@ -100,7 +101,7 @@ async function buildLiveOnlyFlashUrls() {
   const candidates=rawMatches.filter(row=>isLiveRefreshCandidate(row));
 
   if (!candidates.length) {
-    return {inputs:[],candidates,supabase};
+    return {inputs:[],flashInputs,candidates,supabase};
   }
 
   const inputsBySlug = new Map<string, FlashInput>();
@@ -168,7 +169,17 @@ async function buildLiveOnlyFlashUrls() {
     }
   }
 
-  return {inputs:flashInputs.filter((input) => activeInputs.has(input.url)),candidates,supabase};
+  return {inputs:flashInputs.filter((input) => activeInputs.has(input.url)),flashInputs,candidates,supabase};
+}
+
+async function runFeeds(inputs:FlashInput[],reportDir:string,discovery:boolean){
+ return new Promise<number|null>((resolve,reject)=>{
+  const child=spawn(process.execPath,[path.resolve("node_modules/tsx/dist/cli.mjs"),"scripts/sync-matches.ts"],{
+   env:{...process.env,FLASH_URLS:inputs.map(input=>input.compSlug?`${input.compSlug}=${input.url}`:input.url).join('\n'),
+    LIVE_ONLY:discovery?'0':'1',DISCOVERY_ONLY:discovery?'1':'0',STANDINGS_ONLY:'0',MATCHES_ONLY:'1',
+    IMPORT_HEALTH_DIR:path.join(reportDir,discovery?'discovery':'sources')},stdio:'inherit'});
+  child.once('error',reject);child.once('close',resolve);
+ });
 }
 
 async function main() {
@@ -177,26 +188,30 @@ async function main() {
   const startedAt=new Date().toISOString();
   const report:Record<string,unknown>={startedAt,dryRun:process.env.DRY_RUN==="1",status:"failed",candidates:0,competitions:[]};
   try{
-    const {inputs:activeInputs,candidates,supabase}=await buildLiveOnlyFlashUrls();
+    const {inputs:activeInputs,flashInputs,candidates,supabase}=await buildLiveOnlyFlashUrls();
     report.candidates=candidates.length;report.competitions=activeInputs.map(input=>input.compSlug??input.url);
-    if(!candidates.length){report.status="idle";console.log("sync:live -> no active or imminent fixtures. No source validation performed.");return;}
-    if(!activeInputs.length)throw Error("Live candidates have no configured feed. Coverage is unverified.");
-    process.env.FLASH_URLS=activeInputs.map(input=>input.compSlug?input.compSlug+"="+input.url:input.url).join("\n");
+    const failures:string[]=[];
+    if(candidates.length&&!activeInputs.length)failures.push("Live candidates have no configured feed. Coverage is unverified.");
     console.log("sync:live -> active competitions:",report.competitions);
     // Await a separate process: dynamic import of a self-starting script does not
     // await its main(), and cannot reliably propagate its failure/health report.
-    const code=await new Promise<number|null>((resolve,reject)=>{
-      const child=spawn(process.execPath,[path.resolve("node_modules/tsx/dist/cli.mjs"),"scripts/sync-matches.ts"],{env:{...process.env,IMPORT_HEALTH_DIR:path.join(reportDir,"sources")},stdio:"inherit"});
-      child.once("error",reject);child.once("close",resolve);
-    });
+    const code=activeInputs.length?await runFeeds(activeInputs,reportDir,false):null;
     report.exitCode=code;
-    if(code!==0)throw Error("Live source validation/import failed; see per-source reports.");
-    if(process.env.DRY_RUN==="1"){report.status="validated_sources";return;}
+    if(activeInputs.length&&code!==0)failures.push("Live source validation/import failed; see per-source reports.");
+    // Discovery is independent of a pre-existing DB candidate and does not
+    // refresh results. One bounded fixture page, after the urgent live pass.
+    const discovery=selectDiscoveryFeed(flashInputs,activeInputs);
+    if(discovery){
+      const discoveryExit=await runFeeds([discovery],reportDir,true);
+      report.discovery={competition:discovery.compSlug,exitCode:discoveryExit,horizonDays:14,maxFeeds:1};
+      if(discoveryExit!==0)failures.push("Fixture discovery failed; existing data preserved.");
+    }
     const ids=candidates.filter(row=>row.status==="LIVE"||row.status==="HT").map(row=>row.id);
-    const observed=ids.length?await readAllRows<{id:number;updated_at:string|null}>((offset,size)=>supabase.from("matches").select("id,updated_at").in("id",ids).order("id").range(offset,offset+size-1)):[];
+    const observed=ids.length&&process.env.DRY_RUN!=="1"?await readAllRows<{id:number;updated_at:string|null}>((offset,size)=>supabase.from("matches").select("id,updated_at").in("id",ids).order("id").range(offset,offset+size-1)):[];
     const coverage=assessLiveCoverage(candidates,observed,startedAt);report.coverage=coverage;
-    if(coverage.unverifiedMatchIds.length)throw Error("Some source-live fixtures were not refreshed during this run.");
-    report.status="completed";
+    if(process.env.DRY_RUN!=="1"&&coverage.unverifiedMatchIds.length)failures.push("Some source-live fixtures were not refreshed during this run.");
+    if(failures.length){report.status="degraded";throw Error(failures.join(' '));}
+    report.status=!candidates.length?"discovery_only":process.env.DRY_RUN==="1"?"validated_sources":"completed";
   }catch(error){
     report.error=error instanceof Error?error.message:"Live sync failed";
     throw error;

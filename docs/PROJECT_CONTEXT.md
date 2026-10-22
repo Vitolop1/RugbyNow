@@ -8,7 +8,7 @@ RugbyNOW quiere ser una referencia de rugby como Promiedos lo es de fútbol: age
 
 Preferencias confirmadas:
 
-- Sección inicial compacta de Destacados: partidos reales recomendados para ver, con horario local y transmisión solo cuando esté confirmada. Selección progresiva sin agrandar la portada.
+- Destacados empieza contraído, con cabecera de 44 px, estrella e indicador de expansión. Mantener su estado al refrescar y mostrar hasta dos filas de agenda. Hoy prevalece sobre fechas futuras; estados LIVE/HT explícitos, selecciones argentinas, URBA, preferencias y cercanía se combinan sin una prioridad fija para Francia. La diversidad entre torneos es una preferencia suave, no una cuota. Próximo fin de semana se evalúa en la zona elegida y sin etiquetar fechas ajenas como fin de semana.
 
 - Interfaz verde, deportiva, compacta y legible, inspirada en Promiedos y El Nine: filas alineadas, horarios, marcador, escudos y competiciones reconocibles. Evitar grandes bloques decorativos y tarjetas gigantes. La noticia sí lleva tarjeta compacta con foto.
 - Referencia visual más reciente: navegación lateral de competiciones, resultados centrados y banner publicitario vertical como El Nine; mantener el verde y la densidad de Promiedos. Monetización híbrida con AdSense existente y consulta de patrocinio directo; rendimiento y entrega de anuncios todavía no verificados.

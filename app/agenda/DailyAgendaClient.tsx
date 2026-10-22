@@ -1,6 +1,7 @@
 "use client";
 import {isLiveDataDelayed,preferNewerReading} from "@/lib/liveRefresh";
 
+import FeaturedMatchesPanel from "@/app/components/FeaturedMatchesPanel";
 import {selectFeaturedMatches} from "@/lib/featuredMatches";
 import {sourceStatusLabel} from "@/lib/sourceStatusDetail";
 import Link from "next/link";
@@ -212,7 +213,7 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
         <CompetitionSidebar selected={competition} pumasSelected={region==="pumas"} onSelect={slug=>{setCompetition(competition===slug?"":slug);setRegion("all");}} onPumas={()=>{setRegion(region==="pumas"?"all":"pumas");setCompetition("");}}/>
         <div className={`${s.content} rn-sports-content`}>
           <AdvertisingPlacement placement="leaderboard"/>
-          {featured.length>0&&<details className={s.nextBoard} open><summary className={s.sectionTitle}><h2>★ {({es:"Destacados",en:"Ones to watch",fr:"À suivre",it:"Da seguire"})[lang]}</h2><small>{({es:"Tus favoritos y rugby prioritario",en:"Your favourites and priority rugby",fr:"Vos favoris et rugby prioritaire",it:"I tuoi preferiti e rugby prioritario"})[lang]} ⌄</small></summary>{featured.map(entry=><MatchRow key={`featured-${entry.id}`} entry={entry} withDate featured context={view}/>)}</details>}
+          <FeaturedMatchesPanel count={featured.length} lang={lang}>{featured.map(entry=><MatchRow key={`featured-${entry.id}`} entry={entry} withDate featured context={view}/>)}</FeaturedMatchesPanel>
           <section className={s.board} aria-label={c.agenda}>
             <div className={s.dateBar}><button className={s.dayArrow} aria-label={c.previous} onClick={()=>chooseDate(shiftAgendaDate(date,-1))}><Glyph name="left"/></button><div className={s.selectedDate}><strong>{date===today?`${c.today} · `:""}{formatDay(date,true)}</strong><label title={c.chooseDate}><Glyph name="calendar"/><input type="date" value={date} aria-label={c.chooseDate} onClick={event=>{try{event.currentTarget.showPicker?.();}catch{event.currentTarget.focus();}}} onChange={event=>{if(event.target.value)chooseDate(event.target.value);}}/></label></div><button className={s.dayArrow} aria-label={c.next} onClick={()=>chooseDate(shiftAgendaDate(date,1))}><Glyph name="right"/></button></div>
             <div className={s.quickDates}>{[[-1,c.yesterday],[0,c.today],[1,c.tomorrow]].map(([offset,label])=><button key={offset} className={date===shiftAgendaDate(today,Number(offset))?s.activeQuick:""} onClick={()=>chooseDate(shiftAgendaDate(today,Number(offset)))}>{label}</button>)}<label className={s.zone}><span>{c.timeZone}</span><select aria-label={c.timeZone} value={timeZone} onChange={event=>setTZEverywhere(event.target.value)}>{buildTimeZoneOptions(timeZone).map(option=><option key={option.value} value={option.value}>{option.long}</option>)}</select></label></div>

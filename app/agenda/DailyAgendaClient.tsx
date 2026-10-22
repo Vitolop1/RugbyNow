@@ -9,6 +9,7 @@ import AdvertisingPlacement from "@/app/components/AdvertisingPlacement";
 import CompetitionSidebar from "@/app/components/CompetitionSidebar";
 import ExternalWatchOptions from "@/app/components/ExternalWatchOptions";
 import BroadcasterLogo from "@/app/components/BroadcasterLogo";
+import TeamCrest from "@/app/components/TeamCrest";
 import RugbyBall from "@/app/components/RugbyBall";
 import ProgrammeChannels from "@/app/components/ProgrammeChannels";
 import BroadcastCountrySelect from "@/app/components/BroadcastCountrySelect";
@@ -16,7 +17,7 @@ import {getConfirmedMatchBroadcasts} from "@/lib/matchBroadcasts";
 import {broadcastCountryLabel,useBroadcastCountry} from "@/lib/useBroadcastCountry";
 import {usePersonalization} from "@/lib/usePersonalization";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getLeagueLogo, getTeamLogo } from "@/lib/assets";
+import { getLeagueLogo } from "@/lib/assets";
 import { agendaCalendar, type AgendaEvent } from "@/lib/agenda";
 import { agendaPriority, dailyEntryDate, dailyEntryState, shiftAgendaDate, type DailyAgendaData, type DailyEntry } from "@/lib/dailyAgenda";
 import { trackProductEvent } from "@/lib/analytics";
@@ -35,7 +36,8 @@ function Glyph({name,filled=false}:{name:"star"|"left"|"right"|"calendar"|"searc
 function Crest({slug,league=false,name}:{slug?:string;league?:boolean;name:string}) {
   const [failed,setFailed] = useState(false);
   useEffect(()=>setFailed(false),[slug]);
-  return <span className={s.crest}>{slug && !failed ? <img src={league ? getLeagueLogo(slug) : getTeamLogo(slug)} alt={name} width={28} height={28} onError={()=>setFailed(true)}/> : <Glyph name="ball"/>}</span>;
+  if (!league) return <TeamCrest slug={slug} name={name}/>;
+  return <span className={s.crest}>{slug && !failed ? <img src={getLeagueLogo(slug)} alt={name} width={28} height={28} onError={()=>setFailed(true)}/> : <Glyph name="ball"/>}</span>;
 }
 function ProviderMark({id,name}:{id:string;name:string}) {return <BroadcasterLogo id={id} name={name}/>;}
 function entryBroadcast(entry:DailyEntry,country:string){

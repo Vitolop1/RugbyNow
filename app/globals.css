@@ -279,7 +279,7 @@ html[data-rn-density=comfortable] .rn-directory-row{min-height:60px}
 html[data-rn-density=comfortable] .rn-coverage-table td{padding-top:15px;padding-bottom:15px}
 @media(max-width:600px){.rn-theme-choices{gap:7px}.rn-theme-choices>button{padding:5px;font-size:calc(11px * var(--rn-font-scale,1))}.rn-appearance-options{grid-template-columns:1fr}.rn-appearance-body{padding:12px}.rn-preview-match{grid-template-columns:40px 1fr 18px 1fr 20px;gap:5px;padding:10px}}
 
-html.theme-dark img[src*="/team-logos/black-lion.svg"]{background:#fff;border-radius:3px;padding:2px}
+
 
 
 /* Compact sports portal: competition navigation, match column and advertising rail. */
@@ -388,3 +388,44 @@ span.rn-rugby-loader>svg{width:100px;height:89px}span.rn-rugby-small>svg{width:2
 .rn-ad-placement[hidden]{display:none!important}.rn-ad-rail:has(>.rn-ad-placement[hidden]){display:none}.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:210px minmax(0,1fr)!important}
 @media(max-width:1399px){.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:188px minmax(0,1fr)!important}}
 @media(max-width:800px){.rn-sports-grid:has(>.rn-ad-rail>.rn-ad-placement[hidden]){grid-template-columns:minmax(0,1fr)!important}}
+
+/* Team identity stays readable while compact standings scroll on small screens. */
+.rn-standings-table .rn-table-team{min-height:26px;gap:8px}
+.rn-standings-table td{padding-top:8px;padding-bottom:8px}
+.rn-table-scroll:focus-visible{outline:2px solid var(--rn-accent);outline-offset:2px}
+@media(max-width:650px){
+ .rn-standings-table th,.rn-standings-table td{padding-left:7px;padding-right:7px}
+ .rn-standings-table .rn-table-team{min-width:145px;max-width:170px}
+ .rn-standings-table .rn-table-team a{white-space:normal;line-height:1.3}
+}
+
+.rn-team-crest.rn-team-crest {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  flex: 0 0 var(--crest-size);
+  width: var(--crest-size);
+  height: var(--crest-size);
+  padding: 2px;
+  box-sizing: border-box;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #122d2414;
+  overflow: hidden;
+}
+
+.rn-team-crest > img, .rn-team-crest > svg {
+  display: block;
+  flex: none;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.rn-team-crest > svg { color: #637a6e; }
+.rn-team-crest[data-crest-surface="dark"] { background: #123349; }

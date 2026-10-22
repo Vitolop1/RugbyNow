@@ -52,7 +52,7 @@ const TEAM_LOGO_ALIASES: Record<string, string> = {
   "new-zealand": "new-zealand",
   "new-zealand-7s": "new-zealand",
   "new-zealand-sevens": "new-zealand",
-  "newcastle-red-bulls": "newcastle-falcons",
+  "newcastle-red-bulls": "newcastle-red-bulls",
   "old-lions": "old-lions-rc",
   "old-lions-rc": "old-lions-rc",
   ospreys: "ospreys",
@@ -116,8 +116,13 @@ export function resolveLeagueLogoPath(compSlug?: string | null) {
   return existingLogo(`/league-logos/${resolved}.png`);
 }
 
-export function getTeamLogo(teamSlug?: string | null) {
+export function getTeamLogo(teamSlug?: string | null, teamName?: string) {
   if (!teamSlug) return fallbackLogo;
+  // The stable Falcons ID also appears in current Red Bulls tables. Preserve
+  // the historic mark unless the displayed name explicitly identifies the rebrand.
+  if (teamSlug === "newcastle-falcons" && teamName?.trim().toLowerCase() === "newcastle red bulls") {
+    return existingLogo("/team-logos/newcastle-red-bulls.png");
+  }
   if (teamSlug === "argentina") return "/team-logos/los-pumas.svg";
   if (teamSlug === "black-lion") return existingLogo("/team-logos/black-lion.svg");
   if (teamSlug === "vannes") return "/team-logos/vannes.svg";

@@ -71,3 +71,25 @@ Modo inicial **shadow / writesResults=false**. No es un reemplazo ya validado de
 Fuentes de implementación: https://opennext.js.org/cloudflare/howtos/custom-worker y https://developers.cloudflare.com/workers/configuration/cron-triggers/ . No se modifica el cron viejo ni se reactivan los finalizadores sintéticos.
 
 Comprobación productiva posterior a PR19: `/api/live-monitor` devolvió informes con `scheduledAt` 2026-10-21T05:25:23.754Z, 05:27:23.754Z y 05:28:23.754Z, recibidos aproximadamente 0,65 s después. Las dos últimas ejecuciones observadas están separadas por 60 s. Todas fueron `idle`, `sources=[]`, `writesResults=false`, sin retraso del latido: confirma ejecución real del cron, no lectura de un marcador ni latencia fuente/base/pantalla. El importador productivo sigue siendo Flashscore/GitHub y su irregularidad no queda resuelta por este monitor. No se observó un partido real LIVE/HT en esta etapa.
+
+## Incidente real — 23/10/2026
+
+18:31 UTC: agenda pública desde base conserva Narbonne–Brive, Agen–Nice, Soyaux–Dax, Aurillac–Nevers y Valence Romans–Colomiers en NS sin puntos; última escritura 15:16 UTC. Flashscore muestra los cinco en curso con tanteador. Cloudflare tiene heartbeat reciente pero lectura LNR fallida `Source HTTP 403`: no activar escrituras ni eludir ese rechazo. La última ejecución programada de vivo fue a las 15:06 UTC.
+
+Se lanzó el importador existente en main, run **40004070696**, que terminó verde a las 18:33 UTC con diez candidatos y **cero escrituras**. Su cobertura exigía solamente encuentros ya LIVE/HT: los NS que no lograban iniciar seguimiento quedaban fuera de la comprobación.
+
+Causas reproducidas en el DOM real y prueba sin escrituras:
+
+- Flashscore publica fase/minuto en `.event__stageTime` / `data-testid="wcl-stageTime"`; los tres selectores anteriores no existen en esas filas. El parser recibía texto vacío, resolvía NS y omitía la escritura aunque leyera los puntos.
+- Esperar `.event` aceptaba el contenedor vacío de carga. Una pasada leyó cero filas en `/live` y 57 resultados; esperar una fila real recuperó 39 en `/live`, incluidos los cinco activos. No se cambió de URL para eludir restricciones.
+- La observación en vivo no publica siempre la hora de comienzo; conservar la hora ya identificada evita borrarla al actualizar puntos.
+
+Corrección: lector compartido de estado con fallback semántico/legacy; selector de preparación sin el contenedor genérico; cobertura exige observación reciente de NS dentro de ventana cuyo comienzo ya pasó, sin convertirlos en LIVE por reloj. La ausencia de observación produce fallo, no datos inventados. No hay nuevo escritor ni cambio de monitor Cloudflare.
+
+Prueba real sin escrituras, 18:38:43 UTC: estados explícitos `2nd Half` con minutos 66/48/47/50/44; tanteadores 24–26, 14–17, 28–7, 20–16 y 8–16. Es una lectura fechada, no el tanteador permanente. El dump guarda nombres, edición, IDs/enlaces de origen y fecha; se conserva fuera de Git en `research/live-incident-2026-10-23/`.
+
+Indicador compartido rojo con texto traducido y punto blanco, respetando movimiento reducido: agenda, competición y ficha. Solo se muestra para estados confirmados LIVE/HT/prórroga/desempate, nunca para NS pendiente o suspendido. Las demoras conservan su aviso. 85 pruebas, TypeScript y build Next correctos; la prueba de jornada usa el comienzo exacto del registro oficial actualizado en vez del horario anterior hard-coded. No se modificaron resultados para hacer pasar pruebas. Publicación de código y recuperación productiva se registran por separado al verificarse.
+
+Recuperación puntual comprobada: run **40005201493** ejecutó el importador corregido desde la rama de revisión, sin desplegar la aplicación ni habilitar al monitor como escritor. API y navegador público muestran cinco LIVE tras la observación de las 18:41:47 UTC: Narbonne 24–26 Brive (68′), Agen 14–17 Nice (51′), Aurillac 20–16 Nevers (53′), Soyaux Angouleme 33–7 Dax (50′), Valence Romans 8–16 Colomiers (47′). No es una validación de tres partidos completos, de varias competiciones o de una cadencia continua. El código de main sigue pendiente de aprobación; ejecutar la rama una vez no cambia el cron a esa rama.
+
+Se protege además el UPDATE de NS sin calificador explícito para que no borre un LIVE/HT confirmado aunque provenga de una lectura general posterior. Un aplazamiento/demora explícitos siguen permitidos; correcciones de marcador y FT conservan las reglas existentes. Prueba de regresión verifica los filtros atómicos. La agenda local se contrastó con GET reales de producción mediante proxy de QA local, sin alterar respuestas ni inventar estados; se observan los cinco indicadores rojos con tanteadores reales.

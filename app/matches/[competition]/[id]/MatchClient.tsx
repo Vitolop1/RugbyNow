@@ -2,7 +2,8 @@
 
 import PendingCalendar from "@/app/components/PendingCalendar";
 import type {PendingProD2Fixture} from "@/lib/proD2CalendarData";
-import {sourceStatusLabel} from "@/lib/sourceStatusDetail";
+import LiveStatusBadge from "@/app/components/LiveStatusBadge";
+import {sourceStatusLabel,readSourceStatusDetail} from "@/lib/sourceStatusDetail";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
@@ -303,7 +304,7 @@ export default function MatchClient() {
                     <span className="text-white/50">-</span>{" "}
                     {isScheduledMatchStatus(data.match.status) ? "-" : (data.match.away_score ?? "-")}
                   </div>
-                  <div className="mt-2 text-sm font-semibold text-white/80">{clockLabel}</div>
+                  <div className="mt-2 text-sm font-semibold text-white/80">{["LIVE","HT","extra-time","shootout"].includes(readSourceStatusDetail(data.match.source_url)||data.match.status)?<LiveStatusBadge state={readSourceStatusDetail(data.match.source_url)||data.match.status} label={clockLabel}/>:clockLabel}</div>
                   <div className="mt-1 text-xs uppercase tracking-[0.16em] text-white/55">{contextLabel}</div>
                 </div>
 

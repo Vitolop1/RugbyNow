@@ -80,6 +80,8 @@ El proveedor de resultados activo usa Flashscore; hay un adaptador de evaluació
 
 La consulta de pantalla cada 15 segundos durante partidos LIVE no equivale a datos de origen cada 15 segundos: los trabajos de origen tienen una programación distinta y pueden demorarse. Una ejecución sin partidos activos no prueba un marcador cambiando. La prioridad explícita más reciente es comprobar el vivo y recomendar una arquitectura confiable, con evidencia de origen, recepción y pantalla. Ver `docs/LIVE-RELIABILITY.md` para auditoría, correcciones y la migración propuesta; no afirmar que una tarea activa o un informe verde equivalen a latencia comprobada.
 
+El dueño quiere un indicador rojo evidente junto al estado y el marcador durante un vivo confirmado, conservando texto accesible y movimiento reducido. Incidente comprobado del 23/10: cambios de selectores de estado y espera sobre un contenedor vacío pueden dejar candidatos NS sin actualizar aunque el job quede verde; comprobar también los candidatos iniciados sin observación. Detalle, regresiones y límites en LIVE-RELIABILITY.
+
 Persisten algunas identidades de escudos editoriales sin verificar y límites de historial de resultados; ver `docs/VISUAL-ASSETS.md`. La cobertura de un catálogo verificado no equivale a todos los clubes del mundo.
 
 El control del navegador volvió a estar disponible el 20 de octubre de 2026. Se comprobó la agenda vacía, la ficha con historial, el selector de idiomas y los desafíos en computadora y en una vista de 390 px; la práctica no reemplaza el progreso diario y una recarga lo recupera. Comprobar la disponibilidad actual al retomar: las verificaciones HTTP no sustituyen una revisión interactiva.

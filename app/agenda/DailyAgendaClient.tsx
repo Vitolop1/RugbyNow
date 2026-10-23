@@ -10,6 +10,7 @@ import CompetitionSidebar from "@/app/components/CompetitionSidebar";
 import ExternalWatchOptions from "@/app/components/ExternalWatchOptions";
 import BroadcasterLogo from "@/app/components/BroadcasterLogo";
 import RugbyBall from "@/app/components/RugbyBall";
+import LiveStatusBadge from "@/app/components/LiveStatusBadge";
 import ProgrammeChannels from "@/app/components/ProgrammeChannels";
 import BroadcastCountrySelect from "@/app/components/BroadcastCountrySelect";
 import {getConfirmedMatchBroadcasts} from "@/lib/matchBroadcasts";
@@ -64,11 +65,12 @@ function Watch({entry,context}:{entry:DailyEntry;context:AgendaViewContext}){
   }
 function MatchRow({entry,withDate=false,featured=false,context}:{entry:DailyEntry;withDate?:boolean;featured?:boolean;context:AgendaViewContext}){
     const {c,isSaved,toggleSaved,formatDay,formatTime,statusLabel,timeZone,calendar,now,lang}=context;
-    const active=["LIVE","HT"].includes(dailyEntryState(entry,now));
+    const state=dailyEntryState(entry,now);
+    const active=["LIVE","HT","extra-time","shootout"].includes(state);
     const fixture=<><span className={s.homeTeam}><span>{entry.home}</span><Crest slug={entry.homeSlug} name={entry.home}/></span><strong className={`${s.score} ${active?s.liveScore:""}`}>{entry.homeScore!=null&&entry.awayScore!=null?<>{entry.homeScore}<i>–</i>{entry.awayScore}</>:<i>vs</i>}</strong><span className={s.awayTeam}><Crest slug={entry.awaySlug} name={entry.away || ""}/><span>{entry.away}</span></span></>;
     return <article id={featured?`featured-${entry.id}`:entry.id} className={`${s.matchRow} ${active?s.liveRow:""}`}>
       <button className={`${s.star} ${isSaved(entry)?s.saved:""}`} title={isSaved(entry)?c.unsave:c.save} aria-label={`${isSaved(entry)?c.unsave:c.save}: ${entry.home} ${entry.away || ""}`} aria-pressed={isSaved(entry)} onClick={()=>toggleSaved(entry)}><Glyph name="star" filled={isSaved(entry)}/></button>
-      <div className={s.matchTime}>{withDate&&<span className={s.smallDate}>{formatDay(dailyEntryDate(entry,timeZone))}</span>}<time dateTime={entry.startsAt || entry.date}>{formatTime(entry)}</time><span className={active?s.liveState:""} title={dailyEntryState(entry,now)==="pending"?c.noResult:undefined}>{statusLabel(entry)}</span>{isLiveDataDelayed(entry.status,entry.updatedAt,now)&&<small className="rn-live-delayed" title={entry.updatedAt||undefined}>{({es:"Datos demorados",en:"Delayed data",fr:"Données retardées",it:"Dati in ritardo"})[lang]}</small>}</div>
+      <div className={s.matchTime}>{withDate&&<span className={s.smallDate}>{formatDay(dailyEntryDate(entry,timeZone))}</span>}<time dateTime={entry.startsAt || entry.date}>{formatTime(entry)}</time>{active?<LiveStatusBadge state={state} label={statusLabel(entry)}/>:<span title={state==="pending"?c.noResult:undefined}>{statusLabel(entry)}</span>}{isLiveDataDelayed(entry.status,entry.updatedAt,now)&&<small className="rn-live-delayed" title={entry.updatedAt||undefined}>{({es:"Datos demorados",en:"Delayed data",fr:"Données retardées",it:"Dati in ritardo"})[lang]}</small>}</div>
       {entry.matchId&&entry.competitionSlug?<Link className={s.fixture} title={c.details} href={`/matches/${entry.competitionSlug}/${entry.matchId}`} onClick={()=>trackProductEvent("match_open",{match_id:entry.matchId!,competition:entry.competitionSlug!})}>{fixture}</Link>:<div className={s.fixture}>{fixture}</div>}
       <Watch entry={entry} context={context}/>
       <button className={s.calendar} disabled={!entry.startsAt} title={c.calendar} aria-label={`${c.calendar}: ${entry.home} ${entry.away || ""}`} onClick={()=>calendar(entry)}><Glyph name="calendar"/></button>

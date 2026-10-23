@@ -107,5 +107,11 @@ test("conditional database update rejects incomplete scores and filters stale ob
  const client={from:()=>({update:()=>query})} as unknown as SupabaseClient;
  const changed=await updateObservedMatch(client,1,{status:"LIVE",home_score:14,away_score:0,updated_at:"2026-10-20T12:00:00.000Z"});
  assert.equal(changed,false);assert.ok(calls.includes("updated_at.is.null,updated_at.lte.2026-10-20T12:00:00.000Z"));assert.ok(calls.includes("neq:status:FT"));
+ calls.length=0;
+ await updateObservedMatch(client,1,{status:"NS",home_score:null,away_score:null,updated_at:"2026-10-20T12:01:00.000Z"});
+ assert.ok(calls.includes("neq:status:LIVE"));assert.ok(calls.includes("neq:status:HT"));
+ calls.length=0;
+ await updateObservedMatch(client,1,{status:"NS",source_url:"https://www.flashscore.com/rugby-union/#rn_status=delayed",updated_at:"2026-10-20T12:02:00.000Z"});
+ assert.ok(!calls.includes("neq:status:LIVE"));
  assert.equal(isArchivedPlayerUpdate({publishedAt:"2026-09-21"},Date.parse("2026-10-20T12:00:00Z")),true);
 });

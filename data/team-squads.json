@@ -7,7 +7,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Oyonnax Rugby (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/oyonnax/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:22.037Z",
+      "checkedAt": "2026-10-23T05:22:53.634Z",
       "players": [
         {
           "id": "lnr-450",
@@ -450,7 +450,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de FC Grenoble Rugby - FCG (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/grenoble/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:21.584Z",
+      "checkedAt": "2026-10-23T05:22:53.100Z",
       "players": [
         {
           "id": "lnr-859",
@@ -877,7 +877,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Biarritz Olympique - BOPB (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/biarritz/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:23.135Z",
+      "checkedAt": "2026-10-23T05:22:55.303Z",
       "players": [
         {
           "id": "lnr-1583",
@@ -1304,7 +1304,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Provence Rugby (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/provence-rugby/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:21.809Z",
+      "checkedAt": "2026-10-23T05:22:53.919Z",
       "players": [
         {
           "id": "lnr-2041",
@@ -1787,7 +1787,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de CA Brive (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/brive/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:22.763Z",
+      "checkedAt": "2026-10-23T05:22:55.073Z",
       "players": [
         {
           "id": "lnr-380",
@@ -2222,7 +2222,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de US Dax (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/dax/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:24.167Z",
+      "checkedAt": "2026-10-23T05:22:55.200Z",
       "players": [
         {
           "id": "lnr-11028",
@@ -2521,7 +2521,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Soyaux-Angoulême XV - SAXV (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/angouleme/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:25.518Z",
+      "checkedAt": "2026-10-23T05:22:55.820Z",
       "players": [
         {
           "id": "lnr-784",
@@ -2922,6 +2922,14 @@
           "position": "Centre",
           "sourceUrl": "https://prod2.lnr.fr/joueur/24995-james-nuualita-tuituba",
           "country": "Fidji"
+        },
+        {
+          "id": "lnr-11743",
+          "slug": "lnr-11743-bastien-rasal",
+          "name": "Bastien RASAL",
+          "position": "Centre",
+          "sourceUrl": "https://prod2.lnr.fr/joueur/11743-bastien-rasal",
+          "country": "France"
         }
       ]
     },
@@ -2932,7 +2940,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de US Montauban - USM Sapiac (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/montauban/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:23.611Z",
+      "checkedAt": "2026-10-23T05:22:54.519Z",
       "players": [
         {
           "id": "lnr-1382",
@@ -3343,7 +3351,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Stade Aurillacois (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/aurillac/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:24.980Z",
+      "checkedAt": "2026-10-23T05:22:55.944Z",
       "players": [
         {
           "id": "lnr-1567",
@@ -3714,7 +3722,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de SU Agen - SUA (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/agen/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:25.185Z",
+      "checkedAt": "2026-10-23T05:22:56.615Z",
       "players": [
         {
           "id": "lnr-3129",
@@ -4093,7 +4101,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Valence Romans (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/valence-romans/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:25.856Z",
+      "checkedAt": "2026-10-23T05:22:57.027Z",
       "players": [
         {
           "id": "lnr-2807",
@@ -4424,7 +4432,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Colomiers Rugby - CR (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/colomiers/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:26.134Z",
+      "checkedAt": "2026-10-23T05:22:56.641Z",
       "players": [
         {
           "id": "lnr-2752",
@@ -4803,7 +4811,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Stade Niçois Rugby (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/nice/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:27.056Z",
+      "checkedAt": "2026-10-23T05:22:57.328Z",
       "players": [
         {
           "id": "lnr-1473",
@@ -5222,7 +5230,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de RC Narbonnais (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/narbonne/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:27.780Z",
+      "checkedAt": "2026-10-23T05:22:57.746Z",
       "players": [
         {
           "id": "lnr-13663",
@@ -5617,7 +5625,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de AS Béziers Hérault (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/beziers/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:26.852Z",
+      "checkedAt": "2026-10-23T05:22:57.952Z",
       "players": [
         {
           "id": "lnr-2286",
@@ -6012,7 +6020,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de USON Nevers Rugby (2026-2027) par poste ainsi que le staff du club de PRO D2. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Pro D2",
       "sourceUrl": "https://prod2.lnr.fr/club/nevers/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:27.840Z",
+      "checkedAt": "2026-10-23T05:22:58.196Z",
       "players": [
         {
           "id": "lnr-2802",
@@ -6511,7 +6519,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Stade Toulousain - ST (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/toulouse/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:28.321Z",
+      "checkedAt": "2026-10-23T05:22:58.570Z",
       "players": [
         {
           "id": "lnr-2399",
@@ -6978,7 +6986,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Section Paloise - Pau (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/pau/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:29.027Z",
+      "checkedAt": "2026-10-23T05:22:58.805Z",
       "players": [
         {
           "id": "lnr-1849",
@@ -7509,7 +7517,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Union Bordeaux-Bègles - UBB (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/bordeaux-begles/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:29.691Z",
+      "checkedAt": "2026-10-23T05:22:59.168Z",
       "players": [
         {
           "id": "lnr-306",
@@ -7976,7 +7984,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Aviron Bayonnais (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/bayonne/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:29.971Z",
+      "checkedAt": "2026-10-23T05:22:59.503Z",
       "players": [
         {
           "id": "lnr-2669",
@@ -8387,14 +8395,6 @@
           "country": "France"
         },
         {
-          "id": "lnr-11743",
-          "slug": "lnr-11743-bastien-rasal",
-          "name": "Bastien RASAL",
-          "position": "Centre",
-          "sourceUrl": "https://top14.lnr.fr/joueur/11743-bastien-rasal",
-          "country": "France"
-        },
-        {
           "id": "lnr-2657",
           "slug": "lnr-2657-guillaume-martocq",
           "name": "Guillaume MARTOCQ",
@@ -8443,7 +8443,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Stade Rochelais (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/la-rochelle/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:29.349Z",
+      "checkedAt": "2026-10-23T05:22:59.269Z",
       "players": [
         {
           "id": "lnr-935",
@@ -8918,7 +8918,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Stade Français Paris (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/paris/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:31.009Z",
+      "checkedAt": "2026-10-23T05:23:00.076Z",
       "players": [
         {
           "id": "lnr-2713",
@@ -9433,7 +9433,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Montpellier Hérault Rugby (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/montpellier/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:31.739Z",
+      "checkedAt": "2026-10-23T05:22:59.805Z",
       "players": [
         {
           "id": "lnr-1368",
@@ -9924,7 +9924,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de LOU Rugby - Lyon (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/lyon/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:31.207Z",
+      "checkedAt": "2026-10-23T05:23:00.195Z",
       "players": [
         {
           "id": "lnr-1060",
@@ -10423,7 +10423,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de USA Perpignan - USAP (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/perpignan/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:32.560Z",
+      "checkedAt": "2026-10-23T05:23:00.351Z",
       "players": [
         {
           "id": "lnr-2009",
@@ -10842,7 +10842,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de ASM Clermont (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/clermont/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:32.686Z",
+      "checkedAt": "2026-10-23T05:23:00.824Z",
       "players": [
         {
           "id": "lnr-862",
@@ -11245,7 +11245,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de RC Toulon - RCT (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/toulon/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:32.752Z",
+      "checkedAt": "2026-10-23T05:23:00.755Z",
       "players": [
         {
           "id": "lnr-2297",
@@ -11680,7 +11680,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Castres Olympique - CO (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/castres/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:34.303Z",
+      "checkedAt": "2026-10-23T05:23:01.453Z",
       "players": [
         {
           "id": "lnr-560",
@@ -12139,7 +12139,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de Racing 92 (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/racing-92/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:33.553Z",
+      "checkedAt": "2026-10-23T05:23:01.459Z",
       "players": [
         {
           "id": "lnr-11098",
@@ -12566,7 +12566,7 @@
       "seasonEvidence": "Découvrez tout l'effectif de RC Vannes - RCV (2026-2027) par poste ainsi que le staff du club de TOP 14. 1ère ligne, 2ème ligne, arrière, ailier, centre, etc.",
       "sourceName": "LNR · Top 14",
       "sourceUrl": "https://top14.lnr.fr/club/vannes/effectif-staff",
-      "checkedAt": "2026-10-22T21:57:34.432Z",
+      "checkedAt": "2026-10-23T05:23:01.530Z",
       "players": [
         {
           "id": "lnr-2536",

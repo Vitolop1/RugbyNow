@@ -5,6 +5,7 @@ import { parseSourceRound } from "../lib/sourceRound";
 import { getConfirmedMatchRound } from "../lib/matchBroadcasts";
 import { competitionSlugFromFlashscoreUrl } from "../lib/flashscoreCompetition";
 import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
+import {readFlashscoreRowStatus,FLASH_MATCH_READY_SELECTOR} from "../lib/flashscoreRowStatus";
 import {validateResolvedStandingsTeamIds,validateSourceStandings,EXPECTED_TABLE_TEAMS,requireStandingsEdition} from "../lib/sourceStandings";
 import {readAllRows} from "../lib/readAllRows";
 import {isLiveRefreshCandidate,liveSourceUrls,canRefreshLiveTarget} from "../lib/liveRefresh";
@@ -986,13 +987,7 @@ async function scrapePage(page: Page, sourcePage: "results" | "fixtures" | "live
       pickText(r.querySelector(".event__score--away")) ||
       pickText((r.querySelectorAll(".event__score")[1]) || null);
 
-    const statusOrTime = [
-      pickText(r.querySelector(".event__time")),
-      pickText(r.querySelector(".event__stage")),
-      pickText(r.querySelector(".event__status")),
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const statusOrTime = (${readFlashscoreRowStatus.toString()})(r);
 
     const roundText =
       pickText(r.querySelector(".event__round")) ||
@@ -1630,7 +1625,7 @@ async function main() {
 
           try {
             await page.waitForSelector(
-              '[id^="g_"], .event__match, .event__row, [data-event-id], .event',
+              FLASH_MATCH_READY_SELECTOR,
               { timeout: 20000 }
             );
           } catch {
@@ -1854,7 +1849,7 @@ async function main() {
           const payload: Record<string, unknown> = {
             season_id: seasonMeta.seasonId,
             match_date: matchDate,
-            kickoff_time: kickoffTime,
+            kickoff_time: kickoffTime || target?.kickoff_time || null,
             status: effectiveParsed.status,
             minute: effectiveParsed.minute,
             home_team_id: homeId,

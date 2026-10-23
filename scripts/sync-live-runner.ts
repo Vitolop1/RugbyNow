@@ -192,7 +192,7 @@ async function main() {
     report.exitCode=code;
     if(code!==0)throw Error("Live source validation/import failed; see per-source reports.");
     if(process.env.DRY_RUN==="1"){report.status="validated_sources";return;}
-    const ids=candidates.filter(row=>row.status==="LIVE"||row.status==="HT").map(row=>row.id);
+    const ids=candidates.map(row=>row.id);
     const observed=ids.length?await readAllRows<{id:number;updated_at:string|null}>((offset,size)=>supabase.from("matches").select("id,updated_at").in("id",ids).order("id").range(offset,offset+size-1)):[];
     const coverage=assessLiveCoverage(candidates,observed,startedAt);report.coverage=coverage;
     if(coverage.unverifiedMatchIds.length)throw Error("Some source-live fixtures were not refreshed during this run.");

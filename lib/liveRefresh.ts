@@ -16,9 +16,16 @@ export function liveSourceUrls(base:string){return [`${base}/live`,`${base}/resu
 export function canRefreshLiveTarget(row:{status?:string|null;match_date:string;kickoff_time?:string|null}|null,now=Date.now()){
  return !!row&&isLiveRefreshCandidate(row,now);
 }
-export function assessLiveCoverage(expected:{id:number;status?:string|null}[],observed:{id:number;updated_at?:string|null}[],startedAt:string){
+export function assessLiveCoverage(expected:{id:number;status?:string|null;match_date?:string;kickoff_time?:string|null}[],observed:{id:number;updated_at?:string|null}[],startedAt:string){
  const since=Date.parse(startedAt),seen=new Map(observed.map(row=>[row.id,Date.parse(row.updated_at||"")]));
- const required=expected.filter(row=>row.status==="LIVE"||row.status==="HT");
+ // A started NS candidate can be precisely the broken live import. Requiring
+ // only already-LIVE rows let every NS row get skipped with a green run.
+ // This requires a fresh observation; it does not assign a sporting state.
+ const required=expected.filter(row=>{
+  if(row.status==="LIVE"||row.status==="HT")return true;
+  if(!row.match_date||!row.kickoff_time||!isLiveRefreshCandidate({...row,match_date:row.match_date},since))return false;
+  return Date.parse(`${row.match_date}T${row.kickoff_time}Z`)<=since;
+ });
  const unverified=required.filter(row=>!(Number.isFinite(seen.get(row.id))&&seen.get(row.id)!>=since)).map(row=>row.id);
  return {activeExpected:required.length,activeRefreshed:required.length-unverified.length,unverifiedMatchIds:unverified};
 }

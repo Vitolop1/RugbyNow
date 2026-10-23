@@ -37,7 +37,8 @@
     "sync:news": "tsx scripts/update-news.ts",
     "validate:rugby-api": "tsx scripts/validate-rugby-api.ts",
     "sync:official-standings": "tsx scripts/update-official-standings.ts",
-    "sync:broadcasts": "tsx scripts/update-match-broadcasts.ts"
+    "sync:broadcasts": "tsx scripts/update-match-broadcasts.ts",
+    "audit:health": "tsx scripts/operational-health.ts"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.17.1",

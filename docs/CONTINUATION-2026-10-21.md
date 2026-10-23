@@ -42,3 +42,11 @@ Cron productivo comprobado por `/api/live-monitor`: `scheduledAt` 05:25:23.754, 
 ## Pendientes que no se ocultan
 
 Vivo real y promoción controlada del recolector; calendarios completos y tablas oficiales de los torneos restantes; planteles/staff fuera de Francia; ampliar disponibilidad/movimientos con fuentes nuevas. Los playoffs de URBA y Francia no quedan completos por completar la fase regular. No hay cuenta sincronizada ni ingresos garantizados.
+
+## Auditoría operativa — 22/10/2026, rama codex/operational-audit
+
+Se retomó desde `main` af5a567 sin incorporar los PR abiertos #20–#27 ni tocar las dos copias con cambios del dueño. Se reprodujo en producción que `/api/matches/16913oops` y `16913.5` devuelven el partido 16913. La rama exige ID entero completo y seguro, con regresión sobre el handler; se comprobó 400 local para ambos casos y 200 para ID válido con competición. No se alteraron datos deportivos.
+
+Se añade una línea base reutilizable de lectura (`npm run audit:health`) y workflow manual con resumen/artefactos, sin otra tarea programada. La ejecución real pública de 13:08 UTC detectó el parámetro inválido aceptado, intervalos prolongados del scheduler y el feed ESPN fallido; no se ocultó la degradación detrás de HTTP 200. Resultados y límites públicos: `docs/OPERATIONAL-HEALTH.md`. Datos de cuentas Google quedan fuera de Git, entregados al dueño en un informe local privado.
+
+90 pruebas, TypeScript y build Next correctos. Cloudflare/OpenNext no cambian. El monitor productivo sigue shadow/idle/sin escrituras; falta contraste de tres partidos reales. El workflow nuevo todavía no se ejecutó en GitHub y no se activó agente semanal. Cambios preparados para PR; sin merge ni despliegue. No interpretar este apartado como publicación posterior a PR19.

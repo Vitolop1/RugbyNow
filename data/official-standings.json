@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-24T11:38:10.282Z",
+      "checkedAt": "2026-10-24T16:15:53.625Z",
       "roundDate": "2026-10-30",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-24T11:38:11.479Z",
+      "checkedAt": "2026-10-24T16:15:56.327Z",
       "roundDate": "2026-10-23",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-24T11:38:13.673Z",
+      "checkedAt": "2026-10-24T16:15:58.472Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-24T11:38:14.501Z",
+      "checkedAt": "2026-10-24T16:15:59.227Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,8 +1165,8 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-24T11:38:12.589Z",
-      "roundDate": "2026-10-11",
+      "checkedAt": "2026-10-24T16:15:57.477Z",
+      "roundDate": "2026-10-24",
       "phase": "regular",
       "rows": [
         {
@@ -1303,14 +1303,14 @@
           "position": 11,
           "team": "ASM Clermont",
           "slug": "asm-clermont-auvergne",
-          "pts": 11,
-          "pj": 6,
+          "pts": 12,
+          "pj": 7,
           "w": 2,
           "d": 0,
-          "l": 4,
-          "bonus": 3,
-          "pf": 140,
-          "pa": 169
+          "l": 5,
+          "bonus": 4,
+          "pf": 166,
+          "pa": 196
         },
         {
           "position": 12,
@@ -1342,14 +1342,14 @@
           "position": 14,
           "team": "RC Vannes",
           "slug": "vannes",
-          "pts": 1,
-          "pj": 6,
-          "w": 0,
+          "pts": 5,
+          "pj": 7,
+          "w": 1,
           "d": 0,
           "l": 6,
           "bonus": 1,
-          "pf": 117,
-          "pa": 176
+          "pf": 144,
+          "pa": 202
         }
       ]
     }

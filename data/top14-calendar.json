@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-24T11:38:28.853Z",
+  "checkedAt": "2026-10-24T16:16:16.957Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -615,7 +615,7 @@
       "home": "RC Vannes",
       "away": "ASM Clermont",
       "date": "2026-10-24",
-      "startsAt": "2026-10-24T12:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-24",
       "windowTo": "2026-10-24",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11862-vannes-clermont"

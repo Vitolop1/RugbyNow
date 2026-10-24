@@ -4,8 +4,8 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-23T21:41:22.966Z",
-      "roundDate": "2026-10-31",
+      "checkedAt": "2026-10-24T00:01:24.943Z",
+      "roundDate": "2026-10-30",
       "rows": [
         {
           "position": 1,
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-23T21:41:24.197Z",
+      "checkedAt": "2026-10-24T00:01:27.219Z",
       "roundDate": "2026-10-23",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-23T21:41:26.787Z",
+      "checkedAt": "2026-10-24T00:01:30.245Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-23T21:41:27.463Z",
+      "checkedAt": "2026-10-24T00:01:30.920Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-23T21:41:25.568Z",
+      "checkedAt": "2026-10-24T00:01:29.270Z",
       "roundDate": "2026-10-11",
       "phase": "regular",
       "rows": [

@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-24T16:16:16.957Z",
+  "checkedAt": "2026-10-24T21:12:46.173Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -601,7 +601,7 @@
       "home": "Aviron Bayonnais",
       "away": "LOU Rugby",
       "date": "2026-10-24",
-      "startsAt": "2026-10-24T14:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-24",
       "windowTo": "2026-10-24",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11861-bayonne-lyon"
@@ -629,7 +629,7 @@
       "home": "Castres Olympique",
       "away": "Stade Français Paris",
       "date": "2026-10-24",
-      "startsAt": "2026-10-24T14:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-24",
       "windowTo": "2026-10-24",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11863-castres-paris"
@@ -657,7 +657,7 @@
       "home": "Racing 92",
       "away": "Montpellier Hérault Rugby",
       "date": "2026-10-24",
-      "startsAt": "2026-10-24T14:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-24",
       "windowTo": "2026-10-24",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11865-racing-92-montpellier"
@@ -671,7 +671,7 @@
       "home": "RC Toulon",
       "away": "Section Paloise",
       "date": "2026-10-24",
-      "startsAt": "2026-10-24T19:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-24",
       "windowTo": "2026-10-24",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11866-toulon-pau"
@@ -685,7 +685,7 @@
       "home": "Stade Toulousain",
       "away": "USA Perpignan",
       "date": "2026-10-24",
-      "startsAt": "2026-10-24T14:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-24",
       "windowTo": "2026-10-24",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11867-toulouse-perpignan"

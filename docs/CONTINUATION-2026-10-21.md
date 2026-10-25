@@ -1,5 +1,30 @@
 # Continuación de RugbyNOW — 21/10/2026 UTC
 
+## Punto de reanudación
+
+Última revisión documental: 21/10/2026. Esta sección contiene estado temporal; actualizarla en lugar de abrir un documento por ejecución. La evidencia detallada de PR19 permanece debajo y no se convierte en una comprobación nueva por copiarla aquí.
+
+**Base observada:** `origin/main` = `fbc208f` al crear la rama documental `codex/operational-memory`. La copia original sigue en `eff631a` con trabajo del dueño. El checkout de publicaciones mantiene trabajo de transmisiones en `codex/international-broadcast-logos`: cambios en `lib/dailyAgenda.ts`, `lib/dailyAgendaServer.ts` y `lib/internationalBroadcasts.ts` sin commit/PR y todavía sin pruebas. Se conserva, no se incorpora a esta entrega.
+
+| Trabajo | Implementado / comprobado | Publicación / próximo paso |
+| --- | --- | --- |
+| Cobertura y monitor PR19 | Calendarios, tablas, planteles y latido shadow; evidencia fechada en las secciones siguientes | Publicación histórica comprobada. Vivo real y latencia siguen pendientes; no activar escrituras por esta nota. |
+| [PR20 SEO y monetización](https://github.com/Vitolop1/RugbyNow/pull/20) | Cambios y verificaciones descritos en su PR | Abierto, sin merge según consulta de GitHub 21/10. Revisar antes de duplicar trabajo. |
+| [PR21 Destacados](https://github.com/Vitolop1/RugbyNow/pull/21) | Panel contraído, selección equilibrada, pruebas en su rama | Abierto, sin merge. No afirmar que ya cambió la portada pública. |
+| [PR22 Fechas](https://github.com/Vitolop1/RugbyNow/pull/22) | Controles, Hoy y zona local; validación descrita en el PR | Abierto, sin merge. Mantener independiente. |
+| [PR23 Escudos](https://github.com/Vitolop1/RugbyNow/pull/23) | Marcos/contraste/identidad, 86 filas revisadas; pruebas y build locales descritos en PR | Abierto, sin merge. Recursos nuevos no son necesarios para reutilizar su corrección. |
+| [PR24 Memoria operativa](https://github.com/Vitolop1/RugbyNow/pull/24) | Contexto permanente, historial rotulado y skill local sincronizada con fuente versionada; 21 enlaces/anclas y rutas verificados, frontmatter válido | Solo documentación/instrucciones, sin tests/builds locales. Abierto para revisión, sin merge ni publicación de aplicación. |
+
+Los PR20–23 se consultaron por API y seguían abiertos; no se volvieron a ejecutar sus pruebas ni a verificar producción en esta tarea documental. Revalidar sus estados al retomar. Las ramas tienen bases distintas de la copia original del dueño.
+
+**Pedidos todavía abiertos, fuera de esta edición documental:** completar transmisiones internacionales con logos compactos; rediseñar pelota según referencia verde/azul/blanco; mejorar noticias/fuentes; ampliar planteles argentinos y staff; consolidar ejecución nocturna e informes; configurar y ensayar la revisión semanal de Codex con presupuesto acotado. No se han implementado ni activado aquí. Priorizar el pedido vigente; una lista no autoriza ejecutar todo el backlog.
+
+**Siguiente comprobación deportiva pendiente:** varias lecturas durante encuentros reales, desde la fuente hasta la pantalla, según LIVE-RELIABILITY. Un resultado `idle`, un cron puntual o un build no cubren esa aceptación. Ver también los límites de cobertura al final de este archivo.
+
+Para cerrar una tarea importante, actualizar esta sección con: **rama/PR y base → implementado → comprobado (comando, fecha o evidencia) → publicado/no publicado → limitación → próximo paso**. Mover aquí los estados temporales que aparezcan en PROJECT_CONTEXT; registrar una lección duradera allí solo si fue demostrada.
+
+## Evidencia histórica de la entrega PR19
+
 ## Base y alcance
 
 Base main 50f8bd9, original eff631a con cambios del dueño preservada. Rama `codex/coverage-live-continuation`. Se retoman los cinco pendientes del dueño. Sin reparaciones masivas en Supabase ni traslado de entornos.

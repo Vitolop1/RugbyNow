@@ -57,3 +57,19 @@
 .empty>strong,.empty>p,.empty>a,.empty>div{grid-column:2;margin:0}
 .empty>strong{font-size:12px}.empty>p{font-size:10px;line-height:1.5}.empty>a{font-size:10px;margin:2px 0}.empty button{margin-top:3px;padding:6px 9px;font-size:10px}
 @media(max-width:600px){.empty{grid-template-columns:42px minmax(0,1fr);gap:5px 10px;padding:13px 12px}.empty>:global(.rn-rugby-loader)>svg{width:46px;height:42px}.empty>strong{font-size:11px}}
+
+/* One clear date control, explicit return to today, and large day arrows. */
+.board .dateBar{display:grid;grid-template-columns:44px minmax(0,1fr) 44px auto;gap:8px;height:auto;min-height:60px;padding:8px 10px;align-items:center}
+.dateBar .dayArrow{width:44px;height:44px;border:1px solid #90b39b;border-radius:4px;background:#ffffff12;color:#fff!important;cursor:pointer}
+.dateBar .dayArrow svg{width:23px;height:23px;stroke-width:2.5}
+.dateBar .dayArrow:hover{background:#ffffff2a;border-color:#c3edab}
+.dateBar .selectedDate{position:relative;display:flex;gap:7px;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:4px;border-radius:4px;cursor:pointer;font-size:calc(14px * var(--rn-font-scale,1));line-height:1.35;text-align:center}
+.dateBar .selectedDate strong{min-width:0;overflow-wrap:anywhere}.dateBar .selectedDate>svg{width:18px;height:18px;flex-shrink:0}
+.dateBar .selectedDate input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.dateBar .selectedDate:hover{background:#ffffff12}
+.dateBar .todayButton{min-height:44px;min-width:58px;padding:8px 12px;border:1px solid #b4e678;border-radius:4px;background:#b4e678;color:#12331e!important;font-size:calc(12px * var(--rn-font-scale,1));font-weight:750;cursor:pointer}
+.dateBar .todayButton:hover{background:#d0f5a4}.dateBar .isToday{background:#24583a;color:#d4f6ae!important;border-color:#83b565}
+.dateBar .isToday:hover{color:#12331e!important}
+.dateBar .dayArrow:focus-visible,.dateBar .todayButton:focus-visible,.dateBar .selectedDate:focus-within{outline:2px solid #c4f58c;outline-offset:2px}
+.quickDates .zone{width:100%;justify-content:flex-end}.quickDates .zone select{min-height:36px;max-width:min(65vw,230px)}
+@media(max-width:600px){.board .dateBar{gap:5px;padding:6px;min-height:58px}.dateBar .selectedDate{font-size:calc(12px * var(--rn-font-scale,1))}.dateBar .todayButton{min-width:48px;padding:7px}.dateBar .selectedDate>svg{width:16px;height:16px}.quickDates{padding-top:2px;padding-bottom:2px}}

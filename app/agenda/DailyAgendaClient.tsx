@@ -1,4 +1,6 @@
 "use client";
+import {agendaDateUrl,agendaToday,selectedAgendaDate} from "@/lib/agendaNavigation";
+import {isAgendaDate} from "@/lib/dailyAgenda";
 import {isLiveDataDelayed,preferNewerReading} from "@/lib/liveRefresh";
 
 import {selectFeaturedMatches} from "@/lib/featuredMatches";
@@ -95,8 +97,9 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
   const [toast,setToast] = useState("");
   const [now,setNow] = useState(Date.parse(initialData.checkedAt));
   const initialized = useRef(false);
+  const followsToday = useRef(!explicitDate&&!initialEventId);
   const request = useRef(0);
-  const today = getISODateInTimeZone(new Date(now),timeZone);
+  const today = agendaToday(now,timeZone);
   useEffect(()=>{const tick=()=>setNow(Date.now());tick();const timer=setInterval(tick,60000);return()=>clearInterval(timer);},[]);
   useEffect(()=>{
     try {const value:unknown=JSON.parse(localStorage.getItem("rn:agenda-saved") || "[]");if(Array.isArray(value))setSaved(value.filter((id):id is string=>typeof id==="string"));}catch{}
@@ -115,6 +118,9 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
     const url = new URL(location.href);url.searchParams.set("date",date);
     history.replaceState(null,"",url);
   },[date,mounted]);
+  useEffect(()=>{
+    if(mounted&&initialized.current)setDate(previous=>selectedAgendaDate(previous,today,followsToday.current));
+  },[mounted,today,timeZone]);
   const livePolling=data.entries.some(e=>(e.status==="LIVE"||e.status==="HT")&&dailyEntryDate(e,timeZone)===date);
   // Background refresh never replaces a failed request with an empty success.
   useEffect(()=>{
@@ -199,9 +205,11 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
   }
   async function share(entry:DailyEntry){try{await navigator.clipboard.writeText(shareUrl(entry));setToast(c.copied);}catch{setToast(c.copyFailed);}}
   function statusLabel(entry:DailyEntry){const sourceLabel=sourceStatusLabel(entry.sourceUrl,lang);if(sourceLabel)return sourceLabel;const state=dailyEntryState(entry,now);return state==="FT"?c.final:state==="HT"?c.halfTime:state==="LIVE"?`${c.live}${entry.minute ? ` ${entry.minute}′` : ""}`:state==="CANC"?c.cancelled:state==="pending"?c.pending:c.scheduled;}
-  function chooseDate(next:string){
-    const url=new URL(location.href);url.searchParams.delete("event");url.hash="";
-    history.replaceState(null,"",url);setDate(next);
+  function chooseDate(next:string,followToday=false){
+    if(!isAgendaDate(next))return;
+    followsToday.current=followToday;
+    history.replaceState(null,"",agendaDateUrl(location.href,next));
+    setDate(next);
   }
   const view:AgendaViewContext={c,lang,tvCountry,timeZone,now,formatDay,formatTime,statusLabel,isSaved,toggleSaved,calendar,share};
   return <div className={`${s.page} ${prefs.density==="comfortable"?"rn-comfortable":""}`}>
@@ -214,8 +222,13 @@ export default function DailyAgendaClient({initialData,initialDate,explicitDate=
           <AdvertisingPlacement placement="leaderboard"/>
           {featured.length>0&&<details className={s.nextBoard} open><summary className={s.sectionTitle}><h2>★ {({es:"Destacados",en:"Ones to watch",fr:"À suivre",it:"Da seguire"})[lang]}</h2><small>{({es:"Tus favoritos y rugby prioritario",en:"Your favourites and priority rugby",fr:"Vos favoris et rugby prioritaire",it:"I tuoi preferiti e rugby prioritario"})[lang]} ⌄</small></summary>{featured.map(entry=><MatchRow key={`featured-${entry.id}`} entry={entry} withDate featured context={view}/>)}</details>}
           <section className={s.board} aria-label={c.agenda}>
-            <div className={s.dateBar}><button className={s.dayArrow} aria-label={c.previous} onClick={()=>chooseDate(shiftAgendaDate(date,-1))}><Glyph name="left"/></button><div className={s.selectedDate}><strong>{date===today?`${c.today} · `:""}{formatDay(date,true)}</strong><label title={c.chooseDate}><Glyph name="calendar"/><input type="date" value={date} aria-label={c.chooseDate} onClick={event=>{try{event.currentTarget.showPicker?.();}catch{event.currentTarget.focus();}}} onChange={event=>{if(event.target.value)chooseDate(event.target.value);}}/></label></div><button className={s.dayArrow} aria-label={c.next} onClick={()=>chooseDate(shiftAgendaDate(date,1))}><Glyph name="right"/></button></div>
-            <div className={s.quickDates}>{[[-1,c.yesterday],[0,c.today],[1,c.tomorrow]].map(([offset,label])=><button key={offset} className={date===shiftAgendaDate(today,Number(offset))?s.activeQuick:""} onClick={()=>chooseDate(shiftAgendaDate(today,Number(offset)))}>{label}</button>)}<label className={s.zone}><span>{c.timeZone}</span><select aria-label={c.timeZone} value={timeZone} onChange={event=>setTZEverywhere(event.target.value)}>{buildTimeZoneOptions(timeZone).map(option=><option key={option.value} value={option.value}>{option.long}</option>)}</select></label></div>
+            <div className={s.dateBar}>
+              <button type="button" className={s.dayArrow} aria-label={c.previous} title={c.previous} onClick={()=>chooseDate(shiftAgendaDate(date,-1))}><Glyph name="left"/></button>
+              <label className={s.selectedDate} title={c.chooseDate}><strong><time dateTime={date}>{formatDay(date)} {date.slice(0,4)}</time></strong><Glyph name="calendar"/><input type="date" value={date} aria-label={c.chooseDate} onClick={event=>{try{event.currentTarget.showPicker?.();}catch{event.currentTarget.focus();}}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();try{event.currentTarget.showPicker?.();}catch{event.currentTarget.focus();}}}} onChange={event=>chooseDate(event.target.value)}/></label>
+              <button type="button" className={s.dayArrow} aria-label={c.next} title={c.next} onClick={()=>chooseDate(shiftAgendaDate(date,1))}><Glyph name="right"/></button>
+              <button type="button" className={`${s.todayButton} ${date===today?s.isToday:""}`} aria-current={date===today?"date":undefined} onClick={()=>chooseDate(today,true)}>{c.today}</button>
+            </div>
+            <div className={s.quickDates}><label className={s.zone}><span>{c.timeZone}</span><select aria-label={c.timeZone} value={timeZone} onChange={event=>setTZEverywhere(event.target.value)}>{buildTimeZoneOptions(timeZone).map(option=><option key={option.value} value={option.value}>{option.long}</option>)}</select></label></div>
             <div className={s.filters}><div className={s.statusTabs}>{[["all",c.all],["live",c.live],["upcoming",c.upcoming],["finished",c.finished],["saved",c.saved],["following",lang==="es"?"Siguiendo":lang==="fr"?"Suivis":lang==="it"?"Seguiti":"Following"]].map(([value,label])=><button key={value} aria-pressed={filter===value} className={filter===value?s.activeTab:""} onClick={()=>setFilter(value)}>{value==="live"&&<span className={s.liveDot}/>}{value==="saved"&&<Glyph name="star"/>}{label}{value==="live"&&<small>{dayMatches.filter(entry=>["LIVE","HT"].includes(dailyEntryState(entry,now))).length}</small>}</button>)}</div><label className={s.search}><Glyph name="search"/><input type="search" value={query} placeholder={c.search} aria-label={c.search} onChange={event=>setQuery(event.target.value)}/></label></div>
             <div className={s.minorFilters}><label><span className={s.srOnly}>{c.allRegions}</span><select aria-label={c.allRegions} value={region} onChange={event=>{setRegion(event.target.value);setCompetition("");}}><option value="all">{c.allRegions}</option><option value="argentina">{c.argentina}</option><option value="international">{c.international}</option><option value="pumas">Los Pumas</option></select></label><span>{matches.length} {matches.length===1?c.match:c.matches}{busy&&<small className={s.loading} role="status"><RugbyBall spinning small/>{c.loading}</small>}</span><BroadcastCountrySelect value={tvCountry} onChange={setTvCountry}/></div>
             {error&&<div className={s.error} role="alert">{c.error}<button onClick={()=>setRefresh(value=>value+1)}>{c.retry}</button></div>}

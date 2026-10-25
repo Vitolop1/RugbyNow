@@ -51,3 +51,4 @@ next-env.d.ts
 /logs/import-health/
 /logs/live-health/
 /logs/provider-validation/
+/logs/operational-health/

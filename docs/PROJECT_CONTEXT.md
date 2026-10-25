@@ -90,6 +90,8 @@ Actualizar este contexto cuando el dueño cambie una preferencia duradera o apar
 
 ## Prioridad de tráfico y publicidad real
 
+Pedido del 21/10: priorizar tráfico orgánico y publicidad, trabajar con muestras representativas y consumo eficiente. Preferir menos páginas útiles a miles de fichas repetidas. Los cambios de esta etapa requieren una rama y PR para revisión del dueño: no hacer merge ni publicar código automáticamente, aunque existan autorizaciones de etapas anteriores. Métricas privadas de Google fuera de Git. Ver docs/TRAFFIC-MONETIZATION.md para decisiones, consentimiento publicitario, medición e indexación.
+
 El dueño pidió optimizar con poco crédito y priorizar visitas y monetización. Mostrar solo publicidad real: se retiró el creativo de muestra de los espacios AdSense. Si no hay entrega, se oculta el espacio y se recupera el ancho; conservar /advertise para consultas directas. No afirmar ingresos, aprobación o inventario vendido sin comprobar la cuenta. Las fichas de equipos entregan su contenido en HTML inicial usando el mismo modelo que la API; las páginas /rugby-results y /rugby-fixtures incluyen encuentros reales en servidor, con horarios UTC explícitos y acceso a zona local en Agenda. Equipos inexistentes responden 404. Las métricas privadas y capturas de cuentas no se publican en el repositorio.
 
 ## Continuidad de cobertura y vivo — 21/10/2026 UTC

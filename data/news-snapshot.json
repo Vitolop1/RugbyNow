@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T05:19:05.145Z",
+  "generatedAt": "2026-10-25T10:00:31.702Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/el-select-12-norte-y-sur-tuvo-su-primera-jornada/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-25T05:19:05.145Z",
+      "checkedAt": "2026-10-25T10:00:31.702Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-25T05:19:05.145Z",
+      "checkedAt": "2026-10-25T10:00:31.702Z",
       "count": 0
     }
   ]

@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-25T21:15:32.959Z",
+      "checkedAt": "2026-10-25T23:33:58.445Z",
       "roundDate": "2026-10-30",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-25T21:15:34.317Z",
+      "checkedAt": "2026-10-25T23:34:01.154Z",
       "roundDate": "2026-10-23",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-25T21:15:36.660Z",
+      "checkedAt": "2026-10-25T23:34:03.585Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-25T21:15:37.220Z",
+      "checkedAt": "2026-10-25T23:34:04.641Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-25T21:15:35.571Z",
+      "checkedAt": "2026-10-25T23:34:02.701Z",
       "roundDate": "2026-10-25",
       "phase": "regular",
       "rows": [
@@ -1184,6 +1184,19 @@
         },
         {
           "position": 2,
+          "team": "Union Bordeaux-Bègles",
+          "slug": "bordeaux-begles",
+          "pts": 23,
+          "pj": 7,
+          "w": 5,
+          "d": 0,
+          "l": 2,
+          "bonus": 3,
+          "pf": 240,
+          "pa": 170
+        },
+        {
+          "position": 3,
           "team": "Section Paloise",
           "slug": "section-paloise",
           "pts": 22,
@@ -1196,30 +1209,17 @@
           "pa": 222
         },
         {
-          "position": 3,
-          "team": "Union Bordeaux-Bègles",
-          "slug": "bordeaux-begles",
-          "pts": 19,
-          "pj": 6,
-          "w": 4,
-          "d": 0,
-          "l": 2,
-          "bonus": 3,
-          "pf": 215,
-          "pa": 151
-        },
-        {
           "position": 4,
           "team": "Stade Rochelais",
           "slug": "stade-rochelais",
           "pts": 18,
-          "pj": 6,
+          "pj": 7,
           "w": 4,
           "d": 0,
-          "l": 2,
+          "l": 3,
           "bonus": 2,
-          "pf": 144,
-          "pa": 135
+          "pf": 163,
+          "pa": 160
         },
         {
           "position": 5,

@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-25T21:15:51.498Z",
+  "checkedAt": "2026-10-25T23:34:21.060Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -643,7 +643,7 @@
       "home": "Stade Rochelais",
       "away": "Union Bordeaux-Bègles",
       "date": "2026-10-25",
-      "startsAt": "2026-10-25T20:05:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-25",
       "windowTo": "2026-10-25",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j7/11864-la-rochelle-bordeaux-begles"

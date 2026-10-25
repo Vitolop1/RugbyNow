@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-10-25T21:16:16.009Z",
+  "generatedAt": "2026-10-25T23:34:44.020Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/santiago-del-estero-y-chubut-se-consagraron-campeones-del-select-12-norte-y-sur/",
+      "title": "Santiago del Estero y Chubut se consagraron campeones del Select 12 Norte y Sur",
+      "href": "https://uar.com.ar/santiago-del-estero-y-chubut-se-consagraron-campeones-del-select-12-norte-y-sur/",
+      "publishedAt": "2026-10-25T21:32:35.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Santiaguena-campeon-Select-12-Norte.jpeg"
+    },
     {
       "id": "uar:https://uar.com.ar/el-select-12-norte-y-sur-tuvo-su-primera-jornada/",
       "title": "El Select 12 Norte y Sur tuvo su primera jornada",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/nuevo-staff-web.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/villa-carlos-paz-recibira-al-sudamericano-de-seven-masculino-y-femenino/",
-      "title": "Villa Carlos Paz recibirá al Sudamericano de Seven masculino y femenino",
-      "href": "https://uar.com.ar/villa-carlos-paz-recibira-al-sudamericano-de-seven-masculino-y-femenino/",
-      "publishedAt": "2026-10-06T14:14:59.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/1254DB1-e1791229385217.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-25T21:16:16.009Z",
+      "checkedAt": "2026-10-25T23:34:44.020Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-25T21:16:16.009Z",
+      "checkedAt": "2026-10-25T23:34:44.020Z",
       "count": 0
     }
   ]

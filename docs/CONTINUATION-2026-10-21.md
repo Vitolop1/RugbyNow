@@ -1,5 +1,16 @@
 # Continuación de RugbyNOW — 21/10/2026 UTC
 
+## Punto de reanudación: LIVE 2.0 preparado para revisión
+
+Trabajo nuevo aislado en `codex/live-reliability-v2`, desde main `84b1b19`; no mezcla los PR de interfaz/SEO/memoria ni el trabajo sin commit de transmisiones. Detalle y evidencia en [LIVE-RELIABILITY.md, sección LIVE 2.0](LIVE-RELIABILITY.md#live-20--correcciones-preparadas-el-21102026).
+
+- Implementado: recuperación acotada de tablas vacías, navegación/reintentos/timeout de feed, informe parcial con exportación independiente, descubrimiento limitado de fixtures sin candidatos previos y salud de observaciones LNR. No se rediseña la agenda ni se crea un recolector adicional.
+- Comprobado: 89 pruebas, TypeScript, builds Next/OpenNext, bundle Wrangler sin despliegue, runtime local del cron; SRA ocho filas, Pro D2 16 cruces elegibles, LNR ocho/siete cruces programados; resumen con los artefactos del fallo 39645508948. Lecturas sin escrituras.
+- Publicado: nada de LIVE 2.0. Cloudflare productivo mantiene el monitor shadow anterior. No se hizo merge ni deploy.
+- Pendiente: ejecución real del workflow modificado tras aprobación; tres encuentros reales en más de una competición y demora fuente→base→API→pantalla; equivalencias de IDs y exclusión de recolectores antes de diseñar/activar writer. No hay credencial API-Sports de evaluación ni cobertura LIVE validada. No se solucionan los intervalos de horas de GitHub con una mejor consulta de pantalla.
+
+Las secciones siguientes documentan la entrega previa ya publicada, no el estado de publicación de LIVE 2.0.
+
 ## Base y alcance
 
 Base main 50f8bd9, original eff631a con cambios del dueño preservada. Rama `codex/coverage-live-continuation`. Se retoman los cinco pendientes del dueño. Sin reparaciones masivas en Supabase ni traslado de entornos.

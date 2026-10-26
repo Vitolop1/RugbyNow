@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T23:34:44.020Z",
+  "generatedAt": "2026-10-26T05:18:29.145Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/santiago-del-estero-y-chubut-se-consagraron-campeones-del-select-12-norte-y-sur/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-25T23:34:44.020Z",
+      "checkedAt": "2026-10-26T05:18:29.145Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-25T23:34:44.020Z",
+      "checkedAt": "2026-10-26T05:18:29.145Z",
       "count": 0
     }
   ]

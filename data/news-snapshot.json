@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T18:32:25.078Z",
+  "generatedAt": "2026-10-28T22:53:44.111Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/la-uar-realizara-el-primer-encuentro-femenino-de-selecciones-de-xv/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-28T18:32:25.078Z",
+      "checkedAt": "2026-10-28T22:53:44.111Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-28T18:32:25.078Z",
+      "checkedAt": "2026-10-28T22:53:44.111Z",
       "count": 0
     }
   ]

@@ -37,6 +37,15 @@ test("a successful process does not prove active fixtures were refreshed",()=>{
  assert.equal(assessLiveCoverage(expected,[{id:1,updated_at:"invalid"}],started).activeRefreshed,0);
 });
 
+test("started NS candidates cannot disappear behind a successful empty live pass",()=>{
+ const started="2026-10-23T18:33:00Z";
+ const expected=[{id:16914,status:"NS",match_date:"2026-10-23",kickoff_time:"17:00:00"},
+  {id:16919,status:"NS",match_date:"2026-10-23",kickoff_time:"19:00:00"}];
+ assert.deepEqual(assessLiveCoverage(expected,[],started),{activeExpected:1,activeRefreshed:0,unverifiedMatchIds:[16914]});
+ assert.equal(assessLiveCoverage(expected,[{id:16914,updated_at:"2026-10-23T18:33:30Z"}],started).unverifiedMatchIds.length,0);
+ assert.equal(expected[0].status,"NS");
+});
+
 test("source replay preserves zero scores, corrections and confirmed final without inventing a clock",()=>{
  const steps=[{text:"23'",h:0,a:0,status:"LIVE"},{text:"25'",h:7,a:0,status:"LIVE"},{text:"26'",h:5,a:0,status:"LIVE"},{text:"HT",h:5,a:0,status:"HT"},{text:"FT",h:19,a:12,status:"FT"}];
  for(const step of steps){const parsed=detectStatusAndMinute(step.text,step.h,step.a,"live");assert.equal(parsed.status,step.status);const label=getMatchClockLabel({status:parsed.status,minute:parsed.minute,matchDate:"2026-10-17",kickoffTime:"18:00:00",timeZone:"UTC",lang:"en"});if(parsed.minute!==null)assert.ok(label.includes(String(parsed.minute)));}

@@ -14,6 +14,10 @@ export async function updateObservedMatch(client:SupabaseClient,id:number,payloa
  validateMatchObservation(payload);
  let query=client.from("matches").update(payload).eq("id",id).or(matchObservationFilter(payload.updated_at));
  if(payload.status!=="FT")query=query.neq("status","FT");
+ // A scheduled/empty fixture read must not erase a confirmed in-play score.
+ // An explicitly postponed/delayed source observation remains a valid change.
+ const detail=readSourceStatusDetail(typeof payload.source_url==="string"?payload.source_url:null);
+ if(payload.status==="NS"&&detail!=="postponed"&&detail!=="delayed")query=query.neq("status","LIVE").neq("status","HT");
  const {data,error}=await query.select("id").abortSignal(AbortSignal.timeout(8000));
  if(error)throw Error(`Match update failed: ${error.message}`);
  return !!data?.length;

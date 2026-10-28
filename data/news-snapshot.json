@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-10-28T11:32:03.011Z",
+  "generatedAt": "2026-10-28T18:32:25.078Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/la-uar-realizara-el-primer-encuentro-femenino-de-selecciones-de-xv/",
+      "title": "La UAR realizará el primer Encuentro Femenino de Selecciones de XV",
+      "href": "https://uar.com.ar/la-uar-realizara-el-primer-encuentro-femenino-de-selecciones-de-xv/",
+      "publishedAt": "2026-10-28T17:54:20.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/20261004_NacionalDeClubesFem_Dia2-795-1.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/santiago-del-estero-y-chubut-se-consagraron-campeones-del-select-12-norte-y-sur/",
       "title": "Santiago del Estero y Chubut se consagraron campeones del Select 12 Norte y Sur",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/20261010_SAR7_Dia1_T8-13.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/mario-ledesma-y-shaun-edwards-se-suman-al-cuerpo-tecnico-de-los-pumas/",
-      "title": "Mario Ledesma y Shaun Edwards se suman al cuerpo técnico de Los Pumas",
-      "href": "https://uar.com.ar/mario-ledesma-y-shaun-edwards-se-suman-al-cuerpo-tecnico-de-los-pumas/",
-      "publishedAt": "2026-10-09T13:01:13.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/nuevo-staff-web.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-28T11:32:03.011Z",
+      "checkedAt": "2026-10-28T18:32:25.078Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-28T11:32:03.011Z",
+      "checkedAt": "2026-10-28T18:32:25.078Z",
       "count": 0
     }
   ]

@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-29T11:42:32.621Z",
+  "checkedAt": "2026-10-29T13:44:49.688Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -796,10 +796,10 @@
       "awaySlug": "bordeaux-begles",
       "home": "RC Vannes",
       "away": "Union Bordeaux-Bègles",
-      "date": "2026-11-07",
-      "startsAt": "2026-11-07T13:30:00.000Z",
-      "windowFrom": "2026-11-07",
-      "windowTo": "2026-11-07",
+      "date": "2026-11-08",
+      "startsAt": null,
+      "windowFrom": "2026-11-08",
+      "windowTo": "2026-11-08",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j9/11875-vannes-bordeaux-begles"
     },
     {
@@ -881,7 +881,7 @@
       "home": "Stade Toulousain",
       "away": "ASM Clermont",
       "date": "2026-11-07",
-      "startsAt": "2026-11-07T15:35:00.000Z",
+      "startsAt": "2026-11-07T13:30:00.000Z",
       "windowFrom": "2026-11-07",
       "windowTo": "2026-11-07",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j9/11881-toulouse-clermont"

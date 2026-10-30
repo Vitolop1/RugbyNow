@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-30T18:15:38.108Z",
+  "checkedAt": "2026-10-30T22:41:14.753Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -909,7 +909,7 @@
       "home": "Beziers",
       "away": "Grenoble",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12071-beziers-grenoble"
@@ -923,7 +923,7 @@
       "home": "Biarritz",
       "away": "Valence Romans",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12072-biarritz-valence-romans"
@@ -937,7 +937,7 @@
       "home": "Colomiers",
       "away": "Agen",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T18:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12073-colomiers-agen"
@@ -965,7 +965,7 @@
       "home": "Montauban",
       "away": "Narbonne",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12075-montauban-narbonne"
@@ -979,7 +979,7 @@
       "home": "Nevers",
       "away": "Brive",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12076-nevers-brive"
@@ -993,7 +993,7 @@
       "home": "Nice",
       "away": "Aurillac",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12077-nice-aurillac"
@@ -1007,7 +1007,7 @@
       "home": "Oyonnax",
       "away": "Soyaux Angouleme",
       "date": "2026-10-30",
-      "startsAt": "2026-10-30T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-30",
       "windowTo": "2026-10-30",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12078-oyonnax-angouleme"

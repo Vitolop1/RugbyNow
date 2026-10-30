@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-10-30T11:34:34.117Z",
+  "generatedAt": "2026-10-30T18:16:12.511Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/argentina-xv-con-plantel-confirmado-para-enfrentar-a-inglaterra-a/",
+      "title": "Argentina XV con plantel confirmado para enfrentar a Inglaterra A",
+      "href": "https://uar.com.ar/argentina-xv-con-plantel-confirmado-para-enfrentar-a-inglaterra-a/",
+      "publishedAt": "2026-10-30T14:27:34.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/DSC_0639-1-e1793370341944.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-ya-tienen-plantel-para-el-cierre-del-nations-championship/",
+      "title": "Los Pumas ya tienen plantel para el cierre del Nations Championship",
+      "href": "https://uar.com.ar/los-pumas-ya-tienen-plantel-para-el-cierre-del-nations-championship/",
+      "publishedAt": "2026-10-30T14:06:35.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Julian-Montoya-5-e1793366722417.jpeg"
+    },
     {
       "id": "uar:https://uar.com.ar/la-uar-realizara-el-primer-encuentro-femenino-de-selecciones-de-xv/",
       "title": "La UAR realizará el primer Encuentro Femenino de Selecciones de XV",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/55538009260_41f4ddb76e_o.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-pumas-7s-y-las-yaguaretes-campeones-sudamericanos/",
-      "title": "Los Pumas 7’s y Las Yaguaretés campeones sudamericanos",
-      "href": "https://uar.com.ar/los-pumas-7s-y-las-yaguaretes-campeones-sudamericanos/",
-      "publishedAt": "2026-10-11T21:56:20.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/20261010_SAR7_Dia2_T14-20.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-pumas-7s-y-las-yaguaretes-invictos-en-el-sudamericano/",
-      "title": "LOS PUMAS 7´S Y LAS YAGUARETÉS INVICTOS EN EL SUDAMERICANO",
-      "href": "https://uar.com.ar/los-pumas-7s-y-las-yaguaretes-invictos-en-el-sudamericano/",
-      "publishedAt": "2026-10-10T21:44:31.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/20261010_SAR7_Dia1_T8-13.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-30T11:34:34.117Z",
+      "checkedAt": "2026-10-30T18:16:12.511Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-30T11:34:34.117Z",
+      "checkedAt": "2026-10-30T18:16:12.511Z",
       "count": 0
     }
   ]

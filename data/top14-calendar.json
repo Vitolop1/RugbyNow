@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-30T01:23:12.047Z",
+  "checkedAt": "2026-10-30T10:29:26.505Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -797,7 +797,7 @@
       "home": "RC Vannes",
       "away": "Union Bordeaux-Bègles",
       "date": "2026-11-08",
-      "startsAt": null,
+      "startsAt": "2026-11-08T14:00:00.000Z",
       "windowFrom": "2026-11-08",
       "windowTo": "2026-11-08",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j9/11875-vannes-bordeaux-begles"

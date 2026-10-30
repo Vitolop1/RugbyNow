@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-29T20:42:41.092Z",
+  "checkedAt": "2026-10-30T01:23:04.968Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -951,7 +951,7 @@
       "home": "Dax",
       "away": "Provence Rugby",
       "date": "2026-10-29",
-      "startsAt": "2026-10-29T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-29",
       "windowTo": "2026-10-29",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j9/12074-dax-provence-rugby"

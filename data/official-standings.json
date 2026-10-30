@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-29T20:42:26.453Z",
+      "checkedAt": "2026-10-30T01:22:53.132Z",
       "roundDate": "2026-10-30",
       "rows": [
         {
@@ -210,12 +210,25 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-29T20:42:28.729Z",
+      "checkedAt": "2026-10-30T01:22:55.137Z",
       "roundDate": "2026-10-29",
       "phase": "regular",
       "rows": [
         {
           "position": 1,
+          "team": "Provence Rugby",
+          "slug": "provence-rugby",
+          "pts": 36,
+          "pj": 9,
+          "w": 8,
+          "d": 1,
+          "l": 0,
+          "bonus": 2,
+          "pf": 292,
+          "pa": 177
+        },
+        {
+          "position": 2,
           "team": "Oyonnax Rugby",
           "slug": "oyonnax",
           "pts": 34,
@@ -226,19 +239,6 @@
           "bonus": 6,
           "pf": 336,
           "pa": 178
-        },
-        {
-          "position": 2,
-          "team": "Provence Rugby",
-          "slug": "provence-rugby",
-          "pts": 34,
-          "pj": 8,
-          "w": 8,
-          "d": 0,
-          "l": 0,
-          "bonus": 2,
-          "pf": 276,
-          "pa": 161
         },
         {
           "position": 3,
@@ -268,32 +268,6 @@
         },
         {
           "position": 5,
-          "team": "CA Brive",
-          "slug": "brive",
-          "pts": 21,
-          "pj": 8,
-          "w": 5,
-          "d": 0,
-          "l": 3,
-          "bonus": 1,
-          "pf": 232,
-          "pa": 198
-        },
-        {
-          "position": 6,
-          "team": "US Montauban",
-          "slug": "montauban",
-          "pts": 21,
-          "pj": 8,
-          "w": 5,
-          "d": 0,
-          "l": 3,
-          "bonus": 1,
-          "pf": 206,
-          "pa": 237
-        },
-        {
-          "position": 7,
           "team": "Stade Aurillacois",
           "slug": "aurillac",
           "pts": 21,
@@ -306,7 +280,46 @@
           "pa": 270
         },
         {
+          "position": 6,
+          "team": "US Dax",
+          "slug": "dax",
+          "pts": 21,
+          "pj": 9,
+          "w": 4,
+          "d": 1,
+          "l": 4,
+          "bonus": 3,
+          "pf": 292,
+          "pa": 329
+        },
+        {
+          "position": 7,
+          "team": "CA Brive",
+          "slug": "brive",
+          "pts": 21,
+          "pj": 8,
+          "w": 5,
+          "d": 0,
+          "l": 3,
+          "bonus": 1,
+          "pf": 232,
+          "pa": 198
+        },
+        {
           "position": 8,
+          "team": "US Montauban",
+          "slug": "montauban",
+          "pts": 21,
+          "pj": 8,
+          "w": 5,
+          "d": 0,
+          "l": 3,
+          "bonus": 1,
+          "pf": 206,
+          "pa": 237
+        },
+        {
+          "position": 9,
           "team": "Biarritz Olympique PB",
           "slug": "biarritz",
           "pts": 20,
@@ -319,7 +332,7 @@
           "pa": 215
         },
         {
-          "position": 9,
+          "position": 10,
           "team": "SU Agen",
           "slug": "agen",
           "pts": 19,
@@ -330,19 +343,6 @@
           "bonus": 3,
           "pf": 217,
           "pa": 230
-        },
-        {
-          "position": 10,
-          "team": "US Dax",
-          "slug": "dax",
-          "pts": 19,
-          "pj": 8,
-          "w": 4,
-          "d": 0,
-          "l": 4,
-          "bonus": 3,
-          "pf": 276,
-          "pa": 313
         },
         {
           "position": 11,
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-29T20:42:31.767Z",
+      "checkedAt": "2026-10-30T01:22:57.420Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-29T20:42:32.295Z",
+      "checkedAt": "2026-10-30T01:22:58.201Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-29T20:42:30.941Z",
+      "checkedAt": "2026-10-30T01:22:56.295Z",
       "roundDate": "2026-10-25",
       "phase": "regular",
       "rows": [

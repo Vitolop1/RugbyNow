@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-31T13:07:10.406Z",
+      "checkedAt": "2026-10-31T19:33:57.668Z",
       "roundDate": "2026-10-31",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-31T13:07:12.670Z",
+      "checkedAt": "2026-10-31T19:33:58.894Z",
       "roundDate": "2026-10-30",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-31T13:07:14.422Z",
+      "checkedAt": "2026-10-31T19:34:00.715Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-31T13:07:15.107Z",
+      "checkedAt": "2026-10-31T19:34:01.595Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-31T13:07:13.484Z",
+      "checkedAt": "2026-10-31T19:33:59.864Z",
       "roundDate": "2026-11-01",
       "phase": "regular",
       "rows": [
@@ -1186,17 +1186,30 @@
           "position": 2,
           "team": "Union Bordeaux-Bègles",
           "slug": "bordeaux-begles",
-          "pts": 23,
-          "pj": 7,
-          "w": 5,
+          "pts": 27,
+          "pj": 8,
+          "w": 6,
           "d": 0,
           "l": 2,
           "bonus": 3,
-          "pf": 240,
-          "pa": 170
+          "pf": 259,
+          "pa": 184
         },
         {
           "position": 3,
+          "team": "LOU Rugby",
+          "slug": "lyon",
+          "pts": 23,
+          "pj": 8,
+          "w": 5,
+          "d": 0,
+          "l": 3,
+          "bonus": 3,
+          "pf": 272,
+          "pa": 254
+        },
+        {
+          "position": 4,
           "team": "Section Paloise",
           "slug": "section-paloise",
           "pts": 22,
@@ -1209,43 +1222,30 @@
           "pa": 222
         },
         {
-          "position": 4,
-          "team": "Stade Rochelais",
-          "slug": "stade-rochelais",
-          "pts": 18,
-          "pj": 7,
-          "w": 4,
-          "d": 0,
-          "l": 3,
-          "bonus": 2,
-          "pf": 163,
-          "pa": 160
-        },
-        {
           "position": 5,
-          "team": "LOU Rugby",
-          "slug": "lyon",
-          "pts": 18,
-          "pj": 7,
+          "team": "Aviron Bayonnais",
+          "slug": "bayonne",
+          "pts": 19,
+          "pj": 8,
           "w": 4,
           "d": 0,
-          "l": 3,
-          "bonus": 2,
-          "pf": 224,
-          "pa": 229
+          "l": 4,
+          "bonus": 3,
+          "pf": 231,
+          "pa": 264
         },
         {
           "position": 6,
-          "team": "Aviron Bayonnais",
-          "slug": "bayonne",
-          "pts": 18,
-          "pj": 7,
+          "team": "Stade Français Paris",
+          "slug": "stade-francais",
+          "pts": 19,
+          "pj": 8,
           "w": 4,
           "d": 0,
-          "l": 3,
-          "bonus": 2,
-          "pf": 217,
-          "pa": 245
+          "l": 4,
+          "bonus": 3,
+          "pf": 198,
+          "pa": 198
         },
         {
           "position": 7,
@@ -1262,6 +1262,19 @@
         },
         {
           "position": 8,
+          "team": "Stade Rochelais",
+          "slug": "stade-rochelais",
+          "pts": 18,
+          "pj": 8,
+          "w": 4,
+          "d": 0,
+          "l": 4,
+          "bonus": 2,
+          "pf": 187,
+          "pa": 203
+        },
+        {
+          "position": 9,
           "team": "RC Toulon",
           "slug": "toulon",
           "pts": 17,
@@ -1274,20 +1287,20 @@
           "pa": 150
         },
         {
-          "position": 9,
-          "team": "Stade Français Paris",
-          "slug": "stade-francais",
-          "pts": 14,
-          "pj": 7,
+          "position": 10,
+          "team": "ASM Clermont",
+          "slug": "asm-clermont-auvergne",
+          "pts": 16,
+          "pj": 8,
           "w": 3,
           "d": 0,
-          "l": 4,
-          "bonus": 2,
-          "pf": 155,
-          "pa": 174
+          "l": 5,
+          "bonus": 4,
+          "pf": 203,
+          "pa": 226
         },
         {
-          "position": 10,
+          "position": 11,
           "team": "USA Perpignan",
           "slug": "usa-perpignan",
           "pts": 14,
@@ -1300,7 +1313,7 @@
           "pa": 237
         },
         {
-          "position": 11,
+          "position": 12,
           "team": "Castres Olympique",
           "slug": "castres-olympique",
           "pts": 13,
@@ -1313,43 +1326,30 @@
           "pa": 161
         },
         {
-          "position": 12,
-          "team": "ASM Clermont",
-          "slug": "asm-clermont-auvergne",
-          "pts": 12,
-          "pj": 7,
-          "w": 2,
-          "d": 0,
-          "l": 5,
-          "bonus": 4,
-          "pf": 166,
-          "pa": 196
-        },
-        {
           "position": 13,
           "team": "Racing 92",
           "slug": "racing-92",
           "pts": 11,
-          "pj": 7,
+          "pj": 8,
           "w": 2,
           "d": 0,
-          "l": 5,
+          "l": 6,
           "bonus": 3,
-          "pf": 160,
-          "pa": 216
+          "pf": 190,
+          "pa": 253
         },
         {
           "position": 14,
           "team": "RC Vannes",
           "slug": "vannes",
           "pts": 5,
-          "pj": 7,
+          "pj": 8,
           "w": 1,
           "d": 0,
-          "l": 6,
+          "l": 7,
           "bonus": 1,
-          "pf": 144,
-          "pa": 202
+          "pf": 169,
+          "pa": 250
         }
       ]
     }

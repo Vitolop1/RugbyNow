@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-31T13:07:28.671Z",
+  "checkedAt": "2026-10-31T19:34:16.063Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -713,7 +713,7 @@
       "home": "Union Bordeaux-Bègles",
       "away": "Aviron Bayonnais",
       "date": "2026-10-31",
-      "startsAt": "2026-10-31T15:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-31",
       "windowTo": "2026-10-31",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11869-bordeaux-begles-bayonne"
@@ -727,7 +727,7 @@
       "home": "ASM Clermont",
       "away": "Racing 92",
       "date": "2026-10-31",
-      "startsAt": "2026-10-31T13:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-31",
       "windowTo": "2026-10-31",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11870-clermont-racing-92"
@@ -741,7 +741,7 @@
       "home": "LOU Rugby",
       "away": "RC Vannes",
       "date": "2026-10-31",
-      "startsAt": "2026-10-31T15:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-31",
       "windowTo": "2026-10-31",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11871-lyon-vannes"
@@ -769,7 +769,7 @@
       "home": "Stade Français Paris",
       "away": "Stade Rochelais",
       "date": "2026-10-31",
-      "startsAt": "2026-10-31T15:35:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-31",
       "windowTo": "2026-10-31",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11873-paris-la-rochelle"

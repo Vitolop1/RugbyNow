@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-01T16:29:15.381Z",
+  "generatedAt": "2026-11-01T22:27:09.390Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/argentina-en-busca-del-oro-en-los-juegos-olimpicos-de-la-juventud/",
+      "title": "Argentina, en busca del oro en los Juegos Olímpicos de la Juventud",
+      "href": "https://uar.com.ar/argentina-en-busca-del-oro-en-los-juegos-olimpicos-de-la-juventud/",
+      "publishedAt": "2026-11-01T17:43:31.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/zf_261101_04794_ARG_UGA.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/argentina-xv-con-plantel-confirmado-para-enfrentar-a-inglaterra-a/",
       "title": "Argentina XV con plantel confirmado para enfrentar a Inglaterra A",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/55539448851_9a6ca70725_o-e1792156454870.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/concentracion-m19-en-carlos-paz/",
-      "title": "Concentración M19 en Carlos Paz",
-      "href": "https://uar.com.ar/concentracion-m19-en-carlos-paz/",
-      "publishedAt": "2026-10-13T20:16:44.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/55538009260_41f4ddb76e_o.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-01T16:29:15.381Z",
+      "checkedAt": "2026-11-01T22:27:09.390Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-01T16:29:15.381Z",
+      "checkedAt": "2026-11-01T22:27:09.390Z",
       "count": 0
     }
   ]

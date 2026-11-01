@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-01T16:28:51.094Z",
+  "checkedAt": "2026-11-01T22:26:45.188Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -783,7 +783,7 @@
       "home": "Section Paloise",
       "away": "Stade Toulousain",
       "date": "2026-11-01",
-      "startsAt": "2026-11-01T20:05:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-01",
       "windowTo": "2026-11-01",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11874-pau-toulouse"

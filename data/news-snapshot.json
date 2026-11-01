@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-31T19:34:40.140Z",
+  "generatedAt": "2026-11-01T00:28:25.513Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/argentina-xv-con-plantel-confirmado-para-enfrentar-a-inglaterra-a/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-10-31T19:34:40.140Z",
+      "checkedAt": "2026-11-01T00:28:25.513Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-10-31T19:34:40.140Z",
+      "checkedAt": "2026-11-01T00:28:25.513Z",
       "count": 0
     }
   ]

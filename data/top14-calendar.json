@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-10-31T19:34:16.063Z",
+  "checkedAt": "2026-11-01T00:28:02.051Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -699,7 +699,7 @@
       "home": "USA Perpignan",
       "away": "RC Toulon",
       "date": "2026-10-31",
-      "startsAt": "2026-10-31T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-10-31",
       "windowTo": "2026-10-31",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11868-perpignan-toulon"

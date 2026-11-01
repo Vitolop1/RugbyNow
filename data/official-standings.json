@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-10-31T19:33:57.668Z",
+      "checkedAt": "2026-11-01T00:27:42.817Z",
       "roundDate": "2026-10-31",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-10-31T19:33:58.894Z",
+      "checkedAt": "2026-11-01T00:27:43.869Z",
       "roundDate": "2026-10-30",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-10-31T19:34:00.715Z",
+      "checkedAt": "2026-11-01T00:27:46.453Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-10-31T19:34:01.595Z",
+      "checkedAt": "2026-11-01T00:27:47.091Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-10-31T19:33:59.864Z",
+      "checkedAt": "2026-11-01T00:27:45.256Z",
       "roundDate": "2026-11-01",
       "phase": "regular",
       "rows": [
@@ -1223,6 +1223,19 @@
         },
         {
           "position": 5,
+          "team": "RC Toulon",
+          "slug": "toulon",
+          "pts": 21,
+          "pj": 8,
+          "w": 4,
+          "d": 0,
+          "l": 4,
+          "bonus": 5,
+          "pf": 196,
+          "pa": 174
+        },
+        {
+          "position": 6,
           "team": "Aviron Bayonnais",
           "slug": "bayonne",
           "pts": 19,
@@ -1235,7 +1248,7 @@
           "pa": 264
         },
         {
-          "position": 6,
+          "position": 7,
           "team": "Stade Français Paris",
           "slug": "stade-francais",
           "pts": 19,
@@ -1248,7 +1261,7 @@
           "pa": 198
         },
         {
-          "position": 7,
+          "position": 8,
           "team": "Montpellier Hérault Rugby",
           "slug": "montpellier-herault-rugby",
           "pts": 18,
@@ -1261,7 +1274,7 @@
           "pa": 139
         },
         {
-          "position": 8,
+          "position": 9,
           "team": "Stade Rochelais",
           "slug": "stade-rochelais",
           "pts": 18,
@@ -1272,19 +1285,6 @@
           "bonus": 2,
           "pf": 187,
           "pa": 203
-        },
-        {
-          "position": 9,
-          "team": "RC Toulon",
-          "slug": "toulon",
-          "pts": 17,
-          "pj": 7,
-          "w": 3,
-          "d": 0,
-          "l": 4,
-          "bonus": 5,
-          "pf": 171,
-          "pa": 150
         },
         {
           "position": 10,
@@ -1303,14 +1303,14 @@
           "position": 11,
           "team": "USA Perpignan",
           "slug": "usa-perpignan",
-          "pts": 14,
-          "pj": 7,
+          "pts": 15,
+          "pj": 8,
           "w": 3,
           "d": 0,
-          "l": 4,
-          "bonus": 2,
-          "pf": 199,
-          "pa": 237
+          "l": 5,
+          "bonus": 3,
+          "pf": 223,
+          "pa": 262
         },
         {
           "position": 12,

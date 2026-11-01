@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-01T12:01:19.119Z",
+  "checkedAt": "2026-11-01T16:28:51.094Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -755,7 +755,7 @@
       "home": "Montpellier Hérault Rugby",
       "away": "Castres Olympique",
       "date": "2026-11-01",
-      "startsAt": "2026-11-01T14:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-01",
       "windowTo": "2026-11-01",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j8/11872-montpellier-castres"

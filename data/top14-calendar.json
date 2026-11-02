@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-02T13:43:29.717Z",
+  "checkedAt": "2026-11-02T19:48:20.474Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -894,10 +894,10 @@
       "awaySlug": "castres-olympique",
       "home": "Aviron Bayonnais",
       "away": "Castres Olympique",
-      "date": null,
-      "startsAt": null,
+      "date": "2026-11-28",
+      "startsAt": "2026-11-28T15:35:00.000Z",
       "windowFrom": "2026-11-28",
-      "windowTo": "2026-11-29",
+      "windowTo": "2026-11-28",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11882-bayonne-castres"
     },
     {
@@ -908,10 +908,10 @@
       "awaySlug": "montpellier-herault-rugby",
       "home": "Union Bordeaux-Bègles",
       "away": "Montpellier Hérault Rugby",
-      "date": null,
-      "startsAt": null,
+      "date": "2026-11-28",
+      "startsAt": "2026-11-28T13:30:00.000Z",
       "windowFrom": "2026-11-28",
-      "windowTo": "2026-11-29",
+      "windowTo": "2026-11-28",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11883-bordeaux-begles-montpellier"
     },
     {
@@ -922,9 +922,9 @@
       "awaySlug": "toulon",
       "home": "ASM Clermont",
       "away": "RC Toulon",
-      "date": null,
-      "startsAt": null,
-      "windowFrom": "2026-11-28",
+      "date": "2026-11-29",
+      "startsAt": "2026-11-29T20:05:00.000Z",
+      "windowFrom": "2026-11-29",
       "windowTo": "2026-11-29",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11884-clermont-toulon"
     },
@@ -936,10 +936,10 @@
       "awaySlug": "usa-perpignan",
       "home": "Stade Rochelais",
       "away": "USA Perpignan",
-      "date": null,
-      "startsAt": null,
+      "date": "2026-11-28",
+      "startsAt": "2026-11-28T15:35:00.000Z",
       "windowFrom": "2026-11-28",
-      "windowTo": "2026-11-29",
+      "windowTo": "2026-11-28",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11885-la-rochelle-perpignan"
     },
     {
@@ -950,10 +950,10 @@
       "awaySlug": "stade-toulousain",
       "home": "LOU Rugby",
       "away": "Stade Toulousain",
-      "date": null,
-      "startsAt": null,
+      "date": "2026-11-28",
+      "startsAt": "2026-11-28T20:00:00.000Z",
       "windowFrom": "2026-11-28",
-      "windowTo": "2026-11-29",
+      "windowTo": "2026-11-28",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11886-lyon-toulouse"
     },
     {
@@ -964,10 +964,10 @@
       "awaySlug": "vannes",
       "home": "Stade Français Paris",
       "away": "RC Vannes",
-      "date": null,
-      "startsAt": null,
+      "date": "2026-11-28",
+      "startsAt": "2026-11-28T15:35:00.000Z",
       "windowFrom": "2026-11-28",
-      "windowTo": "2026-11-29",
+      "windowTo": "2026-11-28",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11887-paris-vannes"
     },
     {
@@ -978,10 +978,10 @@
       "awaySlug": "section-paloise",
       "home": "Racing 92",
       "away": "Section Paloise",
-      "date": null,
-      "startsAt": null,
+      "date": "2026-11-28",
+      "startsAt": "2026-11-28T15:35:00.000Z",
       "windowFrom": "2026-11-28",
-      "windowTo": "2026-11-29",
+      "windowTo": "2026-11-28",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11888-racing-92-pau"
     },
     {

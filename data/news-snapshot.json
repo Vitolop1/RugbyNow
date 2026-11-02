@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-11-02T13:43:46.393Z",
+  "generatedAt": "2026-11-02T19:48:33.140Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/el-campeonato-argentino-juvenil-m17-se-muda-a-tucuman/",
+      "title": "El Campeonato Argentino Juvenil M17 se muda a Tucumán",
+      "href": "https://uar.com.ar/el-campeonato-argentino-juvenil-m17-se-muda-a-tucuman/",
+      "publishedAt": "2026-11-02T18:53:33.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/55594726812_7013f9dec1_o.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/argentina-es-de-bronce-en-dakar/",
+      "title": "ARGENTINA ES DE BRONCE EN DAKAR",
+      "href": "https://uar.com.ar/argentina-es-de-bronce-en-dakar/",
+      "publishedAt": "2026-11-02T17:26:01.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/zf_261102_17528_RSA_ARG-e1793640339303.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/argentina-en-busca-del-oro-en-los-juegos-olimpicos-de-la-juventud/",
       "title": "Argentina, en busca del oro en los Juegos Olímpicos de la Juventud",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/DSC_4196.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/comenzo-la-tercera-fecha-del-argentino-juvenil/",
-      "title": "Comenzó la tercera fecha del Argentino Juvenil",
-      "href": "https://uar.com.ar/comenzo-la-tercera-fecha-del-argentino-juvenil/",
-      "publishedAt": "2026-10-18T00:00:45.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Cuyo-v-Salta.jpeg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/rumbo-al-concentrado-se-disputa-la-tercera-fecha-del-campeonato-argentino-juvenil-m17-2026/",
-      "title": "Rumbo al Concentrado: se disputa la tercera fecha del Campeonato Argentino Juvenil M17 2026",
-      "href": "https://uar.com.ar/rumbo-al-concentrado-se-disputa-la-tercera-fecha-del-campeonato-argentino-juvenil-m17-2026/",
-      "publishedAt": "2026-10-16T14:34:22.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/55539448851_9a6ca70725_o-e1792156454870.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-02T13:43:46.393Z",
+      "checkedAt": "2026-11-02T19:48:33.140Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-02T13:43:46.393Z",
+      "checkedAt": "2026-11-02T19:48:33.140Z",
       "count": 0
     }
   ]

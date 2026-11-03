@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-02T19:48:33.140Z",
+  "generatedAt": "2026-11-03T03:07:19.249Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/el-campeonato-argentino-juvenil-m17-se-muda-a-tucuman/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-02T19:48:33.140Z",
+      "checkedAt": "2026-11-03T03:07:19.249Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-02T19:48:33.140Z",
+      "checkedAt": "2026-11-03T03:07:19.249Z",
       "count": 0
     }
   ]

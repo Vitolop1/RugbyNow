@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-04T01:41:40.121Z",
+  "generatedAt": "2026-11-04T11:35:51.410Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/los-23-para-enfrentar-a-irlanda-en-dublin/",
+      "title": "Los 23 para enfrentar a Irlanda en Dublín",
+      "href": "https://uar.com.ar/los-23-para-enfrentar-a-irlanda-en-dublin/",
+      "publishedAt": "2026-11-04T09:46:47.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Matera-y-Montoya-2-e1793780947500.jpeg"
+    },
     {
       "id": "uar:https://uar.com.ar/el-campeonato-argentino-juvenil-m17-se-muda-a-tucuman/",
       "title": "El Campeonato Argentino Juvenil M17 se muda a Tucumán",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/Los-Pumas-v-Inglaterra-Captains-Run-Santiago-del-Estero-164.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/encuentro-nacional-de-referees/",
-      "title": "Encuentro Nacional de Referees",
-      "href": "https://uar.com.ar/encuentro-nacional-de-referees/",
-      "publishedAt": "2026-10-21T12:37:02.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/DSC_4196.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-04T01:41:40.121Z",
+      "checkedAt": "2026-11-04T11:35:51.410Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-04T01:41:40.121Z",
+      "checkedAt": "2026-11-04T11:35:51.410Z",
       "count": 0
     }
   ]

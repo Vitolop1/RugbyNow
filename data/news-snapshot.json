@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-04T13:11:26.587Z",
+  "generatedAt": "2026-11-04T20:07:21.354Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/formacion-de-argentina-xv-para-visitar-a-inglaterra-a/",
+      "title": "Formación de Argentina XV para visitar a Inglaterra A",
+      "href": "https://uar.com.ar/formacion-de-argentina-xv-para-visitar-a-inglaterra-a/",
+      "publishedAt": "2026-11-04T19:39:45.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/DSC_0620-e1793820965536.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/los-23-para-enfrentar-a-irlanda-en-dublin/",
       "title": "Los 23 para enfrentar a Irlanda en Dublín",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/54875817979_0fac393e3a_o-1.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/londres-recibira-el-camp-de-los-pumas-en-la-previa-del-nations-championship/",
-      "title": "Londres recibirá el Camp de Los Pumas en la previa del Nations Championship",
-      "href": "https://uar.com.ar/londres-recibira-el-camp-de-los-pumas-en-la-previa-del-nations-championship/",
-      "publishedAt": "2026-10-21T21:13:07.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Los-Pumas-v-Inglaterra-Captains-Run-Santiago-del-Estero-164.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-04T13:11:26.587Z",
+      "checkedAt": "2026-11-04T20:07:21.354Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-04T13:11:26.587Z",
+      "checkedAt": "2026-11-04T20:07:21.354Z",
       "count": 0
     }
   ]

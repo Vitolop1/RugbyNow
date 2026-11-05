@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T11:31:37.984Z",
+  "generatedAt": "2026-11-05T13:24:27.981Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/formacion-de-argentina-xv-para-visitar-a-inglaterra-a/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-05T11:31:37.984Z",
+      "checkedAt": "2026-11-05T13:24:27.981Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-05T11:31:37.984Z",
+      "checkedAt": "2026-11-05T13:24:27.981Z",
       "count": 0
     }
   ]

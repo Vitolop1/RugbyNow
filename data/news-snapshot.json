@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-05T13:24:27.981Z",
+  "generatedAt": "2026-11-05T20:18:32.618Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/concentracion-de-mayores-y-juveniles-de-las-yaguaretes-en-casa-pumas/",
+      "title": "Concentración de Mayores y Juveniles de Las Yaguaretés en Casa Pumas",
+      "href": "https://uar.com.ar/concentracion-de-mayores-y-juveniles-de-las-yaguaretes-en-casa-pumas/",
+      "publishedAt": "2026-11-05T17:47:18.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/54440948153_33769feb1b_o-e1793900787494.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/formacion-de-argentina-xv-para-visitar-a-inglaterra-a/",
       "title": "Formación de Argentina XV para visitar a Inglaterra A",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/France-Japon-OBJECTIF-RUGBY-Stephane-Hamel-158-1-e1792684171536.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/comienza-el-select-12/",
-      "title": "COMIENZA EL SELECT 12",
-      "href": "https://uar.com.ar/comienza-el-select-12/",
-      "publishedAt": "2026-10-22T14:56:00.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/54875817979_0fac393e3a_o-1.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-05T13:24:27.981Z",
+      "checkedAt": "2026-11-05T20:18:32.618Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-05T13:24:27.981Z",
+      "checkedAt": "2026-11-05T20:18:32.618Z",
       "count": 0
     }
   ]

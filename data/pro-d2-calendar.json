@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-05T20:18:01.036Z",
+  "checkedAt": "2026-11-06T01:50:15.045Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -1021,7 +1021,7 @@
       "home": "Agen",
       "away": "Biarritz",
       "date": "2026-11-05",
-      "startsAt": "2026-11-05T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-05",
       "windowTo": "2026-11-05",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j10/12079-agen-biarritz"

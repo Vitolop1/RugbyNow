@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-11-06T13:08:23.150Z",
+  "generatedAt": "2026-11-07T01:13:35.351Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/argentina-xv-cayo-en-un-vibrante-encuentro-ante-inglaterra-a/",
+      "title": "ARGENTINA XV CAYÓ EN UN VIBRANTE ENCUENTRO ANTE INGLATERRA A",
+      "href": "https://uar.com.ar/argentina-xv-cayo-en-un-vibrante-encuentro-ante-inglaterra-a/",
+      "publishedAt": "2026-11-06T22:21:46.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/England-A-v-Argentina-XV-WC271-copy.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-cayeron-ante-irlanda-en-dublin/",
+      "title": "LOS PUMAS CAYERON ANTE IRLANDA EN DUBLÍN",
+      "href": "https://uar.com.ar/los-pumas-cayeron-ante-irlanda-en-dublin/",
+      "publishedAt": "2026-11-06T22:16:58.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Ireland-v-Los-Pumas-Dublin-037.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/concentracion-de-mayores-y-juveniles-de-las-yaguaretes-en-casa-pumas/",
       "title": "Concentración de Mayores y Juveniles de Las Yaguaretés en Casa Pumas",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/Santiaguena-campeon-Select-12-Norte.jpeg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/el-select-12-norte-y-sur-tuvo-su-primera-jornada/",
-      "title": "El Select 12 Norte y Sur tuvo su primera jornada",
-      "href": "https://uar.com.ar/el-select-12-norte-y-sur-tuvo-su-primera-jornada/",
-      "publishedAt": "2026-10-23T21:34:33.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Andina-vs-Jujuy-1.jpeg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/damian-schneider-ante-un-enorme-desafio/",
-      "title": "DAMIÁN SCHNEIDER ANTE UN ENORME DESAFÍO",
-      "href": "https://uar.com.ar/damian-schneider-ante-un-enorme-desafio/",
-      "publishedAt": "2026-10-22T15:49:53.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/France-Japon-OBJECTIF-RUGBY-Stephane-Hamel-158-1-e1792684171536.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-06T13:08:23.150Z",
+      "checkedAt": "2026-11-07T01:13:35.351Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-06T13:08:23.150Z",
+      "checkedAt": "2026-11-07T01:13:35.351Z",
       "count": 0
     }
   ]

@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-11-08T13:54:47.361Z",
+      "checkedAt": "2026-11-08T19:58:55.736Z",
       "roundDate": "2026-11-07",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-11-08T13:54:48.320Z",
+      "checkedAt": "2026-11-08T19:58:57.870Z",
       "roundDate": "2026-11-06",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-11-08T13:54:50.111Z",
+      "checkedAt": "2026-11-08T19:59:00.201Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-11-08T13:54:50.923Z",
+      "checkedAt": "2026-11-08T19:59:00.864Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,8 +1165,8 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-11-08T13:54:49.226Z",
-      "roundDate": "2026-11-07",
+      "checkedAt": "2026-11-08T19:58:59.010Z",
+      "roundDate": "2026-11-08",
       "phase": "regular",
       "rows": [
         {
@@ -1213,13 +1213,13 @@
           "team": "Union Bordeaux-Bègles",
           "slug": "bordeaux-begles",
           "pts": 27,
-          "pj": 8,
+          "pj": 9,
           "w": 6,
           "d": 0,
-          "l": 2,
+          "l": 3,
           "bonus": 3,
-          "pf": 259,
-          "pa": 184
+          "pf": 273,
+          "pa": 207
         },
         {
           "position": 5,
@@ -1342,14 +1342,14 @@
           "position": 14,
           "team": "RC Vannes",
           "slug": "vannes",
-          "pts": 5,
-          "pj": 8,
-          "w": 1,
+          "pts": 9,
+          "pj": 9,
+          "w": 2,
           "d": 0,
           "l": 7,
           "bonus": 1,
-          "pf": 169,
-          "pa": 250
+          "pf": 192,
+          "pa": 264
         }
       ]
     }

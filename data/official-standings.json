@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-11-08T19:58:55.736Z",
+      "checkedAt": "2026-11-09T01:14:24.552Z",
       "roundDate": "2026-11-07",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-11-08T19:58:57.870Z",
+      "checkedAt": "2026-11-09T01:14:26.652Z",
       "roundDate": "2026-11-06",
       "phase": "regular",
       "rows": [
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-11-08T19:59:00.201Z",
+      "checkedAt": "2026-11-09T01:14:28.654Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-11-08T19:59:00.864Z",
+      "checkedAt": "2026-11-09T01:14:29.264Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-11-08T19:58:59.010Z",
+      "checkedAt": "2026-11-09T01:14:27.549Z",
       "roundDate": "2026-11-08",
       "phase": "regular",
       "rows": [
@@ -1249,19 +1249,32 @@
         },
         {
           "position": 7,
-          "team": "Aviron Bayonnais",
-          "slug": "bayonne",
-          "pts": 19,
-          "pj": 8,
-          "w": 4,
+          "team": "Stade Rochelais",
+          "slug": "stade-rochelais",
+          "pts": 22,
+          "pj": 9,
+          "w": 5,
           "d": 0,
           "l": 4,
-          "bonus": 3,
-          "pf": 231,
-          "pa": 264
+          "bonus": 2,
+          "pf": 209,
+          "pa": 221
         },
         {
           "position": 8,
+          "team": "Aviron Bayonnais",
+          "slug": "bayonne",
+          "pts": 20,
+          "pj": 9,
+          "w": 4,
+          "d": 0,
+          "l": 5,
+          "bonus": 4,
+          "pf": 249,
+          "pa": 286
+        },
+        {
+          "position": 9,
           "team": "Stade Français Paris",
           "slug": "stade-francais",
           "pts": 19,
@@ -1272,19 +1285,6 @@
           "bonus": 3,
           "pf": 221,
           "pa": 241
-        },
-        {
-          "position": 9,
-          "team": "Stade Rochelais",
-          "slug": "stade-rochelais",
-          "pts": 18,
-          "pj": 8,
-          "w": 4,
-          "d": 0,
-          "l": 4,
-          "bonus": 2,
-          "pf": 187,
-          "pa": 203
         },
         {
           "position": 10,

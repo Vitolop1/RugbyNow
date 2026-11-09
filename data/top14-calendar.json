@@ -2,7 +2,7 @@
   "sourceName": "LNR · Top 14",
   "sourceUrl": "https://top14.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-08T19:59:15.293Z",
+  "checkedAt": "2026-11-09T01:14:44.353Z",
   "fixtures": [
     {
       "sourceId": 11819,
@@ -825,7 +825,7 @@
       "home": "Stade Rochelais",
       "away": "Aviron Bayonnais",
       "date": "2026-11-08",
-      "startsAt": "2026-11-08T20:05:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-08",
       "windowTo": "2026-11-08",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j9/11877-la-rochelle-bayonne"

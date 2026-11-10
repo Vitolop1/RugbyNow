@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-10T07:46:09.885Z",
+  "generatedAt": "2026-11-10T13:40:06.012Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/la-uar-y-cub3-firmaron-un-acuerdo-para-potenciar-el-desarrollo-comercial-de-pampas/",
+      "title": "La UAR y Cub3 firmaron un acuerdo para potenciar el desarrollo comercial de Pampas",
+      "href": "https://uar.com.ar/la-uar-y-cub3-firmaron-un-acuerdo-para-potenciar-el-desarrollo-comercial-de-pampas/",
+      "publishedAt": "2026-11-10T13:10:58.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/foto-2.jpeg"
+    },
     {
       "id": "uar:https://uar.com.ar/argentina-xv-cayo-en-un-vibrante-encuentro-ante-inglaterra-a/",
       "title": "ARGENTINA XV CAYÓ EN UN VIBRANTE ENCUENTRO ANTE INGLATERRA A",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/20261004_NacionalDeClubesFem_Dia2-795-1.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/santiago-del-estero-y-chubut-se-consagraron-campeones-del-select-12-norte-y-sur/",
-      "title": "Santiago del Estero y Chubut se consagraron campeones del Select 12 Norte y Sur",
-      "href": "https://uar.com.ar/santiago-del-estero-y-chubut-se-consagraron-campeones-del-select-12-norte-y-sur/",
-      "publishedAt": "2026-10-25T21:32:35.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Santiaguena-campeon-Select-12-Norte.jpeg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-10T07:46:09.885Z",
+      "checkedAt": "2026-11-10T13:40:06.012Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-10T07:46:09.885Z",
+      "checkedAt": "2026-11-10T13:40:06.012Z",
       "count": 0
     }
   ]

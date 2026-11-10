@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T13:40:06.012Z",
+  "generatedAt": "2026-11-10T17:19:59.704Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/la-uar-y-cub3-firmaron-un-acuerdo-para-potenciar-el-desarrollo-comercial-de-pampas/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-10T13:40:06.012Z",
+      "checkedAt": "2026-11-10T17:19:59.704Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-10T13:40:06.012Z",
+      "checkedAt": "2026-11-10T17:19:59.704Z",
       "count": 0
     }
   ]

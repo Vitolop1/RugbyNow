@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-11-12T01:01:37.378Z",
+  "generatedAt": "2026-11-12T11:51:59.198Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
+      "title": "Los Pumas tienen su formación confirmada para enfrentar a Italia",
+      "href": "https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
+      "publishedAt": "2026-11-12T11:46:36.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Ireland-v-Los-Pumas-Dublin-020.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/se-define-en-argentino-juvenil-m17/",
+      "title": "SE DEFINE EN ARGENTINO JUVENIL M17",
+      "href": "https://uar.com.ar/se-define-en-argentino-juvenil-m17/",
+      "publishedAt": "2026-11-12T01:10:44.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/BA-vs-Cuyo-01-IMG_1270.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/la-uar-y-cub3-firmaron-un-acuerdo-para-potenciar-el-desarrollo-comercial-de-pampas/",
       "title": "La UAR y Cub3 firmaron un acuerdo para potenciar el desarrollo comercial de Pampas",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/DSC_0639-1-e1793370341944.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-pumas-ya-tienen-plantel-para-el-cierre-del-nations-championship/",
-      "title": "Los Pumas ya tienen plantel para el cierre del Nations Championship",
-      "href": "https://uar.com.ar/los-pumas-ya-tienen-plantel-para-el-cierre-del-nations-championship/",
-      "publishedAt": "2026-10-30T14:06:35.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Julian-Montoya-5-e1793366722417.jpeg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/la-uar-realizara-el-primer-encuentro-femenino-de-selecciones-de-xv/",
-      "title": "La UAR realizará el primer Encuentro Femenino de Selecciones de XV",
-      "href": "https://uar.com.ar/la-uar-realizara-el-primer-encuentro-femenino-de-selecciones-de-xv/",
-      "publishedAt": "2026-10-28T17:54:20.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/20261004_NacionalDeClubesFem_Dia2-795-1.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50200631/england-rugby-league-world-cup-campaign-immediate-jeopardy-opening-loss-tonga",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-12T01:01:37.378Z",
+      "checkedAt": "2026-11-12T11:51:59.198Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-12T01:01:37.378Z",
+      "checkedAt": "2026-11-12T11:51:59.198Z",
       "count": 0
     }
   ]

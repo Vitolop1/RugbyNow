@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T11:51:59.198Z",
+  "generatedAt": "2026-11-12T13:57:35.795Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-12T11:51:59.198Z",
+      "checkedAt": "2026-11-12T13:57:35.795Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-12T11:51:59.198Z",
+      "checkedAt": "2026-11-12T13:57:35.795Z",
       "count": 0
     }
   ]

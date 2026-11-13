@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T02:10:29.208Z",
+  "generatedAt": "2026-11-13T11:33:12.858Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
@@ -125,11 +125,21 @@
       "id": "espn:https://www.espn.com/rugby/story/_/id/50460755/henry-pollock-england-japan-rugby",
       "title": "Pollock to start at No. 8 for England against Japan, Ford at fly-half",
       "href": "https://www.espn.com/rugby/story/_/id/50460755/henry-pollock-england-japan-rugby",
-      "publishedAt": "2026-11-13T02:01:35.000Z",
+      "publishedAt": "2026-11-13T11:03:56.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743026_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/espn/story/_/id/50469373/france-vs-south-africa-kick-team-news-how-watch-springboks",
+      "title": "France vs. South Africa - Can Springboks remain unbeaten in Nations Championship?",
+      "href": "https://www.espn.com/espn/story/_/id/50469373/france-vs-south-africa-kick-team-news-how-watch-springboks",
+      "publishedAt": "2026-11-13T07:04:17.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0917%2Fr1546883_1296x729_16%2D9.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50461571/steve-tandy-wales-all-blacks",
@@ -230,29 +240,19 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1111%2Fr1744463_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50451572/feyi-waboso-tom-curry-england-rugby",
-      "title": "Sinfield: Feyi-Waboso, Tom Curry injury management crucial",
-      "href": "https://www.espn.com/rugby/story/_/id/50451572/feyi-waboso-tom-curry-england-rugby",
-      "publishedAt": "2026-11-11T09:46:31.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1111%2Fr1744378_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-13T02:10:29.208Z",
+      "checkedAt": "2026-11-13T11:33:12.858Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": true,
-      "checkedAt": "2026-11-13T02:10:29.208Z",
+      "checkedAt": "2026-11-13T11:33:12.858Z",
       "count": 12
     }
   ]

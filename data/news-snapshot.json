@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T13:19:18.222Z",
+  "generatedAt": "2026-11-13T20:03:27.226Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
@@ -122,14 +122,34 @@
       "image": "https://uar.com.ar/wp-content/uploads/DSC_0639-1-e1793370341944.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50460755/henry-pollock-england-japan-rugby",
-      "title": "Pollock to start at No. 8 for England against Japan, Ford at fly-half",
-      "href": "https://www.espn.com/rugby/story/_/id/50460755/henry-pollock-england-japan-rugby",
-      "publishedAt": "2026-11-13T11:03:56.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50472862/france-south-africa-rugby-nations-championship-updates",
+      "title": "France vs. South Africa LIVE: Nations Championship updates as Springboks visit Paris",
+      "href": "https://www.espn.com/rugby/story/_/id/50472862/france-south-africa-rugby-nations-championship-updates",
+      "publishedAt": "2026-11-13T19:17:55.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743026_1296x729_16%2D9.jpg"
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1113%2Fr1745397_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50472387/england-japan-eddie-jones-rugby-nations-championship",
+      "title": "England hit back at Eddie Jones mind games",
+      "href": "https://www.espn.com/rugby/story/_/id/50472387/england-japan-eddie-jones-rugby-nations-championship",
+      "publishedAt": "2026-11-13T16:28:01.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1113%2Fr1745290_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50471352/wallabies-scotland-carter-gordon",
+      "title": "Gordon at fly-half, Valetini starts for Wallabies against Scotland",
+      "href": "https://www.espn.com/rugby/story/_/id/50471352/wallabies-scotland-carter-gordon",
+      "publishedAt": "2026-11-13T14:20:08.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F0930%2Fr1723789_3_1296x729_16%2D9.jpg"
     },
     {
       "id": "espn:https://www.espn.com/espn/story/_/id/50469373/france-vs-south-africa-kick-team-news-how-watch-springboks",
@@ -152,6 +172,16 @@
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1112%2Fr1744781_1296x729_16%2D9.jpg"
     },
     {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50434131/england-injured-feyi-waboso-curry-rugby-nations-championship",
+      "title": "England's Feyi-Waboso, Curry to miss rest of Nations Championship",
+      "href": "https://www.espn.com/rugby/story/_/id/50434131/england-injured-feyi-waboso-curry-rugby-nations-championship",
+      "publishedAt": "2026-11-12T12:23:47.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1109%2Fr1743616_1296x729_16%2D9.jpg"
+    },
+    {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50460428/henry-pollock-england-rugby",
       "title": "The new norm? How hybrid players like Henry Pollock are changing rugby",
       "href": "https://www.espn.com/rugby/story/_/id/50460428/henry-pollock-england-rugby",
@@ -160,6 +190,16 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743038_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50460755/henry-pollock-england-japan-rugby",
+      "title": "Pollock to start at No. 8 for England against Japan, Ford at fly-half",
+      "href": "https://www.espn.com/rugby/story/_/id/50460755/henry-pollock-england-japan-rugby",
+      "publishedAt": "2026-11-12T12:08:29.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743026_1296x729_16%2D9.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50446943/wallabies-lonergan-defends-suaalii-gordon-return",
@@ -200,60 +240,20 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743250_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50421932/england-australia-rugby-promises",
-      "title": "Talk is cheap: England finally deliver, when Borthwick needed it most",
-      "href": "https://www.espn.com/rugby/story/_/id/50421932/england-australia-rugby-promises",
-      "publishedAt": "2026-11-12T09:28:42.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743040_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/49076874/what-nations-championship-rugby-newest-competition-explained-fixtures-format-how-watch",
-      "title": "What is the Nations Championship? Explaining rugby's new competition, fixtures, format, how to watch in UK",
-      "href": "https://www.espn.com/rugby/story/_/id/49076874/what-nations-championship-rugby-newest-competition-explained-fixtures-format-how-watch",
-      "publishedAt": "2026-11-12T09:27:41.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F0616%2Fr1674259_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
-      "title": "Nations Championship power rankings: Who should be worried after action-packed return?",
-      "href": "https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
-      "publishedAt": "2026-11-12T07:11:12.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1028%2Fr1737504_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50453837/max-llewellyn-sonny-bill-williams-wales",
-      "title": "Llewellyn reveals Sonny Bill Williams inspiration ahead of Wales' clash with All Blacks",
-      "href": "https://www.espn.com/rugby/story/_/id/50453837/max-llewellyn-sonny-bill-williams-wales",
-      "publishedAt": "2026-11-11T17:23:06.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1111%2Fr1744463_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-13T13:19:18.222Z",
+      "checkedAt": "2026-11-13T20:03:27.226Z",
       "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": false,
-      "checkedAt": "2026-11-13T13:19:18.222Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-13T20:03:27.226Z",
+      "count": 12
     }
   ]
 }

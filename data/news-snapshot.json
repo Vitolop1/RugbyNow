@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T20:03:27.226Z",
+  "generatedAt": "2026-11-14T01:54:32.783Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
@@ -122,14 +122,34 @@
       "image": "https://uar.com.ar/wp-content/uploads/DSC_0639-1-e1793370341944.jpg"
     },
     {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50475134/france-south-africa-nations-championship",
+      "title": "France grab thrilling win after second-half fightback from South Africa",
+      "href": "https://www.espn.com/rugby/story/_/id/50475134/france-south-africa-nations-championship",
+      "publishedAt": "2026-11-13T23:11:02.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1113%2Fr1745464_1296x729_16%2D9.jpg"
+    },
+    {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50472862/france-south-africa-rugby-nations-championship-updates",
-      "title": "France vs. South Africa LIVE: Nations Championship updates as Springboks visit Paris",
+      "title": "France 21-19 South Africa: Les Bleus beat Springboks in classic Test - as it happened",
       "href": "https://www.espn.com/rugby/story/_/id/50472862/france-south-africa-rugby-nations-championship-updates",
-      "publishedAt": "2026-11-13T19:17:55.000Z",
+      "publishedAt": "2026-11-13T23:11:02.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1113%2Fr1745397_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
+      "title": "International rugby fixtures: Latest matches, key dates, venues",
+      "href": "https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
+      "publishedAt": "2026-11-13T22:43:47.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2024%2F1101%2Fr1409058_1296x729_16%2D9.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50472387/england-japan-eddie-jones-rugby-nations-championship",
@@ -220,39 +240,19 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1110%2Fr1743900_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50426001/wallabies-awful-attack-defence-england-defeat",
-      "title": "No attack, no defence -- the Wallabies had no hope at Twickenham",
-      "href": "https://www.espn.com/rugby/story/_/id/50426001/wallabies-awful-attack-defence-england-defeat",
-      "publishedAt": "2026-11-12T09:29:53.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743296_2_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50424759/nations-championship-rugby-reaction-pollock-australia",
-      "title": "Nations Championship huddle: Pollock stars, Erasmus unsatisfied, Australia in crisis?",
-      "href": "https://www.espn.com/rugby/story/_/id/50424759/nations-championship-rugby-reaction-pollock-australia",
-      "publishedAt": "2026-11-12T09:28:42.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743250_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-13T20:03:27.226Z",
+      "checkedAt": "2026-11-14T01:54:32.783Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": true,
-      "checkedAt": "2026-11-13T20:03:27.226Z",
+      "checkedAt": "2026-11-14T01:54:32.783Z",
       "count": 12
     }
   ]

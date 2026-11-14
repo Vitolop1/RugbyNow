@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-14T10:57:17.331Z",
+  "generatedAt": "2026-11-14T12:22:49.824Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-y-le-coq-sportif-homenajean-a-los-heroes-del-86/",
+      "title": "Los Pumas y Le Coq Sportif homenajean a los Héroes del 86’",
+      "href": "https://uar.com.ar/los-pumas-y-le-coq-sportif-homenajean-a-los-heroes-del-86/",
+      "publishedAt": "2026-11-14T11:32:41.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/BANNER-DESKTOP-MOBILE-PUMAS-GALA-02-1.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
       "title": "Los Pumas tienen su formación confirmada para enfrentar a Italia",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/zf_261101_04794_ARG_UGA.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/argentina-xv-con-plantel-confirmado-para-enfrentar-a-inglaterra-a/",
-      "title": "Argentina XV con plantel confirmado para enfrentar a Inglaterra A",
-      "href": "https://uar.com.ar/argentina-xv-con-plantel-confirmado-para-enfrentar-a-inglaterra-a/",
-      "publishedAt": "2026-10-30T14:27:34.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/DSC_0639-1-e1793370341944.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50475134/france-south-africa-nations-championship",
@@ -246,14 +246,14 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-14T10:57:17.331Z",
+      "checkedAt": "2026-11-14T12:22:49.824Z",
       "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": false,
-      "checkedAt": "2026-11-14T10:57:17.331Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-14T12:22:49.824Z",
+      "count": 12
     }
   ]
 }

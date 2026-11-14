@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-14T12:22:49.824Z",
+  "generatedAt": "2026-11-14T18:31:01.068Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-vencieron-a-italia-en-genova/",
+      "title": "Los Pumas vencieron a Italia en Génova",
+      "href": "https://uar.com.ar/los-pumas-vencieron-a-italia-en-genova/",
+      "publishedAt": "2026-11-14T13:46:21.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Italia-v-Los-Pumas-Genova-043.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/los-pumas-y-le-coq-sportif-homenajean-a-los-heroes-del-86/",
       "title": "Los Pumas y Le Coq Sportif homenajean a los Héroes del 86’",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/zf_261102_17528_RSA_ARG-e1793640339303.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/argentina-en-busca-del-oro-en-los-juegos-olimpicos-de-la-juventud/",
-      "title": "Argentina, en busca del oro en los Juegos Olímpicos de la Juventud",
-      "href": "https://uar.com.ar/argentina-en-busca-del-oro-en-los-juegos-olimpicos-de-la-juventud/",
-      "publishedAt": "2026-11-01T17:43:31.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/zf_261101_04794_ARG_UGA.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50475134/france-south-africa-nations-championship",
@@ -246,14 +246,14 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-14T12:22:49.824Z",
+      "checkedAt": "2026-11-14T18:31:01.068Z",
       "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": true,
-      "checkedAt": "2026-11-14T12:22:49.824Z",
-      "count": 12
+      "ok": false,
+      "checkedAt": "2026-11-14T18:31:01.068Z",
+      "count": 0
     }
   ]
 }

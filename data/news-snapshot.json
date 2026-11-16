@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T13:51:34.689Z",
+  "generatedAt": "2026-11-16T19:53:27.737Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/buenos-aires-campeon-del-argentino-juvenil-m17/",
@@ -122,24 +122,104 @@
       "image": "https://uar.com.ar/wp-content/uploads/55594726812_7013f9dec1_o.jpg"
     },
     {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50503407/all-blacks-wales-dave-rennie",
+      "title": "Rennie: All Blacks 'let the country down' with Wales loss",
+      "href": "https://www.espn.com/rugby/story/_/id/50503407/all-blacks-wales-dave-rennie",
+      "publishedAt": "2026-11-16T19:12:50.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1116%2Fr1746747_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50502250/lewis-moody-mnd-rugby",
+      "title": "Former England captain Moody launches new \"Front UP to MND\" campaign",
+      "href": "https://www.espn.com/rugby/story/_/id/50502250/lewis-moody-mnd-rugby",
+      "publishedAt": "2026-11-16T19:00:07.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1116%2Fr1746663_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50503224/ben-earl-joseph-england",
+      "title": "England's Earl praises 'brilliant' Joseph after try-scoring heroics",
+      "href": "https://www.espn.com/rugby/story/_/id/50503224/ben-earl-joseph-england",
+      "publishedAt": "2026-11-16T18:46:06.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1116%2Fr1746729_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
+      "title": "Nations Championship power rankings: Who takes top spot now? How far do New Zealand drop?",
+      "href": "https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
+      "publishedAt": "2026-11-16T14:39:10.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1028%2Fr1737504_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50480607/wales-all-blacks-new-zealand-nations-championship",
+      "title": "Wales vanquish demons of the past with historic win over All Blacks",
+      "href": "https://www.espn.com/rugby/story/_/id/50480607/wales-all-blacks-new-zealand-nations-championship",
+      "publishedAt": "2026-11-16T14:39:10.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745700_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50481766/england-steve-borthwick-japan-nations-championship",
+      "title": "England changes against Japan were a risk but rout showed plenty of reward",
+      "href": "https://www.espn.com/rugby/story/_/id/50481766/england-steve-borthwick-japan-nations-championship",
+      "publishedAt": "2026-11-16T14:37:08.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745793_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50483105/nations-championship-england-japan-player-ratings",
+      "title": "Nations Championship: England player ratings after Steve Borthwick's men run in 13 tries",
+      "href": "https://www.espn.com/rugby/story/_/id/50483105/nations-championship-england-japan-player-ratings",
+      "publishedAt": "2026-11-16T14:37:08.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745865_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50482691/will-joseph-england-japan-nations-championship",
+      "title": "Will Joseph stars with five tries as England thrash Japan 78-15",
+      "href": "https://www.espn.com/rugby/story/_/id/50482691/will-joseph-england-japan-nations-championship",
+      "publishedAt": "2026-11-16T14:37:08.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745822_1296x729_16%2D9.jpg"
+    },
+    {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50491320/scotland-australia-nations-championship",
       "title": "Scotland edge past Australia in scrappy affair to bounce back from New Zealand defeat",
       "href": "https://www.espn.com/rugby/story/_/id/50491320/scotland-australia-nations-championship",
-      "publishedAt": "2026-11-16T06:26:13.000Z",
+      "publishedAt": "2026-11-16T12:43:12.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1115%2Fr1746128_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
-      "title": "International rugby fixtures: Latest matches, key dates, venues",
-      "href": "https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
-      "publishedAt": "2026-11-15T18:33:14.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50491028/nations-championship-rugby-wales-new-zealand",
+      "title": "Nations Championship reaction: Are Wales back? All Blacks in must-win territory",
+      "href": "https://www.espn.com/rugby/story/_/id/50491028/nations-championship-rugby-wales-new-zealand",
+      "publishedAt": "2026-11-16T10:15:38.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2024%2F1101%2Fr1409058_1296x729_16%2D9.jpg"
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1115%2Fr1746116_1296x729_16%2D9.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50446943/wallabies-lonergan-defends-suaalii-gordon-return",
@@ -160,100 +240,20 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1110%2Fr1743900_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50480607/wales-all-blacks-new-zealand-nations-championship",
-      "title": "Wales vanquish demons of the past with historic win over All Blacks",
-      "href": "https://www.espn.com/rugby/story/_/id/50480607/wales-all-blacks-new-zealand-nations-championship",
-      "publishedAt": "2026-11-15T12:32:29.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745700_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50481491/steve-tandy-wales-new-zealand-all-blacks",
-      "title": "Tandy praises 'phenomenal' Wales players after ending 73-year wait for All Blacks win",
-      "href": "https://www.espn.com/rugby/story/_/id/50481491/steve-tandy-wales-new-zealand-all-blacks",
-      "publishedAt": "2026-11-15T12:32:29.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745786_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50480374/wales-new-zealand-all-blacks-historic-victory",
-      "title": "Wales end 73-year wait with historic 35-28 victory over New Zealand",
-      "href": "https://www.espn.com/rugby/story/_/id/50480374/wales-new-zealand-all-blacks-historic-victory",
-      "publishedAt": "2026-11-15T12:32:29.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745682_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50484018/ireland-fiji-nations-championship",
-      "title": "Ireland recover from poor first half to earn bonus point win over Fiji",
-      "href": "https://www.espn.com/rugby/story/_/id/50484018/ireland-fiji-nations-championship",
-      "publishedAt": "2026-11-14T22:52:23.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745876_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50481766/england-steve-borthwick-japan-nations-championship",
-      "title": "England changes against Japan were a risk but rout showed plenty of reward",
-      "href": "https://www.espn.com/rugby/story/_/id/50481766/england-steve-borthwick-japan-nations-championship",
-      "publishedAt": "2026-11-14T22:21:43.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745793_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50482691/will-joseph-england-japan-nations-championship",
-      "title": "Will Joseph stars with five tries as England thrash Japan 78-15",
-      "href": "https://www.espn.com/rugby/story/_/id/50482691/will-joseph-england-japan-nations-championship",
-      "publishedAt": "2026-11-14T22:21:43.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745822_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50483105/nations-championship-england-japan-player-ratings",
-      "title": "Nations Championship: England player ratings after Steve Borthwick's men run in 13 tries",
-      "href": "https://www.espn.com/rugby/story/_/id/50483105/nations-championship-england-japan-player-ratings",
-      "publishedAt": "2026-11-14T22:21:42.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745865_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50482541/argentina-italy-nations-championship",
-      "title": "Argentina bounce back after Ireland loss to beat Italy 19-14",
-      "href": "https://www.espn.com/rugby/story/_/id/50482541/argentina-italy-nations-championship",
-      "publishedAt": "2026-11-14T20:41:05.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745814_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-16T13:51:34.689Z",
+      "checkedAt": "2026-11-16T19:53:27.737Z",
       "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": false,
-      "checkedAt": "2026-11-16T13:51:34.689Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-16T19:53:27.737Z",
+      "count": 12
     }
   ]
 }

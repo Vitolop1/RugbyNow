@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-15T23:12:33.963Z",
+  "generatedAt": "2026-11-16T07:17:50.778Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/buenos-aires-campeon-del-argentino-juvenil-m17/",
@@ -122,6 +122,46 @@
       "image": "https://uar.com.ar/wp-content/uploads/55594726812_7013f9dec1_o.jpg"
     },
     {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50491320/scotland-australia-nations-championship",
+      "title": "Scotland edge past Australia in scrappy affair to bounce back from New Zealand defeat",
+      "href": "https://www.espn.com/rugby/story/_/id/50491320/scotland-australia-nations-championship",
+      "publishedAt": "2026-11-16T06:26:13.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1115%2Fr1746128_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
+      "title": "International rugby fixtures: Latest matches, key dates, venues",
+      "href": "https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
+      "publishedAt": "2026-11-15T18:33:14.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2024%2F1101%2Fr1409058_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50446943/wallabies-lonergan-defends-suaalii-gordon-return",
+      "title": "Wallabies' Lonergan defends Suaalii as Gordon nears return",
+      "href": "https://www.espn.com/rugby/story/_/id/50446943/wallabies-lonergan-defends-suaalii-gordon-return",
+      "publishedAt": "2026-11-15T15:04:36.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1110%2Fr1744244_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50441118/scotland-australia-rugby-how-watch",
+      "title": "Scotland vs. Australia: How to watch, kick-off time, TV channel, team news for Nations Championship rugby clash",
+      "href": "https://www.espn.com/rugby/story/_/id/50441118/scotland-australia-rugby-how-watch",
+      "publishedAt": "2026-11-15T15:04:36.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1110%2Fr1743900_1296x729_16%2D9.jpg"
+    },
+    {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50480607/wales-all-blacks-new-zealand-nations-championship",
       "title": "Wales vanquish demons of the past with historic win over All Blacks",
       "href": "https://www.espn.com/rugby/story/_/id/50480607/wales-all-blacks-new-zealand-nations-championship",
@@ -200,60 +240,20 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745814_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50480089/england-japan-nations-championship-rugby",
-      "title": "England 78-15 Japan: Will Joseph equals record with five tries as Steve Borthwick's men run in 13 at Twickenham",
-      "href": "https://www.espn.com/rugby/story/_/id/50480089/england-japan-nations-championship-rugby",
-      "publishedAt": "2026-11-14T18:56:58.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1114%2Fr1745714_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50472862/france-south-africa-rugby-nations-championship-updates",
-      "title": "France 21-19 South Africa: Les Bleus beat Springboks in classic Test - as it happened",
-      "href": "https://www.espn.com/rugby/story/_/id/50472862/france-south-africa-rugby-nations-championship-updates",
-      "publishedAt": "2026-11-14T15:19:50.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1113%2Fr1745397_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50460428/henry-pollock-england-rugby",
-      "title": "The new norm? How hybrid players like Henry Pollock are changing rugby",
-      "href": "https://www.espn.com/rugby/story/_/id/50460428/henry-pollock-england-rugby",
-      "publishedAt": "2026-11-14T15:18:31.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1108%2Fr1743038_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
-      "title": "Nations Championship power rankings: Who should be worried after action-packed return?",
-      "href": "https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
-      "publishedAt": "2026-11-14T13:28:02.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1028%2Fr1737504_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-15T23:12:33.963Z",
+      "checkedAt": "2026-11-16T07:17:50.778Z",
       "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": false,
-      "checkedAt": "2026-11-15T23:12:33.963Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-16T07:17:50.778Z",
+      "count": 12
     }
   ]
 }

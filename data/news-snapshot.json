@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T12:15:20.693Z",
+  "generatedAt": "2026-11-18T14:15:18.175Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/buenos-aires-campeon-del-argentino-juvenil-m17/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-18T12:15:20.693Z",
+      "checkedAt": "2026-11-18T14:15:18.175Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-18T12:15:20.693Z",
+      "checkedAt": "2026-11-18T14:15:18.175Z",
       "count": 0
     }
   ]

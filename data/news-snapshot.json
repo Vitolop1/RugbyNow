@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-11-19T14:37:31.274Z",
+  "generatedAt": "2026-11-19T21:00:28.364Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/tala-y-newman-dos-campeones-en-busca-de-la-corona-nacional/",
+      "title": "Tala y Newman, dos campeones en busca de la corona nacional",
+      "href": "https://uar.com.ar/tala-y-newman-dos-campeones-en-busca-de-la-corona-nacional/",
+      "publishedAt": "2026-11-19T19:22:02.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/tala-vs-newman-web.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-7s-con-plantel-confirmado-para-iniciar-una-nueva-temporada/",
+      "title": "Los Pumas 7´s con plantel confirmado para iniciar una nueva temporada",
+      "href": "https://uar.com.ar/los-pumas-7s-con-plantel-confirmado-para-iniciar-una-nueva-temporada/",
+      "publishedAt": "2026-11-19T17:48:56.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/DSC_1374-1-e1795110525528.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/los-23-de-los-pumas-para-enfrentar-a-francia/",
       "title": "Los 23 de Los Pumas para enfrentar a Francia",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/54440948153_33769feb1b_o-e1793900787494.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/formacion-de-argentina-xv-para-visitar-a-inglaterra-a/",
-      "title": "Formación de Argentina XV para visitar a Inglaterra A",
-      "href": "https://uar.com.ar/formacion-de-argentina-xv-para-visitar-a-inglaterra-a/",
-      "publishedAt": "2026-11-04T19:39:45.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/DSC_0620-e1793820965536.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-23-para-enfrentar-a-irlanda-en-dublin/",
-      "title": "Los 23 para enfrentar a Irlanda en Dublín",
-      "href": "https://uar.com.ar/los-23-para-enfrentar-a-irlanda-en-dublin/",
-      "publishedAt": "2026-11-04T09:46:47.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Matera-y-Montoya-2-e1793780947500.jpeg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50503407/all-blacks-wales-dave-rennie",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-19T14:37:31.274Z",
+      "checkedAt": "2026-11-19T21:00:28.364Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-19T14:37:31.274Z",
+      "checkedAt": "2026-11-19T21:00:28.364Z",
       "count": 0
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T12:09:32.502Z",
+  "generatedAt": "2026-11-19T14:37:31.274Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/los-23-de-los-pumas-para-enfrentar-a-francia/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-19T12:09:32.502Z",
+      "checkedAt": "2026-11-19T14:37:31.274Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-19T12:09:32.502Z",
+      "checkedAt": "2026-11-19T14:37:31.274Z",
       "count": 0
     }
   ]

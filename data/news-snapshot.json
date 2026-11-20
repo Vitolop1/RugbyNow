@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-20T02:42:27.766Z",
+  "generatedAt": "2026-11-20T12:11:43.662Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/agustin-pichot-fue-elegido-para-integrar-el-comite-ejecutivo-de-world-rugby/",
+      "title": "Agustín Pichot fue elegido para integrar el Comité Ejecutivo de World Rugby",
+      "href": "https://uar.com.ar/agustin-pichot-fue-elegido-para-integrar-el-comite-ejecutivo-de-world-rugby/",
+      "publishedAt": "2026-11-20T12:10:38.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/91ac0984-cbdd-4769-a0e5-b7dbe1b9349a.jpeg"
+    },
     {
       "id": "uar:https://uar.com.ar/tala-y-newman-dos-campeones-en-busca-de-la-corona-nacional/",
       "title": "Tala y Newman, dos campeones en busca de la corona nacional",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/Ireland-v-Los-Pumas-Dublin-037.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/concentracion-de-mayores-y-juveniles-de-las-yaguaretes-en-casa-pumas/",
-      "title": "Concentración de Mayores y Juveniles de Las Yaguaretés en Casa Pumas",
-      "href": "https://uar.com.ar/concentracion-de-mayores-y-juveniles-de-las-yaguaretes-en-casa-pumas/",
-      "publishedAt": "2026-11-05T17:47:18.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/54440948153_33769feb1b_o-e1793900787494.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50503407/all-blacks-wales-dave-rennie",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-20T02:42:27.766Z",
+      "checkedAt": "2026-11-20T12:11:43.662Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-20T02:42:27.766Z",
+      "checkedAt": "2026-11-20T12:11:43.662Z",
       "count": 0
     }
   ]

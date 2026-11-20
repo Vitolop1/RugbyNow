@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T21:00:28.364Z",
+  "generatedAt": "2026-11-20T02:42:27.766Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/tala-y-newman-dos-campeones-en-busca-de-la-corona-nacional/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-19T21:00:28.364Z",
+      "checkedAt": "2026-11-20T02:42:27.766Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-19T21:00:28.364Z",
+      "checkedAt": "2026-11-20T02:42:27.766Z",
       "count": 0
     }
   ]

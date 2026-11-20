@@ -4,7 +4,7 @@
       "competitionSlug": "ar-urba-top14",
       "season": "2026",
       "sourceUrl": "https://urba.org.ar/",
-      "checkedAt": "2026-11-19T20:59:39.946Z",
+      "checkedAt": "2026-11-20T02:41:50.143Z",
       "roundDate": "2026-11-07",
       "rows": [
         {
@@ -210,7 +210,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://prod2.lnr.fr/classement",
       "sourceName": "LNR · PRO D2",
-      "checkedAt": "2026-11-19T20:59:41.414Z",
+      "checkedAt": "2026-11-20T02:41:51.363Z",
       "roundDate": "2026-11-19",
       "phase": "regular",
       "rows": [
@@ -219,13 +219,13 @@
           "team": "Provence Rugby",
           "slug": "provence-rugby",
           "pts": 41,
-          "pj": 10,
+          "pj": 11,
           "w": 9,
           "d": 1,
-          "l": 0,
+          "l": 1,
           "bonus": 3,
-          "pf": 324,
-          "pa": 200
+          "pf": 354,
+          "pa": 241
         },
         {
           "position": 2,
@@ -242,6 +242,19 @@
         },
         {
           "position": 3,
+          "team": "FC Grenoble Rugby",
+          "slug": "grenoble",
+          "pts": 34,
+          "pj": 11,
+          "w": 8,
+          "d": 0,
+          "l": 3,
+          "bonus": 2,
+          "pf": 329,
+          "pa": 271
+        },
+        {
+          "position": 4,
           "team": "CA Brive",
           "slug": "brive",
           "pts": 31,
@@ -252,19 +265,6 @@
           "bonus": 3,
           "pf": 336,
           "pa": 238
-        },
-        {
-          "position": 4,
-          "team": "FC Grenoble Rugby",
-          "slug": "grenoble",
-          "pts": 30,
-          "pj": 10,
-          "w": 7,
-          "d": 0,
-          "l": 3,
-          "bonus": 2,
-          "pf": 288,
-          "pa": 241
         },
         {
           "position": 5,
@@ -430,7 +430,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/champions-cup/matches/pool-tables",
-      "checkedAt": "2026-11-19T20:59:44.462Z",
+      "checkedAt": "2026-11-20T02:41:53.072Z",
       "roundDate": null,
       "rows": [
         {
@@ -849,7 +849,7 @@
       "phase": "pool",
       "sourceName": "EPCR",
       "sourceUrl": "https://www.epcrugby.com/challenge-cup/matches/pool-tables",
-      "checkedAt": "2026-11-19T20:59:45.125Z",
+      "checkedAt": "2026-11-20T02:41:53.954Z",
       "roundDate": null,
       "rows": [
         {
@@ -1165,7 +1165,7 @@
       "season": "2026/2027",
       "sourceUrl": "https://top14.lnr.fr/classement",
       "sourceName": "LNR · TOP 14",
-      "checkedAt": "2026-11-19T20:59:43.379Z",
+      "checkedAt": "2026-11-20T02:41:52.382Z",
       "roundDate": "2026-11-08",
       "phase": "regular",
       "rows": [

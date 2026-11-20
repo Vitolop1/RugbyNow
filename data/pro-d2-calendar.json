@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-20T14:13:10.165Z",
+  "checkedAt": "2026-11-20T20:44:39.242Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -1133,7 +1133,7 @@
       "home": "Aurillac",
       "away": "Colomiers",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12087-aurillac-colomiers"
@@ -1147,7 +1147,7 @@
       "home": "Beziers",
       "away": "Dax",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12088-beziers-dax"
@@ -1189,7 +1189,7 @@
       "home": "Montauban",
       "away": "Agen",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T18:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12091-montauban-agen"
@@ -1203,7 +1203,7 @@
       "home": "Nevers",
       "away": "Soyaux Angouleme",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12092-nevers-angouleme"
@@ -1217,7 +1217,7 @@
       "home": "Nice",
       "away": "Valence Romans",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12093-nice-valence-romans"

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-21T13:39:18.009Z",
+  "generatedAt": "2026-11-21T19:48:45.141Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/agustin-pichot-fue-elegido-para-integrar-el-comite-ejecutivo-de-world-rugby/",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-21T13:39:18.009Z",
+      "checkedAt": "2026-11-21T19:48:45.141Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-21T13:39:18.009Z",
+      "checkedAt": "2026-11-21T19:48:45.141Z",
       "count": 0
     }
   ]

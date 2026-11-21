@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-20T20:44:39.242Z",
+  "checkedAt": "2026-11-21T02:51:04.898Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -1161,7 +1161,7 @@
       "home": "Biarritz",
       "away": "Narbonne",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12089-biarritz-narbonne"
@@ -1231,7 +1231,7 @@
       "home": "Oyonnax",
       "away": "Brive",
       "date": "2026-11-20",
-      "startsAt": "2026-11-20T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-20",
       "windowTo": "2026-11-20",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j11/12094-oyonnax-brive"

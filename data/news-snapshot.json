@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-22T12:00:33.014Z",
+  "generatedAt": "2026-11-22T13:32:56.682Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/hector-pochola-silva-leyenda-de-los-pumas-fue-incorporado-al-world-rugby-hall-of-fame/",
+      "title": "Héctor “Pochola” Silva, leyenda de Los Pumas, fue incorporado al World Rugby Hall of Fame",
+      "href": "https://uar.com.ar/hector-pochola-silva-leyenda-de-los-pumas-fue-incorporado-al-world-rugby-hall-of-fame/",
+      "publishedAt": "2026-11-22T10:06:18.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/pochola-silva-tw-1-1-e1795341944657.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/tala-rc-completo-una-temporada-sonada-y-grito-campeon-del-nacional-de-clubes/",
       "title": "Tala RC completó una temporada soñada y gritó campeón del Nacional de Clubes",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/BA-vs-Cuyo-01-IMG_1270.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/la-uar-y-cub3-firmaron-un-acuerdo-para-potenciar-el-desarrollo-comercial-de-pampas/",
-      "title": "La UAR y Cub3 firmaron un acuerdo para potenciar el desarrollo comercial de Pampas",
-      "href": "https://uar.com.ar/la-uar-y-cub3-firmaron-un-acuerdo-para-potenciar-el-desarrollo-comercial-de-pampas/",
-      "publishedAt": "2026-11-10T13:10:58.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/foto-2.jpeg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50550740/england-nations-championships-rugby-new-zealand-win",
@@ -245,15 +245,15 @@
   "feeds": [
     {
       "sourceId": "uar",
-      "ok": false,
-      "checkedAt": "2026-11-22T12:00:33.014Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-22T13:32:56.682Z",
+      "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": true,
-      "checkedAt": "2026-11-22T12:00:33.014Z",
-      "count": 12
+      "ok": false,
+      "checkedAt": "2026-11-22T13:32:56.682Z",
+      "count": 0
     }
   ]
 }

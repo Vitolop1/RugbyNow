@@ -1,6 +1,26 @@
 {
-  "generatedAt": "2026-11-21T19:48:45.141Z",
+  "generatedAt": "2026-11-22T01:35:57.035Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/tala-rc-completo-una-temporada-sonada-y-grito-campeon-del-nacional-de-clubes/",
+      "title": "Tala RC completó una temporada soñada y gritó campeón del Nacional de Clubes",
+      "href": "https://uar.com.ar/tala-rc-completo-una-temporada-sonada-y-grito-campeon-del-nacional-de-clubes/",
+      "publishedAt": "2026-11-22T01:15:21.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/55666420016_db6600aff3_o.jpg"
+    },
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-cayeron-ante-francia-en-paris/",
+      "title": "Los Pumas cayeron ante Francia en París",
+      "href": "https://uar.com.ar/los-pumas-cayeron-ante-francia-en-paris/",
+      "publishedAt": "2026-11-21T22:47:04.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/France-v-Los-Pumas-Paris-034-1.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/agustin-pichot-fue-elegido-para-integrar-el-comite-ejecutivo-de-world-rugby/",
       "title": "Agustín Pichot fue elegido para integrar el Comité Ejecutivo de World Rugby",
@@ -100,26 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/foto-2.jpeg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/argentina-xv-cayo-en-un-vibrante-encuentro-ante-inglaterra-a/",
-      "title": "ARGENTINA XV CAYÓ EN UN VIBRANTE ENCUENTRO ANTE INGLATERRA A",
-      "href": "https://uar.com.ar/argentina-xv-cayo-en-un-vibrante-encuentro-ante-inglaterra-a/",
-      "publishedAt": "2026-11-06T22:21:46.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/England-A-v-Argentina-XV-WC271-copy.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-pumas-cayeron-ante-irlanda-en-dublin/",
-      "title": "LOS PUMAS CAYERON ANTE IRLANDA EN DUBLÍN",
-      "href": "https://uar.com.ar/los-pumas-cayeron-ante-irlanda-en-dublin/",
-      "publishedAt": "2026-11-06T22:16:58.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Ireland-v-Los-Pumas-Dublin-037.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50503407/all-blacks-wales-dave-rennie",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-21T19:48:45.141Z",
+      "checkedAt": "2026-11-22T01:35:57.035Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-21T19:48:45.141Z",
+      "checkedAt": "2026-11-22T01:35:57.035Z",
       "count": 0
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T02:00:07.861Z",
+  "generatedAt": "2026-11-23T13:40:47.853Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/hector-pochola-silva-leyenda-de-los-pumas-fue-incorporado-al-world-rugby-hall-of-fame/",
@@ -122,40 +122,60 @@
       "image": "https://uar.com.ar/wp-content/uploads/BA-vs-Cuyo-01-IMG_1270.jpg"
     },
     {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
+      "title": "Springboks coach Erasmus suspended for 'match-fixing' comments",
+      "href": "https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
+      "publishedAt": "2026-11-23T12:04:18.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1116%2Fr1746816_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
+      "title": "Nations Championship power rankings: England rise, South Africa, New Zealand tumble",
+      "href": "https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
+      "publishedAt": "2026-11-23T11:31:56.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1028%2Fr1737504_1296x729_16%2D9.jpg"
+    },
+    {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50550740/england-nations-championships-rugby-new-zealand-win",
       "title": "England, inspired by Moody, pull off one of their greatest performances to stun New Zealand",
       "href": "https://www.espn.com/rugby/story/_/id/50550740/england-nations-championships-rugby-new-zealand-win",
-      "publishedAt": "2026-11-22T01:53:42.000Z",
+      "publishedAt": "2026-11-23T11:31:56.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749117_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50541947/england-player-ratings-new-zealand-rugby",
-      "title": "Earl, Fin Smith impress: England player ratings after record win over All Blacks",
-      "href": "https://www.espn.com/rugby/story/_/id/50541947/england-player-ratings-new-zealand-rugby",
-      "publishedAt": "2026-11-22T01:53:42.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50571196/nations-championship-rugby-england-australia-new-zealand",
+      "title": "Nations Championship reaction: England go back to the future, New Zealand under huge pressure",
+      "href": "https://www.espn.com/rugby/story/_/id/50571196/nations-championship-rugby-england-australia-new-zealand",
+      "publishedAt": "2026-11-23T11:02:43.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1748990_1296x729_16%2D9.jpg"
+      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1123%2Fr1750074_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50549948/lewis-moody-england-haka-new-zealand-rugby",
-      "title": "Moody joins England to face NZ haka before astonishing home victory",
-      "href": "https://www.espn.com/rugby/story/_/id/50549948/lewis-moody-england-haka-new-zealand-rugby",
-      "publishedAt": "2026-11-22T01:53:42.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50567640/new-zealand-rugby-graham-henry-give-full-support-underfire-all-blacks-coachdave-rennie",
+      "title": "NZR, Graham Henry give 'full support' to underfire Dave Rennie",
+      "href": "https://www.espn.com/rugby/story/_/id/50567640/new-zealand-rugby-graham-henry-give-full-support-underfire-all-blacks-coachdave-rennie",
+      "publishedAt": "2026-11-23T01:01:18.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1748939_1296x729_16%2D9.jpg"
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1119%2Fr1748069_1296x729_16%2D9.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50555371/wallabies-attack-zip-defensive-starch-beat-wales",
       "title": "Wallabies find some attacking zip, set Suaalii free in win over Wales",
       "href": "https://www.espn.com/rugby/story/_/id/50555371/wallabies-attack-zip-defensive-starch-beat-wales",
-      "publishedAt": "2026-11-21T23:50:27.000Z",
+      "publishedAt": "2026-11-22T21:41:37.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
@@ -220,40 +240,20 @@
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749047_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50550423/scotland-dominate-japan-67-5-win-score-11-tries-rout",
-      "title": "Scotland dominate Japan in 67-5 win",
-      "href": "https://www.espn.com/rugby/story/_/id/50550423/scotland-dominate-japan-67-5-win-score-11-tries-rout",
-      "publishedAt": "2026-11-21T18:42:35.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1748977_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50550402/england-new-zealand-nations-championship-twickenham",
-      "title": "England cruise to stunning record victory over New Zealand at Twickenham",
-      "href": "https://www.espn.com/rugby/story/_/id/50550402/england-new-zealand-nations-championship-twickenham",
-      "publishedAt": "2026-11-21T18:40:50.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1748972_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
-      "ok": true,
-      "checkedAt": "2026-11-23T02:00:07.861Z",
-      "count": 12
+      "ok": false,
+      "checkedAt": "2026-11-23T13:40:47.853Z",
+      "count": 0
     },
     {
       "sourceId": "espn",
-      "ok": false,
-      "checkedAt": "2026-11-23T02:00:07.861Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-23T13:40:47.853Z",
+      "count": 12
     }
   ]
 }

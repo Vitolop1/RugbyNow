@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T13:40:47.853Z",
+  "generatedAt": "2026-11-23T16:12:18.658Z",
   "items": [
     {
       "id": "uar:https://uar.com.ar/hector-pochola-silva-leyenda-de-los-pumas-fue-incorporado-al-world-rugby-hall-of-fame/",
@@ -245,15 +245,15 @@
   "feeds": [
     {
       "sourceId": "uar",
-      "ok": false,
-      "checkedAt": "2026-11-23T13:40:47.853Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-23T16:12:18.658Z",
+      "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": true,
-      "checkedAt": "2026-11-23T13:40:47.853Z",
-      "count": 12
+      "ok": false,
+      "checkedAt": "2026-11-23T16:12:18.658Z",
+      "count": 0
     }
   ]
 }

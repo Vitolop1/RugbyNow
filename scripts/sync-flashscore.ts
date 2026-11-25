@@ -8,6 +8,8 @@ import {detectStatusAndMinute} from "../lib/sourceMatchStatus";
 import {validateResolvedStandingsTeamIds,validateSourceStandings,EXPECTED_TABLE_TEAMS,requireStandingsEdition} from "../lib/sourceStandings";
 import {readAllRows} from "../lib/readAllRows";
 import {isLiveRefreshCandidate,liveSourceUrls,canRefreshLiveTarget} from "../lib/liveRefresh";
+import {readNonEmptyStandings,sourceRetryDelay} from "../lib/sourceRecovery";
+import {isDiscoverableFixture,hasDiscoveryIdentities} from "../lib/matchDiscovery";
 import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
@@ -17,6 +19,7 @@ import { createClient } from "@supabase/supabase-js";
 import { chromium, Page, Route } from "playwright";
 import { inferMatchDateFromRawText, inferMatchDateFromScrapedRow, seasonYearBounds, selectSeasonForScrapedRow } from "../lib/scrapedMatchDate";
 import { resolveExactSourceTeam } from "../lib/sourceTeamIdentity";
+import snapshot from "../data/supabase-snapshot.json";
 
 type MatchStatus = "NS" | "LIVE" | "HT" | "FT" | "CANC";
 
@@ -91,6 +94,7 @@ type ScrapedStandingRow = {
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const LIVE_ONLY = process.env.LIVE_ONLY === "1";
+const DISCOVERY_ONLY = process.env.DISCOVERY_ONLY === "1";
 const MATCHES_ONLY = process.env.MATCHES_ONLY === "1";
 const STANDINGS_ONLY = process.env.STANDINGS_ONLY === "1";
 const DRY_RUN = process.env.DRY_RUN === "1";
@@ -263,7 +267,7 @@ function buildFlashVariants(raw: string) {
   }
 
   return {
-    resultsAndFixtures: [`${base}/results`, `${base}/fixtures`],
+    resultsAndFixtures: DISCOVERY_ONLY ? [`${base}/fixtures`] : [`${base}/results`, `${base}/fixtures`],
     standings: `${base}/standings`,
   };
 }
@@ -368,8 +372,10 @@ async function getTeamsMap() {
   const map = new Map<string, number>();
   const names: string[] = [];
 
-  if (!DRY_RUN) {
-    const data=await readAllRows<TeamRow>((offset,size)=>ensureSupabase().from("teams").select("id,name").order("id").range(offset,offset+size-1));
+  {
+    // Discovery dry runs resolve existing identities against the versioned
+    // catalogue. Production reads the current, paginated DB catalogue.
+    const data=DRY_RUN?snapshot.teams:await readAllRows<TeamRow>((offset,size)=>ensureSupabase().from("teams").select("id,name").order("id").range(offset,offset+size-1));
     for (const t of (data || []) as TeamRow[]) {
       const n = norm(t.name);
       map.set(n, t.id);
@@ -611,6 +617,9 @@ async function getTeamsMap() {
 async function getOrCreateTeamId(rawName: string, teamsMap: Map<string, number>, teamNamesNorm: string[]) {
   const existing = resolveExactSourceTeam(rawName, teamsMap) ?? resolveExactSourceTeam(canonicalProD2TeamName(rawName), teamsMap);
   if (existing) return existing;
+  // Bounded discovery cannot create global club identities from a name alone.
+  // Unmapped clubs need the ordinary reviewed import/alias process.
+  if (DISCOVERY_ONLY) return null;
 
   const cleanName = canonicalProD2TeamName(rawName);
   if (!cleanName) return null;
@@ -835,14 +844,20 @@ async function maybeAcceptConsent(page: Page) {
 async function gotoWithRetry(page: Page, url: string, tries = 3) {
   let lastErr: unknown = null;
 
-  for (let i = 1; i <= tries; i++) {
+  for (let i = 1; i <= Math.min(tries, 2); i++) {
+    let status = 0, retryAfter: string | null = null;
     try {
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+      const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+      status = response?.status() ?? 0;
+      retryAfter = response?.headers()['retry-after'] ?? null;
+      if (status >= 400) throw Error(`Source HTTP ${status}`);
       return;
     } catch (e) {
       lastErr = e;
-      console.log(`WARN: goto failed (try ${i}/${tries}) -> ${url}`);
-      await page.waitForTimeout(1500 * i).catch(() => {});
+      console.log(`WARN: goto failed (try ${i}/${Math.min(tries,2)}) -> ${url}`);
+      const delay = sourceRetryDelay(status, i, retryAfter);
+      if (delay === null || i >= tries) break;
+      await page.waitForTimeout(delay).catch(() => {});
     }
   }
 
@@ -1375,6 +1390,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
     if (findSourceErr) throw findSourceErr;
 
     if (existingBySource?.id) {
+      if (DISCOVERY_ONLY) return "skipped";
       if (existingBySource.status === "FT" && isNonPlayedStatus(payload.status as MatchStatus)) {
         return "skipped";
       }
@@ -1406,6 +1422,7 @@ async function saveMatchBySourceKey(payload: Record<string, unknown>) {
   if (findLogicalErr) throw findLogicalErr;
 
   if (existingLogical?.id) {
+    if (DISCOVERY_ONLY) return "skipped";
     if (existingLogical.status === "FT" && isNonPlayedStatus(payload.status as MatchStatus)) {
       return "skipped";
     }
@@ -1532,7 +1549,7 @@ async function main() {
   const inputs = urlsFromEnv();
   console.log("Inputs:", inputs);
   console.log("Mode:", DRY_RUN ? "DRY_RUN" : "LIVE_DB");
-  console.log("Flags:", JSON.stringify({ LIVE_ONLY, MATCHES_ONLY, STANDINGS_ONLY }));
+  console.log("Flags:", JSON.stringify({ LIVE_ONLY, DISCOVERY_ONLY, MATCHES_ONLY, STANDINGS_ONLY }));
 
   if (!DRY_RUN) {
     const { error: pingErr } = await ensureSupabase().from("competitions").select("id").limit(1);
@@ -1638,7 +1655,7 @@ async function main() {
           }
 
           // Live passes need current/recent rows, not the entire season archive.
-          if (LIVE_ONLY || sourcePage === "live") {
+          if (LIVE_ONLY || DISCOVERY_ONLY || sourcePage === "live") {
             await page.waitForTimeout(350);
           } else {
             await clickShowMore(page);
@@ -1649,6 +1666,7 @@ async function main() {
           console.log(`Scraped from ${url}:`, rows.length);
           scrapedAll.push(...rows.map(row=>({...row,observedAt:new Date().toISOString()})));
         } catch (e) {
+          totalFailures++;
           console.log("WARN: failed scraping url:", url);
           console.log(e);
         }
@@ -1704,6 +1722,9 @@ async function main() {
       for (const [groupIndex, group] of groups.entries()) {
         const seasonMeta = { seasonId: group.season.id, seasonName: group.season.name };
         const existingMatches = DRY_RUN ? [] : await getMatchesBySeason(seasonMeta.seasonId);
+        const identitySeason=DRY_RUN?snapshot.seasons.find(s=>s.name===seasonMeta.seasonName&&snapshot.competitions.some(c=>c.id===s.competition_id&&c.slug===compSlug))?.id:seasonMeta.seasonId;
+        const identityMatches=DRY_RUN?snapshot.matches.filter(m=>m.season_id===identitySeason):existingMatches;
+        const discoveryTeamIds=new Set(identityMatches.flatMap(m=>[m.home_team_id,m.away_team_id]).filter((id):id is number=>id!==null));
 
         if (DRY_RUN) writeDryRunDump(`${compSlug}-${slugify(seasonMeta.seasonName)}`, {
           competition: compSlug,
@@ -1734,8 +1755,17 @@ async function main() {
         const tomorrowIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
         for (const row of STANDINGS_ONLY ? [] : group.rows) {
+          if (DISCOVERY_ONLY && !isDiscoverableFixture({
+            status: detectStatusAndMinute(row.statusOrTime,parseScore(row.hs),parseScore(row.as),row.sourcePage).status,
+            matchDate: inferMatchDateFromScrapedRow(row,seasonMeta.seasonName),
+            sourceId: extractFlashscoreEventId(row.detailUrl),
+          })) continue;
           const homeId = row.home ? await getOrCreateTeamId(row.home, teamsMap, teamNamesNorm) : null;
           const awayId = row.away ? await getOrCreateTeamId(row.away, teamsMap, teamNamesNorm) : null;
+          if (DISCOVERY_ONLY && !hasDiscoveryIdentities(homeId,awayId,discoveryTeamIds)) {
+            unresolvedTeams.add(`${row.home || 'TBD'} vs ${row.away || 'TBD'}`);
+            continue;
+          }
 
           if ((row.home && !homeId) || (row.away && !awayId)) {
             console.log("UNRESOLVED TEAM:", row.home || "TBD", "vs", row.away || "TBD");
@@ -1846,6 +1876,9 @@ async function main() {
           // A live pass only updates identified active/imminent fixtures. It must
           // not reimport the entire results archive or create approximate pairs.
           if (LIVE_ONLY && !DRY_RUN && !canRefreshLiveTarget(target)) continue;
+          // Discovery adds future fixtures only; existing and nearby identities
+          // belong to refresh. It must never rewind a score to NS.
+          if (DISCOVERY_ONLY && target) continue;
 
           if (target?.status === "FT" && effectiveParsed.status !== "FT") {
             continue;
@@ -1910,13 +1943,15 @@ async function main() {
         if (!MATCHES_ONLY && !LIVE_ONLY && groupIndex === 0) {
           try {
           console.log("Open standings:", variants.standings);
-          await gotoWithRetry(page, variants.standings, 3);
+          const standings = await readNonEmptyStandings(async attempt => {
+          if(attempt>1)console.warn(`Retrying empty standings page for ${compSlug}; no data has been written.`);
+          await gotoWithRetry(page, variants.standings, 2);
           await maybeAcceptConsent(page);
           // Finished competitions often open the playoff draw rather than the points table.
           // Select the source's explicit Main phase; do not derive ranks from a knockout bracket.
-          const mainPhase=page.getByText(/^main$/i,{exact:true}).first();
+          const mainPhase=page.getByRole('tab',{name:/^main$/i}).first();
           await mainPhase.waitFor({state:"visible",timeout:8000}).catch(()=>{});
-          if(await mainPhase.count()){
+          if(await mainPhase.count() && await mainPhase.getAttribute('aria-current') !== 'page'){
             await maybeAcceptConsent(page);
             await mainPhase.click({timeout:8000});
           }
@@ -1926,13 +1961,12 @@ async function main() {
           const tableHeading=await page.locator(".heading__info").first().textContent({timeout:10000});
           const tableEdition=tableHeading?.match(/\b20\d{2}(?:\s*[/-]\s*20\d{2})?\b/)?.[0]||"";
           requireStandingsEdition(tableEdition,seasonMeta.seasonName);
-          const standings = await scrapeStandingsPage(page);
+          const rows=await scrapeStandingsPage(page);
+          if(!rows.length)console.warn(`Empty standings read ${attempt}/2 for ${compSlug}, edition ${tableEdition}; no replacement written.`);
+          return rows;
+          });
           console.log(`Standings scraped: ${standings.length}`);
 
-          if (!standings.length && STANDINGS_ONLY) {
-            console.log("Standings diagnostic:", (await page.locator("body").innerText()).slice(-6000));
-            throw new Error(`Empty standings for ${compSlug}`);
-          }
           if (standings.length > 0) {
             await upsertStandingsCache(seasonMeta.seasonId, teamsMap, teamNamesNorm, standings, compSlug, seasonMeta.seasonName);
           }
@@ -1952,7 +1986,7 @@ async function main() {
           }
         }
 
-        if (!LIVE_ONLY && CLEANUP_PLACEHOLDER_DUPLICATES) {
+        if (!LIVE_ONLY && !DISCOVERY_ONLY && CLEANUP_PLACEHOLDER_DUPLICATES) {
           const cleanedHere = await cleanupPlaceholderMidnightDuplicates(seasonMeta.seasonId);
           if (cleanedHere > 0) {
             console.log(`Cleaned placeholder midnight duplicates in ${compSlug}: ${cleanedHere}`);
@@ -1960,6 +1994,8 @@ async function main() {
         }
 
         if (unresolvedTeams.size > 0) {
+          if (DISCOVERY_ONLY) totalFailures++;
+          console.log(`Unresolved team identities: ${unresolvedTeams.size}`);
           console.log(`Unresolved teams in ${compSlug}:`);
           for (const s of Array.from(unresolvedTeams).slice(0, 20)) {
             console.log(" -", s);

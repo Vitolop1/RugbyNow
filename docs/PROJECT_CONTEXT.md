@@ -51,6 +51,7 @@ Mapa de entrada:
 | Alternativas para ver y medición | `lib/watchPlaceholderOptions.ts`, `app/components/ExternalWatchOptions.tsx`, `lib/analytics.ts` |
 | Escudos y recursos | `lib/assets.ts`, `public/team-logos/`, `data/visual-assets.json`, `docs/VISUAL-ASSETS.md` |
 | Importación, ejecución y respaldo | `scripts/sync-flashscore.ts`, `scripts/sync-matches.ts`, `scripts/sync-live-runner.ts`, `.github/workflows/`, `scripts/export-supabase-snapshot.ts` |
+| Descubrimiento limitado y salud de fuentes | `lib/matchDiscovery.ts`, `lib/sourceRecovery.ts`, `lib/providerPolicy.ts`, `scripts/report-import-health.ts`; flujo y límites en `docs/LIVE-RELIABILITY.md` |
 
 ## Lecciones que no hay que perder
 

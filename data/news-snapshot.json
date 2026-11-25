@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-25T09:09:47.380Z",
+  "generatedAt": "2026-11-25T15:49:48.680Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/un-paso-mas-en-el-camino-a-rugby-world-cup-2035/",
+      "title": "Un paso más en el camino a Rugby World Cup 2035",
+      "href": "https://uar.com.ar/un-paso-mas-en-el-camino-a-rugby-world-cup-2035/",
+      "publishedAt": "2026-11-25T15:01:00.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/rwc-web.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/hector-pochola-silva-leyenda-de-los-pumas-fue-incorporado-al-world-rugby-hall-of-fame/",
       "title": "Héctor “Pochola” Silva, leyenda de Los Pumas, fue incorporado al World Rugby Hall of Fame",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/Ireland-v-Los-Pumas-Dublin-020.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/se-define-en-argentino-juvenil-m17/",
-      "title": "SE DEFINE EN ARGENTINO JUVENIL M17",
-      "href": "https://uar.com.ar/se-define-en-argentino-juvenil-m17/",
-      "publishedAt": "2026-11-12T01:10:44.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/BA-vs-Cuyo-01-IMG_1270.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-25T09:09:47.380Z",
+      "checkedAt": "2026-11-25T15:49:48.680Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-25T09:09:47.380Z",
+      "checkedAt": "2026-11-25T15:49:48.680Z",
       "count": 0
     }
   ]

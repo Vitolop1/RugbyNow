@@ -1,11 +1,15 @@
 # Data refresh recovery
 
+> Registro histórico de incidentes y verificaciones fechadas. Para retomar, usar [CONTINUATION](CONTINUATION-2026-10-21.md#punto-de-reanudación) y el mapa de [PROJECT_CONTEXT](PROJECT_CONTEXT.md). Cifras, PR, banderas de activación, disponibilidad del navegador y creativos publicitarios descritos abajo pertenecen a esas entregas; no representan automáticamente el estado actual.
+>
+> No ejecutar esta historia como un runbook. Los pasos antiguos de reloj/finalización fueron retirados, el monitor Cloudflare actual está en observación y los banners de muestra se retiraron posteriormente. Reglas vigentes de trabajo y publicación: [AGENTS](../AGENTS.md).
+
 ## Portal expansion
 
 See `docs/PROVIDERS-AND-PERSONALIZATION.md` for the shared interface, local preferences, RSS news, actual-date competition calendar, per-feed fault isolation, and the read-only API provider candidate. Structured score imports and cross-device accounts are not active. This section supersedes earlier UI descriptions that say the external directory was removed.
 
 
-## Current state after monitored recovery
+## Monitored recovery — 19 October 2026 (historical)
 
 The complete production run [39343700539](https://github.com/Vitolop1/RugbyNow/actions/runs/39343700539) succeeded in all four feed groups and the separate snapshot job. The snapshot was pushed to main as `36cec92`: 1,792 matches, 48 seasons, 141 teams, 212 standings rows. Import success and Git publication were verified separately. The primary schedule was enabled after this check, then briefly gated again while deploying the identity correction below; the final activation is recorded in the delivery report.
 
@@ -32,12 +36,12 @@ The public GitHub API reported all six scheduled refresh workflows as `disabled_
 - Update the document language after selection and offer time zones for additional rugby markets. Separate indexable language URLs remain a later change.
 - Record `match_open`, `watch_options_open` and `watch_provider_click` through the owner's existing GA4 web stream, verified in Analytics. It does not confirm a stream was watched, a purchase occurred, or a review was submitted.
 
-## Recovery verification
+## Historical recovery verification — not an activation checklist
 
 1. Run `npm test`, `npm run typecheck` and `npm run build:next`.
-2. After the repair is on the default branch, re-enable and manually run the primary matches workflow with `dry_run: true` and selected competition URLs. Scheduled primary imports require repository variable `DATA_SYNC_ENABLED=true`; leave it unset until the validation and a monitored live import pass. Inspect the conclusion and per-competition logs. A warning or a successful job with no relevant fresh matches is not sufficient evidence of recovery.
+2. During that recovery, the primary workflow was validated with `dry_run: true` and selected competition URLs before monitored writes. `DATA_SYNC_ENABLED` was the activation gate. This does not instruct future sessions to toggle it again: inspect current configuration and executions for an authorized operational task. A warning or a job with no relevant fresh matches is insufficient evidence.
 3. Compare the public API and UI against official sources. The audit examples were Alumni–CASI (2026-10-17, final 14–22) and France–Samoa (World Cup, 2027-10-17, not 2026).
-4. Re-enable the live and standings schedules once their logs are healthy. The live workflow already runs clock and finalization passes; backup jobs are separate and need not all run concurrently during recovery.
+4. The initial recommendation to re-enable clock/finalization passes is withdrawn. Never reactivate synthetic clocks/finals from this history. Consult [LIVE-RELIABILITY](LIVE-RELIABILITY.md) and the current workflow before an authorized operational change.
 5. Verify the deployed homepage separately. Pushing application code to GitHub does not by itself confirm a Cloudflare deployment.
 
 The repository uses Cloudflare Workers/OpenNext. Runtime credentials stay in Cloudflare and GitHub Secrets. Never commit or print them. Do not use the destructive rebuild workflow for this recovery.
@@ -48,7 +52,7 @@ Snapshot exports paginate with a stable ordering. The live database held 1,160 m
 
 ## Prevent a repeat
 
-Use monitoring outside these GitHub schedules for disabled workflows, missing refreshes and expected results remaining unresolved. A scheduled workflow inside the same inactive repository cannot reliably warn about its own inactivity suspension. Configure the external monitor before treating data freshness as continuously supervised. No external monitor or new paid service is provisioned by this repair.
+Use monitoring outside these GitHub schedules for disabled workflows, missing refreshes and expected results remaining unresolved. A scheduled workflow inside the same inactive repository cannot reliably warn about its own inactivity suspension. Configure the external monitor before treating data freshness as continuously supervised. No external monitor or new paid service was provisioned by this historical repair. A later Cloudflare shadow monitor is documented in LIVE-RELIABILITY; its heartbeat does not validate sports-result freshness.
 
 The existing generic transmission links still need territorial verification. The analytics events only measure use of the existing interface; they do not establish broadcast availability or licensing.
 

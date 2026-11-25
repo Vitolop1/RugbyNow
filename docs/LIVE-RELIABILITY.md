@@ -1,5 +1,7 @@
 # Auditoría de vivo y próxima actualización
 
+Lectura selectiva: [criterio de aceptación](#criterio-de-aceptación-antes-de-llamarlo-vivo-confiable) para pruebas, [monitor existente](#monitor-independiente-de-observación--21102026-utc) para arquitectura y [CONTINUATION](CONTINUATION-2026-10-21.md#punto-de-reanudación) para estado de entrega. Las ejecuciones de este archivo son evidencia fechada; no volver a implementar el monitor por leer una propuesta anterior.
+
 Fecha: 20/10/2026. Implementación revisada en [PR #14](https://github.com/Vitolop1/RugbyNow/pull/14). La publicación se verifica aparte de la salud del origen.
 
 ## Lo que se comprobó
@@ -19,11 +21,11 @@ Fecha: 20/10/2026. Implementación revisada en [PR #14](https://github.com/Vitol
 - Artefacto de GitHub `live-source-health`, retención 14 días, con `run.json` y reportes por fuente. Un fallo de fuente/cobertura deja fallo de ejecución; los artefactos no son un sistema de alertas independiente ni detectan un trabajo que nunca arrancó.
 - Programación de vivo movida a minutos 2,7,12… para evitar el inicio de la hora. Esto reduce una causa posible de cola; no convierte GitHub Actions en un servicio en tiempo real.
 
-## Actualización recomendada, todavía no activada
+## Arquitectura propuesta y activación parcial
 
 1. Validar un proveedor estructurado autorizado para los torneos prioritarios: Pro D2, Top 14, URBA, selecciones y Super Rugby. API-Sports es un candidato porque su catálogo incluye Pro D2 y ya existe un adaptador de lectura; el catálogo no garantiza livescore, edición actual, rapidez, formaciones ni cobertura de cada partido. No hay una clave de evaluación configurada/comprobada en esta revisión. No se contrató ningún plan.
-2. Separar un actualizador ligero del sitio y de los imports generales. Primera versión: Worker de Cloudflare una vez por minuto durante la ventana de encuentros, con límites de llamadas, timeout, reintentos acotados y exclusión de pasadas simultáneas. El objetivo de recepción de 30–60 s depende de la frecuencia real de la fuente; si se necesita menos de un minuto, usar un proceso continuo o una arquitectura de alarmas, no afirmar que un cron de un minuto lo hace.
-3. Mapear IDs de proveedor, edición y equipos a IDs existentes antes de escribir. Actualizar atómicamente por versión/instante de observación para que una lectura anterior no pise una nueva. El frontend ya rechaza respaldos anteriores, pero eso no reemplaza el control de concurrencia en base ni una migración del importador general.
+2. Ya existe un Worker de Cloudflare por minuto en modo `shadow` (ver la sección del 21/10), con límites, timeout y reintentos. No crear otro. La propuesta pendiente es validar y promover un recolector que alimente resultados, separado del sitio y de los imports generales. El objetivo de recepción de 30–60 s depende de la frecuencia real de la fuente; si se necesita menos de un minuto, usar un proceso continuo o una arquitectura de alarmas, no afirmar que un cron de un minuto lo hace.
+3. Mapear IDs de proveedor, edición y equipos a IDs existentes antes de escribir. Actualizar atómicamente por versión/instante de observación para que una lectura anterior no pise una nueva. El control de escritura por observación ya está implementado en `conditionalMatchWrite.ts` y el frontend rechaza respaldos anteriores (ver auditoría ampliada). No reconstruirlos; falta comprobar el recorrido completo durante un encuentro real y cualquier promoción del monitor.
 4. Mantener el último marcador confirmado. Si pasan dos minutos sin recepción con la nueva fuente, mostrar demora y disparar aviso operativo desde un monitor independiente del actualizador. Fuente secundaria solo con equivalencias verificadas y trazabilidad; no mezclar campos de dos fuentes ni inventar minutos/finales.
 5. Dejar GitHub Actions para calendario, tablas, noticias y respaldos; no depender de él para latencia de segundos.
 
@@ -33,11 +35,11 @@ Observar al menos tres partidos reales, en más de una competición prioritaria,
 
 Las pruebas de parser/reconciliación pasan de forma aislada; no sustituyen observar un partido real ni garantizan disponibilidad permanente.
 
-## Fuentes oficiales consultadas
+## Fuentes consultadas en la auditoría (condiciones históricas)
 
 - GitHub: intervalo mínimo 5 minutos y posibles demoras: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax y https://docs.github.com/en/actions/how-tos/troubleshoot-workflows
 - Cloudflare: cron con resolución de minutos: https://developers.cloudflare.com/workers/configuration/cron-triggers/
-- API-Sports: catálogo de rugby y plan PRO publicado de 7.500 solicitudes/día a 15,00 en la modalidad mensual visible: https://api-sports.io/sports/rugby . Confirmar moneda, impuestos, condiciones y cobertura efectiva al contratar; no usar la frecuencia publicitaria general como garantía específica de rugby.
+- API-Sports: catálogo de rugby y plan PRO publicado de 7.500 solicitudes/día a 15,00 en la modalidad mensual visible: https://api-sports.io/sports/rugby . El importe es una referencia de esa consulta, no una cotización vigente. Confirmar moneda, impuestos, condiciones y cobertura efectiva antes de proponer contratación; no usar la frecuencia publicitaria general como garantía específica de rugby.
 
 ## Verificación de esta entrega
 

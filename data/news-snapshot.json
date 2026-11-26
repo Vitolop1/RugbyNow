@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-25T19:37:06.455Z",
+  "generatedAt": "2026-11-26T15:31:29.465Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/vuelve-el-seven-de-la-republica-copa-imperial/",
+      "title": "Vuelve el Seven de la República Copa Imperial",
+      "href": "https://uar.com.ar/vuelve-el-seven-de-la-republica-copa-imperial/",
+      "publishedAt": "2026-11-26T12:49:49.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/54954377064_8dbba35ee2_o.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/un-paso-mas-en-el-camino-a-rugby-world-cup-2035/",
       "title": "Un paso más en el camino a Rugby World Cup 2035",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/BANNER-DESKTOP-MOBILE-PUMAS-GALA-02-1.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
-      "title": "Los Pumas tienen su formación confirmada para enfrentar a Italia",
-      "href": "https://uar.com.ar/los-pumas-tienen-su-formacion-confirmada-para-enfrentar-a-italia/",
-      "publishedAt": "2026-11-12T11:46:36.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Ireland-v-Los-Pumas-Dublin-020.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-25T19:37:06.455Z",
+      "checkedAt": "2026-11-26T15:31:29.465Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-25T19:37:06.455Z",
+      "checkedAt": "2026-11-26T15:31:29.465Z",
       "count": 0
     }
   ]

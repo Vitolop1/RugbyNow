@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-26T15:31:34.793Z",
+  "generatedAt": "2026-11-26T17:20:23.860Z",
   "competitions": [
     {
       "id": 3,
@@ -36550,7 +36550,7 @@
       "points_against": 275,
       "points": 27,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:00.293+00:00"
+      "updated_at": "2026-11-26T17:19:06.235+00:00"
     },
     {
       "season_id": 33,
@@ -36564,7 +36564,7 @@
       "points_against": 375,
       "points": 12,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:00.293+00:00"
+      "updated_at": "2026-11-26T17:19:06.235+00:00"
     },
     {
       "season_id": 33,
@@ -36578,7 +36578,7 @@
       "points_against": 308,
       "points": 28,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:00.293+00:00"
+      "updated_at": "2026-11-26T17:19:06.235+00:00"
     },
     {
       "season_id": 33,
@@ -36592,7 +36592,7 @@
       "points_against": 300,
       "points": 20,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:00.293+00:00"
+      "updated_at": "2026-11-26T17:19:06.235+00:00"
     },
     {
       "season_id": 33,
@@ -36606,7 +36606,7 @@
       "points_against": 252,
       "points": 47,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:00.293+00:00"
+      "updated_at": "2026-11-26T17:19:06.235+00:00"
     },
     {
       "season_id": 33,
@@ -36620,7 +36620,7 @@
       "points_against": 290,
       "points": 16,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:00.293+00:00"
+      "updated_at": "2026-11-26T17:19:06.235+00:00"
     },
     {
       "season_id": 34,
@@ -36634,7 +36634,7 @@
       "points_against": 412,
       "points": 34,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36648,7 +36648,7 @@
       "points_against": 423,
       "points": 41,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36662,7 +36662,7 @@
       "points_against": 573,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36676,7 +36676,7 @@
       "points_against": 441,
       "points": 13,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36690,7 +36690,7 @@
       "points_against": 333,
       "points": 61,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36704,7 +36704,7 @@
       "points_against": 365,
       "points": 44,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36718,7 +36718,7 @@
       "points_against": 318,
       "points": 47,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 34,
@@ -36732,7 +36732,7 @@
       "points_against": 314,
       "points": 54,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.977+00:00"
+      "updated_at": "2026-11-26T17:18:48.243+00:00"
     },
     {
       "season_id": 35,
@@ -38090,7 +38090,7 @@
       "points_against": 608,
       "points": 86,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38104,7 +38104,7 @@
       "points_against": 844,
       "points": 51,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38118,7 +38118,7 @@
       "points_against": 995,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38132,7 +38132,7 @@
       "points_against": 620,
       "points": 90,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38146,7 +38146,7 @@
       "points_against": 680,
       "points": 89,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38160,7 +38160,7 @@
       "points_against": 781,
       "points": 69,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38174,7 +38174,7 @@
       "points_against": 826,
       "points": 42,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38188,7 +38188,7 @@
       "points_against": 983,
       "points": 43,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38202,7 +38202,7 @@
       "points_against": 1038,
       "points": 36,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38216,7 +38216,7 @@
       "points_against": 656,
       "points": 56,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38230,7 +38230,7 @@
       "points_against": 563,
       "points": 110,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38244,7 +38244,7 @@
       "points_against": 852,
       "points": 40,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38258,7 +38258,7 @@
       "points_against": 654,
       "points": 86,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 50,
@@ -38272,7 +38272,7 @@
       "points_against": 808,
       "points": 58,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:02.306+00:00"
+      "updated_at": "2026-11-26T17:19:03.705+00:00"
     },
     {
       "season_id": 51,
@@ -38286,7 +38286,7 @@
       "points_against": 209,
       "points": 32,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38300,7 +38300,7 @@
       "points_against": 262,
       "points": 31,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38314,7 +38314,7 @@
       "points_against": 207,
       "points": 27,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38328,7 +38328,7 @@
       "points_against": 168,
       "points": 27,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38342,7 +38342,7 @@
       "points_against": 241,
       "points": 19,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38356,7 +38356,7 @@
       "points_against": 197,
       "points": 26,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38370,7 +38370,7 @@
       "points_against": 260,
       "points": 14,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38384,7 +38384,7 @@
       "points_against": 254,
       "points": 16,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38398,7 +38398,7 @@
       "points_against": 281,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38412,7 +38412,7 @@
       "points_against": 221,
       "points": 22,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38426,7 +38426,7 @@
       "points_against": 286,
       "points": 20,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38440,7 +38440,7 @@
       "points_against": 275,
       "points": 24,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38454,7 +38454,7 @@
       "points_against": 325,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 51,
@@ -38468,7 +38468,7 @@
       "points_against": 264,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:53.915+00:00"
+      "updated_at": "2026-11-26T17:18:54.985+00:00"
     },
     {
       "season_id": 52,
@@ -38482,7 +38482,7 @@
       "points_against": 75,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38496,7 +38496,7 @@
       "points_against": 69,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38510,7 +38510,7 @@
       "points_against": 34,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38524,7 +38524,7 @@
       "points_against": 64,
       "points": 8,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38538,7 +38538,7 @@
       "points_against": 64,
       "points": 5,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38552,7 +38552,7 @@
       "points_against": 90,
       "points": 6,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38566,7 +38566,7 @@
       "points_against": 32,
       "points": 10,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38580,7 +38580,7 @@
       "points_against": 81,
       "points": 8,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38594,7 +38594,7 @@
       "points_against": 49,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 52,
@@ -38608,7 +38608,7 @@
       "points_against": 170,
       "points": 0,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:51.57+00:00"
+      "updated_at": "2026-11-26T17:18:58.728+00:00"
     },
     {
       "season_id": 54,
@@ -38622,7 +38622,7 @@
       "points_against": 128,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38636,7 +38636,7 @@
       "points_against": 157,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38650,7 +38650,7 @@
       "points_against": 152,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38664,7 +38664,7 @@
       "points_against": 113,
       "points": 20,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38678,7 +38678,7 @@
       "points_against": 164,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38692,7 +38692,7 @@
       "points_against": 109,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38706,7 +38706,7 @@
       "points_against": 130,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38720,7 +38720,7 @@
       "points_against": 159,
       "points": 8,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38734,7 +38734,7 @@
       "points_against": 95,
       "points": 16,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 54,
@@ -38748,7 +38748,7 @@
       "points_against": 173,
       "points": 15,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:46:47.559+00:00"
+      "updated_at": "2026-11-26T17:19:00.859+00:00"
     },
     {
       "season_id": 55,
@@ -38762,7 +38762,7 @@
       "points_against": 112,
       "points": 23,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38776,7 +38776,7 @@
       "points_against": 191,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38790,7 +38790,7 @@
       "points_against": 113,
       "points": 10,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38804,7 +38804,7 @@
       "points_against": 81,
       "points": 18,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38818,7 +38818,7 @@
       "points_against": 101,
       "points": 21,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38832,7 +38832,7 @@
       "points_against": 107,
       "points": 19,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38846,7 +38846,7 @@
       "points_against": 95,
       "points": 19,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38860,7 +38860,7 @@
       "points_against": 106,
       "points": 21,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38874,7 +38874,7 @@
       "points_against": 147,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38888,7 +38888,7 @@
       "points_against": 160,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38902,7 +38902,7 @@
       "points_against": 128,
       "points": 14,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38916,7 +38916,7 @@
       "points_against": 104,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38930,7 +38930,7 @@
       "points_against": 199,
       "points": 2,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38944,7 +38944,7 @@
       "points_against": 161,
       "points": 10,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38958,7 +38958,7 @@
       "points_against": 107,
       "points": 14,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 55,
@@ -38972,7 +38972,7 @@
       "points_against": 162,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:07.863+00:00"
+      "updated_at": "2026-11-26T17:19:03.261+00:00"
     },
     {
       "season_id": 62,
@@ -38986,7 +38986,7 @@
       "points_against": 340,
       "points": 29,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39000,7 +39000,7 @@
       "points_against": 270,
       "points": 31,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39014,7 +39014,7 @@
       "points_against": 271,
       "points": 34,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39028,7 +39028,7 @@
       "points_against": 327,
       "points": 28,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39042,7 +39042,7 @@
       "points_against": 267,
       "points": 26,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39056,7 +39056,7 @@
       "points_against": 360,
       "points": 9,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39070,7 +39070,7 @@
       "points_against": 300,
       "points": 25,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39084,7 +39084,7 @@
       "points_against": 391,
       "points": 11,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39098,7 +39098,7 @@
       "points_against": 326,
       "points": 31,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39112,7 +39112,7 @@
       "points_against": 316,
       "points": 23,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39126,7 +39126,7 @@
       "points_against": 415,
       "points": 16,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39140,7 +39140,7 @@
       "points_against": 324,
       "points": 21,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39154,7 +39154,7 @@
       "points_against": 241,
       "points": 41,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39168,7 +39168,7 @@
       "points_against": 412,
       "points": 25,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39182,7 +39182,7 @@
       "points_against": 245,
       "points": 42,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     },
     {
       "season_id": 62,
@@ -39196,7 +39196,7 @@
       "points_against": 294,
       "points": 27,
       "source": "flashscore",
-      "updated_at": "2026-11-26T03:47:03.855+00:00"
+      "updated_at": "2026-11-26T17:19:16.594+00:00"
     }
   ]
 }

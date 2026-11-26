@@ -1,5 +1,15 @@
 # Continuación de RugbyNOW — 21/10/2026 UTC
 
+## Agenda completa al entrar — preparado para revisión
+
+Rama `codex/agenda-first-home`, base `84b1b19`; sin merge ni despliegue. El sitio público ya usa el mismo componente en `/` y `/agenda`: comparación interactiva del 17/10 devuelve los mismos 40 IDs, sin límite de vista previa. La jerarquía mostraba publicidad y dos destacados antes de fechas/listado. En el día actual no había partidos cargados; “Ver agenda” cambiaba a una fecha futura y omitía de las sugerencias los dos destacados, por lo que podía saltarse el próximo día disponible.
+
+Se conserva la implementación compartida. Título compacto, barra de fechas con Hoy y controles de 44 px, agenda completa primero; sugerencias solo en el estado vacío, luego Destacados contraído y la misma unidad publicitaria horizontal. Rail conservado. El acceso a próximos indica la fecha y no excluye encuentros destacados. Hoy sigue la zona elegida y el cambio de día; una fecha explícita/manual permanece fija. No se modificaron resultados, importadores, fuentes, IDs publicitarios, Analytics ni el algoritmo editorial pendiente del PR21.
+
+Verificación: 84 pruebas, TypeScript y build Next correctos. HTTP del build: ambos recorridos contienen 40 encuentros en el HTML inicial, títulos distintos y canonical `/`; `/agenda` sale del sitemap para listar la URL canónica sin romper la ruta. Navegador real: portada pública directa, paridad de rutas y comparación local; flechas, Hoy, búsqueda/favoritos y recarga; selección de fecha por teclado, 29/2/2028→1/3; Hoy en Auckland pasa al día 22 mientras Argentina está en 21, y una fecha manual no cambia al elegir otra zona. ES/EN/FR/IT conservados. Destacados permanece abierto al refrescar y comienza cerrado al entrar. Cuarenta filas en móvil y escritorio; sin desbordamiento a 375 y 305 px CSS (francés en la segunda), controles de 44 px, cero imágenes rotas observadas y sin errores/warnings de consola en la navegación local revisada. Capturas y evidencia SSR fuera del repo, en `research/agenda-home-2026-10-21/`.
+
+Límites: local usa el respaldo versionado sin copiar secretos; no valida una escritura LIVE ni entrega real de anuncios. Se comprueba orden de unidades después del listado y se conservan sus identificadores; no se afirma fill/ingresos. La nueva jerarquía no está publicada y requiere aprobar el PR. Los PR21/22 de Destacados/fechas siguen abiertos: esta corrección comparte archivos con ellos y reutiliza los mismos helpers previstos de `agendaNavigation`, sin fusionar ramas; revisar esos solapamientos al integrar. Los pendientes de datos y vivo pertenecen a sus PR separados.
+
 ## Base y alcance
 
 Base main 50f8bd9, original eff631a con cambios del dueño preservada. Rama `codex/coverage-live-continuation`. Se retoman los cinco pendientes del dueño. Sin reparaciones masivas en Supabase ni traslado de entornos.

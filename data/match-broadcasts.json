@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-27T15:19:31.296Z",
+  "updatedAt": "2026-11-27T23:45:59.416Z",
   "listings": [
     {
       "id": "lnr-12068-fr",
@@ -825,7 +825,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12098-brive-biarritz",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
+      "checkedAt": "2026-11-27T23:45:58.134Z"
     },
     {
       "id": "lnr-12100-fr",
@@ -833,44 +833,14 @@
       "season": "2026-2027",
       "home": "Dax",
       "away": "Oyonnax",
-      "startsAt": "2026-11-27T18:00:00.000Z",
+      "startsAt": "2026-11-27T18:02:18.000Z",
       "country": "FR",
       "providerIds": [
         "canal-plus-sport-360"
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12100-dax-oyonnax",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
-    },
-    {
-      "id": "lnr-12095-fr",
-      "competitionSlug": "fr-pro-d2",
-      "season": "2026-2027",
-      "home": "Agen",
-      "away": "Beziers",
-      "startsAt": "2026-11-27T18:30:00.000Z",
-      "country": "FR",
-      "providerIds": [
-        "canal-plus-live"
-      ],
-      "sourceName": "Ligue Nationale de Rugby",
-      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12095-agen-beziers",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
-    },
-    {
-      "id": "lnr-12097-fr",
-      "competitionSlug": "fr-pro-d2",
-      "season": "2026-2027",
-      "home": "Soyaux Angouleme",
-      "away": "Nice",
-      "startsAt": "2026-11-27T18:30:00.000Z",
-      "country": "FR",
-      "providerIds": [
-        "canal-plus-live"
-      ],
-      "sourceName": "Ligue Nationale de Rugby",
-      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12097-angouleme-nice",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
+      "checkedAt": "2026-11-27T23:45:58.134Z"
     },
     {
       "id": "lnr-12099-fr",
@@ -878,14 +848,29 @@
       "season": "2026-2027",
       "home": "Colomiers",
       "away": "Nevers",
-      "startsAt": "2026-11-27T18:30:00.000Z",
+      "startsAt": "2026-11-27T18:31:08.000Z",
       "country": "FR",
       "providerIds": [
         "canal-plus-live"
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12099-colomiers-nevers",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
+      "checkedAt": "2026-11-27T23:45:58.134Z"
+    },
+    {
+      "id": "lnr-12095-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Agen",
+      "away": "Beziers",
+      "startsAt": "2026-11-27T18:31:53.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12095-agen-beziers",
+      "checkedAt": "2026-11-27T23:45:58.134Z"
     },
     {
       "id": "lnr-12102-fr",
@@ -893,14 +878,29 @@
       "season": "2026-2027",
       "home": "Valence Romans",
       "away": "Aurillac",
-      "startsAt": "2026-11-27T18:30:00.000Z",
+      "startsAt": "2026-11-27T18:31:56.000Z",
       "country": "FR",
       "providerIds": [
         "canal-plus-live"
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12102-valence-romans-aurillac",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
+      "checkedAt": "2026-11-27T23:45:58.134Z"
+    },
+    {
+      "id": "lnr-12097-fr",
+      "competitionSlug": "fr-pro-d2",
+      "season": "2026-2027",
+      "home": "Soyaux Angouleme",
+      "away": "Nice",
+      "startsAt": "2026-11-27T18:31:57.000Z",
+      "country": "FR",
+      "providerIds": [
+        "canal-plus-live"
+      ],
+      "sourceName": "Ligue Nationale de Rugby",
+      "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12097-angouleme-nice",
+      "checkedAt": "2026-11-27T23:45:58.134Z"
     },
     {
       "id": "lnr-12096-fr",
@@ -908,14 +908,14 @@
       "season": "2026-2027",
       "home": "Provence Rugby",
       "away": "Montauban",
-      "startsAt": "2026-11-27T20:00:00.000Z",
+      "startsAt": "2026-11-27T20:01:35.000Z",
       "country": "FR",
       "providerIds": [
         "canal-plus-sport-360"
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12096-provence-rugby-montauban",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
+      "checkedAt": "2026-11-27T23:45:58.134Z"
     },
     {
       "id": "lnr-12101-fr",
@@ -923,7 +923,7 @@
       "season": "2026-2027",
       "home": "Narbonne",
       "away": "Grenoble",
-      "startsAt": "2026-11-27T20:00:00.000Z",
+      "startsAt": "2026-11-27T20:02:55.000Z",
       "country": "FR",
       "providerIds": [
         "canal-plus-live",
@@ -931,7 +931,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12101-narbonne-grenoble",
-      "checkedAt": "2026-11-27T15:19:30.134Z"
+      "checkedAt": "2026-11-27T23:45:58.134Z"
     },
     {
       "id": "lnr-11883-fr",
@@ -946,7 +946,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11883-bordeaux-begles-montpellier",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     },
     {
       "id": "lnr-11882-fr",
@@ -962,7 +962,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11882-bayonne-castres",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     },
     {
       "id": "lnr-11885-fr",
@@ -978,7 +978,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11885-la-rochelle-perpignan",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     },
     {
       "id": "lnr-11887-fr",
@@ -994,7 +994,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11887-paris-vannes",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     },
     {
       "id": "lnr-11888-fr",
@@ -1010,7 +1010,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11888-racing-92-pau",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     },
     {
       "id": "lnr-11886-fr",
@@ -1026,7 +1026,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11886-lyon-toulouse",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     },
     {
       "id": "lnr-11884-fr",
@@ -1041,7 +1041,7 @@
       ],
       "sourceName": "Ligue Nationale de Rugby",
       "sourceUrl": "https://top14.lnr.fr/feuille-de-match/2026-2027/j10/11884-clermont-toulon",
-      "checkedAt": "2026-11-27T15:19:31.296Z"
+      "checkedAt": "2026-11-27T23:45:59.416Z"
     }
   ]
 }

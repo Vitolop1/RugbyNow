@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-27T15:19:00.852Z",
+  "checkedAt": "2026-11-27T23:45:12.547Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -1245,7 +1245,7 @@
       "home": "Agen",
       "away": "Beziers",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12095-agen-beziers"
@@ -1259,7 +1259,7 @@
       "home": "Provence Rugby",
       "away": "Montauban",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12096-provence-rugby-montauban"
@@ -1273,7 +1273,7 @@
       "home": "Soyaux Angouleme",
       "away": "Nice",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12097-angouleme-nice"
@@ -1301,7 +1301,7 @@
       "home": "Colomiers",
       "away": "Nevers",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12099-colomiers-nevers"
@@ -1315,7 +1315,7 @@
       "home": "Dax",
       "away": "Oyonnax",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T18:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12100-dax-oyonnax"
@@ -1329,7 +1329,7 @@
       "home": "Narbonne",
       "away": "Grenoble",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12101-narbonne-grenoble"
@@ -1343,7 +1343,7 @@
       "home": "Valence Romans",
       "away": "Aurillac",
       "date": "2026-11-27",
-      "startsAt": "2026-11-27T18:30:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-27",
       "windowTo": "2026-11-27",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12102-valence-romans-aurillac"

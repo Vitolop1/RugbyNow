@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-26T17:20:19.086Z",
+  "generatedAt": "2026-11-27T01:57:49.647Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/la-uar-presenta-el-calendario-de-competencias-para-la-temporada-2027/",
+      "title": "La UAR presenta el calendario de competencias para la temporada 2027",
+      "href": "https://uar.com.ar/la-uar-presenta-el-calendario-de-competencias-para-la-temporada-2027/",
+      "publishedAt": "2026-11-26T20:13:27.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/UAR_PM1245_BCKG-BLUE-e1771514140450.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/vuelve-el-seven-de-la-republica-copa-imperial/",
       "title": "Vuelve el Seven de la República Copa Imperial",
@@ -110,16 +120,6 @@
       "sourceName": "Unión Argentina de Rugby",
       "language": "es",
       "image": "https://uar.com.ar/wp-content/uploads/Italia-v-Los-Pumas-Genova-043.jpg"
-    },
-    {
-      "id": "uar:https://uar.com.ar/los-pumas-y-le-coq-sportif-homenajean-a-los-heroes-del-86/",
-      "title": "Los Pumas y Le Coq Sportif homenajean a los Héroes del 86’",
-      "href": "https://uar.com.ar/los-pumas-y-le-coq-sportif-homenajean-a-los-heroes-del-86/",
-      "publishedAt": "2026-11-14T11:32:41.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/BANNER-DESKTOP-MOBILE-PUMAS-GALA-02-1.jpg"
     },
     {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
@@ -246,13 +246,13 @@
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-26T17:20:19.086Z",
+      "checkedAt": "2026-11-27T01:57:49.647Z",
       "count": 12
     },
     {
       "sourceId": "espn",
       "ok": false,
-      "checkedAt": "2026-11-26T17:20:19.086Z",
+      "checkedAt": "2026-11-27T01:57:49.647Z",
       "count": 0
     }
   ]

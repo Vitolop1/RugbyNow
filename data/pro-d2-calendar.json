@@ -2,7 +2,7 @@
   "sourceName": "LNR · Pro D2",
   "sourceUrl": "https://prod2.lnr.fr/calendrier-et-resultats",
   "season": "2026/2027",
-  "checkedAt": "2026-11-26T17:19:58.087Z",
+  "checkedAt": "2026-11-27T01:57:18.018Z",
   "fixtures": [
     {
       "sourceId": 12007,
@@ -1287,7 +1287,7 @@
       "home": "Brive",
       "away": "Biarritz",
       "date": "2026-11-26",
-      "startsAt": "2026-11-26T20:00:00.000Z",
+      "startsAt": null,
       "windowFrom": "2026-11-26",
       "windowTo": "2026-11-26",
       "sourceUrl": "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12098-brive-biarritz"

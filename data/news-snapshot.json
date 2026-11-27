@@ -1,6 +1,16 @@
 {
-  "generatedAt": "2026-11-27T01:57:49.647Z",
+  "generatedAt": "2026-11-27T13:08:07.210Z",
   "items": [
+    {
+      "id": "uar:https://uar.com.ar/los-pumas-cerraran-el-ano-ante-escocia-en-twickenham/",
+      "title": "Los Pumas cerrarán el año ante Escocia en Twickenham",
+      "href": "https://uar.com.ar/los-pumas-cerraran-el-ano-ante-escocia-en-twickenham/",
+      "publishedAt": "2026-11-27T09:46:13.000Z",
+      "sourceId": "uar",
+      "sourceName": "Unión Argentina de Rugby",
+      "language": "es",
+      "image": "https://uar.com.ar/wp-content/uploads/Albornoz-3.jpg"
+    },
     {
       "id": "uar:https://uar.com.ar/la-uar-presenta-el-calendario-de-competencias-para-la-temporada-2027/",
       "title": "La UAR presenta el calendario de competencias para la temporada 2027",
@@ -112,148 +122,138 @@
       "image": "https://uar.com.ar/wp-content/uploads/urba-1.jpeg"
     },
     {
-      "id": "uar:https://uar.com.ar/los-pumas-vencieron-a-italia-en-genova/",
-      "title": "Los Pumas vencieron a Italia en Génova",
-      "href": "https://uar.com.ar/los-pumas-vencieron-a-italia-en-genova/",
-      "publishedAt": "2026-11-14T13:46:21.000Z",
-      "sourceId": "uar",
-      "sourceName": "Unión Argentina de Rugby",
-      "language": "es",
-      "image": "https://uar.com.ar/wp-content/uploads/Italia-v-Los-Pumas-Genova-043.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
-      "title": "Springboks coach Erasmus suspended for 'match-fixing' comments",
-      "href": "https://www.espn.com/rugby/story/_/id/50511561/springboks-rassie-erasmus-suspended",
-      "publishedAt": "2026-11-23T12:04:18.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1116%2Fr1746816_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
-      "title": "Nations Championship power rankings: England rise, South Africa, New Zealand tumble",
-      "href": "https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
-      "publishedAt": "2026-11-23T11:31:56.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1028%2Fr1737504_1296x729_16%2D9.jpg"
-    },
-    {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50550740/england-nations-championships-rugby-new-zealand-win",
-      "title": "England, inspired by Moody, pull off one of their greatest performances to stun New Zealand",
-      "href": "https://www.espn.com/rugby/story/_/id/50550740/england-nations-championships-rugby-new-zealand-win",
-      "publishedAt": "2026-11-23T11:31:56.000Z",
-      "sourceId": "espn",
-      "sourceName": "ESPN Scrum",
-      "language": "en",
-      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749117_1296x729_16%2D9.jpg"
-    },
-    {
       "id": "espn:https://www.espn.com/rugby/story/_/id/50571196/nations-championship-rugby-england-australia-new-zealand",
       "title": "Nations Championship reaction: England go back to the future, New Zealand under huge pressure",
       "href": "https://www.espn.com/rugby/story/_/id/50571196/nations-championship-rugby-england-australia-new-zealand",
-      "publishedAt": "2026-11-23T11:02:43.000Z",
+      "publishedAt": "2026-11-27T10:47:40.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
       "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1123%2Fr1750074_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50567640/new-zealand-rugby-graham-henry-give-full-support-underfire-all-blacks-coachdave-rennie",
-      "title": "NZR, Graham Henry give 'full support' to underfire Dave Rennie",
-      "href": "https://www.espn.com/rugby/story/_/id/50567640/new-zealand-rugby-graham-henry-give-full-support-underfire-all-blacks-coachdave-rennie",
-      "publishedAt": "2026-11-23T01:01:18.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
+      "title": "Nations Championship power rankings: England rise, South Africa, New Zealand tumble",
+      "href": "https://www.espn.com/rugby/story/_/id/50306622/nations-championship-2026-rugby-power-rankings-england-south-africa-new-zealand-australia",
+      "publishedAt": "2026-11-27T10:47:40.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1119%2Fr1748069_1296x729_16%2D9.jpg"
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1028%2Fr1737504_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50555371/wallabies-attack-zip-defensive-starch-beat-wales",
-      "title": "Wallabies find some attacking zip, set Suaalii free in win over Wales",
-      "href": "https://www.espn.com/rugby/story/_/id/50555371/wallabies-attack-zip-defensive-starch-beat-wales",
-      "publishedAt": "2026-11-22T21:41:37.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50604003/nations-championship-final-weekend-rugby",
+      "title": "Empty seats, Rassie Erasmus and repeat fixtures: Can the Nations Championship finals deliver?",
+      "href": "https://www.espn.com/rugby/story/_/id/50604003/nations-championship-final-weekend-rugby",
+      "publishedAt": "2026-11-27T08:34:36.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749287_1296x729_16%2D9.jpg"
+      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1126%2Fr1751612_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50555554/france-argentina-nations-championship",
-      "title": "France score seven tries vs. Argentina to book Nations Championship final ticket",
-      "href": "https://www.espn.com/rugby/story/_/id/50555554/france-argentina-nations-championship",
-      "publishedAt": "2026-11-21T23:48:32.000Z",
+      "id": "espn:https://www.espn.com/espn/story/_/id/50590503/south-africa-france-nations-championship-final-kick-how-watch",
+      "title": "South Africa vs. France - Springboks and Les Bleus chase Nations Championship title",
+      "href": "https://www.espn.com/espn/story/_/id/50590503/south-africa-france-nations-championship-final-kick-how-watch",
+      "publishedAt": "2026-11-27T06:14:41.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749302_1296x729_16%2D9.jpg"
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F0902%2Fr1710194_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50555230/wales-australia-nations-championship",
-      "title": "Wales brought back to earth by narrow Nations Championship defeat to Australia",
-      "href": "https://www.espn.com/rugby/story/_/id/50555230/wales-australia-nations-championship",
-      "publishedAt": "2026-11-21T23:23:42.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50606483/james-ramm-wallabies-debut-lesson-persistence",
+      "title": "Twenty-eight-year-old Wallaby debutant Ramm a lesson in persistence",
+      "href": "https://www.espn.com/rugby/story/_/id/50606483/james-ramm-wallabies-debut-lesson-persistence",
+      "publishedAt": "2026-11-26T22:23:20.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749274_1296x729_16%2D9.jpg"
+      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1126%2Fr1751808_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
-      "title": "International rugby fixtures: Latest matches, key dates, venues",
-      "href": "https://www.espn.com/rugby/story/_/id/42131438/international-men-rugby-fixtures-latest-matches-key-dates-venues",
-      "publishedAt": "2026-11-21T22:31:13.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50605278/jordie-barrett-captain-all-blacks",
+      "title": "Jordie Barrett to become third brother to captain All Blacks for England clash",
+      "href": "https://www.espn.com/rugby/story/_/id/50605278/jordie-barrett-captain-all-blacks",
+      "publishedAt": "2026-11-26T19:15:36.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2024%2F1101%2Fr1409058_1296x729_16%2D9.jpg"
+      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1126%2Fr1751740_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50553563/south-africa-rugby-rassie-erasmus-nations-championship",
-      "title": "South Africa coaching staff deny any Erasmus contact during Ireland defeat",
-      "href": "https://www.espn.com/rugby/story/_/id/50553563/south-africa-rugby-rassie-erasmus-nations-championship",
-      "publishedAt": "2026-11-21T21:06:12.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50597703/springboks-all-blacks-series-fatigue-test-rugby",
+      "title": "Shifting landscape? Why we can't overlook All Blacks-Boks series in November chaos",
+      "href": "https://www.espn.com/rugby/story/_/id/50597703/springboks-all-blacks-series-fatigue-test-rugby",
+      "publishedAt": "2026-11-26T00:37:33.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749144_1296x729_16%2D9.jpg"
+      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1125%2Fr1751337_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50551990/ireland-claim-statement-20-17-win-south-africa",
-      "title": "Ireland get statement 20-17 win over South Africa",
-      "href": "https://www.espn.com/rugby/story/_/id/50551990/ireland-claim-statement-20-17-win-south-africa",
-      "publishedAt": "2026-11-21T21:05:37.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50593923/england-changes-all-blacks-rugby",
+      "title": "England make five changes for All Blacks Nations Championship rematch",
+      "href": "https://www.espn.com/rugby/story/_/id/50593923/england-changes-all-blacks-rugby",
+      "publishedAt": "2026-11-25T16:04:31.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749067_1296x729_16%2D9.jpg"
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1125%2Fr1751123_1296x729_16%2D9.jpg"
     },
     {
-      "id": "espn:https://www.espn.com/rugby/story/_/id/50551503/lewis-moody-england-new-zealand-maro-itoje",
-      "title": "Itoje: Moody's presence gave England 'extra lift' in New Zealand win",
-      "href": "https://www.espn.com/rugby/story/_/id/50551503/lewis-moody-england-new-zealand-maro-itoje",
-      "publishedAt": "2026-11-21T19:07:21.000Z",
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50591165/beauden-barrett-bristol-all-blacks-signing",
+      "title": "Sources: Bristol near stunning coup for All Blacks star Beauden Barrett",
+      "href": "https://www.espn.com/rugby/story/_/id/50591165/beauden-barrett-bristol-all-blacks-signing",
+      "publishedAt": "2026-11-25T09:28:03.000Z",
       "sourceId": "espn",
       "sourceName": "ESPN Scrum",
       "language": "en",
-      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1121%2Fr1749047_1296x729_16%2D9.jpg"
+      "image": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F1114%2Fr1575411_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50586213/joseph-aukuso-suaalii-chris-ashton-wallabies",
+      "title": "Suaalii on Ashton's critique: 'Don't even know who that is'",
+      "href": "https://www.espn.com/rugby/story/_/id/50586213/joseph-aukuso-suaalii-chris-ashton-wallabies",
+      "publishedAt": "2026-11-25T03:19:56.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1124%2Fr1750795_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50574974/nations-championships-finals-italy-fiji-ireland-australia",
+      "title": "Opening night of Nations Championships finals set to be half-empty",
+      "href": "https://www.espn.com/rugby/story/_/id/50574974/nations-championships-finals-italy-fiji-ireland-australia",
+      "publishedAt": "2026-11-23T18:21:03.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a1.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1123%2Fr1750245_1296x729_16%2D9.jpg"
+    },
+    {
+      "id": "espn:https://www.espn.com/rugby/story/_/id/50571759/lewis-moody-exclusive-mnd-haka-england-family",
+      "title": "Lewis Moody on life with MND: Behind the emotional haka, a father's fight to make every day count",
+      "href": "https://www.espn.com/rugby/story/_/id/50571759/lewis-moody-exclusive-mnd-haka-england-family",
+      "publishedAt": "2026-11-23T15:00:35.000Z",
+      "sourceId": "espn",
+      "sourceName": "ESPN Scrum",
+      "language": "en",
+      "image": "https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F1123%2Fr1750103_1296x729_16%2D9.jpg"
     }
   ],
   "feeds": [
     {
       "sourceId": "uar",
       "ok": true,
-      "checkedAt": "2026-11-27T01:57:49.647Z",
+      "checkedAt": "2026-11-27T13:08:07.210Z",
       "count": 12
     },
     {
       "sourceId": "espn",
-      "ok": false,
-      "checkedAt": "2026-11-27T01:57:49.647Z",
-      "count": 0
+      "ok": true,
+      "checkedAt": "2026-11-27T13:08:07.210Z",
+      "count": 12
     }
   ]
 }
